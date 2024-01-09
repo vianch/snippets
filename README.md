@@ -1,2 +1,3 @@
 # snippets
-Snippets platform to save pieces of code 
+
+Snippets platform to save pieces of code
