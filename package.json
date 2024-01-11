@@ -16,6 +16,8 @@
 		"lint": "npm run lint:style && npm run lint:formatting && npm run lint:next"
 	},
 	"dependencies": {
+		"@supabase/ssr": "^0.0.10",
+		"@supabase/supabase-js": "^2.39.2",
 		"next": "^14.0.4",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
