@@ -10,15 +10,16 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint:style": "eslint -c .eslintrc.js  --fix ./",
+		"lint:code-style": "eslint -c .eslintrc.js  --fix ./",
+		"lint:style": "stylelint \"**/*.css\" --fix",
 		"lint:formatting": "prettier --write .",
 		"lint:next": "next lint",
-		"lint": "npm run lint:style && npm run lint:formatting && npm run lint:next"
+		"lint": "npm run lint:code-style && npm run lint:style && npm run lint:formatting && npm run lint:next"
 	},
 	"dependencies": {
 		"@supabase/ssr": "^0.0.10",
 		"@supabase/supabase-js": "^2.39.2",
-		"next": "^14.0.4",
+		"next": "^14.1.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
@@ -29,12 +30,15 @@
 		"@typescript-eslint/eslint-plugin": "^6.18.1",
 		"eslint": "^7.32.0 || ^8.2.0",
 		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-config-airbnb-typescript": "^17.1.0",
 		"eslint-config-next": "14.0.4",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.25.2",
 		"eslint-plugin-prettier": "^5.1.2",
 		"husky": "^8.0.3",
 		"prettier": "^3.1.1",
+		"stylelint": "^16.2.1",
+		"stylelint-config-standard": "^36.0.0",
 		"typescript": "^5"
 	}
 }

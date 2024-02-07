@@ -1,0 +1,7 @@
+.snippetsListContainer {
+	width: 100%;
+	background: var(--bg-color-dark);
+	max-width: 23.75rem;
+	border-right: 1px solid var(--border-color);
+	height: 100vh;
+}

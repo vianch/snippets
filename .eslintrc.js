@@ -1,3 +1,4 @@
+/** @type {import('@types/eslint').Linter.BaseConfig} */
 module.exports = {
 	env: {
 		browser: true,
@@ -8,6 +9,7 @@ module.exports = {
 	plugins: ["@typescript-eslint", "prettier", "react"],
 	extends: [
 		"airbnb-base",
+		"airbnb-typescript",
 		"eslint:recommended",
 		"prettier",
 		"plugin:@next/next/recommended",
@@ -22,15 +24,14 @@ module.exports = {
 			env: {
 				node: true,
 			},
-			files: [".eslintrc.{js,cjs,ts,tsx}"],
+			files: ["*.ts", "*.tsx"],
 			parserOptions: {
 				sourceType: "script",
 			},
 		},
 	],
 	parserOptions: {
-		ecmaVersion: "latest",
-		sourceType: "module",
+		project: "./tsconfig.json",
 	},
 	rules: {
 		"prettier/prettier": "error",

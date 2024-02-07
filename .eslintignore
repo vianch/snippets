@@ -5,3 +5,5 @@ dist
 .dist
 package-lock.json
 yarn.lock
+.eslintrc.js
+next.config.js

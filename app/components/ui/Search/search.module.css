@@ -1,0 +1,39 @@
+.inputContainer {
+	display: flex;
+	flex-flow: row nowrap;
+	width: calc(100% - 1.25rem);
+	box-sizing: border-box;
+	position: relative;
+	margin: 0.625rem;
+	border-radius: var(--border-radius);
+	border: 0.063rem solid var(--border-color);
+	padding: 0.313rem;
+	align-items: center;
+}
+
+.iconContainer {
+	padding: 0 0.625rem;
+}
+
+.searchIcon {
+	fill: currentcolor;
+	color: var(--gray-color);
+}
+
+.searchInput {
+	z-index: 1;
+	display: block;
+	appearance: none;
+	background: none;
+	background-color: transparent;
+	-webkit-tap-highlight-color: transparent;
+	border: none;
+	outline: none;
+	width: 100%;
+	color: var(--foreground-color);
+}
+
+.searchInput::placeholder {
+	color: var(--gray-color);
+	opacity: 1; /* Firefox */
+}
