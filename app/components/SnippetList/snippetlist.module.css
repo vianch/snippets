@@ -5,3 +5,37 @@
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
 }
+
+.button {
+	margin: 0.313rem 0.7rem;
+	width: calc(100% - 1.4rem);
+}
+
+.snippetsList {
+	padding: 0.938rem;
+	display: flex;
+	flex-direction: column;
+}
+
+.snippetItem {
+	color: var(--gray-color);
+	cursor: pointer;
+	display: flex;
+	width: calc(100% - 1.25rem);
+	align-items: center;
+	border-bottom: 1px solid var(--border-color);
+	padding: 0.625rem;
+	justify-content: space-between;
+	font-size: var(--small-font-size);
+	border-radius: var(--border-radius);
+}
+
+.snippetItem.active {
+	color: var(--foreground-color);
+	background: var(--current-line);
+}
+
+.snippetDate {
+	color: var(--comment-color);
+	font-size: var(--tiny-font-size);
+}

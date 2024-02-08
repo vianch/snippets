@@ -1,0 +1,19 @@
+.button {
+	background: transparent;
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius);
+	color: var(--foreground-color);
+	padding: 10px 32px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: var(--small-font-size);
+	margin: 4px 2px;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+
+.button:hover {
+	background-color: var(--gray-color);
+	color: var(--bg-color-dark);
+}

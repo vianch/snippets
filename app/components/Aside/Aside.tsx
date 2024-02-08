@@ -22,9 +22,6 @@ const Aside = ({ menuItems }: AsideProps): ReactElement => {
 	return (
 		<aside className={styles.container}>
 			<section className={styles.section}>
-				<button className={styles.button}>New Snippet</button>
-			</section>
-			<section className={styles.section}>
 				<h2 className={`${styles.title} green-color`}>
 					<img
 						alt="eye"

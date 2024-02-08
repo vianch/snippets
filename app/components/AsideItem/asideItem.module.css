@@ -5,12 +5,13 @@
 	cursor: pointer;
 	transition: background-color 0.3s;
 	color: var(--gray-color);
+	font-size: var(--small-font-size);
 }
 
 .icon {
 	fill: currentcolor;
-	width: 1.5rem;
-	height: 1.5rem;
+	width: 1rem;
+	height: 1rem;
 	color: var(--cyan-color);
 	margin-right: 0.625rem;
 }

@@ -147,6 +147,7 @@ table {
 	--big-font-size: 1.25rem;
 	--normal-font-size: 1rem;
 	--small-font-size: 0.875rem;
+	--tiny-font-size: 0.75rem;
 
 	/* Breakpoints */
 	--phone: 576px;
