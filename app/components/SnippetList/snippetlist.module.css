@@ -39,3 +39,11 @@
 	color: var(--comment-color);
 	font-size: var(--tiny-font-size);
 }
+
+@media (width <= 768px) {
+	.snippetsListContainer {
+		width: 100%;
+		max-width: inherit;
+		height: auto;
+	}
+}

@@ -9,3 +9,10 @@
 	display: flex;
 	flex-flow: row nowrap;
 }
+
+@media (width < 768px) {
+	.mainContent {
+		flex-flow: column nowrap;
+		width: calc(100% - 32rem);
+	}
+}
