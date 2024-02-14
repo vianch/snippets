@@ -1,0 +1,60 @@
+.selectContainer {
+	position: relative;
+	font-size: var(--tiny-font-size);
+}
+
+.hideList {
+	visibility: hidden;
+	height: 0;
+}
+
+.showList {
+	visibility: visible;
+	height: auto;
+}
+
+.infoBarContainer {
+	position: absolute;
+	right: 1.5625rem;
+	top: 0.625rem;
+	z-index: 2;
+	background: var(--bg-color-dark);
+	height: 1.5625rem;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: center;
+	align-items: center;
+	padding: 0.313rem 0.625rem;
+	cursor: pointer;
+	border-radius: 0.3125rem;
+	width: 6rem;
+	color: var(--orange-color);
+}
+
+.selectWindow {
+	position: absolute;
+	right: 1.5625rem;
+	top: 3.15rem;
+	background: var(--bg-color-dark);
+	border-radius: 0.3125rem;
+	z-index: 3;
+	width: 6rem;
+	padding: 0.5rem 0.625rem;
+	transition:
+		visibility 0s,
+		height 0.5s ease-in-out;
+}
+
+.selectItem {
+	color: var(--gray-color);
+	padding: 0.313rem 0.625rem;
+	cursor: pointer;
+}
+
+.selectItem:hover {
+	color: var(--cyan-color);
+}
+
+.caret {
+	margin-left: 0.3125rem;
+}

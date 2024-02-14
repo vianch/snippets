@@ -1,3 +1,5 @@
+import SupportedLanguages from "@/lib/config/languages";
+
 const snippetListFixture: Snippet[] = [
 	{
 		id: "1",
@@ -7,6 +9,7 @@ const snippetListFixture: Snippet[] = [
 		name: "Sample Snippet",
 		url: "https://www.example.com/snippet/1",
 		notes: "This is a sample code snippet.",
+		language: SupportedLanguages.JavaScript,
 		snippet: `class ProductCategoryRow extends React.Component {
   render() {
     const category = this.props.category;
@@ -123,6 +126,7 @@ ReactDOM.render(
 		name: "Sample Snippet number 2",
 		url: "https://www.example.com/snippet/1",
 		notes: "This is a sample code snippet.",
+		language: SupportedLanguages.JavaScript,
 		snippet: "console.log('Hello, World!');",
 		tags: [],
 	},
@@ -135,6 +139,7 @@ ReactDOM.render(
 		name: "Terminal commands for Git",
 		url: "https://www.example.com/snippet/1",
 		notes: "This is a sample code snippet.",
+		language: SupportedLanguages.JavaScript,
 		snippet: "console.log('Hello, World!');",
 		tags: [],
 	},

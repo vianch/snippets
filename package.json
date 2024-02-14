@@ -17,7 +17,18 @@
 		"lint": "npm run lint:code-style && npm run lint:style && npm run lint:formatting && npm run lint:next"
 	},
 	"dependencies": {
+		"@codemirror/lang-css": "^6.2.1",
+		"@codemirror/lang-html": "^6.4.8",
+		"@codemirror/lang-java": "^6.0.1",
 		"@codemirror/lang-javascript": "^6.2.1",
+		"@codemirror/lang-json": "^6.0.1",
+		"@codemirror/lang-markdown": "^6.2.4",
+		"@codemirror/lang-php": "^6.0.1",
+		"@codemirror/lang-python": "^6.1.4",
+		"@codemirror/lang-rust": "^6.0.1",
+		"@codemirror/lang-sql": "^6.5.5",
+		"@codemirror/lang-yaml": "^6.0.0",
+		"@codemirror/language": "^6.10.1",
 		"@supabase/ssr": "^0.0.10",
 		"@supabase/supabase-js": "^2.39.2",
 		"@uiw/codemirror-theme-dracula": "^4.21.21",
