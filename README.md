@@ -6,3 +6,4 @@ Snippets platform to save pieces of code
 
 - icons: https://phosphoricons.com/
 - code editor: https://codemirror.net/
+-  vercel: https://vercel.com/
