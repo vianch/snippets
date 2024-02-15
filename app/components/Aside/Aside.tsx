@@ -1,7 +1,14 @@
-import { ReactElement } from "react";
+"use client";
+
+import { MouseEvent, ReactElement } from "react";
+import { useRouter } from "next/navigation";
 
 /* Components */
 import AsideItem from "@/components/AsideItem/AsideItem";
+import SignOut from "@/components/ui/icons/SignOut";
+
+/* Lib */
+import supabase from "@/lib/supabase/client";
 
 /* Styles */
 import styles from "./aside.module.css";
@@ -18,6 +25,18 @@ type AsideProps = {
 
 const Aside = ({ menuItems }: AsideProps): ReactElement => {
 	const { favorites, folders, tags } = menuItems || {};
+	const router = useRouter();
+
+	const signOut = async (
+		event: MouseEvent<HTMLAnchorElement>
+	): Promise<void> => {
+		event.preventDefault();
+		const { error } = await supabase.auth.signOut();
+
+		if (!error) {
+			router.push("/");
+		}
+	};
 
 	return (
 		<aside className={styles.container}>
@@ -73,14 +92,10 @@ const Aside = ({ menuItems }: AsideProps): ReactElement => {
 					/>
 					User
 				</a>
-				<a className={styles.settingsItems}>
-					<img
-						alt="disk"
-						className={styles.icon}
-						src="/assets/images/icons/disk-board.png"
-						height="32"
-					/>
-					Settings
+
+				<a className={styles.settingsItems} onClick={signOut}>
+					<SignOut className={styles.signOutIcon} width={24} height={24} />
+					Log out
 				</a>
 			</section>
 		</aside>

@@ -43,12 +43,18 @@
 	transition:
 		visibility 0s,
 		height 0.5s ease-in-out;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 
 .selectItem {
 	color: var(--gray-color);
 	padding: 0.313rem 0.625rem;
 	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 
 .selectItem:hover {

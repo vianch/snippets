@@ -183,6 +183,18 @@ body {
 	color: var(--yellow-color);
 }
 
+.gradient-background {
+	color: var(--foreground-color);
+	background-image: linear-gradient(
+		to right top,
+		#282a36,
+		#2f313f,
+		#363848,
+		#3d4051,
+		#44475a
+	);
+}
+
 @media (prefers-color-scheme: dark) {
 	html {
 		color-scheme: dark;

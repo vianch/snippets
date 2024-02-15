@@ -2,8 +2,9 @@
 
 import { MouseEvent, ReactElement, useState, useMemo } from "react";
 
-import Search from "@/components/ui/Search/Search";
+import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
+import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
 
 /* Utils */
 import formatDateToDDMMYYYY from "../../utils/date.utils";
@@ -36,7 +37,17 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 
 	return (
 		<aside className={styles.snippetsListContainer}>
-			<Search />
+			<Input
+				placeholder="Search..."
+				value=""
+				Icon={
+					<MagnifyingGlass
+						className={styles.searchIcon}
+						height="18"
+						width="18"
+					/>
+				}
+			/>
 
 			<Button className={styles.button} variant="primary">
 				New snippet

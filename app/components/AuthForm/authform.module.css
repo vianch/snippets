@@ -1,0 +1,10 @@
+.form {
+	width: 70%;
+}
+
+.button {
+	margin: 0.313rem 0.7rem;
+	width: calc(100% - 1.4rem);
+	background-color: var(--bg-color-dark);
+	color: var(--gray-color);
+}

@@ -40,6 +40,11 @@
 	font-size: var(--tiny-font-size);
 }
 
+.searchIcon {
+	fill: currentcolor;
+	color: var(--gray-color);
+}
+
 @media (width <= 768px) {
 	.snippetsListContainer {
 		width: 100%;

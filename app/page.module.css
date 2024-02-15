@@ -1,19 +1,31 @@
 .main {
 	display: flex;
-	flex-flow: row nowrap;
-	height: 100%;
+	flex-flow: column nowrap;
+	height: 100vh;
 	min-height: 35rem;
+	width: 100%;
+	align-items: center;
 }
 
-.mainContent {
-	flex: 1;
+.loginContainer {
+	margin-top: 8rem;
+	width: 100%;
+	max-width: 30rem;
 	display: flex;
-	flex-flow: row nowrap;
+	flex-flow: column nowrap;
+	justify-content: center;
+	align-items: center;
 }
 
-@media (width < 768px) {
-	.mainContent {
-		flex-flow: column nowrap;
-		width: calc(100% - 32rem);
-	}
+.logo {
+	width: 8rem;
+	height: 8rem;
+	margin-bottom: 1.875rem;
+}
+
+.title {
+	font-size: var(--normal-font-size);
+	color: var(--foreground-color);
+	margin-bottom: 0.625rem;
+	text-align: center;
 }
