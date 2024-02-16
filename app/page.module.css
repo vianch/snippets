@@ -8,7 +8,7 @@
 }
 
 .loginContainer {
-	margin-top: 8rem;
+	padding: 8rem 1rem 0;
 	width: 100%;
 	max-width: 30rem;
 	display: flex;

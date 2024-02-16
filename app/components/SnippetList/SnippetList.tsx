@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactElement, useState, useMemo } from "react";
+import { MouseEvent, ReactElement, useState, useMemo, useEffect } from "react";
 
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
@@ -22,7 +22,7 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 	const formattedDates = useMemo(
 		(): string[] =>
 			snippets.map((snippet: Snippet) =>
-				formatDateToDDMMYYYY(snippet.createdAt)
+				formatDateToDDMMYYYY(snippet.created_at)
 			),
 		[snippets]
 	);
@@ -34,6 +34,12 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 		event.preventDefault();
 		setActiveSnippet(snippetId);
 	};
+
+	useEffect(() => {
+		if (snippets?.length > 0) {
+			setActiveSnippet(snippets[0].snippet_id);
+		}
+	}, [snippets]);
 
 	return (
 		<aside className={styles.snippetsListContainer}>
@@ -56,11 +62,11 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 			<ul className={styles.snippetsList}>
 				{snippets.map((snippet, index) => (
 					<li
-						className={`${styles.snippetItem} ${activeSnippet === snippet.id ? styles.active : ""}`}
-						key={snippet.id}
-						onClick={(event) => snippetClickHandler(event, snippet.id)}
+						className={`${styles.snippetItem} ${activeSnippet === snippet.snippet_id ? styles.active : ""}`}
+						key={snippet.snippet_id}
+						onClick={(event) => snippetClickHandler(event, snippet.snippet_id)}
 					>
-						{snippet.name}
+						{snippet?.name ?? ""}
 						<span className={styles.snippetDate}>{formattedDates[index]}</span>
 					</li>
 				))}

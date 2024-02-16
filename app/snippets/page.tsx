@@ -1,4 +1,6 @@
-import { ReactElement } from "react";
+"use client";
+
+import { ReactElement, useEffect, useState } from "react";
 
 /* Components */
 import Aside from "@/components/Aside/Aside";
@@ -7,19 +9,43 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 
 /* Lib */
 import defaultMenuItems from "@/lib/config/aside";
-import snippetListFixture from "@/lib/fixtures/snippetList";
+import supabase from "@/lib/supabase/client";
 
 /* Styles */
+
 import styles from "./snippets.module.css";
 
 export default function Page(): ReactElement {
+	const [snippets, setSnippets] = useState<Snippet[]>([]);
+
+	const getSnippets = async (): Promise<void> => {
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+
+		if (user?.id) {
+			const { data } = await supabase
+				.from("snippet")
+				.select()
+				.eq("user_id", user.id);
+
+			setSnippets(data as Snippet[]);
+		}
+	};
+
+	useEffect(() => {
+		if (supabase) {
+			getSnippets().then(() => null);
+		}
+	}, [supabase]);
+
 	return (
 		<>
 			<Aside menuItems={defaultMenuItems} />
 
 			<section className={styles.mainContent}>
-				<SnippetList snippets={snippetListFixture} />
-				<CodeEditor snippet={snippetListFixture[0]} />
+				<SnippetList snippets={snippets} />
+				{snippets?.length > 0 && <CodeEditor snippet={snippets[0]} />}
 			</section>
 		</>
 	);

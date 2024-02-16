@@ -44,16 +44,12 @@
 		visibility 0s,
 		height 0.5s ease-in-out;
 	user-select: none;
-	user-select: none;
-	user-select: none;
 }
 
 .selectItem {
 	color: var(--gray-color);
 	padding: 0.313rem 0.625rem;
 	cursor: pointer;
-	user-select: none;
-	user-select: none;
 	user-select: none;
 }
 

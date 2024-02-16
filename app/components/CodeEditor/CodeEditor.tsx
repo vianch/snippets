@@ -14,7 +14,7 @@ import Select from "@/components/ui/Select/Select";
 import styles from "./codeEditor.module.css";
 
 type CodeEditorProps = {
-	snippet: Snippet;
+	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
 };
 

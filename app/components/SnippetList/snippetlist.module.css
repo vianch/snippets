@@ -12,7 +12,7 @@
 }
 
 .snippetsList {
-	padding: 0.938rem;
+	margin: 0.656rem 0.7rem;
 	display: flex;
 	flex-direction: column;
 }
