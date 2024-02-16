@@ -37,7 +37,7 @@ export default function Page(): ReactElement {
 		if (supabase) {
 			getSnippets().then(() => null);
 		}
-	}, [supabase]);
+	}, []);
 
 	return (
 		<>
