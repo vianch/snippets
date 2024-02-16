@@ -2,6 +2,7 @@ export enum FormMessageTypes {
 	Error = "error",
 	Success = "success",
 	Warning = "warning",
+	Info = "info",
 	Unset = "unset",
 }
 

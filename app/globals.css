@@ -137,12 +137,21 @@ table {
 	--current-line: #44475a;
 	--comment-color: #6272a4;
 	--cyan-color: #8be9fd;
+	--blue-color: #4693d2;
 	--green-color: #50fa7b;
+	--dark-green-color: #284423;
 	--gray-color: #9c9cab;
 	--purple-color: #bd93f9;
 	--yellow-color: #f1fa8c;
 	--orange-color: #ffb86c;
+	--dark-orange-color: #e38137;
+	--red-color: #f55;
+	--dark-red-color: #ca5347;
 	--foreground-color: #f8f8f2;
+	--success-color: #eff7ee;
+	--error-color: #fbeeed;
+	--warning-color: #fef4e6;
+	--info-color: #e8f6fd;
 
 	/* Font sizes */
 	--big-font-size: 1.25rem;

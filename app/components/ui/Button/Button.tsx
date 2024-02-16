@@ -12,14 +12,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = ({
 	children,
-	className,
-	variant,
+	className = "",
+	variant = "primary",
 	onClick,
 	...props
 }: ButtonProps): ReactElement => {
 	return (
 		<button
-			className={`${styles.button} ${className}`}
+			className={`${styles.button} ${variant === "primary" ? styles.primary : styles.secondary} ${className}`}
 			{...props}
 			onClick={onClick}
 		>

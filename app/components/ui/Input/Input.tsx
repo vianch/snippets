@@ -8,7 +8,6 @@ const Input = ({
 	dark = true,
 	type = "text",
 	placeholder = "",
-	value,
 	required = false,
 	maxLength = 50,
 	Icon = null,
@@ -24,7 +23,6 @@ const Input = ({
 				className={`${styles.input} ${dark ? styles.inputDark : styles.inputLight} ${className}`}
 				type={type}
 				placeholder={placeholder}
-				value={value}
 				required={required}
 				maxLength={maxLength}
 				onChange={onChange}

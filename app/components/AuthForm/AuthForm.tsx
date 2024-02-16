@@ -1,6 +1,12 @@
 "use client";
 
-import { ReactElement, useState, FormEvent, ChangeEvent } from "react";
+import {
+	ReactElement,
+	useState,
+	FormEvent,
+	ChangeEvent,
+	useEffect,
+} from "react";
 import { useRouter } from "next/navigation";
 
 /* Lib */
@@ -9,9 +15,13 @@ import supabase from "@/lib/supabase/client";
 
 /* Components */
 import Input from "@/components/ui/Input/Input";
+import Button from "@/components/ui/Button/Button";
+import Loading from "@/components/ui/icons/Loading";
+import Envelope from "@/components/ui/icons/Envelope";
+import Lock from "@/components/ui/icons/Lock";
 
 /* Styles */
-import Button from "@/components/ui/Button/Button";
+import Alert from "@/components/ui/Alert/Alert";
 import styles from "./authform.module.css";
 
 const AuthForm = (): ReactElement => {
@@ -40,14 +50,13 @@ const AuthForm = (): ReactElement => {
 			password: formData.password,
 		});
 
-		setLoading(false);
-
 		if (error) {
 			setFormData({
 				...formData,
 				text: error?.message ?? "something went wrong!, try again later",
 				type: FormMessageTypes.Error,
 			});
+			setLoading(false);
 		} else {
 			setFormData({
 				...formData,
@@ -69,7 +78,10 @@ const AuthForm = (): ReactElement => {
 			...formData,
 			[fieldType]: value,
 			...(isValid
-				? {}
+				? {
+						text: "",
+						type: FormMessageTypes.Unset,
+					}
 				: {
 						text: `Invalid ${fieldType}`,
 						type: FormMessageTypes.Warning,
@@ -77,13 +89,24 @@ const AuthForm = (): ReactElement => {
 		});
 	};
 
+	useEffect(() => {
+		return () => {
+			setLoading(false);
+		};
+	}, []);
+
 	return (
 		<form className={styles.form} onSubmit={handleLogin}>
+			{formData.type !== FormMessageTypes.Unset && (
+				<Alert severity={formData.type}>{formData.text}</Alert>
+			)}
+
 			<Input
 				className="inputField"
 				dark={false}
 				type="email"
-				placeholder="Your email"
+				placeholder="Email"
+				Icon={<Envelope width={24} height={24} />}
 				value={formData.email}
 				required={true}
 				onChange={handleInputChange}
@@ -93,23 +116,16 @@ const AuthForm = (): ReactElement => {
 				className="inputField"
 				dark={false}
 				type="password"
-				placeholder="Your Password"
+				placeholder="Password"
+				Icon={<Lock width={24} height={24} />}
 				value={formData.password}
 				required={true}
 				onChange={(event) => handleInputChange(event, "password")}
 			/>
 
-			<Button className={styles.button} disabled={loading}>
-				{loading ? <span>Loading</span> : <span>Log in</span>}
+			<Button disabled={loading} variant="secondary">
+				{loading ? <Loading width={24} height={24} /> : <span>Log in</span>}
 			</Button>
-
-			{formData.type === FormMessageTypes.Error && (
-				<div className={`formMessage formMessageError`}>{formData.text}</div>
-			)}
-
-			{formData.type === FormMessageTypes.Warning && (
-				<div className={`formMessage formMessageError`}>{formData.text}</div>
-			)}
 		</form>
 	);
 };
