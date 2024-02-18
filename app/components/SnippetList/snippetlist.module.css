@@ -24,9 +24,30 @@
 }
 
 .snippetsList {
-	margin: 0.656rem 0.7rem;
 	display: flex;
 	flex-direction: column;
+	height: calc(100vh - 80px);
+	padding: 10px 10px 0;
+	overflow-y: auto;
+}
+
+.snippetsList::-webkit-scrollbar {
+	width: 10px;
+}
+
+/* Track */
+.snippetsList::-webkit-scrollbar-track {
+	background: var(--bg-color);
+}
+
+/* Handle */
+.snippetsList::-webkit-scrollbar-thumb {
+	background: var(--current-line);
+}
+
+/* Handle on hover */
+.snippetsList::-webkit-scrollbar-thumb:hover {
+	background: var(--current-line);
 }
 
 .snippetItem {
@@ -40,6 +61,7 @@
 	justify-content: space-between;
 	font-size: var(--small-font-size);
 	border-radius: var(--border-radius);
+	transition: all 0.3s ease;
 }
 
 .snippetItem.active {

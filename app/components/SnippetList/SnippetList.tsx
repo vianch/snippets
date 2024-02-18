@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactElement, useState, useMemo, useEffect } from "react";
+import { MouseEvent, ReactElement, useMemo } from "react";
 
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
@@ -8,18 +8,25 @@ import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
 import Plus from "@/components/ui/icons/Plus";
 
 /* Utils */
-import formatDateToDDMMYYYY from "../../utils/date.utils";
+import { setNewSnippet } from "@/lib/supabase/queries";
+import formatDateToDDMMYYYY from "@/utils/date.utils";
 
 /* Styles */
 import styles from "./snippetlist.module.css";
 
 type SnippetListProps = {
 	snippets?: Snippet[];
+	activeSnippetIndex: number;
+	onActiveSnippet: (index: number) => void;
+	onNewSnippet: (newSnippet: Snippet) => void;
 };
 
-const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
-	const [activeSnippet, setActiveSnippet] = useState<string | null>(null);
-
+const SnippetList = ({
+	snippets = [],
+	activeSnippetIndex,
+	onNewSnippet,
+	onActiveSnippet,
+}: SnippetListProps): ReactElement => {
 	const formattedDates = useMemo(
 		(): string[] =>
 			snippets.map((snippet: Snippet) =>
@@ -30,17 +37,19 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 
 	const snippetClickHandler = (
 		event: MouseEvent<HTMLLIElement>,
-		snippetId: string
+		snippetId: number
 	): void => {
 		event.preventDefault();
-		setActiveSnippet(snippetId);
+		onActiveSnippet(snippetId);
 	};
 
-	useEffect(() => {
-		if (snippets?.length > 0) {
-			setActiveSnippet(snippets[0].snippet_id);
+	const newSnippetHandler = async (): Promise<void> => {
+		const newSnippet = await setNewSnippet();
+
+		if (newSnippet) {
+			onNewSnippet(newSnippet);
 		}
-	}, [snippets]);
+	};
 
 	return (
 		<aside className={styles.snippetsListContainer}>
@@ -57,7 +66,11 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 					}
 				/>
 
-				<Button className={styles.addButton} variant="secondary">
+				<Button
+					className={styles.addButton}
+					variant="secondary"
+					onClick={newSnippetHandler}
+				>
 					<Plus width="18" height="18" />
 				</Button>
 			</div>
@@ -65,9 +78,9 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 			<ul className={styles.snippetsList}>
 				{snippets.map((snippet, index) => (
 					<li
-						className={`${styles.snippetItem} ${activeSnippet === snippet.snippet_id ? styles.active : ""}`}
+						className={`${styles.snippetItem} ${activeSnippetIndex === index ? styles.active : ""}`}
 						key={snippet.snippet_id}
-						onClick={(event) => snippetClickHandler(event, snippet.snippet_id)}
+						onClick={(event) => snippetClickHandler(event, index)}
 					>
 						{snippet?.name ?? ""}
 						<span className={styles.snippetDate}>{formattedDates[index]}</span>

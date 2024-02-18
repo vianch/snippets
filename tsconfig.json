@@ -26,7 +26,8 @@
 			"@/components/*": ["app/components/*"],
 			"@/models/*": ["app/models/*"],
 			"@/services/*": ["app/services/*"],
-			"@/lib/*": ["app/lib/*"]
+			"@/lib/*": ["app/lib/*"],
+			"@/utils/*": ["app/utils/*"]
 		},
 		"typeRoots": ["./types", "node_modules/@types"],
 		"types": ["node"]

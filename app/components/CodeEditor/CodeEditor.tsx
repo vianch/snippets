@@ -6,7 +6,6 @@ import { draculaInit } from "@uiw/codemirror-theme-dracula";
 
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
-import { saveSnippet } from "@/lib/supabase/queries";
 
 import Select from "@/components/ui/Select/Select";
 import Button from "@/components/ui/Button/Button";
@@ -19,27 +18,56 @@ import styles from "./codeEditor.module.css";
 type CodeEditorProps = {
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
-	onSave?: null | (() => void);
+	isSaving?: boolean;
+	onSave: (currentSnippet: CurrentSnippet) => void;
 };
 
 const CodeEditor = ({
 	snippet,
 	defaultLanguage = SupportedLanguages.JavaScript,
-	onSave = null,
+	isSaving = false,
+	onSave,
 }: CodeEditorProps): ReactElement => {
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
 		...({} as Snippet),
 		snippet: "",
 		language: defaultLanguage,
 		extension: languageExtensions[defaultLanguage],
-		isSaving: false,
+		touched: false,
 	});
+	const codeMirrorOptions = {
+		lineNumbers: true,
+		highlightActiveLineGutter: true,
+		highlightSpecialChars: true,
+		history: true,
+		foldGutter: false,
+		drawSelection: true,
+		dropCursor: false,
+		allowMultipleSelections: false,
+		indentOnInput: true,
+		syntaxHighlighting: true,
+		bracketMatching: true,
+		closeBrackets: true,
+		autocompletion: true,
+		rectangularSelection: true,
+		highlightActiveLine: true,
+		highlightSelectionMatches: true,
+		closeBracketsKeymap: true,
+		defaultKeymap: true,
+		searchKeymap: false,
+		historyKeymap: true,
+		foldKeymap: true,
+		completionKeymap: true,
+		lintKeymap: true,
+		tabSize: 2,
+	};
 
 	const setLanguageExtension = (newLanguage: SupportedLanguages): void => {
 		setCurrentSnippet({
 			...currentSnippet,
 			language: newLanguage,
 			extension: languageExtensions[newLanguage],
+			touched: true,
 		});
 	};
 
@@ -53,18 +81,8 @@ const CodeEditor = ({
 		setCurrentSnippet({
 			...currentSnippet,
 			snippet: value ?? "",
+			touched: true,
 		});
-	};
-
-	const saveSnippetHandler = async (): Promise<void> => {
-		if (snippet?.snippet_id) {
-			setCurrentSnippet({ ...currentSnippet, isSaving: true });
-			await saveSnippet(currentSnippet, onSave);
-
-			setTimeout(() => {
-				setCurrentSnippet({ ...currentSnippet, isSaving: false });
-			}, 1000);
-		}
 	};
 
 	const draculaTheme = useMemo(
@@ -86,7 +104,11 @@ const CodeEditor = ({
 
 	useEffect(() => {
 		if (snippet) {
-			setCurrentSnippet({ ...currentSnippet, ...snippet });
+			if (currentSnippet.touched) {
+				onSave(currentSnippet);
+			}
+
+			setCurrentSnippet({ ...currentSnippet, ...snippet, touched: false });
 		}
 	}, [snippet]);
 
@@ -102,9 +124,9 @@ const CodeEditor = ({
 				<Button
 					className={styles.button}
 					variant="secondary"
-					onClick={saveSnippetHandler}
+					onClick={() => onSave(currentSnippet)}
 				>
-					{currentSnippet.isSaving ? (
+					{isSaving ? (
 						<Loading className={styles.icon} width={16} height={16} />
 					) : (
 						<Floppy className={styles.icon} width={16} height={16} />
@@ -114,34 +136,9 @@ const CodeEditor = ({
 			</div>
 
 			<CodeMirror
-				autoFocus
-				basicSetup={{
-					lineNumbers: true,
-					highlightActiveLineGutter: true,
-					highlightSpecialChars: true,
-					history: true,
-					foldGutter: true,
-					drawSelection: true,
-					dropCursor: true,
-					allowMultipleSelections: true,
-					indentOnInput: true,
-					syntaxHighlighting: true,
-					bracketMatching: true,
-					closeBrackets: true,
-					autocompletion: true,
-					rectangularSelection: true,
-					crosshairCursor: true,
-					highlightActiveLine: true,
-					highlightSelectionMatches: true,
-					closeBracketsKeymap: true,
-					defaultKeymap: true,
-					searchKeymap: false,
-					historyKeymap: true,
-					foldKeymap: true,
-					completionKeymap: true,
-					lintKeymap: true,
-					tabSize: 2,
-				}}
+				autoFocus={false}
+				indentWithTab={true}
+				basicSetup={codeMirrorOptions}
 				placeholder={"Write your snipped here"}
 				className={styles.codeMirrorContainer}
 				value={snippet?.snippet ?? ""}

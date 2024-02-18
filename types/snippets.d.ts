@@ -20,7 +20,7 @@ declare global {
 
 	interface CurrentSnippet extends Snippet {
 		extension: LanguageSupport;
-		isSaving: boolean;
+		touched: boolean;
 	}
 
 	type LanguageExtensions = {
