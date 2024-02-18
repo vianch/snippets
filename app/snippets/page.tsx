@@ -9,7 +9,7 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 
 /* Lib */
 import defaultMenuItems from "@/lib/config/aside";
-import supabase from "@/lib/supabase/client";
+import { getAllSnippets } from "@/lib/supabase/queries";
 
 /* Styles */
 
@@ -19,24 +19,13 @@ export default function Page(): ReactElement {
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
 
 	const getSnippets = async (): Promise<void> => {
-		const {
-			data: { user },
-		} = await supabase.auth.getUser();
+		const data = await getAllSnippets();
 
-		if (user?.id) {
-			const { data } = await supabase
-				.from("snippet")
-				.select()
-				.eq("user_id", user.id);
-
-			setSnippets(data as Snippet[]);
-		}
+		setSnippets(data);
 	};
 
 	useEffect(() => {
-		if (supabase) {
-			getSnippets().then(() => null);
-		}
+		getSnippets().then(() => null);
 	}, []);
 
 	return (
@@ -45,7 +34,10 @@ export default function Page(): ReactElement {
 
 			<section className={styles.mainContent}>
 				<SnippetList snippets={snippets} />
-				{snippets?.length > 0 && <CodeEditor snippet={snippets[0]} />}
+				<CodeEditor
+					snippet={snippets?.length > 0 ? snippets[0] : null}
+					onSave={getSnippets}
+				/>
 			</section>
 		</>
 	);

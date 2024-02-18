@@ -204,6 +204,10 @@ body {
 	);
 }
 
+.ͼ1 .cm-panel.cm-search {
+	background-color: var(--bg-color-dark);
+}
+
 @media (prefers-color-scheme: dark) {
 	html {
 		color-scheme: dark;

@@ -14,12 +14,9 @@
 }
 
 .infoBarContainer {
-	position: absolute;
-	right: 1.5625rem;
-	top: 0.625rem;
 	z-index: 2;
-	background: var(--bg-color-dark);
-	height: 1.5625rem;
+	background: var(--current-line);
+	height: 0.938rem;
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: center;
@@ -33,9 +30,8 @@
 
 .selectWindow {
 	position: absolute;
-	right: 1.5625rem;
-	top: 3.15rem;
-	background: var(--bg-color-dark);
+	top: 2rem;
+	background: var(--current-line);
 	border-radius: 0.3125rem;
 	z-index: 3;
 	width: 6rem;
@@ -54,6 +50,10 @@
 }
 
 .selectItem:hover {
+	color: var(--cyan-color);
+}
+
+.active {
 	color: var(--cyan-color);
 }
 

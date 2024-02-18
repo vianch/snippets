@@ -5,6 +5,7 @@ import { MouseEvent, ReactElement, useState, useMemo, useEffect } from "react";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
+import Plus from "@/components/ui/icons/Plus";
 
 /* Utils */
 import formatDateToDDMMYYYY from "../../utils/date.utils";
@@ -22,7 +23,7 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 	const formattedDates = useMemo(
 		(): string[] =>
 			snippets.map((snippet: Snippet) =>
-				formatDateToDDMMYYYY(snippet.created_at)
+				formatDateToDDMMYYYY(snippet.updated_at ?? "")
 			),
 		[snippets]
 	);
@@ -43,21 +44,23 @@ const SnippetList = ({ snippets = [] }: SnippetListProps): ReactElement => {
 
 	return (
 		<aside className={styles.snippetsListContainer}>
-			<Input
-				placeholder="Search..."
-				value=""
-				Icon={
-					<MagnifyingGlass
-						className={styles.searchIcon}
-						height="18"
-						width="18"
-					/>
-				}
-			/>
+			<div className={styles.fields}>
+				<Input
+					placeholder="Search..."
+					value=""
+					Icon={
+						<MagnifyingGlass
+							className={styles.searchIcon}
+							height="18"
+							width="18"
+						/>
+					}
+				/>
 
-			<Button className={styles.button} variant="primary">
-				New snippet
-			</Button>
+				<Button className={styles.addButton} variant="secondary">
+					<Plus width="18" height="18" />
+				</Button>
+			</div>
 
 			<ul className={styles.snippetsList}>
 				{snippets.map((snippet, index) => (

@@ -6,9 +6,21 @@
 	height: 100vh;
 }
 
-.button {
-	margin: 0.313rem 0.7rem;
-	width: calc(100% - 1.4rem);
+.fields {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.addButton {
+	margin: 0 0.625rem 0 0;
+	width: 50px;
+	padding: 0 0.938rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 2.813rem;
 }
 
 .snippetsList {

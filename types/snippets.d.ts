@@ -18,6 +18,11 @@ declare global {
 		tags?: Tags;
 	}
 
+	interface CurrentSnippet extends Snippet {
+		extension: LanguageSupport;
+		isSaving: boolean;
+	}
+
 	type LanguageExtensions = {
 		[key: SupportedLanguages | string]: LanguageSupport;
 	};

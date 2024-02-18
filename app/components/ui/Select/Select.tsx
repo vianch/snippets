@@ -1,4 +1,4 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState, useRef } from "react";
 
 import CaretDown from "@/components/ui/icons/CaretDown";
 
@@ -13,11 +13,31 @@ type SelectProps = {
 
 const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
 	const [isOpen, setIsOpen] = useState(false);
+	const selectWindowRef = useRef<HTMLInputElement>(null);
 
 	const selectItemHandler = (item: string): void => {
 		onSelect(item);
 		setIsOpen(false);
 	};
+
+	const handleClickOutside = (event: MouseEvent) => {
+		event?.preventDefault();
+
+		if (
+			selectWindowRef.current &&
+			!selectWindowRef.current?.contains(event?.target as Node)
+		) {
+			setIsOpen(false);
+		}
+	};
+
+	useEffect(() => {
+		document.addEventListener("mousedown", handleClickOutside);
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
 	return (
 		<div className={styles.selectContainer}>
@@ -30,10 +50,11 @@ const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
 
 			<div
 				className={`${styles.selectWindow} ${isOpen ? styles.showList : styles.hideList}`}
+				ref={selectWindowRef}
 			>
 				{items.map((item) => (
 					<div
-						className={styles.selectItem}
+						className={`${item === value && styles.active} ${styles.selectItem}`}
 						key={item}
 						onClick={() => selectItemHandler(item)}
 					>

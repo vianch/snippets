@@ -35,6 +35,7 @@ module.exports = {
 	},
 	rules: {
 		"prettier/prettier": "error",
+		"react-hooks/exhaustive-deps": "off",
 		"no-console": "error",
 		"@next/next/no-img-element": "off",
 		"@next/next/next-script-for-ga": "off",

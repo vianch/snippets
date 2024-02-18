@@ -123,7 +123,7 @@ const AuthForm = (): ReactElement => {
 				onChange={(event) => handleInputChange(event, "password")}
 			/>
 
-			<Button disabled={loading} variant="secondary">
+			<Button className={styles.button} disabled={loading} variant="secondary">
 				{loading ? <Loading width={24} height={24} /> : <span>Log in</span>}
 			</Button>
 		</form>
