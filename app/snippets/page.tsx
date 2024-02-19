@@ -131,11 +131,20 @@ export default function Page(): ReactElement {
 	};
 
 	const getTrashHandler = async (): Promise<void> => {
-		await getSnippets("inactive");
-		setCodedEditorStates({
-			...codeEditorStates,
-			menu: "trash",
-		});
+		if (codeEditorStates.menu !== "trash") {
+			await getSnippets("inactive");
+			setCodedEditorStates({
+				...codeEditorStates,
+				menu: "trash",
+				activeSnippetIndex: 0,
+			});
+		}
+	};
+
+	const getSnippetsHandler = async (): Promise<void> => {
+		if (codeEditorStates.menu !== "all") {
+			await getSnippets();
+		}
 	};
 
 	const trashRestoreSnippetHandler = async (
@@ -175,7 +184,7 @@ export default function Page(): ReactElement {
 			<Aside
 				menuItems={defaultMenuItems}
 				menuType={codeEditorStates.menu}
-				onGetAll={() => getSnippets()}
+				onGetAll={getSnippetsHandler}
 				onTrash={getTrashHandler}
 			/>
 
@@ -196,6 +205,7 @@ export default function Page(): ReactElement {
 							? snippets[codeEditorStates.activeSnippetIndex]
 							: null
 					}
+					menuType={codeEditorStates.menu}
 					isSaving={codeEditorStates.isSaving}
 					onSave={saveSnippetHandler}
 					touched={codeEditorStates.touched}

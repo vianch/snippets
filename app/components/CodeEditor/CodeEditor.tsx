@@ -18,6 +18,7 @@ import styles from "./codeEditor.module.css";
 type CodeEditorProps = {
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
+	menuType: MenuItemType;
 	isSaving?: boolean;
 	touched?: boolean;
 	onSave: (currentSnippet: CurrentSnippet, fromButton: boolean) => void;
@@ -26,6 +27,7 @@ type CodeEditorProps = {
 
 const CodeEditor = ({
 	snippet,
+	menuType,
 	defaultLanguage = SupportedLanguages.JavaScript,
 	isSaving = false,
 	touched = false,
@@ -109,7 +111,7 @@ const CodeEditor = ({
 
 	useEffect(() => {
 		if (snippet) {
-			if (touched) {
+			if (touched && menuType !== "trash" && !isSaving) {
 				onSave(currentSnippet, false);
 			}
 
@@ -129,39 +131,44 @@ const CodeEditor = ({
 		>
 			{snippet && (
 				<>
-					<div className={styles.header}>
-						<Select
-							value={currentSnippet.language}
-							items={Object.keys(languageExtensions)}
-							onSelect={setLanguageHandler}
-						/>
+					{menuType !== "trash" && (
+						<div className={styles.header}>
+							<Select
+								value={currentSnippet.language}
+								items={Object.keys(languageExtensions)}
+								onSelect={setLanguageHandler}
+							/>
 
-						<Button
-							className={styles.button}
-							variant="secondary"
-							disabled={isSaving}
-							onClick={() => onSave(currentSnippet, true)}
-						>
-							{isSaving ? (
-								<Loading className={styles.icon} width={16} height={16} />
-							) : (
-								<Floppy className={styles.icon} width={16} height={16} />
-							)}{" "}
-							Save
-						</Button>
-					</div>
+							<Button
+								className={styles.button}
+								variant="secondary"
+								disabled={isSaving}
+								onClick={() => onSave(currentSnippet, true)}
+							>
+								{isSaving ? (
+									<Loading className={styles.icon} width={16} height={16} />
+								) : (
+									<Floppy className={styles.icon} width={16} height={16} />
+								)}{" "}
+								Save
+							</Button>
+						</div>
+					)}
 
 					<CodeMirror
 						autoFocus={false}
 						indentWithTab={true}
-						basicSetup={codeMirrorOptions}
+						basicSetup={
+							menuType === "trash" ? { lineNumbers: true } : codeMirrorOptions
+						}
 						placeholder={"Write your snipped here"}
 						className={styles.codeMirrorContainer}
 						value={snippet?.snippet ?? ""}
 						extensions={[currentSnippet.extension]}
 						theme={draculaTheme}
-						height="calc(100vh - 2.55rem)"
+						height={menuType !== "trash" ? "calc(100vh - 2.55rem)" : "100vh"}
 						width="100%"
+						readOnly={menuType === "trash"}
 						onChange={updateCurrentSnippetValue}
 					/>
 				</>

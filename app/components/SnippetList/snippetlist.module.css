@@ -16,7 +16,7 @@
 .addButton {
 	margin: 0 0.625rem 0 0;
 	cursor: pointer;
-	color: var(--foreground-color);
+	color: var(--gray-color);
 	transition: all 0.25s ease;
 }
 
