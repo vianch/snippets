@@ -79,6 +79,19 @@
 	color: var(--gray-color);
 }
 
+.itemLeftSide {
+	display: flex;
+	align-items: center;
+}
+
+.trashIcon {
+	margin-right: 0.313rem;
+}
+
+.trashIcon:hover {
+	color: var(--red-color);
+}
+
 @media (width <= 768px) {
 	.snippetsListContainer {
 		width: 100%;

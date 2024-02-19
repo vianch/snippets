@@ -12,6 +12,7 @@ import { setNewSnippet } from "@/lib/supabase/queries";
 import formatDateToDDMMYYYY from "@/utils/date.utils";
 
 /* Styles */
+import Trash from "@/components/ui/icons/Trash";
 import styles from "./snippetlist.module.css";
 
 type SnippetListProps = {
@@ -82,7 +83,11 @@ const SnippetList = ({
 						key={snippet.snippet_id}
 						onClick={(event) => snippetClickHandler(event, index)}
 					>
-						{snippet?.name ?? ""}
+						<div className={styles.itemLeftSide}>
+							<Trash className={styles.trashIcon} width="18" height="18" />
+							{snippet?.name ?? ""}
+						</div>
+
 						<span className={styles.snippetDate}>{formattedDates[index]}</span>
 					</li>
 				))}
