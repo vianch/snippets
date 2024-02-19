@@ -6,6 +6,7 @@ const Trash = ({
 	viewBox = "0 0 254 254",
 	width = "32",
 	height = "32",
+	onClick,
 }: Icon): ReactElement => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"
@@ -15,6 +16,7 @@ const Trash = ({
 		height={height}
 		fill={fill}
 		viewBox={viewBox}
+		onClick={onClick}
 	>
 		<path d="M216,48H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM192,208H64V64H192ZM80,24a8,8,0,0,1,8-8h80a8,8,0,0,1,0,16H88A8,8,0,0,1,80,24Z"></path>
 	</svg>

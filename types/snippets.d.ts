@@ -8,6 +8,8 @@ declare global {
 
 	type SnippetState = "active" | "inactive";
 
+	type MenuItemType = "all" | "trash" | "favorites";
+
 	interface Snippet {
 		snippet_id: UUID;
 		user_id: UUID;

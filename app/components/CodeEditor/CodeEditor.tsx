@@ -124,42 +124,50 @@ const CodeEditor = ({
 	}, [snippet]);
 
 	return (
-		<div className={styles.codeEditorContainer}>
-			<div className={styles.header}>
-				<Select
-					value={currentSnippet.language}
-					items={Object.keys(languageExtensions)}
-					onSelect={setLanguageHandler}
-				/>
+		<div
+			className={`${styles.codeEditorContainer} ${!snippet && styles.noSnippetContainer}`}
+		>
+			{snippet && (
+				<>
+					<div className={styles.header}>
+						<Select
+							value={currentSnippet.language}
+							items={Object.keys(languageExtensions)}
+							onSelect={setLanguageHandler}
+						/>
 
-				<Button
-					className={styles.button}
-					variant="secondary"
-					disabled={isSaving}
-					onClick={() => onSave(currentSnippet, true)}
-				>
-					{isSaving ? (
-						<Loading className={styles.icon} width={16} height={16} />
-					) : (
-						<Floppy className={styles.icon} width={16} height={16} />
-					)}{" "}
-					Save
-				</Button>
-			</div>
+						<Button
+							className={styles.button}
+							variant="secondary"
+							disabled={isSaving}
+							onClick={() => onSave(currentSnippet, true)}
+						>
+							{isSaving ? (
+								<Loading className={styles.icon} width={16} height={16} />
+							) : (
+								<Floppy className={styles.icon} width={16} height={16} />
+							)}{" "}
+							Save
+						</Button>
+					</div>
 
-			<CodeMirror
-				autoFocus={false}
-				indentWithTab={true}
-				basicSetup={codeMirrorOptions}
-				placeholder={"Write your snipped here"}
-				className={styles.codeMirrorContainer}
-				value={snippet?.snippet ?? ""}
-				extensions={[currentSnippet.extension]}
-				theme={draculaTheme}
-				height="calc(100vh - 2.55rem)"
-				width="100%"
-				onChange={updateCurrentSnippetValue}
-			/>
+					<CodeMirror
+						autoFocus={false}
+						indentWithTab={true}
+						basicSetup={codeMirrorOptions}
+						placeholder={"Write your snipped here"}
+						className={styles.codeMirrorContainer}
+						value={snippet?.snippet ?? ""}
+						extensions={[currentSnippet.extension]}
+						theme={draculaTheme}
+						height="calc(100vh - 2.55rem)"
+						width="100%"
+						onChange={updateCurrentSnippetValue}
+					/>
+				</>
+			)}
+
+			{!snippet && <p className={styles.noSnippet}>No snippet selected</p>}
 		</div>
 	);
 };

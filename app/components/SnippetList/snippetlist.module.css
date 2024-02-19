@@ -15,12 +15,13 @@
 
 .addButton {
 	margin: 0 0.625rem 0 0;
-	width: 50px;
-	padding: 0 0.938rem;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 2.813rem;
+	cursor: pointer;
+	color: var(--foreground-color);
+	transition: all 0.25s ease;
+}
+
+.addButton:hover {
+	color: var(--cyan-color);
 }
 
 .snippetsList {
@@ -74,6 +75,20 @@
 	font-size: var(--tiny-font-size);
 }
 
+.noSnippetContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--gray-color);
+	opacity: 0.4;
+	width: 100%;
+	height: calc(100% - 160px);
+}
+
+.noSnippet {
+	font-size: var(--small-font-size);
+}
+
 .searchIcon {
 	fill: currentcolor;
 	color: var(--gray-color);
@@ -84,12 +99,17 @@
 	align-items: center;
 }
 
-.trashIcon {
+.trashIcon,
+.restoreIcon {
 	margin-right: 0.313rem;
 }
 
 .trashIcon:hover {
 	color: var(--red-color);
+}
+
+.restoreIcon:hover {
+	color: var(--green-color);
 }
 
 @media (width <= 768px) {

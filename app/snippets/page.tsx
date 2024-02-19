@@ -9,23 +9,33 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 
 /* Lib and Utils */
 import defaultMenuItems from "@/lib/config/aside";
-import { getAllSnippets, saveSnippet } from "@/lib/supabase/queries";
+import {
+	getAllSnippets,
+	saveSnippet,
+	trashRestoreSnippet,
+} from "@/lib/supabase/queries";
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
 
 /* Styles */
 import styles from "./snippets.module.css";
 
+type SnippetEditorStates = {
+	activeSnippetIndex: number;
+	isSaving: boolean;
+	touched: boolean;
+	menu: MenuItemType;
+};
+
 export default function Page(): ReactElement {
-	const [snippets, setSnippets] = useState<Snippet[]>([]);
-	const [codeEditorStates, setCodedEditorStates] = useState<{
-		activeSnippetIndex: number;
-		isSaving: boolean;
-		touched: boolean;
-	}>({
+	const defaultCodeEditorStates: SnippetEditorStates = {
 		activeSnippetIndex: 0,
 		isSaving: false,
 		touched: false,
-	});
+		menu: "all",
+	};
+	const [snippets, setSnippets] = useState<Snippet[]>([]);
+	const [codeEditorStates, setCodedEditorStates] =
+		useState<SnippetEditorStates>(defaultCodeEditorStates);
 
 	const setActiveSnippetIndex = (index: number): void => {
 		setCodedEditorStates({
@@ -41,12 +51,11 @@ export default function Page(): ReactElement {
 		});
 	};
 
-	const getSnippets = async (): Promise<void> => {
-		const data = await getAllSnippets();
+	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
+		const data = await getAllSnippets(state);
 
-		if (data?.length > 0) {
-			setSnippets(data);
-		}
+		setSnippets(data);
+		setCodedEditorStates(defaultCodeEditorStates);
 	};
 
 	const updateSnippet = async (
@@ -121,20 +130,64 @@ export default function Page(): ReactElement {
 		}
 	};
 
+	const getTrashHandler = async (): Promise<void> => {
+		await getSnippets("inactive");
+		setCodedEditorStates({
+			...codeEditorStates,
+			menu: "trash",
+		});
+	};
+
+	const trashRestoreSnippetHandler = async (
+		snippetId: UUID,
+		index: number,
+		state: SnippetState = "inactive"
+	): Promise<void> => {
+		if (!snippetId) {
+			return;
+		}
+
+		await trashRestoreSnippet(snippetId, state);
+
+		const cloneSnippets = [...snippets];
+		const foundIndex = cloneSnippets.findIndex(
+			(snippet: Snippet): boolean => snippet.snippet_id === snippetId
+		);
+
+		if (foundIndex === -1) {
+			return;
+		}
+
+		cloneSnippets.splice(foundIndex, 1);
+		setSnippets(cloneSnippets);
+
+		if (index > cloneSnippets.length - 1) {
+			setActiveSnippetIndex(0);
+		}
+	};
+
 	useEffect(() => {
 		getSnippets().then(() => null);
 	}, []);
 
 	return (
 		<>
-			<Aside menuItems={defaultMenuItems} />
+			<Aside
+				menuItems={defaultMenuItems}
+				menuType={codeEditorStates.menu}
+				onGetAll={() => getSnippets()}
+				onTrash={getTrashHandler}
+			/>
 
 			<section className={styles.mainContent}>
 				<SnippetList
 					snippets={snippets}
+					menuType={codeEditorStates.menu}
 					activeSnippetIndex={codeEditorStates.activeSnippetIndex}
 					onNewSnippet={newSnippetHandler}
 					onActiveSnippet={setActiveSnippetIndex}
+					onDeleteSnippet={trashRestoreSnippetHandler}
+					onRestoreSnippet={trashRestoreSnippetHandler}
 				/>
 
 				<CodeEditor
