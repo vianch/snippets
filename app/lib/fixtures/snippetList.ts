@@ -11,6 +11,7 @@ const snippetListFixture: Snippet[] = [
 		notes: "This is a sample code snippet.",
 		language: SupportedLanguages.JavaScript,
 		snippet: "console.log('Hello, World!');",
+		state: "active" as SnippetState,
 		tags: [],
 	},
 ];

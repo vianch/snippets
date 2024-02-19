@@ -1,7 +1,9 @@
 import supabase from "@/lib/supabase/client";
 import SnippetValueObject from "@/lib/models/Snippet";
 
-export const getAllSnippets = async (): Promise<Snippet[]> => {
+export const getAllSnippets = async (
+	state: SnippetState = "active"
+): Promise<Snippet[]> => {
 	if (supabase) {
 		const {
 			data: { session },
@@ -13,7 +15,7 @@ export const getAllSnippets = async (): Promise<Snippet[]> => {
 				.from("snippet")
 				.select()
 				.order("updated_at", { ascending: false })
-				.eq("user_id", userId);
+				.match({ user_id: userId, state });
 
 			return data as Snippet[];
 		}
@@ -36,6 +38,22 @@ export const saveSnippet = async (
 
 		if (error) {
 			throw new Error("Error saving snippet");
+		}
+	}
+};
+
+export const trashRestoreSnippet = async (
+	snippetId: UUID,
+	state: SnippetState = "inactive"
+): Promise<void> => {
+	if (supabase) {
+		const { error } = await supabase
+			.from("snippet")
+			.update({ state })
+			.match({ snippet_id: snippetId });
+
+		if (error) {
+			throw new Error("Error trashing snippet");
 		}
 	}
 };

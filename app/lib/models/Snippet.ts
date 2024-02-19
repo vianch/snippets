@@ -63,6 +63,8 @@ export default class SnippetValueObject implements Snippet {
 
 	public snippet: string;
 
+	public state: SnippetState;
+
 	language: SupportedLanguages;
 
 	constructor(user_id: UUID) {
@@ -75,5 +77,6 @@ export default class SnippetValueObject implements Snippet {
 		this.notes = "";
 		this.snippet = "";
 		this.language = SupportedLanguages.JavaScript;
+		this.state = "active";
 	}
 }

@@ -10,21 +10,35 @@ import SignOut from "@/components/ui/icons/SignOut";
 /* Lib */
 import supabase from "@/lib/supabase/client";
 
+/* Components */
+import Trash from "@/components/ui/icons/Trash";
+import Book from "@/components/ui/icons/Book";
+import Bookmark from "@/components/ui/icons/Bookmark";
+import Tray from "@/components/ui/icons/Tray";
+import Start from "@/components/ui/icons/Start";
+
 /* Styles */
 import styles from "./aside.module.css";
 
 type MenuItems = {
-	favorites: Item[];
 	folders: Item[];
 	tags: Item[];
 };
 
 type AsideProps = {
 	menuItems: MenuItems;
+	menuType: MenuItemType;
+	onGetAll: () => void;
+	onTrash: () => void;
 };
 
-const Aside = ({ menuItems }: AsideProps): ReactElement => {
-	const { favorites, folders, tags } = menuItems || {};
+const Aside = ({
+	menuItems,
+	menuType,
+	onGetAll,
+	onTrash,
+}: AsideProps): ReactElement => {
+	const { folders, tags } = menuItems || {};
 	const router = useRouter();
 
 	const signOut = async (
@@ -41,27 +55,34 @@ const Aside = ({ menuItems }: AsideProps): ReactElement => {
 	return (
 		<aside className={styles.container}>
 			<section className={styles.section}>
-				<h2 className={`${styles.title} green-color`}>
-					<img
-						alt="eye"
-						className={styles.icon}
-						src="/assets/images/icons/eye.png"
-						height="16"
-					/>
-					Favorites
-				</h2>
+				<a
+					className={`${styles.linkItem} green-color ${menuType === "all" && styles.linkItemActive}`}
+					onClick={onGetAll}
+				>
+					<Book className={styles.icon} width={18} height={18} />
+					All Snippets
+				</a>
 
-				<AsideItem items={favorites} iconType="star" />
+				<a
+					className={`${styles.linkItem} yellow-color ${menuType === "favorites" && styles.linkItemActive}`}
+					onClick={onGetAll}
+				>
+					<Start className={styles.icon} width={18} height={18} />
+					Favorites
+				</a>
+
+				<a
+					className={`${styles.linkItem} red-color ${menuType === "trash" && styles.linkItemActive}`}
+					onClick={onTrash}
+				>
+					<Trash className={styles.icon} height={18} width={18} />
+					Trash
+				</a>
 			</section>
 
 			<section className={styles.section}>
 				<h2 className={`${styles.title} purple-color`}>
-					<img
-						alt="briefcase"
-						className={styles.icon}
-						src="/assets/images/icons/briefcase.png"
-						height="16"
-					/>
+					<Tray className={styles.icon} width={18} height={18} />
 					Folders
 				</h2>
 
@@ -69,13 +90,8 @@ const Aside = ({ menuItems }: AsideProps): ReactElement => {
 			</section>
 
 			<section className={styles.section}>
-				<h2 className={`${styles.title} yellow-color`}>
-					<img
-						alt="pencil"
-						className={styles.icon}
-						src="/assets/images/icons/pencil.png"
-						height="16"
-					/>
+				<h2 className={`${styles.title} orange-color`}>
+					<Bookmark className={styles.icon} width={18} height={18} />
 					Tags
 				</h2>
 

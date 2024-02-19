@@ -180,6 +180,10 @@ body {
 	color: var(--green-color);
 }
 
+.red-color {
+	color: var(--red-color);
+}
+
 .cyan-color {
 	color: var(--cyan-color);
 }
@@ -190,6 +194,10 @@ body {
 
 .yellow-color {
 	color: var(--yellow-color);
+}
+
+.orange-color {
+	color: var(--orange-color);
 }
 
 .gradient-background {

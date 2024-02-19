@@ -5,6 +5,19 @@
 	margin-bottom: -1.5625rem;
 }
 
+.noSnippetContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--gray-color);
+	opacity: 0.4;
+	user-select: none;
+}
+
+.noSnippet {
+	font-size: var(--small-font-size);
+}
+
 .codeMirrorContainer {
 	margin-top: 0;
 }
@@ -25,7 +38,7 @@
 
 /* Handle on hover */
 .codeMirrorContainer ::-webkit-scrollbar-thumb:hover {
-	background: var(--bg-color);
+	background: var(--bg-color-dark);
 }
 
 .header {

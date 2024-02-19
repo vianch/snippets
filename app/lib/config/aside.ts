@@ -1,9 +1,4 @@
 const defaultMenuItems = {
-	favorites: [
-		{ id: 1, name: "All" },
-		{ id: 2, name: "Uncategorized" },
-		{ id: 3, name: "Item 3" },
-	],
 	folders: [
 		{ id: 1, name: "All items" },
 		{ id: 2, name: "Item 2" },
