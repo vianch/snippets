@@ -17,8 +17,29 @@ import styles from "./snippets.module.css";
 
 export default function Page(): ReactElement {
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
-	const [activeSnippetIndex, setActiveSnippetIndex] = useState<number>(0);
-	const [isSaving, setIsSaving] = useState<boolean>(false);
+	const [codeEditorStates, setCodedEditorStates] = useState<{
+		activeSnippetIndex: number;
+		isSaving: boolean;
+		touched: boolean;
+	}>({
+		activeSnippetIndex: 0,
+		isSaving: false,
+		touched: false,
+	});
+
+	const setActiveSnippetIndex = (index: number): void => {
+		setCodedEditorStates({
+			...codeEditorStates,
+			activeSnippetIndex: index,
+		});
+	};
+
+	const touchedHandler = (touched: boolean): void => {
+		setCodedEditorStates({
+			...codeEditorStates,
+			touched,
+		});
+	};
 
 	const getSnippets = async (): Promise<void> => {
 		const data = await getAllSnippets();
@@ -29,36 +50,54 @@ export default function Page(): ReactElement {
 	};
 
 	const updateSnippet = async (
-		currentSnippet: CurrentSnippet | null = null
+		currentSnippet: CurrentSnippet | null = null,
+		fromButton = false
 	): Promise<void> => {
-		if (currentSnippet) {
-			const foundIndex = snippets.findIndex(
-				(snippet: Snippet): boolean =>
-					snippet.snippet_id === currentSnippet.snippet_id
-			);
-
-			if (foundIndex !== -1) {
-				const snippetsCopy = [...snippets];
-
-				snippetsCopy[foundIndex].name = currentSnippet.name;
-				snippetsCopy[foundIndex].snippet = currentSnippet.snippet;
-				snippetsCopy[foundIndex].language = currentSnippet.language;
-				snippetsCopy[foundIndex].updated_at = currentSnippet.updated_at;
-
-				setSnippets(sortSnippetsByUpdatedAt(snippetsCopy));
-
-				// TODO: dont move to the first position if the snippet save on leave focus
-				setActiveSnippetIndex(0);
-				setIsSaving(false);
-			}
+		if (!currentSnippet) {
+			return;
 		}
+
+		const foundIndex = snippets.findIndex(
+			(snippet: Snippet): boolean =>
+				snippet.snippet_id === currentSnippet.snippet_id
+		);
+
+		if (foundIndex === -1) {
+			return;
+		}
+
+		const updatedSnippets = snippets.map((snippet, index) =>
+			index === foundIndex ? { ...snippet, ...currentSnippet } : snippet
+		);
+
+		const snippetsSorted = sortSnippetsByUpdatedAt(updatedSnippets);
+
+		setSnippets(snippetsSorted);
+
+		const newActiveSnippetIndex =
+			codeEditorStates.activeSnippetIndex > foundIndex
+				? codeEditorStates.activeSnippetIndex
+				: codeEditorStates.activeSnippetIndex + 1;
+		const activeSnippetIndex = fromButton ? 0 : newActiveSnippetIndex;
+
+		setCodedEditorStates({
+			...codeEditorStates,
+			activeSnippetIndex,
+			isSaving: false,
+			touched: false,
+		});
 	};
 
 	const saveSnippetHandler = async (
-		currentSnippet: CurrentSnippet
+		currentSnippet: CurrentSnippet,
+		fromButton = false
 	): Promise<void> => {
-		if (snippets[activeSnippetIndex]?.snippet_id) {
-			setIsSaving(true);
+		if (snippets[codeEditorStates?.activeSnippetIndex ?? 0]?.snippet_id) {
+			setCodedEditorStates({
+				...codeEditorStates,
+				isSaving: true,
+			});
+
 			const updatedSnippet = {
 				...currentSnippet,
 				updated_at: new Date().toISOString(),
@@ -67,7 +106,7 @@ export default function Page(): ReactElement {
 			await saveSnippet(updatedSnippet);
 
 			setTimeout(() => {
-				updateSnippet(updatedSnippet);
+				updateSnippet(updatedSnippet, fromButton);
 			}, 1000);
 		}
 	};
@@ -75,6 +114,10 @@ export default function Page(): ReactElement {
 	const newSnippetHandler = (newSnippet: Snippet): void => {
 		if (newSnippet) {
 			setSnippets([newSnippet, ...snippets]);
+
+			setActiveSnippetIndex(
+				!codeEditorStates.touched ? 0 : codeEditorStates.activeSnippetIndex + 1
+			);
 		}
 	};
 
@@ -89,15 +132,21 @@ export default function Page(): ReactElement {
 			<section className={styles.mainContent}>
 				<SnippetList
 					snippets={snippets}
-					activeSnippetIndex={activeSnippetIndex}
+					activeSnippetIndex={codeEditorStates.activeSnippetIndex}
 					onNewSnippet={newSnippetHandler}
 					onActiveSnippet={setActiveSnippetIndex}
 				/>
 
 				<CodeEditor
-					snippet={snippets?.length > 0 ? snippets[activeSnippetIndex] : null}
-					isSaving={isSaving}
+					snippet={
+						snippets?.length > 0
+							? snippets[codeEditorStates.activeSnippetIndex]
+							: null
+					}
+					isSaving={codeEditorStates.isSaving}
 					onSave={saveSnippetHandler}
+					touched={codeEditorStates.touched}
+					onTouched={touchedHandler}
 				/>
 			</section>
 		</>

@@ -37,10 +37,10 @@ const SnippetList = ({
 
 	const snippetClickHandler = (
 		event: MouseEvent<HTMLLIElement>,
-		snippetId: number
+		index: number
 	): void => {
 		event.preventDefault();
-		onActiveSnippet(snippetId);
+		onActiveSnippet(index);
 	};
 
 	const newSnippetHandler = async (): Promise<void> => {

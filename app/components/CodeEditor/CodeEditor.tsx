@@ -19,21 +19,24 @@ type CodeEditorProps = {
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
 	isSaving?: boolean;
-	onSave: (currentSnippet: CurrentSnippet) => void;
+	touched?: boolean;
+	onSave: (currentSnippet: CurrentSnippet, fromButton: boolean) => void;
+	onTouched: (touched: boolean) => void;
 };
 
 const CodeEditor = ({
 	snippet,
 	defaultLanguage = SupportedLanguages.JavaScript,
 	isSaving = false,
+	touched = false,
 	onSave,
+	onTouched,
 }: CodeEditorProps): ReactElement => {
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
 		...({} as Snippet),
 		snippet: "",
 		language: defaultLanguage,
 		extension: languageExtensions[defaultLanguage],
-		touched: false,
 	});
 	const codeMirrorOptions = {
 		lineNumbers: true,
@@ -62,13 +65,25 @@ const CodeEditor = ({
 		tabSize: 2,
 	};
 
+	const draculaTheme = useMemo(
+		() =>
+			draculaInit({
+				settings: {
+					background: "#363945",
+					fontFamily: "monospace",
+				},
+			}),
+		[]
+	);
+
 	const setLanguageExtension = (newLanguage: SupportedLanguages): void => {
 		setCurrentSnippet({
 			...currentSnippet,
 			language: newLanguage,
 			extension: languageExtensions[newLanguage],
-			touched: true,
 		});
+
+		onTouched(true);
 	};
 
 	const setLanguageHandler = (selectedLanguage: string): void => {
@@ -81,20 +96,10 @@ const CodeEditor = ({
 		setCurrentSnippet({
 			...currentSnippet,
 			snippet: value ?? "",
-			touched: true,
 		});
-	};
 
-	const draculaTheme = useMemo(
-		() =>
-			draculaInit({
-				settings: {
-					background: "#363945",
-					fontFamily: "monospace",
-				},
-			}),
-		[]
-	);
+		onTouched(true);
+	};
 
 	useEffect(() => {
 		if (snippet?.language) {
@@ -104,11 +109,17 @@ const CodeEditor = ({
 
 	useEffect(() => {
 		if (snippet) {
-			if (currentSnippet.touched) {
-				onSave(currentSnippet);
+			if (touched) {
+				onSave(currentSnippet, false);
 			}
 
-			setCurrentSnippet({ ...currentSnippet, ...snippet, touched: false });
+			setCurrentSnippet({
+				...currentSnippet,
+				...snippet,
+				extension: languageExtensions[snippet.language ?? defaultLanguage],
+			});
+
+			onTouched(false);
 		}
 	}, [snippet]);
 
@@ -124,7 +135,8 @@ const CodeEditor = ({
 				<Button
 					className={styles.button}
 					variant="secondary"
-					onClick={() => onSave(currentSnippet)}
+					disabled={isSaving}
+					onClick={() => onSave(currentSnippet, true)}
 				>
 					{isSaving ? (
 						<Loading className={styles.icon} width={16} height={16} />
