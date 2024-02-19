@@ -11,8 +11,8 @@
 	align-items: center;
 	color: var(--gray-color);
 	opacity: 0.4;
-	-webkit-user-select: none;
-	-moz-user-select: none;
+	user-select: none;
+	user-select: none;
 	user-select: none;
 }
 
