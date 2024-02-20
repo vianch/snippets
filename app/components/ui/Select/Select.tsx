@@ -20,9 +20,8 @@ const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
 		setIsOpen(false);
 	};
 
+	// TODO: Move this outside to page level if there are more mouse events to handle
 	const handleClickOutside = (event: MouseEvent) => {
-		event?.preventDefault();
-
 		if (
 			selectWindowRef.current &&
 			!selectWindowRef.current?.contains(event?.target as Node)

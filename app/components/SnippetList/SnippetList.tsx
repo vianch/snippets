@@ -12,9 +12,9 @@ import formatDateToDDMMYYYY from "@/utils/date.utils";
 /* Components */
 import Trash from "@/components/ui/icons/Trash";
 import Restore from "@/components/ui/icons/Restore";
+import NewFile from "@/components/ui/icons/NewFile";
 
 /* Styles */
-import NewFile from "@/components/ui/icons/NewFile";
 import styles from "./snippetlist.module.css";
 
 type DeleteRestoreFunction = (
@@ -25,8 +25,7 @@ type DeleteRestoreFunction = (
 
 type SnippetListProps = {
 	snippets?: Snippet[];
-	menuType: MenuItemType;
-	activeSnippetIndex: number;
+	codeEditorStates: SnippetEditorStates;
 	onActiveSnippet: (index: number) => void;
 	onNewSnippet: (newSnippet: Snippet) => void;
 	onDeleteSnippet: DeleteRestoreFunction;
@@ -35,13 +34,13 @@ type SnippetListProps = {
 
 const SnippetList = ({
 	snippets = [],
-	activeSnippetIndex,
-	menuType,
+	codeEditorStates: { activeSnippetIndex, menuType },
 	onNewSnippet,
 	onActiveSnippet,
 	onDeleteSnippet,
 	onRestoreSnippet,
 }: SnippetListProps): ReactElement => {
+	const isTrashActive = menuType === "trash";
 	const formattedDates = useMemo(
 		(): string[] =>
 			snippets.map((snippet: Snippet) =>
@@ -81,7 +80,7 @@ const SnippetList = ({
 					}
 				/>
 
-				{menuType !== "trash" && (
+				{!isTrashActive && (
 					<NewFile
 						className={styles.addButton}
 						width="32"
@@ -99,14 +98,16 @@ const SnippetList = ({
 							onClick={(event) => snippetClickHandler(event, index)}
 						>
 							<div className={styles.itemLeftSide}>
-								<Trash
-									className={styles.trashIcon}
-									width="18"
-									height="18"
-									onClick={() =>
-										onDeleteSnippet(snippet?.snippet_id, index, "inactive")
-									}
-								/>
+								{!isTrashActive && (
+									<Trash
+										className={styles.trashIcon}
+										width="18"
+										height="18"
+										onClick={() =>
+											onDeleteSnippet(snippet?.snippet_id, index, "inactive")
+										}
+									/>
+								)}
 
 								{snippet?.state === "inactive" && (
 									<Restore
@@ -118,7 +119,7 @@ const SnippetList = ({
 										}
 									/>
 								)}
-								{snippet?.name ?? ""}
+								{snippet?.name ?? "Untitled"}
 							</div>
 
 							<span className={styles.snippetDate}>

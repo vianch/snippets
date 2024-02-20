@@ -7,7 +7,7 @@
 	margin: 0.625rem;
 	border-radius: var(--border-radius);
 	border: 0.063rem solid var(--border-color);
-	padding: 0.313rem;
+	padding: 0.313rem 0.625rem;
 	align-items: center;
 }
 

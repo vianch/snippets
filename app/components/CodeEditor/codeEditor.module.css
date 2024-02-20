@@ -43,11 +43,27 @@
 
 .header {
 	display: flex;
-	height: 2.5rem;
+	height: 4rem;
 	background: var(--bg-color-dark);
 	align-items: center;
 	padding: 0 0.625rem;
 	border-bottom: 1px solid var(--border-color);
+	flex-flow: row nowrap;
+	justify-content: space-between;
+}
+
+.headerLeftSide {
+	display: flex;
+	max-width: 16.25rem;
+	width: 100%;
+	margin-left: 0.625rem;
+}
+
+.headerRightSide {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	flex-flow: row nowrap;
 }
 
 .button {

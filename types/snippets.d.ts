@@ -10,14 +10,21 @@ declare global {
 
 	type MenuItemType = "all" | "trash" | "favorites";
 
+	type SnippetEditorStates = {
+		activeSnippetIndex: number;
+		isSaving: boolean;
+		touched: boolean;
+		menuType: MenuItemType;
+	};
+
 	interface Snippet {
 		snippet_id: UUID;
 		user_id: UUID;
 		created_at: string;
 		updated_at: string;
-		name: string;
-		url: string;
-		notes: string;
+		name: string | null;
+		url: string | null;
+		notes: string | null;
 		snippet: string;
 		language: SupportedLanguages;
 		state: SnippetState;

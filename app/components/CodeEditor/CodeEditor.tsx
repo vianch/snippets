@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactElement, useState, useEffect, useMemo } from "react";
+import { ReactElement, useState, useEffect, useMemo, ChangeEvent } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { draculaInit } from "@uiw/codemirror-theme-dracula";
 
@@ -11,6 +11,7 @@ import Select from "@/components/ui/Select/Select";
 import Button from "@/components/ui/Button/Button";
 import Floppy from "@/components/ui/icons/Floppy";
 import Loading from "@/components/ui/icons/Loading";
+import Input from "@/components/ui/Input/Input";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -18,22 +19,20 @@ import styles from "./codeEditor.module.css";
 type CodeEditorProps = {
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
-	menuType: MenuItemType;
-	isSaving?: boolean;
-	touched?: boolean;
+	codeEditorStates: SnippetEditorStates;
 	onSave: (currentSnippet: CurrentSnippet, fromButton: boolean) => void;
 	onTouched: (touched: boolean) => void;
 };
 
 const CodeEditor = ({
 	snippet,
-	menuType,
+	codeEditorStates,
 	defaultLanguage = SupportedLanguages.JavaScript,
-	isSaving = false,
-	touched = false,
 	onSave,
 	onTouched,
 }: CodeEditorProps): ReactElement => {
+	const { menuType, isSaving, touched } = codeEditorStates ?? {};
+	const isTrashActive = menuType === "trash";
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
 		...({} as Snippet),
 		snippet: "",
@@ -45,7 +44,7 @@ const CodeEditor = ({
 		highlightActiveLineGutter: true,
 		highlightSpecialChars: true,
 		history: true,
-		foldGutter: false,
+		foldGutter: true,
 		drawSelection: true,
 		dropCursor: false,
 		allowMultipleSelections: false,
@@ -103,6 +102,23 @@ const CodeEditor = ({
 		onTouched(true);
 	};
 
+	const updateCurrentSnippetName = (
+		event: ChangeEvent<HTMLInputElement>
+	): void => {
+		event?.preventDefault();
+
+		const name = event?.target?.value ?? "";
+
+		const newCurrentSnippet = {
+			...currentSnippet,
+			name,
+		};
+
+		setCurrentSnippet(newCurrentSnippet);
+
+		onTouched(name?.length > 0);
+	};
+
 	useEffect(() => {
 		if (snippet?.language) {
 			setLanguageExtension(snippet.language);
@@ -111,10 +127,11 @@ const CodeEditor = ({
 
 	useEffect(() => {
 		if (snippet) {
-			if (touched && menuType !== "trash" && !isSaving) {
+			if (touched && !isTrashActive) {
 				onSave(currentSnippet, false);
 			}
 
+			// New Snippet selected info
 			setCurrentSnippet({
 				...currentSnippet,
 				...snippet,
@@ -131,27 +148,38 @@ const CodeEditor = ({
 		>
 			{snippet && (
 				<>
-					{menuType !== "trash" && (
+					{!isTrashActive && (
 						<div className={styles.header}>
-							<Select
-								value={currentSnippet.language}
-								items={Object.keys(languageExtensions)}
-								onSelect={setLanguageHandler}
-							/>
+							<div className={styles.headerLeftSide}>
+								<Input
+									placeholder="Untitled"
+									value={snippet?.name ?? ""}
+									maxLength={34}
+									onChange={updateCurrentSnippetName}
+								/>
+							</div>
 
-							<Button
-								className={styles.button}
-								variant="secondary"
-								disabled={isSaving}
-								onClick={() => onSave(currentSnippet, true)}
-							>
-								{isSaving ? (
-									<Loading className={styles.icon} width={16} height={16} />
-								) : (
-									<Floppy className={styles.icon} width={16} height={16} />
-								)}{" "}
-								Save
-							</Button>
+							<div className={styles.headerRightSide}>
+								<Select
+									value={currentSnippet.language}
+									items={Object.keys(languageExtensions)}
+									onSelect={setLanguageHandler}
+								/>
+
+								<Button
+									className={styles.button}
+									variant="secondary"
+									disabled={isSaving}
+									onClick={() => onSave(currentSnippet, true)}
+								>
+									{isSaving ? (
+										<Loading className={styles.icon} width={16} height={16} />
+									) : (
+										<Floppy className={styles.icon} width={16} height={16} />
+									)}{" "}
+									Save
+								</Button>
+							</div>
 						</div>
 					)}
 
@@ -159,16 +187,16 @@ const CodeEditor = ({
 						autoFocus={false}
 						indentWithTab={true}
 						basicSetup={
-							menuType === "trash" ? { lineNumbers: true } : codeMirrorOptions
+							isTrashActive ? { lineNumbers: true } : codeMirrorOptions
 						}
 						placeholder={"Write your snipped here"}
 						className={styles.codeMirrorContainer}
 						value={snippet?.snippet ?? ""}
 						extensions={[currentSnippet.extension]}
 						theme={draculaTheme}
-						height={menuType !== "trash" ? "calc(100vh - 2.55rem)" : "100vh"}
+						height={!isTrashActive ? "calc(100vh - 4rem)" : "100vh"}
 						width="100%"
-						readOnly={menuType === "trash"}
+						readOnly={isTrashActive}
 						onChange={updateCurrentSnippetValue}
 					/>
 				</>

@@ -19,6 +19,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 		return NextResponse.redirect(new URL("/", request.url));
 	}
 
+	if (!user && request.nextUrl.pathname === "/snippets") {
+		return NextResponse.redirect(new URL("/", request.url));
+	}
+
 	return response;
 }
 

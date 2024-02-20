@@ -61,7 +61,6 @@
 	padding: 0.625rem;
 	justify-content: space-between;
 	font-size: var(--small-font-size);
-	transition: all 0.1s ease;
 }
 
 .snippetItem.active {
@@ -100,7 +99,8 @@
 }
 
 .trashIcon,
-.restoreIcon {
+.restoreIcon,
+.listIcon {
 	margin-right: 0.313rem;
 }
 
