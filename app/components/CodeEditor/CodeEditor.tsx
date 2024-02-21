@@ -12,6 +12,8 @@ import Button from "@/components/ui/Button/Button";
 import Floppy from "@/components/ui/icons/Floppy";
 import Loading from "@/components/ui/icons/Loading";
 import Input from "@/components/ui/Input/Input";
+import StarFilled from "@/components/ui/icons/StarFilled";
+import Star from "@/components/ui/icons/Star";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -20,7 +22,11 @@ type CodeEditorProps = {
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
 	codeEditorStates: SnippetEditorStates;
-	onSave: (currentSnippet: CurrentSnippet, fromButton: boolean) => void;
+	onSave: (
+		currentSnippet: CurrentSnippet,
+		fromButton: boolean | "favorite"
+	) => void;
+	onStarred: (currentSnippet: CurrentSnippet) => void;
 	onTouched: (touched: boolean) => void;
 };
 
@@ -29,6 +35,7 @@ const CodeEditor = ({
 	codeEditorStates,
 	defaultLanguage = SupportedLanguages.JavaScript,
 	onSave,
+	onStarred,
 	onTouched,
 }: CodeEditorProps): ReactElement => {
 	const { menuType, isSaving, touched } = codeEditorStates ?? {};
@@ -119,6 +126,22 @@ const CodeEditor = ({
 		onTouched(name?.length > 0);
 	};
 
+	const starringHandler = (): void => {
+		const newCurrentSnippet = {
+			...currentSnippet,
+			state: currentSnippet?.state === "favorite" ? "active" : "favorite",
+		} as CurrentSnippet;
+		const isFavoriteMenu = codeEditorStates?.menuType === "favorites";
+		const fromButton = isFavoriteMenu ? "favorite" : true;
+
+		setCurrentSnippet(newCurrentSnippet);
+		onSave(newCurrentSnippet, fromButton);
+
+		if (isFavoriteMenu) {
+			onStarred(newCurrentSnippet);
+		}
+	};
+
 	useEffect(() => {
 		if (snippet?.language) {
 			setLanguageExtension(snippet.language);
@@ -151,6 +174,23 @@ const CodeEditor = ({
 					{!isTrashActive && (
 						<div className={styles.header}>
 							<div className={styles.headerLeftSide}>
+								{currentSnippet?.state === "favorite" ? (
+									<StarFilled
+										className={styles.starIcon}
+										height={18}
+										width={18}
+										fill="#f1fa8c"
+										onClick={starringHandler}
+									/>
+								) : (
+									<Star
+										className={styles.starIcon}
+										height={18}
+										width={18}
+										onClick={starringHandler}
+									/>
+								)}
+
 								<Input
 									placeholder="Untitled"
 									value={snippet?.name ?? ""}

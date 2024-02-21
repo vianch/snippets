@@ -6,7 +6,7 @@ declare global {
 	type Tags = string[];
 	type UUID = string & { __uuid: undefined };
 
-	type SnippetState = "active" | "inactive";
+	type SnippetState = "active" | "inactive" | "favorite";
 
 	type MenuItemType = "all" | "trash" | "favorites";
 

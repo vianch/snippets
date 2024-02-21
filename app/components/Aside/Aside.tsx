@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactElement } from "react";
+import { MouseEvent, ReactElement, useState } from "react";
 import { useRouter } from "next/navigation";
 
 /* Components */
@@ -15,7 +15,7 @@ import Trash from "@/components/ui/icons/Trash";
 import Book from "@/components/ui/icons/Book";
 import Bookmark from "@/components/ui/icons/Bookmark";
 import Tray from "@/components/ui/icons/Tray";
-import Start from "@/components/ui/icons/Start";
+import Star from "@/components/ui/icons/Star";
 
 /* Styles */
 import styles from "./aside.module.css";
@@ -27,17 +27,18 @@ type MenuItems = {
 
 type AsideProps = {
 	menuItems: MenuItems;
-	menuType: MenuItemType;
 	onGetAll: () => void;
-	onTrash: () => void;
+	onGetFavorites: () => void;
+	onGetTrash: () => void;
 };
 
 const Aside = ({
 	menuItems,
-	menuType,
+	onGetFavorites,
 	onGetAll,
-	onTrash,
+	onGetTrash,
 }: AsideProps): ReactElement => {
+	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
 	const { folders, tags } = menuItems || {};
 	const router = useRouter();
 
@@ -52,28 +53,59 @@ const Aside = ({
 		}
 	};
 
+	const clickMenuHandler = (
+		event: MouseEvent<HTMLAnchorElement>,
+		type: MenuItemType
+	): void => {
+		event?.preventDefault();
+		setActiveMenu(type);
+
+		switch (type) {
+			case "all":
+				onGetAll();
+				break;
+
+			case "favorites":
+				onGetFavorites();
+				break;
+
+			case "trash":
+				onGetTrash();
+				break;
+
+			default:
+				break;
+		}
+	};
+
 	return (
 		<aside className={styles.container}>
 			<section className={styles.section}>
 				<a
-					className={`${styles.linkItem} green-color ${menuType === "all" && styles.linkItemActive}`}
-					onClick={onGetAll}
+					className={`${styles.linkItem} green-color ${activeMenu === "all" && styles.linkItemActive}`}
+					onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+						clickMenuHandler(event, "all")
+					}
 				>
 					<Book className={styles.icon} width={18} height={18} />
 					All Snippets
 				</a>
 
 				<a
-					className={`${styles.linkItem} yellow-color ${menuType === "favorites" && styles.linkItemActive}`}
-					onClick={onGetAll}
+					className={`${styles.linkItem} yellow-color ${activeMenu === "favorites" && styles.linkItemActive}`}
+					onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+						clickMenuHandler(event, "favorites")
+					}
 				>
-					<Start className={styles.icon} width={18} height={18} />
+					<Star className={styles.icon} width={18} height={18} />
 					Favorites
 				</a>
 
 				<a
-					className={`${styles.linkItem} red-color ${menuType === "trash" && styles.linkItemActive}`}
-					onClick={onTrash}
+					className={`${styles.linkItem} red-color ${activeMenu === "trash" && styles.linkItemActive}`}
+					onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+						clickMenuHandler(event, "trash")
+					}
 				>
 					<Trash className={styles.icon} height={18} width={18} />
 					Trash

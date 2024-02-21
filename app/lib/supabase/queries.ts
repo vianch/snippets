@@ -1,10 +1,32 @@
 import supabase from "@/lib/supabase/client";
 import SnippetValueObject from "@/lib/models/Snippet";
 
-export const getAllSnippets = async (
-	state: SnippetState = "active"
-): Promise<Snippet[]> => {
+export const getAllSnippets = async (): Promise<Snippet[]> => {
 	if (supabase) {
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+		const userId = session?.user?.id || null;
+
+		if (userId) {
+			const { data } = await supabase
+				.from("snippet")
+				.select()
+				.order("updated_at", { ascending: false })
+				.match({ user_id: userId })
+				.neq("state", "inactive");
+
+			return data as Snippet[];
+		}
+	}
+
+	return [] as Snippet[];
+};
+
+export const getSnippetsByState = async (
+	state: SnippetState
+): Promise<Snippet[]> => {
+	if (supabase && state) {
 		const {
 			data: { session },
 		} = await supabase.auth.getSession();
@@ -34,6 +56,7 @@ export const saveSnippet = async (
 			language: currentSnippet.language,
 			name: currentSnippet?.name,
 			updated_at: currentSnippet?.updated_at,
+			state: currentSnippet?.state,
 		});
 
 		if (error) {

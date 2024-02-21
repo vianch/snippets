@@ -4,6 +4,7 @@
 	max-width: 23.75rem;
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
+	transition: all 0.12s;
 }
 
 .fields {
@@ -112,10 +113,14 @@
 	color: var(--green-color);
 }
 
-@media (width <= 768px) {
+@media (width <= 780px) {
 	.snippetsListContainer {
-		width: 100%;
-		max-width: inherit;
-		height: auto;
+		max-width: 16rem;
 	}
+}
+
+@media (width <= 480px) {
+	max-width: inherit;
+	height: auto;
+	width: 100%;
 }

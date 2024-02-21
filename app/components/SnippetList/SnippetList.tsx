@@ -89,6 +89,7 @@ const SnippetList = ({
 					/>
 				)}
 			</div>
+
 			{snippets?.length > 0 ? (
 				<ul className={styles.snippetsList}>
 					{snippets.map((snippet, index) => (
