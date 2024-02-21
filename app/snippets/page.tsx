@@ -143,7 +143,7 @@ export default function Page(): ReactElement {
 		cloneSnippets.splice(currentIndex, 1);
 		setSnippets(cloneSnippets);
 
-		setActiveSnippetIndex(0);
+		setActiveSnippetIndex(currentIndex > 0 ? currentIndex - 1 : 0);
 	};
 
 	const newSnippetHandler = (newSnippet: Snippet): void => {

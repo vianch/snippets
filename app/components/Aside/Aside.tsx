@@ -14,14 +14,12 @@ import supabase from "@/lib/supabase/client";
 import Trash from "@/components/ui/icons/Trash";
 import Book from "@/components/ui/icons/Book";
 import Bookmark from "@/components/ui/icons/Bookmark";
-import Tray from "@/components/ui/icons/Tray";
 import Star from "@/components/ui/icons/Star";
 
 /* Styles */
 import styles from "./aside.module.css";
 
 type MenuItems = {
-	folders: Item[];
 	tags: Item[];
 };
 
@@ -39,7 +37,7 @@ const Aside = ({
 	onGetTrash,
 }: AsideProps): ReactElement => {
 	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
-	const { folders, tags } = menuItems || {};
+	const { tags } = menuItems || {};
 	const router = useRouter();
 
 	const signOut = async (
@@ -114,15 +112,6 @@ const Aside = ({
 
 			<section className={styles.section}>
 				<h2 className={`${styles.title} purple-color`}>
-					<Tray className={styles.icon} width={18} height={18} />
-					Folders
-				</h2>
-
-				<AsideItem items={folders} iconType="folder" />
-			</section>
-
-			<section className={styles.section}>
-				<h2 className={`${styles.title} orange-color`}>
 					<Bookmark className={styles.icon} width={18} height={18} />
 					Tags
 				</h2>
