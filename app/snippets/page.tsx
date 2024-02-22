@@ -11,13 +11,11 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import defaultMenuItems from "@/lib/config/aside";
 import {
 	getAllSnippets,
+	getSnippetsByState,
 	saveSnippet,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
-
-/* Styles */
-import styles from "./snippets.module.css";
 
 export default function Page(): ReactElement {
 	const defaultCodeEditorStates: SnippetEditorStates = {
@@ -53,16 +51,19 @@ export default function Page(): ReactElement {
 	};
 
 	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
-		const data = await getAllSnippets(state);
+		const data =
+			state === "active"
+				? await getAllSnippets()
+				: await getSnippetsByState(state);
 
 		setSnippets(data);
 		setCodedEditorStates(defaultCodeEditorStates);
 	};
 
-	const updateSnippet = async (
+	const updateSnippet = (
 		currentSnippet: CurrentSnippet | null = null,
-		fromButton = false
-	): Promise<void> => {
+		fromButton: boolean | "favorite" = false
+	): void => {
 		if (!currentSnippet) {
 			return;
 		}
@@ -73,19 +74,21 @@ export default function Page(): ReactElement {
 			return;
 		}
 
-		const updatedSnippets = snippets.map((snippet, index) =>
-			index === foundIndex ? { ...snippet, ...currentSnippet } : snippet
-		);
+		if (fromButton !== "favorite") {
+			const updatedSnippets = snippets.map((snippet, index) =>
+				index === foundIndex ? { ...snippet, ...currentSnippet } : snippet
+			);
 
-		const snippetsSorted = sortSnippetsByUpdatedAt(updatedSnippets);
+			const snippetsSorted = sortSnippetsByUpdatedAt(updatedSnippets);
 
-		setSnippets(snippetsSorted);
+			setSnippets(snippetsSorted);
+		}
 
 		const newActiveSnippetIndex =
 			codeEditorStates.activeSnippetIndex > foundIndex
 				? codeEditorStates.activeSnippetIndex
 				: codeEditorStates.activeSnippetIndex + 1;
-		const activeSnippetIndex = fromButton ? 0 : newActiveSnippetIndex;
+		const activeSnippetIndex = fromButton === true ? 0 : newActiveSnippetIndex;
 
 		setCodedEditorStates({
 			...codeEditorStates,
@@ -97,7 +100,7 @@ export default function Page(): ReactElement {
 
 	const saveSnippetHandler = async (
 		currentSnippet: CurrentSnippet,
-		fromButton = false
+		fromButton: boolean | "favorite" = false
 	): Promise<void> => {
 		if (
 			snippets[codeEditorStates?.activeSnippetIndex ?? 0]?.snippet_id &&
@@ -115,10 +118,9 @@ export default function Page(): ReactElement {
 				updated_at: new Date().toISOString(),
 			};
 
+			updateSnippet(updatedSnippet, fromButton);
+
 			await saveSnippet(updatedSnippet);
-			setTimeout(() => {
-				updateSnippet(updatedSnippet, fromButton);
-			}, 400);
 		} else {
 			setTimeout(() => {
 				setCodedEditorStates({
@@ -127,6 +129,21 @@ export default function Page(): ReactElement {
 				});
 			}, 400);
 		}
+	};
+
+	const onStarredHandler = (currentSnippet: CurrentSnippet): void => {
+		const currentIndex = findIndexForCurrentSnippet(currentSnippet);
+
+		if (currentIndex === -1) {
+			return;
+		}
+
+		const cloneSnippets = [...snippets];
+
+		cloneSnippets.splice(currentIndex, 1);
+		setSnippets(cloneSnippets);
+
+		setActiveSnippetIndex(currentIndex > 0 ? currentIndex - 1 : 0);
 	};
 
 	const newSnippetHandler = (newSnippet: Snippet): void => {
@@ -142,10 +159,10 @@ export default function Page(): ReactElement {
 	const getTrashHandler = async (): Promise<void> => {
 		if (codeEditorStates.menuType !== "trash") {
 			await getSnippets("inactive");
+
 			setCodedEditorStates({
 				...codeEditorStates,
 				menuType: "trash",
-				activeSnippetIndex: 0,
 			});
 		}
 	};
@@ -153,6 +170,17 @@ export default function Page(): ReactElement {
 	const getSnippetsHandler = async (): Promise<void> => {
 		if (codeEditorStates.menuType !== "all") {
 			await getSnippets();
+		}
+	};
+
+	const getFavoritesHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== "favorites") {
+			await getSnippets("favorite");
+
+			setCodedEditorStates({
+				...codeEditorStates,
+				menuType: "favorites",
+			});
 		}
 	};
 
@@ -164,8 +192,6 @@ export default function Page(): ReactElement {
 		if (!snippetId) {
 			return;
 		}
-
-		await trashRestoreSnippet(snippetId, state);
 
 		const cloneSnippets = [...snippets];
 		const foundIndex = cloneSnippets.findIndex(
@@ -182,6 +208,8 @@ export default function Page(): ReactElement {
 		if (index > cloneSnippets.length - 1) {
 			setActiveSnippetIndex(0);
 		}
+
+		await trashRestoreSnippet(snippetId, state);
 	};
 
 	useEffect(() => {
@@ -192,32 +220,31 @@ export default function Page(): ReactElement {
 		<>
 			<Aside
 				menuItems={defaultMenuItems}
-				menuType={codeEditorStates.menuType}
 				onGetAll={getSnippetsHandler}
-				onTrash={getTrashHandler}
+				onGetFavorites={getFavoritesHandler}
+				onGetTrash={getTrashHandler}
 			/>
 
-			<section className={styles.mainContent}>
-				<SnippetList
-					snippets={snippets}
-					codeEditorStates={codeEditorStates}
-					onNewSnippet={newSnippetHandler}
-					onActiveSnippet={setActiveSnippetIndex}
-					onDeleteSnippet={trashRestoreSnippetHandler}
-					onRestoreSnippet={trashRestoreSnippetHandler}
-				/>
+			<SnippetList
+				snippets={snippets}
+				codeEditorStates={codeEditorStates}
+				onNewSnippet={newSnippetHandler}
+				onActiveSnippet={setActiveSnippetIndex}
+				onDeleteSnippet={trashRestoreSnippetHandler}
+				onRestoreSnippet={trashRestoreSnippetHandler}
+			/>
 
-				<CodeEditor
-					snippet={
-						snippets?.length > 0
-							? snippets[codeEditorStates.activeSnippetIndex]
-							: null
-					}
-					codeEditorStates={codeEditorStates}
-					onSave={saveSnippetHandler}
-					onTouched={touchedHandler}
-				/>
-			</section>
+			<CodeEditor
+				snippet={
+					snippets?.length > 0
+						? snippets[codeEditorStates.activeSnippetIndex]
+						: null
+				}
+				codeEditorStates={codeEditorStates}
+				onSave={saveSnippetHandler}
+				onStarred={onStarredHandler}
+				onTouched={touchedHandler}
+			/>
 		</>
 	);
 }

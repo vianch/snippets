@@ -4,7 +4,7 @@
 	max-width: 15.625rem;
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
-	transition: max-width 0.3s;
+	transition: all 0.12s;
 	position: relative;
 }
 
@@ -12,6 +12,7 @@
 	padding: 0.625rem 0.938rem;
 	display: flex;
 	flex-direction: column;
+	transition: all 0.1s;
 }
 
 .section:first-child {
@@ -71,15 +72,20 @@
 	margin-right: 0.313rem;
 }
 
-@media (width <= 768px) {
+@media (width < 1140px) {
 	.container {
-		width: 100%;
-		overflow: hidden;
-		max-width: 3.5rem;
-		height: auto;
+		visibility: hidden;
+		width: 0;
 	}
 
 	.section {
 		display: none;
+	}
+}
+
+@media (width <= 768px) {
+	.section {
+		visibility: hidden;
+		width: 0;
 	}
 }
