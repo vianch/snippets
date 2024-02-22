@@ -19,7 +19,12 @@ const Button = ({
 }: ButtonProps): ReactElement => {
 	return (
 		<button
-			className={`${styles.button} ${variant === "primary" ? styles.primary : styles.secondary} ${className}`}
+			className={`
+			  ${styles.button} 
+			  ${variant === "primary" && styles.primary} 
+			  ${variant === "secondary" && styles.secondary} 
+			  ${variant === "tertiary" && styles.tertiary} 
+			  ${className}`}
 			{...props}
 			onClick={onClick}
 		>

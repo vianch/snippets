@@ -1,31 +1,112 @@
 .main {
 	display: flex;
 	flex-flow: column nowrap;
-	height: 100vh;
-	min-height: 35rem;
 	width: 100%;
+	align-items: center;
+	height: 100vh;
+}
+
+.button {
+	padding: 0.313rem 1.25rem;
+	margin: 0 0.625rem;
+	display: flex;
+	justify-content: flex-start;
 	align-items: center;
 }
 
-.loginContainer {
-	padding: 8rem 1rem 0;
+.signInIcon {
+	margin-right: 0.313rem;
+}
+
+.header {
 	width: 100%;
-	max-width: 30rem;
 	display: flex;
-	flex-flow: column nowrap;
+	height: 3.5rem;
+	background-color: var(--current-line);
+	border-bottom: 1px solid var(--border-color);
+	box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 30%);
+	padding: 0.313rem 0;
+	align-items: center;
 	justify-content: center;
+	z-index: 2;
+}
+
+.headerContainer {
+	display: flex;
+	justify-content: space-between;
 	align-items: center;
 }
 
 .logo {
-	width: 8rem;
-	height: 8rem;
-	margin-bottom: 1.875rem;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	width: 100%;
+	max-width: 15rem;
+}
+
+.logoImage {
+	margin-right: 0.625rem;
+}
+
+.topSection {
+	height: auto;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 0;
+	padding: 7rem 0;
+}
+
+.top {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	flex-flow: column nowrap;
+	height: 100%;
+	padding: 0 1rem;
 }
 
 .title {
-	font-size: var(--normal-font-size);
-	color: var(--foreground-color);
-	margin-bottom: 0.625rem;
+	margin: 0 auto 2.4rem;
+	font-size: var(--large-font-size);
+	color: var(--cyan-color);
 	text-align: center;
+}
+
+.description {
+	margin: 0 auto 2.4rem;
+	font-size: var(--big-font-size);
+	color: var(--foreground-color);
+	text-align: center;
+}
+
+.image {
+	border-radius: 0.75rem;
+	width: 100%;
+	max-width: 71.25rem;
+	padding: 0 0.313rem;
+}
+
+.info {
+	font-size: var(--small-font-size);
+	line-height: 1.5;
+	max-width: 71.25rem;
+	margin-top: 2.4rem;
+}
+
+.copyRight {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+	margin-top: 7rem;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+}
+
+@media (width <= 768px) {
+	.topSection {
+		padding: 2.4rem 0;
+	}
 }

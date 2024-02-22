@@ -18,6 +18,11 @@
 	color: var(--gray-color);
 }
 
+.tertiary {
+	background-color: var(--bg-color-dark);
+	color: var(--foreground-color);
+}
+
 .button:hover {
 	background-color: var(--gray-color);
 	color: var(--bg-color-dark);
