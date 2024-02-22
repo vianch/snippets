@@ -1,7 +1,6 @@
 .main {
 	display: flex;
 	flex-flow: row nowrap;
-	height: 100%;
-	min-height: 35rem;
+	height: 100vh;
 	overflow: hidden;
 }

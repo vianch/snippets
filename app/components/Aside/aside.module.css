@@ -4,7 +4,7 @@
 	max-width: 15.625rem;
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
-	transition: all 0.12s;
+	transition: width 0.12s;
 	position: relative;
 }
 

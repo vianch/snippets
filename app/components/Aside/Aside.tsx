@@ -15,6 +15,7 @@ import Trash from "@/components/ui/icons/Trash";
 import Book from "@/components/ui/icons/Book";
 import Bookmark from "@/components/ui/icons/Bookmark";
 import Star from "@/components/ui/icons/Star";
+import Loading from "@/components/ui/icons/Loading";
 
 /* Styles */
 import styles from "./aside.module.css";
@@ -37,18 +38,25 @@ const Aside = ({
 	onGetTrash,
 }: AsideProps): ReactElement => {
 	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
+	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
 	const { tags } = menuItems || {};
 	const router = useRouter();
 
 	const signOut = async (
 		event: MouseEvent<HTMLAnchorElement>
 	): Promise<void> => {
+		setIsLoginOut(true);
 		event.preventDefault();
-		const { error } = await supabase.auth.signOut();
 
-		if (!error) {
-			router.push("/");
+		if (!isLoginOut) {
+			const { error } = await supabase.auth.signOut();
+
+			if (!error) {
+				router.push("/login");
+			}
 		}
+
+		setIsLoginOut(false);
 	};
 
 	const clickMenuHandler = (
@@ -131,7 +139,11 @@ const Aside = ({
 				</a>
 
 				<a className={styles.settingsItems} onClick={signOut}>
-					<SignOut className={styles.signOutIcon} width={24} height={24} />
+					{isLoginOut ? (
+						<Loading className={styles.signOutIcon} width={24} height={24} />
+					) : (
+						<SignOut className={styles.signOutIcon} width={24} height={24} />
+					)}
 					Log out
 				</a>
 			</section>

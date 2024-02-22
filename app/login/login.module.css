@@ -1,0 +1,31 @@
+.main {
+	display: flex;
+	flex-flow: column nowrap;
+	height: 100vh;
+	min-height: 35rem;
+	width: 100%;
+	align-items: center;
+}
+
+.loginContainer {
+	padding: 8rem 1rem 0;
+	width: 100%;
+	max-width: 30rem;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+	align-items: center;
+}
+
+.logo {
+	width: 8rem;
+	height: 8rem;
+	margin-bottom: 1.875rem;
+}
+
+.title {
+	font-size: var(--normal-font-size);
+	color: var(--foreground-color);
+	margin-bottom: 0.625rem;
+	text-align: center;
+}

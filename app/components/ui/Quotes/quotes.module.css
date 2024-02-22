@@ -1,0 +1,19 @@
+.container {
+	margin: 0 auto;
+	padding: 1rem 2.4rem;
+	background: var(--bg-color-dark);
+	border-radius: 0.313rem;
+	border-left: 0.625rem solid var(--border-color);
+}
+
+.container p {
+	margin-bottom: 0.625rem;
+}
+
+.container p strong {
+	color: var(--cyan-color);
+}
+
+.container p:last-child {
+	margin-bottom: 0;
+}

@@ -107,6 +107,12 @@ body {
 	line-height: 1;
 }
 
+.strong,
+strong {
+	font-weight: 700;
+	letter-spacing: 0.05rem;
+}
+
 ol,
 ul {
 	list-style: none;
@@ -154,6 +160,7 @@ table {
 	--info-color: #e8f6fd;
 
 	/* Font sizes */
+	--large-font-size: 1.875rem;
 	--big-font-size: 1.25rem;
 	--normal-font-size: 1rem;
 	--small-font-size: 0.875rem;
@@ -214,6 +221,12 @@ body {
 
 .ͼ1 .cm-panel.cm-search {
 	background-color: var(--bg-color-dark);
+}
+
+.container {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 1rem;
 }
 
 @media (prefers-color-scheme: dark) {
