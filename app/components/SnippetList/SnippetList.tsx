@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactElement, useMemo } from "react";
+import { MouseEvent, ReactElement, useMemo, useRef, useEffect } from "react";
 
 import Input from "@/components/ui/Input/Input";
 import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
@@ -15,6 +15,7 @@ import Restore from "@/components/ui/icons/Restore";
 import NewFile from "@/components/ui/icons/NewFile";
 
 /* Styles */
+import useMenuStore from "@/lib/store/menu";
 import styles from "./snippetlist.module.css";
 
 type DeleteRestoreFunction = (
@@ -40,6 +41,9 @@ const SnippetList = ({
 	onDeleteSnippet,
 	onRestoreSnippet,
 }: SnippetListProps): ReactElement => {
+	const asideRef = useRef<HTMLDivElement | null>(null);
+	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
+	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
 	const isTrashActive = menuType === "trash";
 	const formattedDates = useMemo(
 		(): string[] =>
@@ -65,8 +69,39 @@ const SnippetList = ({
 		}
 	};
 
+	const handleClickOutside = (event: MouseEvent) => {
+		const isIconClickInDifferentComponent = (
+			event.target as HTMLElement
+		)?.closest("#mobile-icon");
+
+		if (
+			asideRef.current &&
+			!isIconClickInDifferentComponent &&
+			!(asideRef.current as HTMLDivElement)?.contains(event.target as Node)
+		) {
+			closeSnippetList();
+		}
+	};
+
+	useEffect(() => {
+		document.addEventListener(
+			"mousedown",
+			handleClickOutside as unknown as EventListener
+		);
+
+		return () => {
+			document.removeEventListener(
+				"mousedown",
+				handleClickOutside as unknown as EventListener
+			);
+		};
+	}, []);
+
 	return (
-		<aside className={styles.snippetsListContainer}>
+		<aside
+			ref={asideRef}
+			className={`${styles.snippetsListContainer} ${mobileListOpen ? styles.mobileListOpen : styles.mobileListClosed}`}
+		>
 			<div className={styles.fields}>
 				<Input
 					placeholder="Search..."

@@ -1,10 +1,14 @@
 .snippetsListContainer {
+	display: block;
 	width: 100%;
 	background: var(--bg-color-dark);
 	max-width: 23.75rem;
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
-	transition: width 0.12s;
+	transition:
+		width 0.12s,
+		max-width 0.12s,
+		visibility 0.14s;
 }
 
 .fields {
@@ -113,9 +117,30 @@
 	color: var(--green-color);
 }
 
-@media (width <= 780px) {
+@media (width < 1140px) {
 	.snippetsListContainer {
-		max-width: 16rem;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 3;
+	}
+
+	.mobileListOpen {
+		max-width: 50%;
+		visibility: visible;
+	}
+
+	.mobileListClosed {
+		max-width: 0;
+		visibility: hidden;
+	}
+
+	.mobileListClosed .section {
+		display: none;
+	}
+
+	.mobileListOpen .section {
+		display: block;
 	}
 }
 

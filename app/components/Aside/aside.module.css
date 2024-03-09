@@ -4,7 +4,6 @@
 	max-width: 15.625rem;
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
-	transition: width 0.12s;
 	position: relative;
 }
 
@@ -12,7 +11,6 @@
 	padding: 0.625rem 0.938rem;
 	display: flex;
 	flex-direction: column;
-	transition: all 0.1s;
 }
 
 .section:first-child {
@@ -72,19 +70,55 @@
 	margin-right: 0.313rem;
 }
 
-@media (width < 1140px) {
-	.container {
-		visibility: hidden;
-		width: 0;
-	}
-
-	.section {
-		display: none;
-	}
+.mobileMenuContainer {
+	display: none;
+	justify-content: center;
+	align-items: center;
 }
 
-@media (width <= 768px) {
-	.section {
+.mobileItemList {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.mobileIcon {
+	cursor: pointer;
+	margin: 0 0.625rem;
+}
+
+@media (width < 1140px) {
+	.mobileMenuContainer {
+		width: 100%;
+		position: fixed;
+		display: flex;
+		bottom: 0;
+		z-index: 5;
+		height: 50px;
+		max-width: 100%;
+		left: 0;
+		background: var(--bg-color-dark);
+		border-top: 1px solid var(--border-color);
+	}
+
+	.container {
+		position: absolute;
+		left: 0;
+		top: 0;
+		z-index: 5;
+		transition:
+			width 0.1s,
+			visibility 0s;
+	}
+
+	.containerOpen {
+		visibility: visible;
+		width: 50%;
+	}
+
+	.containerClosed {
 		visibility: hidden;
 		width: 0;
 	}

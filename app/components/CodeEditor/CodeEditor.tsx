@@ -4,9 +4,11 @@ import { ReactElement, useState, useEffect, useMemo, ChangeEvent } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { draculaInit } from "@uiw/codemirror-theme-dracula";
 
+/* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 
+/* Components */
 import Select from "@/components/ui/Select/Select";
 import Button from "@/components/ui/Button/Button";
 import Floppy from "@/components/ui/icons/Floppy";
@@ -38,6 +40,7 @@ const CodeEditor = ({
 	onStarred,
 	onTouched,
 }: CodeEditorProps): ReactElement => {
+	const [isMobile, setIsMobile] = useState(false);
 	const { menuType, isSaving, touched } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
@@ -142,6 +145,22 @@ const CodeEditor = ({
 		}
 	};
 
+	const calculateEditorHeight = (): string => {
+		if (isMobile && !isTrashActive) {
+			return "calc(100vh - 7.2rem)";
+		}
+
+		if (isTrashActive && !isMobile) {
+			return "100vh";
+		}
+
+		if (isTrashActive && isMobile) {
+			return "calc(100vh - 3.2rem)";
+		}
+
+		return "calc(100vh - 4rem)";
+	};
+
 	useEffect(() => {
 		if (snippet?.language) {
 			setLanguageExtension(snippet.language);
@@ -164,6 +183,19 @@ const CodeEditor = ({
 			onTouched(false);
 		}
 	}, [snippet]);
+
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth < 1140); // Adjust the width threshold as needed
+		};
+
+		window.addEventListener("resize", handleResize);
+		handleResize(); // Initial check
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+		};
+	}, []);
 
 	return (
 		<div
@@ -234,7 +266,7 @@ const CodeEditor = ({
 						value={snippet?.snippet ?? ""}
 						extensions={[currentSnippet.extension]}
 						theme={draculaTheme}
-						height={!isTrashActive ? "calc(100vh - 4rem)" : "100vh"}
+						height={calculateEditorHeight()}
 						width="100%"
 						readOnly={isTrashActive}
 						onChange={updateCurrentSnippetValue}
