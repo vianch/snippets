@@ -7,6 +7,8 @@ import { draculaInit } from "@uiw/codemirror-theme-dracula";
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
+import useViewPortStore from "@/lib/store/viewPort";
+import codeMirrorOptions from "@/lib/constants/codeMirror";
 
 /* Components */
 import Select from "@/components/ui/Select/Select";
@@ -40,7 +42,7 @@ const CodeEditor = ({
 	onStarred,
 	onTouched,
 }: CodeEditorProps): ReactElement => {
-	const [isMobile, setIsMobile] = useState(false);
+	const isMobile = useViewPortStore((state) => state.isMobile);
 	const { menuType, isSaving, touched } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
@@ -49,32 +51,6 @@ const CodeEditor = ({
 		language: defaultLanguage,
 		extension: languageExtensions[defaultLanguage],
 	});
-	const codeMirrorOptions = {
-		lineNumbers: true,
-		highlightActiveLineGutter: true,
-		highlightSpecialChars: true,
-		history: true,
-		foldGutter: true,
-		drawSelection: true,
-		dropCursor: false,
-		allowMultipleSelections: false,
-		indentOnInput: true,
-		syntaxHighlighting: true,
-		bracketMatching: true,
-		closeBrackets: true,
-		autocompletion: true,
-		rectangularSelection: true,
-		highlightActiveLine: true,
-		highlightSelectionMatches: true,
-		closeBracketsKeymap: true,
-		defaultKeymap: true,
-		searchKeymap: false,
-		historyKeymap: true,
-		foldKeymap: true,
-		completionKeymap: true,
-		lintKeymap: true,
-		tabSize: 2,
-	};
 
 	const draculaTheme = useMemo(
 		() =>
@@ -183,19 +159,6 @@ const CodeEditor = ({
 			onTouched(false);
 		}
 	}, [snippet]);
-
-	useEffect(() => {
-		const handleResize = () => {
-			setIsMobile(window.innerWidth < 1140); // Adjust the width threshold as needed
-		};
-
-		window.addEventListener("resize", handleResize);
-		handleResize(); // Initial check
-
-		return () => {
-			window.removeEventListener("resize", handleResize);
-		};
-	}, []);
 
 	return (
 		<div

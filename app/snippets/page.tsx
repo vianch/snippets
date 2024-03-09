@@ -16,8 +16,12 @@ import {
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
+import { useDeviceViewPort } from "@/utils/ui.utils";
 
 export default function Page(): ReactElement {
+	// Allow isMobile to be used across all Snippets page components
+	useDeviceViewPort();
+
 	const defaultCodeEditorStates: SnippetEditorStates = {
 		activeSnippetIndex: 0,
 		isSaving: false,
