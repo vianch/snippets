@@ -9,14 +9,7 @@ export async function middleware(
 	const supabase = createMiddlewareClient({ req: request, res: response });
 	const {
 		data: { user },
-		error,
 	} = await supabase.auth.getUser();
-
-	if (error) {
-		response.cookies.delete("my-auth-token-name");
-
-		return NextResponse.redirect(new URL("/login", request.url));
-	}
 
 	// if user is signed in and the current path is / redirect the user to /account
 	if (user && request.nextUrl.pathname === "/login") {
@@ -32,5 +25,5 @@ export async function middleware(
 
 // See "Matching Paths" below to learn more
 export const config = {
-	matcher: ["/", "/snippets"],
+	matcher: ["/", "/snippets", "/login"],
 };

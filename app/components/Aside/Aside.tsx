@@ -26,19 +26,15 @@ import Rows from "@/components/ui/icons/Rows";
 /* Styles */
 import styles from "./aside.module.css";
 
-type MenuItems = {
-	tags: Item[];
-};
-
 type AsideProps = {
-	menuItems: MenuItems;
+	tags: Item[];
 	onGetAll: () => void;
 	onGetFavorites: () => void;
 	onGetTrash: () => void;
 };
 
 const Aside = ({
-	menuItems,
+	tags,
 	onGetFavorites,
 	onGetAll,
 	onGetTrash,
@@ -51,7 +47,7 @@ const Aside = ({
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
 	const closeMainMenu = useMenuStore((state) => state.closeMainMenu);
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
-	const { tags } = menuItems || {};
+
 	const router = useRouter();
 
 	const signOut = async (
@@ -147,14 +143,16 @@ const Aside = ({
 					</a>
 				</section>
 
-				<section className={styles.section}>
-					<h2 className={`${styles.title} purple-color`}>
-						<Bookmark className={styles.icon} width={18} height={18} />
-						Tags
-					</h2>
+				{tags?.length > 0 && (
+					<section className={styles.section}>
+						<h2 className={`${styles.title} purple-color`}>
+							<Bookmark className={styles.icon} width={18} height={18} />
+							Tags
+						</h2>
 
-					<AsideItem items={tags} iconType="tag" />
-				</section>
+						<AsideItem items={tags} iconType="tag" />
+					</section>
+				)}
 
 				<section className={styles.section}>
 					<a className={styles.settingsItems}>

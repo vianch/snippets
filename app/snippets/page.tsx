@@ -8,10 +8,10 @@ import SnippetList from "@/components/SnippetList/SnippetList";
 import CodeEditor from "@/components/CodeEditor/CodeEditor";
 
 /* Lib and Utils */
-import defaultMenuItems from "@/lib/config/aside";
 import {
 	getAllSnippets,
 	getSnippetsByState,
+	getTags,
 	saveSnippet,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
@@ -29,6 +29,7 @@ export default function Page(): ReactElement {
 		menuType: "all",
 	};
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
+	const [tags, setTags] = useState<Item[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
 
@@ -61,6 +62,7 @@ export default function Page(): ReactElement {
 				: await getSnippetsByState(state);
 
 		setSnippets(data);
+
 		setCodedEditorStates(defaultCodeEditorStates);
 	};
 
@@ -218,12 +220,17 @@ export default function Page(): ReactElement {
 
 	useEffect(() => {
 		getSnippets().then(() => null);
+		getTags().then((tagsData) => {
+			if (tagsData?.length > 0) {
+				setTags(tagsData);
+			}
+		});
 	}, []);
 
 	return (
 		<>
 			<Aside
-				menuItems={defaultMenuItems}
+				tags={tags}
 				onGetAll={getSnippetsHandler}
 				onGetFavorites={getFavoritesHandler}
 				onGetTrash={getTrashHandler}

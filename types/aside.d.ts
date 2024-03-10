@@ -1,5 +1,5 @@
 interface Item {
-	id: number;
+	tag_id: number;
 	name: string;
 	numberOfItems?: number;
 }

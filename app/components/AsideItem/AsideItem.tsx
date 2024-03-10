@@ -19,8 +19,8 @@ const AsideItem = ({ items, iconType }: AsideItemProps): ReactElement => {
 
 	return (
 		<ul>
-			{items.map(({ id, name, numberOfItems }: Item, index: number) => (
-				<li className={styles.item} key={`${index + 1}-${id}-item`}>
+			{items.map(({ tag_id, name, numberOfItems }: Item, index: number) => (
+				<li className={styles.item} key={`${index + 1}-${tag_id}-item`}>
 					{iconType === "folder" && (
 						<Folder className={styles.icon} width={16} height={16} />
 					)}
