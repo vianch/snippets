@@ -92,7 +92,7 @@
 @media (width < 1140px) {
 	.mobileMenuContainer {
 		width: 100%;
-		position: absolute;
+		position: fixed;
 		display: flex;
 		bottom: 0;
 		z-index: 5;
