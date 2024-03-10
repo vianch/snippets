@@ -89,7 +89,6 @@
 
 @media (width < 1140px) {
 	.codeEditorContainer {
-		height: calc(100vh - 3.2rem);
 		width: 100%;
 	}
 }
