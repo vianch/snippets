@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactElement, useState } from "react";
+import { MouseEvent, ReactElement, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 /* Components */
@@ -10,6 +10,9 @@ import SignOut from "@/components/ui/icons/SignOut";
 /* Lib */
 import supabase from "@/lib/supabase/client";
 import useMenuStore from "@/lib/store/menu";
+
+/* Utils */
+import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
 
 /* Components */
 import Trash from "@/components/ui/icons/Trash";
@@ -40,6 +43,7 @@ const Aside = ({
 	onGetAll,
 	onGetTrash,
 }: AsideProps): ReactElement => {
+	const asideRef = useRef<HTMLDivElement | null>(null);
 	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
 	const mainMenuOpen = useMenuStore((state) => state.mainMenuOpen);
@@ -102,9 +106,13 @@ const Aside = ({
 		toggleMainMenu();
 	};
 
+	useCloseOutsideCodeEditor(asideRef);
+
 	return (
 		<>
 			<aside
+				id="aside-menu"
+				ref={asideRef}
 				className={`${styles.container} ${mainMenuOpen ? styles.containerOpen : styles.containerClosed}`}
 			>
 				<section className={styles.section}>
@@ -172,10 +180,10 @@ const Aside = ({
 
 			<aside className={styles.mobileMenuContainer}>
 				<ul className={styles.mobileItemList}>
-					<li id="mobile-icon" onClick={handlerMobileOpenMainMenu}>
+					<li id="mobile-icon-main-menu" onClick={handlerMobileOpenMainMenu}>
 						<List className={styles.mobileIcon} />
 					</li>
-					<li id="mobile-icon" onClick={handlerMobileOpenSnippetList}>
+					<li id="mobile-icon-open-list" onClick={handlerMobileOpenSnippetList}>
 						<Rows className={styles.mobileIcon} />
 					</li>
 				</ul>

@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactElement, useMemo, useRef, useEffect } from "react";
+import { MouseEvent, ReactElement, useMemo, useRef } from "react";
 
 import Input from "@/components/ui/Input/Input";
 import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
@@ -8,6 +8,10 @@ import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
 /* Utils */
 import { setNewSnippet } from "@/lib/supabase/queries";
 import formatDateToDDMMYYYY from "@/utils/date.utils";
+import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
+
+/* Lib */
+import useMenuStore from "@/lib/store/menu";
 
 /* Components */
 import Trash from "@/components/ui/icons/Trash";
@@ -15,7 +19,6 @@ import Restore from "@/components/ui/icons/Restore";
 import NewFile from "@/components/ui/icons/NewFile";
 
 /* Styles */
-import useMenuStore from "@/lib/store/menu";
 import styles from "./snippetlist.module.css";
 
 type DeleteRestoreFunction = (
@@ -43,7 +46,6 @@ const SnippetList = ({
 }: SnippetListProps): ReactElement => {
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
-	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
 	const isTrashActive = menuType === "trash";
 	const formattedDates = useMemo(
 		(): string[] =>
@@ -69,40 +71,15 @@ const SnippetList = ({
 		}
 	};
 
-	const handleClickOutside = (event: MouseEvent) => {
-		const isIconClickInDifferentComponent = (
-			event.target as HTMLElement
-		)?.closest("#mobile-icon");
-
-		if (
-			asideRef.current &&
-			!isIconClickInDifferentComponent &&
-			!(asideRef.current as HTMLDivElement)?.contains(event.target as Node)
-		) {
-			closeSnippetList();
-		}
-	};
-
-	useEffect(() => {
-		document.addEventListener(
-			"mousedown",
-			handleClickOutside as unknown as EventListener
-		);
-
-		return () => {
-			document.removeEventListener(
-				"mousedown",
-				handleClickOutside as unknown as EventListener
-			);
-		};
-	}, []);
+	useCloseOutsideCodeEditor(asideRef);
 
 	return (
 		<aside
+			id="snippet-list-aside"
 			ref={asideRef}
 			className={`${styles.snippetsListContainer} ${mobileListOpen ? styles.mobileListOpen : styles.mobileListClosed}`}
 		>
-			<div className={styles.fields}>
+			<div id="snippet-list-header" className={styles.fields}>
 				<Input
 					placeholder="Search..."
 					value=""
@@ -126,7 +103,7 @@ const SnippetList = ({
 			</div>
 
 			{snippets?.length > 0 ? (
-				<ul className={styles.snippetsList}>
+				<ul id="snippet-list-items" className={styles.snippetsList}>
 					{snippets.map((snippet, index) => (
 						<li
 							className={`${styles.snippetItem} ${activeSnippetIndex === index ? styles.active : ""}`}
