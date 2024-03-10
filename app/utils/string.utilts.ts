@@ -1,4 +1,4 @@
-import isClient from "./ui.utils";
+import { isClient } from "./ui.utils";
 
 function uuidv4(): UUID {
 	if (isClient() && window?.crypto?.randomUUID) {

@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 
-export async function middleware(request: NextRequest): Promise<NextResponse> {
+export async function middleware(
+	request: NextRequest
+): Promise<NextResponse | unknown> {
 	const response = NextResponse.next();
 	const supabase = createMiddlewareClient({ req: request, res: response });
 	const {
@@ -23,5 +25,5 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
 // See "Matching Paths" below to learn more
 export const config = {
-	matcher: ["/", "/snippets"],
+	matcher: ["/", "/snippets", "/login"],
 };

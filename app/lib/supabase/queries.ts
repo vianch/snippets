@@ -95,3 +95,43 @@ export const setNewSnippet = async (): Promise<Snippet | null> => {
 
 	return null;
 };
+
+export const getTags = async (): Promise<Item[]> => {
+	const tagData = [] as Item[];
+
+	if (supabase) {
+		const {
+			data: { session },
+		} = await supabase.auth.getSession();
+		const userId = session?.user?.id || null;
+
+		if (userId) {
+			const { data: tags } = await supabase
+				.from("tag")
+				.select("name, tag_id")
+				.order("name", { ascending: true })
+				.match({ user_id: userId });
+
+			if (tags && tags.length > 0) {
+				const tagPromises = tags.map(
+					async (tag: Partial<Item>): Promise<Item | null> => {
+						const { count } = await supabase
+							.from("snippet_tag")
+							.select("*", { count: "exact", head: true })
+							.match({ user_id: userId, tag_id: tag?.tag_id ?? "" });
+
+						return count && count > 0
+							? ({ ...tag, numberOfItems: count } as Item)
+							: null;
+					}
+				);
+
+				const resolvedTags = await Promise.all(tagPromises);
+
+				tagData.push(...(resolvedTags.filter((tag) => tag !== null) as Item[]));
+			}
+		}
+	}
+
+	return tagData;
+};
