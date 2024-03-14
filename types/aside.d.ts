@@ -1,5 +1,5 @@
-interface Item {
+interface TagItem {
 	tag_id: number;
 	name: string;
-	numberOfItems?: number;
+	total_snippets: number;
 }

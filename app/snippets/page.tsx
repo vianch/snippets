@@ -29,7 +29,7 @@ export default function Page(): ReactElement {
 		menuType: "all",
 	};
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
-	const [tags, setTags] = useState<Item[]>([]);
+	const [tags, setTags] = useState<TagItem[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
 
@@ -50,7 +50,6 @@ export default function Page(): ReactElement {
 	const touchedHandler = (touched: boolean): void => {
 		setCodedEditorStates({
 			...codeEditorStates,
-
 			touched,
 		});
 	};
@@ -69,15 +68,15 @@ export default function Page(): ReactElement {
 	const updateSnippet = (
 		currentSnippet: CurrentSnippet | null = null,
 		fromButton: boolean | "favorite" = false
-	): void => {
+	): number => {
 		if (!currentSnippet) {
-			return;
+			return 0;
 		}
 
 		const foundIndex = findIndexForCurrentSnippet(currentSnippet);
 
 		if (foundIndex === -1) {
-			return;
+			return 0;
 		}
 
 		if (fromButton !== "favorite") {
@@ -94,14 +93,8 @@ export default function Page(): ReactElement {
 			codeEditorStates.activeSnippetIndex > foundIndex
 				? codeEditorStates.activeSnippetIndex
 				: codeEditorStates.activeSnippetIndex + 1;
-		const activeSnippetIndex = fromButton === true ? 0 : newActiveSnippetIndex;
 
-		setCodedEditorStates({
-			...codeEditorStates,
-			activeSnippetIndex,
-			isSaving: false,
-			touched: false,
-		});
+		return fromButton === true ? 0 : newActiveSnippetIndex;
 	};
 
 	const saveSnippetHandler = async (
@@ -124,9 +117,16 @@ export default function Page(): ReactElement {
 				updated_at: new Date().toISOString(),
 			};
 
-			updateSnippet(updatedSnippet, fromButton);
+			const activeSnippetIndex = updateSnippet(updatedSnippet, fromButton);
 
 			await saveSnippet(updatedSnippet);
+
+			setCodedEditorStates({
+				...codeEditorStates,
+				activeSnippetIndex,
+				isSaving: false,
+				touched: false,
+			});
 		} else {
 			setTimeout(() => {
 				setCodedEditorStates({
