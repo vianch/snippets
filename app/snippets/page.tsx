@@ -93,8 +93,18 @@ export default function Page(): ReactElement {
 			codeEditorStates.activeSnippetIndex > foundIndex
 				? codeEditorStates.activeSnippetIndex
 				: codeEditorStates.activeSnippetIndex + 1;
+		const activeSnippetIndex = fromButton === true ? 0 : newActiveSnippetIndex;
 
-		return fromButton === true ? 0 : newActiveSnippetIndex;
+		const updatedCodeEditorStates = {
+			...codeEditorStates,
+			activeSnippetIndex,
+			isSaving: false,
+			touched: false,
+		};
+
+		setCodedEditorStates(updatedCodeEditorStates);
+
+		return activeSnippetIndex;
 	};
 
 	const saveSnippetHandler = async (
@@ -121,12 +131,14 @@ export default function Page(): ReactElement {
 
 			await saveSnippet(updatedSnippet);
 
-			setCodedEditorStates({
-				...codeEditorStates,
-				activeSnippetIndex,
-				isSaving: false,
-				touched: false,
-			});
+			if (activeSnippetIndex && fromButton !== "favorite" && !fromButton) {
+				setCodedEditorStates({
+					...codeEditorStates,
+					isSaving: false,
+					touched: false,
+					activeSnippetIndex,
+				});
+			}
 		} else {
 			setTimeout(() => {
 				setCodedEditorStates({
