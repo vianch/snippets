@@ -119,22 +119,32 @@ const CodeEditor = ({
 
 	const newTagHandler = (newTagValue: string): void => {
 		if (
-			newTagValue &&
-			currentSnippet?.tags &&
-			newTagValue?.length > 0 &&
-			currentSnippet.tags?.length < 5
-		) {
-			const newCurrentSnippet = {
-				...currentSnippet,
-				...{
-					tags: `${currentSnippet?.tags || ""},${newTagValue}`,
-				},
-			};
+			!newTagValue ||
+			newTagValue.length >= 28 ||
+			(currentSnippet?.tags && currentSnippet?.tags?.split(",").length >= 3)
+		)
+			return;
 
-			setCurrentSnippet(newCurrentSnippet);
+		const updatedTags = currentSnippet?.tags
+			? `${currentSnippet.tags},${newTagValue}`
+			: newTagValue;
 
-			onTouched(true);
-		}
+		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
+		onTouched(true);
+	};
+
+	const removeTagHandler = (tagRemoved: string): void => {
+		if (!tagRemoved) return;
+
+		const updatedTags = currentSnippet?.tags
+			? currentSnippet.tags
+					.split(",")
+					.filter((tag: string) => tag !== tagRemoved)
+					.join(",")
+			: null;
+
+		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
+		onTouched(true);
 	};
 
 	const calculateEditorHeight = (): string => {
@@ -197,6 +207,7 @@ const CodeEditor = ({
 							<CodeEditorTags
 								tags={currentSnippet?.tags ?? ""}
 								onNewTag={newTagHandler}
+								onRemoveTag={removeTagHandler}
 							/>
 						</>
 					)}

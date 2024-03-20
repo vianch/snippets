@@ -10,11 +10,13 @@ import styles from "./codeEditor.module.css";
 type CodeEditorTagsProps = {
 	tags: Tags;
 	onNewTag: (tag: string) => void;
+	onRemoveTag: (tag: string) => void;
 };
 
 const CodeEditorTags = ({
 	tags = null,
 	onNewTag,
+	onRemoveTag,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
 	const getTagForSnippet = (snippetTag: Tags): string[] =>
@@ -32,22 +34,28 @@ const CodeEditorTags = ({
 			{tagList?.length > 0 &&
 				tagList.map(
 					(tag: string, index: number): ReactElement => (
-						<Badge key={`${index + 1}-code-editor-tag`}>
-							{tag?.trim() ?? ""}
+						<Badge
+							key={`${index + 1}-code-editor-tag`}
+							onRemove={() => onRemoveTag(tag)}
+						>
+							{tag ?? ""}
 						</Badge>
 					)
 				)}
 
-			<div className={styles.tagInput}>
-				<Input
-					className={`inputField `}
-					type="text"
-					placeholder="New Tag"
-					value=""
-					required={true}
-					onKeyDown={onNewTag}
-				/>
-			</div>
+			{tagList?.length < 3 && (
+				<div className={styles.tagInput}>
+					<Input
+						className={`inputField `}
+						type="text"
+						placeholder="New Tag"
+						value=""
+						required={true}
+						onKeyDown={onNewTag}
+						maxLength={25}
+					/>
+				</div>
+			)}
 		</section>
 	);
 };

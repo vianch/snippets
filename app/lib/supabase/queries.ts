@@ -59,6 +59,7 @@ export const saveSnippet = async (
 			name: currentSnippet?.name,
 			updated_at: currentSnippet?.updated_at,
 			state: currentSnippet?.state,
+			tags: currentSnippet?.tags ?? null,
 		});
 
 		if (error) {
@@ -93,22 +94,4 @@ export const setNewSnippet = async (): Promise<Snippet | null> => {
 	}
 
 	return null;
-};
-
-export const getTags = async (): Promise<TagItem[]> => {
-	if (supabase) {
-		const userId = await getUserIdBySession();
-
-		if (userId) {
-			const { data: tags } = await supabase
-				.from("tag")
-				.select("name, tag_id, total_snippets")
-				.order("name", { ascending: true })
-				.match({ user_id: userId });
-
-			return tags as TagItem[];
-		}
-	}
-
-	return [] as TagItem[];
 };

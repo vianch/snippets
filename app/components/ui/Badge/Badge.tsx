@@ -1,21 +1,21 @@
 import { ReactElement, ReactNode } from "react";
 
 /* Components */
-import Tag from "@/components/ui/icons/Tag";
+import CloseSquare from "@/components/ui/icons/CloseSquare";
 
 /* Styles */
 import styles from "./badge.module.css";
 
 type BadgeProps = {
-	key?: string;
+	onRemove?: () => void | null;
 	children: ReactElement | ReactNode;
 };
 
-const Badge = ({ key = "", children }: BadgeProps): ReactElement => {
+const Badge = ({ children, onRemove }: BadgeProps): ReactElement => {
 	return (
-		<div className={styles.badgeWrapper} key={key}>
-			<span>
-				<Tag width={18} height={18} />
+		<div className={styles.badgeWrapper}>
+			<span className={styles.removeBadge} onClick={onRemove}>
+				<CloseSquare width={18} height={18} />
 			</span>
 			{children}
 		</div>

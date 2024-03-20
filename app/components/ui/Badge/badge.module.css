@@ -9,3 +9,8 @@
 	background: var(--current-line);
 	border-radius: var(--border-radius);
 }
+
+.removeBadge {
+	margin-right: 0.313rem;
+	cursor: pointer;
+}
