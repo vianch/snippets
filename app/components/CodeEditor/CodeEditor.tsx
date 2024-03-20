@@ -10,9 +10,11 @@ import languageExtensions from "@/lib/codeEditor";
 import useViewPortStore from "@/lib/store/viewPort";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 
-/* Styles */
+/* Components */
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
+
+/* Styles */
 import styles from "./codeEditor.module.css";
 
 type CodeEditorProps = {
@@ -41,7 +43,7 @@ const CodeEditor = ({
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
 		...({} as Snippet),
 		snippet: "",
-		tags: [],
+		tags: null,
 		language: defaultLanguage,
 		extension: languageExtensions[defaultLanguage],
 	});
@@ -125,7 +127,7 @@ const CodeEditor = ({
 			const newCurrentSnippet = {
 				...currentSnippet,
 				...{
-					tags: [...(currentSnippet?.tags ?? []), newTagValue],
+					tags: `${currentSnippet?.tags || ""},${newTagValue}`,
 				},
 			};
 
@@ -193,7 +195,7 @@ const CodeEditor = ({
 							/>
 
 							<CodeEditorTags
-								tags={currentSnippet?.tags ?? []}
+								tags={currentSnippet?.tags ?? ""}
 								onNewTag={newTagHandler}
 							/>
 						</>

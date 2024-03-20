@@ -49,7 +49,7 @@ const SnippetList = ({
 	const isTrashActive = menuType === "trash";
 	const formattedDates = useMemo(
 		(): string[] =>
-			snippets.map((snippet: Snippet) =>
+			snippets?.map((snippet: Snippet) =>
 				formatDateToDDMMYYYY(snippet.updated_at ?? "")
 			),
 		[snippets]

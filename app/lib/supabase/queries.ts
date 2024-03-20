@@ -1,12 +1,17 @@
 import supabase from "@/lib/supabase/client";
 import SnippetValueObject from "@/lib/models/Snippet";
 
+const getUserIdBySession = async (): Promise<string | null> => {
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+
+	return session?.user?.id || null;
+};
+
 export const getAllSnippets = async (): Promise<Snippet[]> => {
 	if (supabase) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		const userId = await getUserIdBySession();
 
 		if (userId) {
 			const { data } = await supabase
@@ -27,10 +32,7 @@ export const getSnippetsByState = async (
 	state: SnippetState
 ): Promise<Snippet[]> => {
 	if (supabase && state) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		const userId = await getUserIdBySession();
 
 		if (userId) {
 			const { data } = await supabase
@@ -83,10 +85,7 @@ export const trashRestoreSnippet = async (
 
 export const setNewSnippet = async (): Promise<Snippet | null> => {
 	if (supabase) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		const userId = await getUserIdBySession();
 
 		if (userId) {
 			return new SnippetValueObject(userId as UUID);
@@ -98,10 +97,7 @@ export const setNewSnippet = async (): Promise<Snippet | null> => {
 
 export const getTags = async (): Promise<TagItem[]> => {
 	if (supabase) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		const userId = await getUserIdBySession();
 
 		if (userId) {
 			const { data: tags } = await supabase

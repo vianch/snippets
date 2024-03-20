@@ -11,7 +11,6 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import {
 	getAllSnippets,
 	getSnippetsByState,
-	getTags,
 	saveSnippet,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
@@ -54,13 +53,46 @@ export default function Page(): ReactElement {
 		});
 	};
 
+	const getTags = (snippetsLoaded: Snippet[]): void => {
+		const tagCounts = {} as { [key: string]: number };
+
+		if (!snippetsLoaded) return;
+
+		snippetsLoaded?.forEach((snippet: Snippet) => {
+			const snippetTags =
+				snippet?.tags && snippet.tags?.length > 0
+					? snippet.tags.split(",")
+					: [];
+
+			snippetTags.forEach((snippetTag: string) => {
+				const tagName = snippetTag.trim();
+
+				if (tagName in tagCounts) {
+					tagCounts[tagName] += 1;
+				} else {
+					tagCounts[tagName] = 1;
+				}
+			});
+		});
+
+		const newTags = Object.keys(tagCounts).map((tag) => ({
+			name: tag,
+			total: tagCounts[tag],
+		}));
+
+		setTags(newTags);
+	};
+
 	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
 		const data =
 			state === "active"
 				? await getAllSnippets()
 				: await getSnippetsByState(state);
 
+		console.log("data: ", data);
+
 		setSnippets(data);
+		getTags(data);
 
 		setCodedEditorStates(defaultCodeEditorStates);
 	};
@@ -232,11 +264,6 @@ export default function Page(): ReactElement {
 
 	useEffect(() => {
 		getSnippets().then(() => null);
-		getTags().then((tagsData) => {
-			if (tagsData?.length > 0) {
-				setTags(tagsData);
-			}
-		});
 	}, []);
 
 	return (
