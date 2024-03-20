@@ -16,6 +16,8 @@
 	flex-flow: row nowrap;
 	justify-content: space-between;
 	align-items: center;
+	border-bottom: 1px solid var(--border-color);
+	height: 3.2rem;
 }
 
 .addButton {

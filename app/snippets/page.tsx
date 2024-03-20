@@ -11,7 +11,6 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import {
 	getAllSnippets,
 	getSnippetsByState,
-	getTags,
 	saveSnippet,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
@@ -29,7 +28,7 @@ export default function Page(): ReactElement {
 		menuType: "all",
 	};
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
-	const [tags, setTags] = useState<Item[]>([]);
+	const [tags, setTags] = useState<TagItem[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
 
@@ -50,18 +49,53 @@ export default function Page(): ReactElement {
 	const touchedHandler = (touched: boolean): void => {
 		setCodedEditorStates({
 			...codeEditorStates,
-
 			touched,
 		});
 	};
 
+	const getTags = (snippetsLoaded: Snippet[]): void => {
+		const tagCounts = {} as { [key: string]: number };
+
+		if (!snippetsLoaded) return;
+
+		snippetsLoaded?.forEach((snippet: Snippet) => {
+			const snippetTags =
+				snippet?.tags && snippet.tags?.length > 0
+					? snippet.tags.split(",")
+					: [];
+
+			snippetTags.forEach((snippetTag: string) => {
+				const tagName = snippetTag.trim();
+
+				if (tagName in tagCounts) {
+					tagCounts[tagName] += 1;
+				} else {
+					tagCounts[tagName] = 1;
+				}
+			});
+		});
+
+		const newTags = Object.keys(tagCounts)
+			.sort()
+			.map((tag) => ({
+				name: tag,
+				total: tagCounts[tag],
+			}));
+
+		setTags(newTags);
+	};
+
 	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
-		const data =
-			state === "active"
-				? await getAllSnippets()
-				: await getSnippetsByState(state);
+		const isActive = state === "active";
+		const data = isActive
+			? await getAllSnippets()
+			: await getSnippetsByState(state);
 
 		setSnippets(data);
+
+		if (isActive) {
+			getTags(data);
+		}
 
 		setCodedEditorStates(defaultCodeEditorStates);
 	};
@@ -69,15 +103,15 @@ export default function Page(): ReactElement {
 	const updateSnippet = (
 		currentSnippet: CurrentSnippet | null = null,
 		fromButton: boolean | "favorite" = false
-	): void => {
+	): number => {
 		if (!currentSnippet) {
-			return;
+			return 0;
 		}
 
 		const foundIndex = findIndexForCurrentSnippet(currentSnippet);
 
 		if (foundIndex === -1) {
-			return;
+			return 0;
 		}
 
 		if (fromButton !== "favorite") {
@@ -96,12 +130,26 @@ export default function Page(): ReactElement {
 				: codeEditorStates.activeSnippetIndex + 1;
 		const activeSnippetIndex = fromButton === true ? 0 : newActiveSnippetIndex;
 
-		setCodedEditorStates({
+		const updatedCodeEditorStates = {
 			...codeEditorStates,
 			activeSnippetIndex,
 			isSaving: false,
 			touched: false,
-		});
+		};
+
+		setCodedEditorStates(updatedCodeEditorStates);
+
+		return activeSnippetIndex;
+	};
+
+	const updateSnippetTagList = (updatedSnippet: Snippet) => {
+		const updatedSnippetList = snippets.map((snippet) =>
+			snippet.snippet_id === updatedSnippet.snippet_id
+				? updatedSnippet
+				: snippet
+		);
+
+		getTags(updatedSnippetList);
 	};
 
 	const saveSnippetHandler = async (
@@ -124,9 +172,19 @@ export default function Page(): ReactElement {
 				updated_at: new Date().toISOString(),
 			};
 
-			updateSnippet(updatedSnippet, fromButton);
+			const activeSnippetIndex = updateSnippet(updatedSnippet, fromButton);
 
 			await saveSnippet(updatedSnippet);
+			updateSnippetTagList(updatedSnippet);
+
+			if (activeSnippetIndex && fromButton !== "favorite" && !fromButton) {
+				setCodedEditorStates({
+					...codeEditorStates,
+					isSaving: false,
+					touched: false,
+					activeSnippetIndex,
+				});
+			}
 		} else {
 			setTimeout(() => {
 				setCodedEditorStates({
@@ -220,11 +278,6 @@ export default function Page(): ReactElement {
 
 	useEffect(() => {
 		getSnippets().then(() => null);
-		getTags().then((tagsData) => {
-			if (tagsData?.length > 0) {
-				setTags(tagsData);
-			}
-		});
 	}, []);
 
 	return (

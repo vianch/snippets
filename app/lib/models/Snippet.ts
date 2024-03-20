@@ -20,6 +20,8 @@ export default class SnippetValueObject implements Snippet {
 
 	public state: SnippetState;
 
+	public tags: Tags;
+
 	language: SupportedLanguages;
 
 	constructor(user_id: UUID) {
@@ -33,5 +35,6 @@ export default class SnippetValueObject implements Snippet {
 		this.snippet = "";
 		this.language = SupportedLanguages.JavaScript;
 		this.state = "active";
+		this.tags = null;
 	}
 }

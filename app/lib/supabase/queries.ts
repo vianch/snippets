@@ -1,12 +1,17 @@
 import supabase from "@/lib/supabase/client";
 import SnippetValueObject from "@/lib/models/Snippet";
 
+const getUserIdBySession = async (): Promise<string | null> => {
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+
+	return session?.user?.id || null;
+};
+
 export const getAllSnippets = async (): Promise<Snippet[]> => {
 	if (supabase) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		const userId = await getUserIdBySession();
 
 		if (userId) {
 			const { data } = await supabase
@@ -27,10 +32,7 @@ export const getSnippetsByState = async (
 	state: SnippetState
 ): Promise<Snippet[]> => {
 	if (supabase && state) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		const userId = await getUserIdBySession();
 
 		if (userId) {
 			const { data } = await supabase
@@ -57,6 +59,7 @@ export const saveSnippet = async (
 			name: currentSnippet?.name,
 			updated_at: currentSnippet?.updated_at,
 			state: currentSnippet?.state,
+			tags: currentSnippet?.tags ?? null,
 		});
 
 		if (error) {
@@ -83,10 +86,7 @@ export const trashRestoreSnippet = async (
 
 export const setNewSnippet = async (): Promise<Snippet | null> => {
 	if (supabase) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
+		const userId = await getUserIdBySession();
 
 		if (userId) {
 			return new SnippetValueObject(userId as UUID);
@@ -94,44 +94,4 @@ export const setNewSnippet = async (): Promise<Snippet | null> => {
 	}
 
 	return null;
-};
-
-export const getTags = async (): Promise<Item[]> => {
-	const tagData = [] as Item[];
-
-	if (supabase) {
-		const {
-			data: { session },
-		} = await supabase.auth.getSession();
-		const userId = session?.user?.id || null;
-
-		if (userId) {
-			const { data: tags } = await supabase
-				.from("tag")
-				.select("name, tag_id")
-				.order("name", { ascending: true })
-				.match({ user_id: userId });
-
-			if (tags && tags.length > 0) {
-				const tagPromises = tags.map(
-					async (tag: Partial<Item>): Promise<Item | null> => {
-						const { count } = await supabase
-							.from("snippet_tag")
-							.select("*", { count: "exact", head: true })
-							.match({ user_id: userId, tag_id: tag?.tag_id ?? "" });
-
-						return count && count > 0
-							? ({ ...tag, numberOfItems: count } as Item)
-							: null;
-					}
-				);
-
-				const resolvedTags = await Promise.all(tagPromises);
-
-				tagData.push(...(resolvedTags.filter((tag) => tag !== null) as Item[]));
-			}
-		}
-	}
-
-	return tagData;
 };

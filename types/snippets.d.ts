@@ -3,7 +3,7 @@ import { LanguageSupport } from "@codemirror/language";
 import SupportedLanguages from "@/lib/config/languages";
 
 declare global {
-	type Tags = string[];
+	type Tags = string | null;
 	type UUID = string & { __uuid: undefined };
 
 	type SnippetState = "active" | "inactive" | "favorite";

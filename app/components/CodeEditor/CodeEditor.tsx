@@ -11,13 +11,8 @@ import useViewPortStore from "@/lib/store/viewPort";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 
 /* Components */
-import Select from "@/components/ui/Select/Select";
-import Button from "@/components/ui/Button/Button";
-import Floppy from "@/components/ui/icons/Floppy";
-import Loading from "@/components/ui/icons/Loading";
-import Input from "@/components/ui/Input/Input";
-import StarFilled from "@/components/ui/icons/StarFilled";
-import Star from "@/components/ui/icons/Star";
+import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
+import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -48,6 +43,7 @@ const CodeEditor = ({
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
 		...({} as Snippet),
 		snippet: "",
+		tags: null,
 		language: defaultLanguage,
 		extension: languageExtensions[defaultLanguage],
 	});
@@ -121,9 +117,43 @@ const CodeEditor = ({
 		}
 	};
 
+	const newTagHandler = (newTagValue: string): void => {
+		const tagList = currentSnippet?.tags ? currentSnippet.tags?.split(",") : [];
+		const newTagValueTrimmed = newTagValue.trim();
+
+		if (
+			!newTagValue ||
+			newTagValue.length >= 28 ||
+			tagList.length >= 3 ||
+			tagList.includes(newTagValueTrimmed)
+		)
+			return;
+
+		const updatedTags = currentSnippet?.tags
+			? `${currentSnippet.tags},${newTagValueTrimmed}`
+			: newTagValueTrimmed;
+
+		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
+		onTouched(true);
+	};
+
+	const removeTagHandler = (tagRemoved: string): void => {
+		if (!tagRemoved) return;
+
+		const updatedTags = currentSnippet?.tags
+			? currentSnippet.tags
+					.split(",")
+					.filter((tag: string) => tag !== tagRemoved)
+					.join(",")
+			: null;
+
+		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
+		onTouched(true);
+	};
+
 	const calculateEditorHeight = (): string => {
 		if (isMobile && !isTrashActive) {
-			return "calc(100vh - 7.2rem)";
+			return "calc(100vh - 9.7rem)";
 		}
 
 		if (isTrashActive && !isMobile) {
@@ -134,7 +164,7 @@ const CodeEditor = ({
 			return "calc(100vh - 3.2rem)";
 		}
 
-		return "calc(100vh - 4rem)";
+		return "calc(100vh - 6.45rem)";
 	};
 
 	useEffect(() => {
@@ -167,55 +197,23 @@ const CodeEditor = ({
 			{snippet && (
 				<>
 					{!isTrashActive && (
-						<div className={styles.header}>
-							<div className={styles.headerLeftSide}>
-								{currentSnippet?.state === "favorite" ? (
-									<StarFilled
-										className={styles.starIcon}
-										height={18}
-										width={18}
-										fill="#f1fa8c"
-										onClick={starringHandler}
-									/>
-								) : (
-									<Star
-										className={styles.starIcon}
-										height={18}
-										width={18}
-										onClick={starringHandler}
-									/>
-								)}
+						<>
+							<CodeEditorHeader
+								currentSnippet={currentSnippet}
+								isSaving={isSaving}
+								snippetName={snippet?.name ?? ""}
+								onStarred={starringHandler}
+								onUpdateName={updateCurrentSnippetName}
+								onSetLanguage={setLanguageHandler}
+								onSave={() => onSave(currentSnippet, true)}
+							/>
 
-								<Input
-									placeholder="Untitled"
-									value={snippet?.name ?? ""}
-									maxLength={34}
-									onChange={updateCurrentSnippetName}
-								/>
-							</div>
-
-							<div className={styles.headerRightSide}>
-								<Select
-									value={currentSnippet.language}
-									items={Object.keys(languageExtensions)}
-									onSelect={setLanguageHandler}
-								/>
-
-								<Button
-									className={styles.button}
-									variant="secondary"
-									disabled={isSaving}
-									onClick={() => onSave(currentSnippet, true)}
-								>
-									{isSaving ? (
-										<Loading className={styles.icon} width={16} height={16} />
-									) : (
-										<Floppy className={styles.icon} width={16} height={16} />
-									)}{" "}
-									Save
-								</Button>
-							</div>
-						</div>
+							<CodeEditorTags
+								tags={currentSnippet?.tags ?? ""}
+								onNewTag={newTagHandler}
+								onRemoveTag={removeTagHandler}
+							/>
+						</>
 					)}
 
 					<CodeMirror

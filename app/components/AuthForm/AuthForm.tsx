@@ -103,6 +103,7 @@ const AuthForm = (): ReactElement => {
 
 			<Input
 				className="inputField"
+				fat
 				dark={false}
 				type="email"
 				placeholder="Email"
@@ -114,6 +115,7 @@ const AuthForm = (): ReactElement => {
 
 			<Input
 				className="inputField"
+				fat
 				dark={false}
 				type="password"
 				placeholder="Password"

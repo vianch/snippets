@@ -12,7 +12,7 @@ const snippetListFixture: Snippet[] = [
 		language: SupportedLanguages.JavaScript,
 		snippet: "console.log('Hello, World!');",
 		state: "active" as SnippetState,
-		tags: [],
+		tags: "JavaScript",
 	},
 ];
 

@@ -27,7 +27,7 @@ import Rows from "@/components/ui/icons/Rows";
 import styles from "./aside.module.css";
 
 type AsideProps = {
-	tags: Item[];
+	tags: TagItem[];
 	onGetAll: () => void;
 	onGetFavorites: () => void;
 	onGetTrash: () => void;
