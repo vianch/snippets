@@ -89,8 +89,6 @@ export default function Page(): ReactElement {
 				? await getAllSnippets()
 				: await getSnippetsByState(state);
 
-		console.log("data: ", data);
-
 		setSnippets(data);
 		getTags(data);
 
