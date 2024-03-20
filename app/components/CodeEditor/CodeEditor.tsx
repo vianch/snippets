@@ -118,16 +118,20 @@ const CodeEditor = ({
 	};
 
 	const newTagHandler = (newTagValue: string): void => {
+		const tagList = currentSnippet?.tags ? currentSnippet.tags?.split(",") : [];
+		const newTagValueTrimmed = newTagValue.trim();
+
 		if (
 			!newTagValue ||
 			newTagValue.length >= 28 ||
-			(currentSnippet?.tags && currentSnippet?.tags?.split(",").length >= 3)
+			tagList.length >= 3 ||
+			tagList.includes(newTagValueTrimmed)
 		)
 			return;
 
 		const updatedTags = currentSnippet?.tags
-			? `${currentSnippet.tags},${newTagValue}`
-			: newTagValue;
+			? `${currentSnippet.tags},${newTagValueTrimmed}`
+			: newTagValueTrimmed;
 
 		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
 		onTouched(true);
