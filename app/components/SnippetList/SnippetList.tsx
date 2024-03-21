@@ -150,7 +150,7 @@ const SnippetList = ({
 				)}
 			</div>
 
-			{snippets?.length > 0 ? (
+			{searchData?.snippetsFound?.length > 0 ? (
 				<ul id="snippet-list-items" className={styles.snippetsList}>
 					{searchData.snippetsFound.map((snippet: Snippet) => {
 						const originalIndex = getSnippetIndex(snippet.snippet_id);
