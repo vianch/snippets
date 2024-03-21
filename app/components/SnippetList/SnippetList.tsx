@@ -140,7 +140,6 @@ const SnippetList = ({
 					onChange={handleSearchInputChange}
 				/>
 
-				<h2>{searchData.searchQuery}</h2>
 				{!isTrashActive && (
 					<NewFile
 						className={styles.addButton}
