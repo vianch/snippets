@@ -8,7 +8,7 @@ declare global {
 
 	type SnippetState = "active" | "inactive" | "favorite";
 
-	type MenuItemType = "all" | "trash" | "favorites";
+	type MenuItemType = "all" | "trash" | "favorites" | "none" | string;
 
 	type SnippetEditorStates = {
 		activeSnippetIndex: number;
