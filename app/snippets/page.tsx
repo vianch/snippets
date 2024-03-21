@@ -11,6 +11,7 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import {
 	getAllSnippets,
 	getSnippetsByState,
+	getSnippetsByTag,
 	saveSnippet,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
@@ -25,7 +26,7 @@ export default function Page(): ReactElement {
 		activeSnippetIndex: 0,
 		isSaving: false,
 		touched: false,
-		menuType: "all",
+		menuType: "none",
 	};
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
 	const [tags, setTags] = useState<TagItem[]>([]);
@@ -142,8 +143,9 @@ export default function Page(): ReactElement {
 		return activeSnippetIndex;
 	};
 
-	const updateSnippetTagList = (updatedSnippet: Snippet) => {
-		const updatedSnippetList = snippets.map((snippet) =>
+	const updateSnippetTagList = async (updatedSnippet: Snippet) => {
+		const allSnippets = await getAllSnippets();
+		const updatedSnippetList = allSnippets.map((snippet) =>
 			snippet.snippet_id === updatedSnippet.snippet_id
 				? updatedSnippet
 				: snippet
@@ -175,7 +177,7 @@ export default function Page(): ReactElement {
 			const activeSnippetIndex = updateSnippet(updatedSnippet, fromButton);
 
 			await saveSnippet(updatedSnippet);
-			updateSnippetTagList(updatedSnippet);
+			updateSnippetTagList(updatedSnippet).then(() => null);
 
 			if (activeSnippetIndex && fromButton !== "favorite" && !fromButton) {
 				setCodedEditorStates({
@@ -248,6 +250,18 @@ export default function Page(): ReactElement {
 		}
 	};
 
+	const getSnippetsByTagHandler = async (tag: string): Promise<void> => {
+		if (tag.length === 0) {
+			return;
+		}
+
+		const data = await getSnippetsByTag(tag);
+
+		setCodedEditorStates(defaultCodeEditorStates);
+
+		setSnippets(data);
+	};
+
 	const trashRestoreSnippetHandler = async (
 		snippetId: UUID,
 		index: number,
@@ -287,6 +301,7 @@ export default function Page(): ReactElement {
 				onGetAll={getSnippetsHandler}
 				onGetFavorites={getFavoritesHandler}
 				onGetTrash={getTrashHandler}
+				onTagClick={getSnippetsByTagHandler}
 			/>
 
 			<SnippetList

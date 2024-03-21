@@ -1,18 +1,22 @@
 import { ReactElement } from "react";
 
 /* Components */
-import Folder from "@/components/ui/icons/Folder";
 import Tag from "@/components/ui/icons/Tag";
 
 /* Styles */
 import styles from "./asideItem.module.css";
 
 type AsideItemProps = {
+	active?: string | null;
 	items: TagItem[];
-	iconType: "folder" | "tag";
+	onItemClicked: (name: string) => void;
 };
 
-const AsideItem = ({ items, iconType }: AsideItemProps): ReactElement => {
+const AsideItem = ({
+	active,
+	items,
+	onItemClicked,
+}: AsideItemProps): ReactElement => {
 	if (!items?.length) {
 		return <></>;
 	}
@@ -20,11 +24,12 @@ const AsideItem = ({ items, iconType }: AsideItemProps): ReactElement => {
 	return (
 		<ul>
 			{items.map(({ name, total }: TagItem, index: number) => (
-				<li className={styles.item} key={`${index + 1}-tag-item`}>
-					{iconType === "folder" && (
-						<Folder className={styles.icon} width={16} height={16} />
-					)}
-					{iconType === "tag" && <Tag className={styles.icon} />}
+				<li
+					className={`${styles.item} ${active === name ? styles.active : ""}`}
+					key={`${index + 1}-tag-item`}
+					onClick={() => onItemClicked(name)}
+				>
+					<Tag className={styles.icon} />
 					{name}{" "}
 					{total > 0 ? (
 						<span className={styles.numberOfItems}>{`(${total})`}</span>

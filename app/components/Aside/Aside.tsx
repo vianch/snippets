@@ -31,6 +31,7 @@ type AsideProps = {
 	onGetAll: () => void;
 	onGetFavorites: () => void;
 	onGetTrash: () => void;
+	onTagClick: (tag: string) => void;
 };
 
 const Aside = ({
@@ -38,6 +39,7 @@ const Aside = ({
 	onGetFavorites,
 	onGetAll,
 	onGetTrash,
+	onTagClick,
 }: AsideProps): ReactElement => {
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
@@ -88,6 +90,7 @@ const Aside = ({
 				break;
 
 			default:
+				setActiveMenu("none");
 				break;
 		}
 	};
@@ -100,6 +103,11 @@ const Aside = ({
 	const handlerMobileOpenMainMenu = (): void => {
 		closeSnippetList();
 		toggleMainMenu();
+	};
+
+	const handlerTagClick = (tag: string): void => {
+		setActiveMenu(tag);
+		onTagClick(tag);
 	};
 
 	useCloseOutsideCodeEditor(asideRef);
@@ -150,7 +158,11 @@ const Aside = ({
 							Tags
 						</h2>
 
-						<AsideItem items={tags} iconType="tag" />
+						<AsideItem
+							active={activeMenu}
+							items={tags}
+							onItemClicked={handlerTagClick}
+						/>
 					</section>
 				)}
 
