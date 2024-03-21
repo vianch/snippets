@@ -1,6 +1,14 @@
 "use client";
 
-import { MouseEvent, ReactElement, useMemo, useRef } from "react";
+import {
+	ChangeEvent,
+	MouseEvent,
+	ReactElement,
+	useMemo,
+	useRef,
+	useState,
+	useEffect,
+} from "react";
 
 import Input from "@/components/ui/Input/Input";
 import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
@@ -44,6 +52,15 @@ const SnippetList = ({
 	onDeleteSnippet,
 	onRestoreSnippet,
 }: SnippetListProps): ReactElement => {
+	const [searchData, setSearchData] = useState<{
+		searchQuery: string;
+		originalSnippets: Snippet[];
+		snippetsFound: Snippet[];
+	}>({
+		searchQuery: "",
+		originalSnippets: snippets,
+		snippetsFound: snippets,
+	});
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
 	const isTrashActive = menuType === "trash";
@@ -71,7 +88,37 @@ const SnippetList = ({
 		}
 	};
 
+	const handleSearchInputChange = async (
+		event: ChangeEvent<HTMLInputElement>
+	): Promise<void> => {
+		setSearchData({
+			...searchData,
+			searchQuery: event.target.value,
+			snippetsFound:
+				event.target.value?.length > 0
+					? searchData.originalSnippets.filter((item) =>
+							item.name
+								.toLowerCase()
+								.includes(searchData.searchQuery.toLowerCase())
+						)
+					: searchData.originalSnippets,
+		});
+	};
+
+	const getSnippetIndex = (snippetId: UUID): number =>
+		searchData?.originalSnippets.findIndex(
+			(snippet: Snippet): boolean => snippet.snippet_id === snippetId
+		);
+
 	useCloseOutsideCodeEditor(asideRef);
+
+	useEffect(() => {
+		setSearchData({
+			searchQuery: "",
+			originalSnippets: snippets,
+			snippetsFound: snippets,
+		});
+	}, [snippets]);
 
 	return (
 		<aside
@@ -82,7 +129,7 @@ const SnippetList = ({
 			<div id="snippet-list-header" className={styles.fields}>
 				<Input
 					placeholder="Search..."
-					value=""
+					value={searchData.searchQuery}
 					Icon={
 						<MagnifyingGlass
 							className={styles.searchIcon}
@@ -90,8 +137,10 @@ const SnippetList = ({
 							width="18"
 						/>
 					}
+					onChange={handleSearchInputChange}
 				/>
 
+				<h2>{searchData.searchQuery}</h2>
 				{!isTrashActive && (
 					<NewFile
 						className={styles.addButton}
@@ -104,42 +153,54 @@ const SnippetList = ({
 
 			{snippets?.length > 0 ? (
 				<ul id="snippet-list-items" className={styles.snippetsList}>
-					{snippets.map((snippet, index) => (
-						<li
-							className={`${styles.snippetItem} ${activeSnippetIndex === index ? styles.active : ""}`}
-							key={snippet.snippet_id}
-							onClick={(event) => snippetClickHandler(event, index)}
-						>
-							<div className={styles.itemLeftSide}>
-								{!isTrashActive && (
-									<Trash
-										className={styles.trashIcon}
-										width="18"
-										height="18"
-										onClick={() =>
-											onDeleteSnippet(snippet?.snippet_id, index, "inactive")
-										}
-									/>
-								)}
+					{searchData.snippetsFound.map((snippet: Snippet) => {
+						const originalIndex = getSnippetIndex(snippet.snippet_id);
 
-								{snippet?.state === "inactive" && (
-									<Restore
-										className={styles.restoreIcon}
-										width="18"
-										height="18"
-										onClick={() =>
-											onRestoreSnippet(snippet?.snippet_id, index, "active")
-										}
-									/>
-								)}
-								{snippet?.name ?? "Untitled"}
-							</div>
+						return (
+							<li
+								className={`${styles.snippetItem} ${activeSnippetIndex === originalIndex ? styles.active : ""}`}
+								key={snippet.snippet_id}
+								onClick={(event) => snippetClickHandler(event, originalIndex)}
+							>
+								<div className={styles.itemLeftSide}>
+									{!isTrashActive && (
+										<Trash
+											className={styles.trashIcon}
+											width="18"
+											height="18"
+											onClick={() =>
+												onDeleteSnippet(
+													snippet?.snippet_id,
+													originalIndex,
+													"inactive"
+												)
+											}
+										/>
+									)}
 
-							<span className={styles.snippetDate}>
-								{formattedDates[index]}
-							</span>
-						</li>
-					))}
+									{snippet?.state === "inactive" && (
+										<Restore
+											className={styles.restoreIcon}
+											width="18"
+											height="18"
+											onClick={() =>
+												onRestoreSnippet(
+													snippet?.snippet_id,
+													originalIndex,
+													"active"
+												)
+											}
+										/>
+									)}
+									{snippet?.name ?? "Untitled"}
+								</div>
+
+								<span className={styles.snippetDate}>
+									{formattedDates[originalIndex]}
+								</span>
+							</li>
+						);
+					})}
 				</ul>
 			) : (
 				<div className={styles.noSnippetContainer}>
