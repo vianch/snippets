@@ -22,7 +22,7 @@ declare global {
 		user_id: UUID;
 		created_at: string;
 		updated_at: string;
-		name: string | null;
+		name: string;
 		url: string | null;
 		notes: string | null;
 		snippet: string;

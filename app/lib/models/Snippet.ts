@@ -10,7 +10,7 @@ export default class SnippetValueObject implements Snippet {
 
 	public updated_at: string;
 
-	public name: string | null = null;
+	public name: string = "";
 
 	public url: string | null;
 
@@ -29,7 +29,7 @@ export default class SnippetValueObject implements Snippet {
 		this.user_id = user_id;
 		this.created_at = new Date().toISOString();
 		this.updated_at = new Date().toISOString();
-		this.name = null;
+		this.name = "";
 		this.url = null;
 		this.notes = null;
 		this.snippet = "";

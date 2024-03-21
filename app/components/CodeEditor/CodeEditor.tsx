@@ -11,8 +11,8 @@ import useViewPortStore from "@/lib/store/viewPort";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 
 /* Components */
-import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
+import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -167,6 +167,19 @@ const CodeEditor = ({
 		return "calc(100vh - 6.45rem)";
 	};
 
+	const handleKeyBoardSave = (event: KeyboardEvent): void => {
+		if (
+			(event.ctrlKey && event.key === "s") ||
+			(event.metaKey && event.key === "s")
+		) {
+			if (!isTrashActive) {
+				onSave(currentSnippet, true);
+			}
+
+			event.preventDefault();
+		}
+	};
+
 	useEffect(() => {
 		if (snippet?.language) {
 			setLanguageExtension(snippet.language);
@@ -189,6 +202,15 @@ const CodeEditor = ({
 			onTouched(false);
 		}
 	}, [snippet]);
+
+	useEffect(() => {
+		window.addEventListener("keydown", handleKeyBoardSave);
+
+		// Clean up event listener when component unmounts
+		return () => {
+			window.removeEventListener("keydown", handleKeyBoardSave);
+		};
+	}, [currentSnippet]);
 
 	return (
 		<div
