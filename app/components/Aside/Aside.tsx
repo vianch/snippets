@@ -42,7 +42,7 @@ const Aside = ({
 	onGetTrash,
 	onTagClick,
 }: AsideProps): ReactElement => {
-	const [userEmail, setUserEmail] = useState<string | undefined | null>("");
+	const [userName, setUserName] = useState<string | undefined | null>("");
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
@@ -112,7 +112,13 @@ const Aside = ({
 	};
 
 	useEffect(() => {
-		getUserEmailBySession().then((email) => setUserEmail(email));
+		getUserEmailBySession().then((email) => {
+			if (email) {
+				const username = email.split("@")[0];
+
+				setUserName(username);
+			}
+		});
 	}, []);
 
 	useCloseOutsideCodeEditor(asideRef);
@@ -126,9 +132,9 @@ const Aside = ({
 			>
 				<section className={styles.section}>
 					<div
-						className={`${styles.settingsItems} ${styles.mail} ${!userEmail && styles.mailLoading}`}
+						className={`${styles.settingsItems} ${styles.mail} ${!userName && styles.mailLoading}`}
 					>
-						{userEmail && (
+						{userName && (
 							<img
 								alt="user mask"
 								className={styles.icon}
@@ -136,7 +142,7 @@ const Aside = ({
 								height="32"
 							/>
 						)}
-						{userEmail}
+						{userName}
 					</div>
 				</section>
 				<section className={styles.section}>
