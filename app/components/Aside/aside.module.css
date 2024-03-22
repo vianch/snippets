@@ -17,16 +17,6 @@
 	padding: 1.875rem 0 0.938rem;
 }
 
-.section:last-child {
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	padding: 0;
-	display: flex;
-	flex-flow: row nowrap;
-	align-items: center;
-}
-
 .title {
 	font-size: var(--small-font-size);
 	user-select: none; /* Safari */
@@ -52,10 +42,19 @@
 .settingsItems {
 	color: var(--gray-color);
 	cursor: pointer;
-	margin: 0.625rem;
+	padding: 0 0.625rem;
 	display: flex;
-	width: 100%;
 	align-items: center;
+}
+
+.mail {
+	font-size: var(--small-font-size);
+}
+
+.mailLoading {
+	background: var(--current-line);
+	animation: fade-in-out 2s infinite;
+	height: 2rem;
 }
 
 .settingsItems:hover {
@@ -122,5 +121,21 @@
 	.containerClosed {
 		visibility: hidden;
 		width: 0;
+	}
+}
+
+@media (width < 420px) {
+	.mail {
+		font-size: 0.6rem;
+	}
+}
+
+@keyframes fade-in-out {
+	0%,
+	100% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 0.2;
 	}
 }

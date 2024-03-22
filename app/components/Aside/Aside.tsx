@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, ReactElement, useRef, useState } from "react";
+import { MouseEvent, ReactElement, useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 /* Components */
@@ -24,6 +24,7 @@ import List from "@/components/ui/icons/List";
 import Rows from "@/components/ui/icons/Rows";
 
 /* Styles */
+import { getUserEmailBySession } from "@/lib/supabase/queries";
 import styles from "./aside.module.css";
 
 type AsideProps = {
@@ -41,6 +42,7 @@ const Aside = ({
 	onGetTrash,
 	onTagClick,
 }: AsideProps): ReactElement => {
+	const [userEmail, setUserEmail] = useState<string | undefined | null>("");
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
@@ -49,7 +51,6 @@ const Aside = ({
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
 	const closeMainMenu = useMenuStore((state) => state.closeMainMenu);
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
-
 	const router = useRouter();
 
 	const signOut = async (
@@ -110,6 +111,10 @@ const Aside = ({
 		onTagClick(tag);
 	};
 
+	useEffect(() => {
+		getUserEmailBySession().then((email) => setUserEmail(email));
+	}, []);
+
 	useCloseOutsideCodeEditor(asideRef);
 
 	return (
@@ -119,6 +124,21 @@ const Aside = ({
 				ref={asideRef}
 				className={`${styles.container} ${mainMenuOpen ? styles.containerOpen : styles.containerClosed}`}
 			>
+				<section className={styles.section}>
+					<div
+						className={`${styles.settingsItems} ${styles.mail} ${!userEmail && styles.mailLoading}`}
+					>
+						{userEmail && (
+							<img
+								alt="user mask"
+								className={styles.icon}
+								src="/assets/images/avatars/frog.png"
+								height="32"
+							/>
+						)}
+						{userEmail}
+					</div>
+				</section>
 				<section className={styles.section}>
 					<a
 						className={`${styles.linkItem} green-color ${activeMenu === "all" && styles.linkItemActive}`}
@@ -167,16 +187,6 @@ const Aside = ({
 				)}
 
 				<section className={styles.section}>
-					<a className={styles.settingsItems}>
-						<img
-							alt="user mask"
-							className={styles.icon}
-							src="/assets/images/avatars/frog.png"
-							height="32"
-						/>
-						User
-					</a>
-
 					<a className={styles.settingsItems} onClick={signOut}>
 						{isLoginOut ? (
 							<Loading className={styles.signOutIcon} width={24} height={24} />
