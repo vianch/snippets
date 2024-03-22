@@ -1,12 +1,46 @@
 import supabase from "@/lib/supabase/client";
 import SnippetValueObject from "@/lib/models/Snippet";
 
-const getUserIdBySession = async (): Promise<string | null> => {
+const getUserDataFromServer = async (): Promise<User> => {
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	return user as User;
+};
+
+const getUserDataFromSession = async () => {
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
 
-	return session?.user?.id || null;
+	return session;
+};
+
+const getUserIdBySession = async (): Promise<string | null> => {
+	const session = await getUserDataFromSession();
+
+	if (session) {
+		return session?.user?.id;
+	}
+
+	const userFromServer = await getUserDataFromServer();
+
+	return userFromServer?.id ?? null;
+};
+
+export const getUserEmailBySession = async (): Promise<
+	string | undefined | null
+> => {
+	const session = await getUserDataFromSession();
+
+	if (session) {
+		return session?.user?.email;
+	}
+
+	const userFromServer = await getUserDataFromServer();
+
+	return userFromServer?.email ?? null;
 };
 
 export const getAllSnippets = async (): Promise<Snippet[]> => {
