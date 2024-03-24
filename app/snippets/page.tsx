@@ -290,6 +290,11 @@ export default function Page(): ReactElement {
 		await trashRestoreSnippet(snippetId, state);
 	};
 
+	const emptyTrashHandler = (): void => {
+		setSnippets([]);
+		setActiveSnippetIndex(0);
+	};
+
 	useEffect(() => {
 		getSnippets().then(() => null);
 	}, []);
@@ -311,6 +316,7 @@ export default function Page(): ReactElement {
 				onActiveSnippet={setActiveSnippetIndex}
 				onDeleteSnippet={trashRestoreSnippetHandler}
 				onRestoreSnippet={trashRestoreSnippetHandler}
+				onEmptyTrash={emptyTrashHandler}
 			/>
 
 			<CodeEditor

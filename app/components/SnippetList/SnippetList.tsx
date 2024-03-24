@@ -14,7 +14,7 @@ import Input from "@/components/ui/Input/Input";
 import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
 
 /* Utils */
-import { setNewSnippet } from "@/lib/supabase/queries";
+import { emptyTrash, setNewSnippet } from "@/lib/supabase/queries";
 import formatDateToDDMMYYYY from "@/utils/date.utils";
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
 
@@ -25,6 +25,10 @@ import useMenuStore from "@/lib/store/menu";
 import Trash from "@/components/ui/icons/Trash";
 import Restore from "@/components/ui/icons/Restore";
 import NewFile from "@/components/ui/icons/NewFile";
+import Alert from "@/components/ui/Alert/Alert";
+import Check from "@/components/ui/icons/Check";
+import CloseSquare from "@/components/ui/icons/CloseSquare";
+import Loading from "@/components/ui/icons/Loading";
 
 /* Styles */
 import styles from "./snippetlist.module.css";
@@ -42,6 +46,7 @@ type SnippetListProps = {
 	onNewSnippet: (newSnippet: Snippet) => void;
 	onDeleteSnippet: DeleteRestoreFunction;
 	onRestoreSnippet: DeleteRestoreFunction;
+	onEmptyTrash: () => void;
 };
 
 const SnippetList = ({
@@ -51,6 +56,7 @@ const SnippetList = ({
 	onActiveSnippet,
 	onDeleteSnippet,
 	onRestoreSnippet,
+	onEmptyTrash,
 }: SnippetListProps): ReactElement => {
 	const [searchData, setSearchData] = useState<{
 		searchQuery: string;
@@ -61,6 +67,8 @@ const SnippetList = ({
 		originalSnippets: snippets,
 		snippetsFound: snippets,
 	});
+	const [deleteAll, setDeleteAll] = useState<boolean>(false);
+	const [isDeleting, setIsDeleting] = useState<boolean>(false);
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
 	const isTrashActive = menuType === "trash";
@@ -110,7 +118,15 @@ const SnippetList = ({
 			(snippet: Snippet): boolean => snippet.snippet_id === snippetId
 		);
 
-	useCloseOutsideCodeEditor(asideRef);
+	const handleDeleteAll = async (): Promise<void> => {
+		if (deleteAll) {
+			setIsDeleting(true);
+			await emptyTrash();
+			setDeleteAll(false);
+			setIsDeleting(false);
+			onEmptyTrash();
+		}
+	};
 
 	useEffect(() => {
 		setSearchData({
@@ -119,6 +135,18 @@ const SnippetList = ({
 			snippetsFound: snippets,
 		});
 	}, [snippets]);
+
+	useEffect(() => {
+		if (!isTrashActive && deleteAll) {
+			setDeleteAll(false);
+		}
+
+		return () => {
+			setDeleteAll(false);
+		};
+	}, [isTrashActive]);
+
+	useCloseOutsideCodeEditor(asideRef);
 
 	return (
 		<aside
@@ -140,7 +168,14 @@ const SnippetList = ({
 					onChange={handleSearchInputChange}
 				/>
 
-				{!isTrashActive && (
+				{isTrashActive ? (
+					<Trash
+						className={styles.addButton}
+						width={28}
+						height={28}
+						onClick={() => setDeleteAll(true)}
+					/>
+				) : (
 					<NewFile
 						className={styles.addButton}
 						width="32"
@@ -152,6 +187,36 @@ const SnippetList = ({
 
 			{searchData?.snippetsFound?.length > 0 ? (
 				<ul id="snippet-list-items" className={styles.snippetsList}>
+					<li
+						className={`${styles.deleteAlert} ${deleteAll ? styles.alertShow : styles.alertHide}`}
+					>
+						<Alert severity="warning" iconSize={0}>
+							<div className={styles.alertInfo}>
+								Deleting all items permanently?
+								<span className={styles.alertIcons}>
+									{isDeleting ? (
+										<Loading width={16} height={16} />
+									) : (
+										<>
+											<Check
+												className={styles.alertCheckIcon}
+												width={16}
+												height={16}
+												onClick={handleDeleteAll}
+											/>
+											<CloseSquare
+												className={styles.alertCrossIcon}
+												width={16}
+												height={16}
+												onClick={() => setDeleteAll(false)}
+											/>
+										</>
+									)}
+								</span>
+							</div>
+						</Alert>
+					</li>
+
 					{searchData.snippetsFound.map((snippet: Snippet) => {
 						const originalIndex = getSnippetIndex(snippet.snippet_id);
 

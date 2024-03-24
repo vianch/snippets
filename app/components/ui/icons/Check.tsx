@@ -6,6 +6,7 @@ const Check = ({
 	viewBox = "0 0 254 254",
 	width = "32",
 	height = "32",
+	onClick,
 }: Icon): ReactElement => {
 	return (
 		<svg
@@ -16,6 +17,7 @@ const Check = ({
 			height={height}
 			fill={fill}
 			viewBox={viewBox}
+			onClick={onClick}
 		>
 			<path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path>
 		</svg>
