@@ -1,0 +1,31 @@
+.container {
+	width: 100%;
+	max-width: 720px;
+	margin: 5rem auto;
+}
+
+.container h1,
+.container p,
+.container ul,
+.container ol {
+	text-align: left;
+	margin: 2rem 0;
+	line-height: 1.5;
+	font-size: 1rem;
+}
+
+.container ol li,
+.container ul li {
+	margin: 1rem 0;
+	line-height: 1.5;
+}
+
+.container h1 {
+	font-size: 1.4rem;
+	margin: 2rem 0;
+	text-align: center;
+}
+
+.container a {
+	color: var(--blue-color);
+}
