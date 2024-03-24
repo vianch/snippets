@@ -1,3 +1,46 @@
+.deleteAlert {
+	margin-bottom: 0.625rem;
+	user-select: none; /* Standard syntax */
+	transition: all 0.25s ease;
+}
+
+.alertInfo {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	user-select: none; /* Standard syntax */
+}
+
+.alertIcons {
+	margin-left: 0.625rem;
+	cursor: pointer;
+	user-select: none; /* Standard syntax */
+}
+
+.alertCheckIcon {
+	margin-right: 0.323rem;
+	color: var(--dark-green-color);
+	user-select: none; /* Standard syntax */
+}
+
+.alertCrossIcon {
+	margin-right: 0;
+	color: var(--red-color);
+	user-select: none; /* Standard syntax */
+}
+
+.alertShow {
+	opacity: 1;
+	visibility: visible;
+	height: auto;
+}
+
+.alertHide {
+	opacity: 0;
+	visibility: hidden;
+	height: 0;
+}
+
 .snippetsListContainer {
 	display: block;
 	width: 100%;
@@ -37,6 +80,7 @@
 	height: calc(100vh - 80px);
 	padding: 10px 10px 0;
 	overflow-y: auto;
+	user-select: none;
 }
 
 .snippetsList::-webkit-scrollbar {

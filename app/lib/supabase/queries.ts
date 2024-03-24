@@ -138,6 +138,23 @@ export const trashRestoreSnippet = async (
 	}
 };
 
+export const emptyTrash = async (): Promise<void> => {
+	if (supabase) {
+		const userId = await getUserIdBySession();
+
+		if (userId) {
+			const { error } = await supabase
+				.from("snippet")
+				.delete()
+				.match({ user_id: userId, state: "inactive" });
+
+			if (error) {
+				throw new Error("Error emptying trash");
+			}
+		}
+	}
+};
+
 export const setNewSnippet = async (): Promise<Snippet | null> => {
 	if (supabase) {
 		const userId = await getUserIdBySession();

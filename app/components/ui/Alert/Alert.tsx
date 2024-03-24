@@ -18,7 +18,7 @@ type AlertProps = {
 
 const Alert = ({
 	children,
-	className,
+	className = "",
 	severity = "success",
 	iconSize = 24,
 	onClick = () => {},
@@ -28,21 +28,25 @@ const Alert = ({
 			className={`
         ${styles.alert} 
         ${className} 
-        ${severity === "success" && styles.success} 
-        ${severity === "warning" && styles.warning} 
-        ${severity === "error" && styles.error} 
-        ${severity === "info" && styles.info}
+        ${severity === "success" ? styles.success : ""} 
+        ${severity === "warning" ? styles.warning : ""} 
+        ${severity === "error" ? styles.error : ""} 
+        ${severity === "info" ? styles.info : ""}
 			`}
 			onClick={onClick}
 		>
-			<span className={styles.iconContainer}>
-				{severity === "success" && <Check width={iconSize} height={iconSize} />}
-				{severity === "warning" && (
-					<Warning width={iconSize} height={iconSize} />
-				)}
-				{severity === "error" && <Error width={iconSize} height={iconSize} />}
-				{severity === "info" && <Info width={iconSize} height={iconSize} />}
-			</span>
+			{iconSize !== 0 && (
+				<span className={styles.iconContainer}>
+					{severity === "success" && (
+						<Check width={iconSize} height={iconSize} />
+					)}
+					{severity === "warning" && (
+						<Warning width={iconSize} height={iconSize} />
+					)}
+					{severity === "error" && <Error width={iconSize} height={iconSize} />}
+					{severity === "info" && <Info width={iconSize} height={iconSize} />}
+				</span>
+			)}
 
 			<div>{children}</div>
 		</div>
