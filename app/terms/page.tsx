@@ -59,32 +59,32 @@ const Terms = () => {
 					<li>
 						<strong>No Warranty:</strong> The demo platform is provided on an
 						&quot;as-is&quot; and &quot;as-available&quot; basis, without any
-						warranty of any kind. We do not guarantee that the platform will be
-						error-free or uninterrupted. We disclaim all warranties, express or
+						warranty of any kind. I do not guarantee that the platform will be
+						error-free or uninterrupted. I disclaim all warranties, express or
 						implied, including but not limited to warranties of merchantability,
 						fitness for a particular purpose, and non-infringement.
 					</li>
 
 					<li>
-						<strong>Limitation of Liability:</strong> In no event shall we be
+						<strong>Limitation of Liability:</strong> In no event shall I be
 						liable for any indirect, incidental, special, consequential, or
 						punitive damages arising out of or relating to your use of the demo
-						platform, even if we have been advised of the possibility of such
+						platform, even if I have been advised of the possibility of such
 						damages. Our total liability for any claims arising out of or
 						relating to these terms shall not exceed the amount paid by you, if
 						any, to use the platform.
 					</li>
 
 					<li>
-						<strong>Modifications:</strong> We reserve the right to modify or
-						discontinue the demo platform at any time without notice. We may
-						also modify these terms at any time by posting the revised terms on
-						the platform. Your continued use of the platform after such
+						<strong>Modifications:</strong> I reserve the right to modify or
+						discontinue the demo platform at any time without notice. I may also
+						modify these terms at any time by posting the revised terms on the
+						platform. Your continued use of the platform after such
 						modifications will constitute your acceptance of the revised terms.
 					</li>
 
 					<li>
-						<strong>Contact Us:</strong> If you have any questions or concerns
+						<strong>Contact Me:</strong> If you have any questions or concerns
 						about these terms, please contact us at{" "}
 						<a href="mailto:infot@vianch.com">info@vianch.com</a>.
 					</li>
