@@ -2,10 +2,12 @@
 
 import { ReactElement } from "react";
 
+/* Components */
 import Quotes from "@/components/ui/Quotes/Quotes";
 import NavHeader from "@/components/NavHeader/NavHeader";
 import Footer from "@/components/Footer/Footer";
 
+/* Styles */
 import styles from "./page.module.css";
 
 export default function Home(): ReactElement {
