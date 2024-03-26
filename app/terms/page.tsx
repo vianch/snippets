@@ -1,21 +1,10 @@
-import type { Metadata } from "next";
-
-/* Utils */
-import metaGenerator from "@/utils/meta.utils";
+"use client";
 
 /* Components */
 import NavHeader from "@/components/NavHeader/NavHeader";
 
 /* Styles */
 import style from "./terms.module.css";
-
-export const metadata: Metadata = metaGenerator({
-	description:
-		"Terms and Conditions of Demo Platform for Snippet Storage. By accessing or using the demo platform for snippet storage, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you may not use the service.",
-	title: "Snippet Terms and conditions",
-	image: "/assets/images/jpg/ss.jpg",
-	canonicalPath: "/terms",
-});
 
 const Terms = () => {
 	return (
