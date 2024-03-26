@@ -21,6 +21,7 @@ const metaGenerator = ({
 			...openGraphImage,
 			title,
 			description,
+			url: canonicalPath,
 		},
 		twitter: {
 			card: "summary",
