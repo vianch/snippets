@@ -5,12 +5,18 @@ import { Inter } from "next/font/google";
 /* Styles */
 import "./globals.css";
 
+/* Utils */
+import metaGenerator from "@/utils/meta.utils";
+
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
+export const metadata: Metadata = metaGenerator({
+	description:
+		"Snippets, Your sanctuary for organized code brilliance. Easily manage, retrieve, and thrive in coding.",
 	title: "Snippets",
-	description: "Snippets of code for web development",
-};
+	image: "/assets/images/jpg/ss.jpg",
+	canonicalPath: "/",
+});
 
 export default function RootLayout({
 	children,
