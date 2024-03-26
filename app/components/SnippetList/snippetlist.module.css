@@ -1,5 +1,4 @@
 .deleteAlert {
-	margin-bottom: 0.625rem;
 	user-select: none; /* Standard syntax */
 	transition: all 0.25s ease;
 }
@@ -33,12 +32,14 @@
 	opacity: 1;
 	visibility: visible;
 	height: auto;
+	margin-bottom: 0.625rem;
 }
 
 .alertHide {
 	opacity: 0;
 	visibility: hidden;
 	height: 0;
+	margin-bottom: 0;
 }
 
 .snippetsListContainer {
