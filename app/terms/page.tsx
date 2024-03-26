@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 /* Utils */
 import metaGenerator from "@/utils/meta.utils";
 
+/* Components */
+import NavHeader from "@/components/NavHeader/NavHeader";
+
 /* Styles */
 import style from "./terms.module.css";
 
@@ -17,6 +20,8 @@ export const metadata: Metadata = metaGenerator({
 const Terms = () => {
 	return (
 		<>
+			<NavHeader />
+
 			<div className={style.container}>
 				<h1>Terms and Conditions of Demo Platform for Snippet Storage</h1>
 
