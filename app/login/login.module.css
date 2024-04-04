@@ -29,3 +29,14 @@
 	margin-bottom: 0.625rem;
 	text-align: center;
 }
+
+.demo {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+	margin-top: 1.25rem;
+	text-align: left;
+}
+
+.terms {
+	color: var(--green-color);
+}
