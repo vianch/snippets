@@ -2,6 +2,7 @@
 
 /* Components */
 import NavHeader from "@/components/NavHeader/NavHeader";
+import Footer from "@/components/Footer/Footer";
 
 /* Styles */
 import style from "./terms.module.css";
@@ -98,6 +99,8 @@ const Terms = () => {
 					conditions.
 				</p>
 			</div>
+
+			<Footer />
 		</>
 	);
 };

@@ -3,6 +3,7 @@ import { Metadata } from "next";
 
 /* Components */
 import AuthForm from "@/components/AuthForm/AuthForm";
+import Quotes from "@/components/ui/Quotes/Quotes";
 
 /* Utils */
 import metaGenerator from "@/utils/meta.utils";
@@ -31,6 +32,25 @@ export default function Login(): ReactElement {
 
 				<h1 className={styles.title}>Welcome to Snippets</h1>
 				<AuthForm />
+
+				<div className={styles.demo}>
+					<Quotes>
+						<p>Demo User</p>
+						<p>Username: demo@vianch.com</p>
+						<p>Password: demo</p>
+						<p>Leave me a message inside snippets</p>
+						<p style={{ textAlign: "center" }}>
+							<a
+								className={styles.terms}
+								href="/terms"
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Terms and Conditions
+							</a>
+						</p>
+					</Quotes>
+				</div>
 			</div>
 		</main>
 	);
