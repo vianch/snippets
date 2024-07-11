@@ -4,15 +4,19 @@ Snippets platform to save pieces of code
 ![snippetss](https://github.com/vianch/snippets/assets/1800887/5eaf70f8-7b3c-4a08-ae02-5cad90a9a380)
 
 ### Live demo
+
 [Try the demo](https://snippets.vianch.com/)
 
-## About 
+## About
+
 ### What is snippets?
+
 Snippets is a platform designed to help you save pieces of code and organize your development workflow. With Snippets, you can easily store and retrieve code snippets, making it easier to reuse and share code between projects.
 
-
 ### Why snippets?
+
 By using Snippets, you can:
+
 - Reduce repetition and improve code consistency
 - Easily share and collaborate with others on code snippets
 - Keep track of your progress and learn from previous work
@@ -35,24 +39,23 @@ cd snippets
 yarn install
 ```
 
-| Script        | Description                                                                                            |
-|---------------|--------------------------------------------------------------------------------------------------------|
-| `yarn init`   | Resets the project setup by removing node modules and lock files, then reinstalls dependencies.       |
-| `yarn dev`    | Starts the development server.                                                                        |
-| `yarn build`  | Builds the application for production usage.                                                          |
-| `yarn start`  | Runs the built app in production mode.                                                                |
-| `yarn lint`   | Runs all linting scripts for code style, styling, and formatting.                                     |
+| Script       | Description                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------- |
+| `yarn init`  | Resets the project setup by removing node modules and lock files, then reinstalls dependencies. |
+| `yarn dev`   | Starts the development server.                                                                  |
+| `yarn build` | Builds the application for production usage.                                                    |
+| `yarn start` | Runs the built app in production mode.                                                          |
+| `yarn lint`  | Runs all linting scripts for code style, styling, and formatting.                               |
 
-
-### Linting 
+### Linting
 
 ```bash
 yarn lint
 ```
 
 ## Author
-Developed by info@vianch.com. Feel free to reach out for any questions or contributions!
 
+Developed by info@vianch.com. Feel free to reach out for any questions or contributions!
 
 # Packages used
 

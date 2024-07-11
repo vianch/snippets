@@ -38,4 +38,23 @@ declare global {
 	type LanguageExtensions = {
 		[key: SupportedLanguages | string]: LanguageSupport;
 	};
+
+	type DeleteRestoreFunction = (
+		snippetId: UUID,
+		index: number,
+		state: SnippetState
+	) => void;
+
+	type SearchData = {
+		searchQuery: string;
+		originalSnippets: Snippet[];
+		snippetsFound: Snippet[];
+	};
+
+	type SnippetItemProps = {
+		codeEditorStates: SnippetEditorStates;
+		onActiveSnippet: (index: number) => void;
+		onDeleteSnippet: DeleteRestoreFunction;
+		onRestoreSnippet: DeleteRestoreFunction;
+	};
 }
