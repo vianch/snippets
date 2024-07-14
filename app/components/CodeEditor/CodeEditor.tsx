@@ -38,7 +38,7 @@ const CodeEditor = ({
 	onTouched,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
-	const { menuType, isSaving, touched } = codeEditorStates ?? {};
+	const { menuType, touched } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
 		...({} as Snippet),
@@ -222,7 +222,7 @@ const CodeEditor = ({
 						<>
 							<CodeEditorHeader
 								currentSnippet={currentSnippet}
-								isSaving={isSaving}
+								codeEditorStates={codeEditorStates}
 								snippetName={snippet?.name ?? ""}
 								onStarred={starringHandler}
 								onUpdateName={updateCurrentSnippetName}

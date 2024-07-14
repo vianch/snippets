@@ -4,5 +4,5 @@ declare global {
 	type Children = ReactNode | string | ReactElement | number;
 
 	type Severity = "error" | "warning" | "info" | "success";
-	type Variants = "primary" | "secondary" | "tertiary" | Severity;
+	type Variants = "primary" | "secondary" | "tertiary" | Severity | "empty";
 }

@@ -38,11 +38,8 @@ export default function Home(): ReactElement {
 			<section className={`container ${styles.info}`}>
 				<Quotes>
 					<p>
-						This is a personal project designed for personal use. Currently,
-						I&apos;ve closed registrations as I&apos;m in a crucial development
-						phase, and server costs pose a challenge. However, if you&apos;re
-						interested in accessing the demo or find it useful, please feel free
-						to contact me at{" "}
+						This is a personal project designed for personal use. If you find
+						the DEMO useful, please feel free to contact me at{" "}
 						<a className={styles.email} href="mailto:info@vianch.com">
 							info@vianch.com
 						</a>
