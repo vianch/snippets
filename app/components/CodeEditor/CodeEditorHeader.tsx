@@ -17,7 +17,7 @@ import styles from "./codeEditor.module.css";
 
 type CodeEditorHeaderTypes = {
 	currentSnippet: CurrentSnippet;
-	isSaving: boolean;
+	codeEditorStates: SnippetEditorStates;
 	snippetName: string;
 	onStarred: () => void;
 	onUpdateName: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -27,13 +27,15 @@ type CodeEditorHeaderTypes = {
 
 const CodeEditorHeader = ({
 	currentSnippet,
-	isSaving,
+	codeEditorStates,
 	snippetName = "",
 	onStarred,
 	onUpdateName,
 	onSetLanguage,
 	onSave,
 }: CodeEditorHeaderTypes): ReactElement => {
+	const { isSaving, touched } = codeEditorStates ?? {};
+
 	return (
 		<div className={styles.header}>
 			<div className={styles.headerLeftSide}>
@@ -70,8 +72,8 @@ const CodeEditorHeader = ({
 				/>
 
 				<Button
-					className={styles.button}
-					variant="secondary"
+					className={`${styles.button} ${touched ? styles.touched : ""}`}
+					variant={`${touched ? "empty" : "secondary"}`}
 					disabled={isSaving}
 					onClick={onSave}
 				>
@@ -80,7 +82,7 @@ const CodeEditorHeader = ({
 					) : (
 						<Floppy className={styles.icon} width={16} height={16} />
 					)}{" "}
-					Save
+					Save{touched && "*"}
 				</Button>
 			</div>
 		</div>

@@ -102,6 +102,11 @@
 	width: 14.75rem;
 }
 
+.touched {
+	background: var(--green-color);
+	color: var(--bg-color-dark);
+}
+
 @media (width < 1140px) {
 	.codeEditorContainer {
 		width: 100%;

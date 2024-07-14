@@ -15,5 +15,5 @@ export default function TermsLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	return <main>{children}</main>;
+	return <main style={{ overflow: "hidden" }}>{children}</main>;
 }
