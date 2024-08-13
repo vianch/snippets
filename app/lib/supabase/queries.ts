@@ -93,7 +93,7 @@ export const getSnippetsByTag = async (tag: string): Promise<Snippet[]> => {
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
 				.neq("state", "inactive")
-				.ilike("tags", `%${tag}%`);
+				.like("tags", `%${tag}%`);
 
 			return data as Snippet[];
 		}
