@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect, useState, ChangeEvent } from "react";
 
 /* Constants */
 import { MenuItems } from "@/lib/constants/core";
@@ -15,6 +15,7 @@ type CodeEditorTagsProps = {
 	activeTag: MenuItems | string;
 	tags: Tags;
 	onNewTag: (tag: string) => void;
+	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 	onRemoveTag: (tag: string) => void;
 };
 
@@ -22,6 +23,7 @@ const CodeEditorTags = ({
 	activeTag,
 	tags = null,
 	onNewTag,
+	onChange,
 	onRemoveTag,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
@@ -64,11 +66,14 @@ const CodeEditorTags = ({
 				<div className={styles.tagInput}>
 					<Input
 						className={`inputField `}
+						cleanOnBlur
 						type="text"
 						placeholder="New Tag"
 						value=""
 						required={true}
 						onKeyDown={onNewTag}
+						onChange={onChange}
+						onBlur={onNewTag}
 						maxLength={25}
 					/>
 				</div>
