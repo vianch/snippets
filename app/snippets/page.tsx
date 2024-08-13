@@ -144,13 +144,17 @@ export default function Page(): ReactElement {
 		return activeSnippetIndex;
 	};
 
-	const updateSnippetTagList = async (updatedSnippet: Snippet) => {
+	const updateSnippetTagList = async (
+		updatedSnippet: Snippet | null = null
+	) => {
 		const allSnippets = await getAllSnippets();
-		const updatedSnippetList = allSnippets.map((snippet) =>
-			snippet.snippet_id === updatedSnippet.snippet_id
-				? updatedSnippet
-				: snippet
-		);
+		const updatedSnippetList = updatedSnippet
+			? allSnippets.map((snippet) =>
+					snippet.snippet_id === updatedSnippet.snippet_id
+						? updatedSnippet
+						: snippet
+				)
+			: allSnippets;
 
 		getTags(updatedSnippetList);
 	};
@@ -273,27 +277,41 @@ export default function Page(): ReactElement {
 		index: number,
 		state: SnippetState = "inactive"
 	): Promise<void> => {
-		if (!snippetId) {
-			return;
-		}
+		if (!snippetId) return;
 
-		const cloneSnippets = [...snippets];
-		const foundIndex = cloneSnippets.findIndex(
+		const foundIndex = snippets.findIndex(
 			(snippet: Snippet): boolean => snippet.snippet_id === snippetId
 		);
 
-		if (foundIndex === -1) {
-			return;
-		}
+		if (foundIndex === -1) return;
+
+		const cloneSnippets = [...snippets];
 
 		cloneSnippets.splice(foundIndex, 1);
 		setSnippets(cloneSnippets);
 
-		if (index > cloneSnippets.length - 1) {
-			setActiveSnippetIndex(0);
-		}
+		const isLastSnippet = index > cloneSnippets.length - 1;
+
+		setCodedEditorStates((prevStates) => ({
+			...prevStates,
+			isSaving: true,
+			touched: true,
+			activeSnippetIndex: isLastSnippet ? 0 : index,
+		}));
 
 		await trashRestoreSnippet(snippetId, state);
+
+		if (cloneSnippets.length > 0) {
+			await updateSnippetTagList();
+		} else {
+			await getSnippets();
+		}
+
+		setCodedEditorStates((prevStates) => ({
+			...prevStates,
+			isSaving: false,
+			touched: false,
+		}));
 	};
 
 	const emptyTrashHandler = (): void => {
