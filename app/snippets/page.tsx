@@ -17,6 +17,7 @@ import {
 } from "@/lib/supabase/queries";
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
 import { useDeviceViewPort } from "@/utils/ui.utils";
+import { MenuItems } from "@/lib/constants/core";
 
 export default function Page(): ReactElement {
 	// Allow isMobile to be used across all Snippets page components
@@ -223,29 +224,34 @@ export default function Page(): ReactElement {
 	};
 
 	const getTrashHandler = async (): Promise<void> => {
-		if (codeEditorStates.menuType !== "trash") {
+		if (codeEditorStates.menuType !== MenuItems.Trash) {
 			await getSnippets("inactive");
 
 			setCodedEditorStates({
 				...codeEditorStates,
-				menuType: "trash",
+				menuType: MenuItems.Trash,
 			});
 		}
 	};
 
 	const getSnippetsHandler = async (): Promise<void> => {
-		if (codeEditorStates.menuType !== "all") {
+		if (codeEditorStates.menuType !== MenuItems.All) {
 			await getSnippets();
+
+			setCodedEditorStates({
+				...codeEditorStates,
+				menuType: MenuItems.All,
+			});
 		}
 	};
 
 	const getFavoritesHandler = async (): Promise<void> => {
-		if (codeEditorStates.menuType !== "favorites") {
+		if (codeEditorStates.menuType !== MenuItems.Favorites) {
 			await getSnippets("favorite");
 
 			setCodedEditorStates({
 				...codeEditorStates,
-				menuType: "favorites",
+				menuType: MenuItems.Favorites,
 			});
 		}
 	};
@@ -257,7 +263,7 @@ export default function Page(): ReactElement {
 
 		const data = await getSnippetsByTag(tag);
 
-		setCodedEditorStates(defaultCodeEditorStates);
+		setCodedEditorStates({ ...defaultCodeEditorStates, ...{ menuType: tag } });
 
 		setSnippets(data);
 	};
@@ -302,6 +308,7 @@ export default function Page(): ReactElement {
 	return (
 		<>
 			<Aside
+				codeEditorStates={codeEditorStates}
 				tags={tags}
 				onGetAll={getSnippetsHandler}
 				onGetFavorites={getFavoritesHandler}

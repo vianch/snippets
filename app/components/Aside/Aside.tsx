@@ -1,7 +1,10 @@
 "use client";
 
-import { MouseEvent, ReactElement, useRef, useState, useEffect } from "react";
+import { MouseEvent, ReactElement, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+
+/* Constants */
+import { MenuItems } from "@/lib/constants/core";
 
 /* Components */
 import AsideItem from "@/components/AsideItem/AsideItem";
@@ -28,6 +31,7 @@ import { getUserEmailBySession } from "@/lib/supabase/queries";
 import styles from "./aside.module.css";
 
 type AsideProps = {
+	codeEditorStates: SnippetEditorStates;
 	tags: TagItem[];
 	onGetAll: () => void;
 	onGetFavorites: () => void;
@@ -36,6 +40,7 @@ type AsideProps = {
 };
 
 const Aside = ({
+	codeEditorStates,
 	tags,
 	onGetFavorites,
 	onGetAll,
@@ -44,13 +49,13 @@ const Aside = ({
 }: AsideProps): ReactElement => {
 	const [userName, setUserName] = useState<string | undefined | null>("");
 	const asideRef = useRef<HTMLDivElement | null>(null);
-	const [activeMenu, setActiveMenu] = useState<MenuItemType>("all");
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
 	const mainMenuOpen = useMenuStore((state) => state.mainMenuOpen);
 	const toggleSnippetList = useMenuStore((state) => state.toggleSnippetList);
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
 	const closeMainMenu = useMenuStore((state) => state.closeMainMenu);
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
+	const { menuType } = codeEditorStates;
 	const router = useRouter();
 
 	const signOut = async (
@@ -75,23 +80,21 @@ const Aside = ({
 		type: MenuItemType
 	): void => {
 		event?.preventDefault();
-		setActiveMenu(type);
 
 		switch (type) {
-			case "all":
+			case MenuItems.All:
 				onGetAll();
 				break;
 
-			case "favorites":
+			case MenuItems.Favorites:
 				onGetFavorites();
 				break;
 
-			case "trash":
+			case MenuItems.Trash:
 				onGetTrash();
 				break;
 
 			default:
-				setActiveMenu("none");
 				break;
 		}
 	};
@@ -107,7 +110,6 @@ const Aside = ({
 	};
 
 	const handlerTagClick = (tag: string): void => {
-		setActiveMenu(tag);
 		onTagClick(tag);
 	};
 
@@ -145,9 +147,10 @@ const Aside = ({
 						{userName}
 					</div>
 				</section>
+
 				<section className={styles.section}>
 					<a
-						className={`${styles.linkItem} green-color ${activeMenu === "all" && styles.linkItemActive}`}
+						className={`${styles.linkItem} green-color ${(menuType === MenuItems.All || menuType === MenuItems.None || !menuType || menuType?.length === 0) && styles.linkItemActive}`}
 						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
 							clickMenuHandler(event, "all")
 						}
@@ -157,7 +160,7 @@ const Aside = ({
 					</a>
 
 					<a
-						className={`${styles.linkItem} yellow-color ${activeMenu === "favorites" && styles.linkItemActive}`}
+						className={`${styles.linkItem} yellow-color ${menuType === MenuItems.Favorites && styles.linkItemActive}`}
 						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
 							clickMenuHandler(event, "favorites")
 						}
@@ -167,7 +170,7 @@ const Aside = ({
 					</a>
 
 					<a
-						className={`${styles.linkItem} red-color ${activeMenu === "trash" && styles.linkItemActive}`}
+						className={`${styles.linkItem} red-color ${menuType === MenuItems.Trash && styles.linkItemActive}`}
 						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
 							clickMenuHandler(event, "trash")
 						}
@@ -185,7 +188,7 @@ const Aside = ({
 						</h2>
 
 						<AsideItem
-							active={activeMenu}
+							active={menuType}
 							items={tags}
 							onItemClicked={handlerTagClick}
 						/>

@@ -1,6 +1,7 @@
 import { LanguageSupport } from "@codemirror/language";
 
 import SupportedLanguages from "@/lib/config/languages";
+import { MenuItems } from "@/lib/constants/core";
 
 declare global {
 	type Tags = string | null;
@@ -8,7 +9,7 @@ declare global {
 
 	type SnippetState = "active" | "inactive" | "favorite";
 
-	type MenuItemType = "all" | "trash" | "favorites" | "none" | string;
+	type MenuItemType = MenuItems | string;
 
 	type SnippetEditorStates = {
 		activeSnippetIndex: number;

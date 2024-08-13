@@ -4,6 +4,7 @@ import {
 	useEffect,
 	ChangeEvent,
 	KeyboardEvent,
+	FocusEvent,
 } from "react";
 
 /* Styles */
@@ -11,6 +12,7 @@ import styles from "./input.module.css";
 
 const Input = ({
 	className = "",
+	cleanOnBlur = false,
 	fat = false,
 	dark = true,
 	type = "text",
@@ -54,6 +56,16 @@ const Input = ({
 		}
 	};
 
+	const handlerOnBlur = (event: FocusEvent<HTMLInputElement>): void => {
+		if (cleanOnBlur && onBlur) {
+			setUpdatedValue("");
+		}
+
+		if (onBlur) {
+			onBlur(event?.target?.value ?? null);
+		}
+	};
+
 	return (
 		<div
 			className={`${styles.inputContainer} ${fat ? styles.isFat : styles.isFit} ${dark ? styles.inputDark : styles.inputLight}`}
@@ -63,7 +75,7 @@ const Input = ({
 			<input
 				className={`${styles.input} ${dark ? styles.inputDark : styles.inputLight} ${className}`}
 				type={type}
-				onBlur={onBlur}
+				onBlur={handlerOnBlur}
 				value={updatedValue}
 				contentEditable
 				placeholder={placeholder}
