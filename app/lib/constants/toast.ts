@@ -15,4 +15,4 @@ export enum ToastPositions {
 	TopCenter = "top-center",
 }
 
-export const ToastTimeOut = 3000;
+export const ToastTimeOut = 3200;
