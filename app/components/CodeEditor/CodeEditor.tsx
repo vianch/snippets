@@ -7,7 +7,7 @@ import { draculaInit } from "@uiw/codemirror-theme-dracula";
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
-import useViewPortStore from "@/lib/store/viewPort";
+import useViewPortStore from "@/lib/store/viewPort.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 
 /* Components */

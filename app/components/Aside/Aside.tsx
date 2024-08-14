@@ -12,7 +12,7 @@ import SignOut from "@/components/ui/icons/SignOut";
 
 /* Lib */
 import supabase from "@/lib/supabase/client";
-import useMenuStore from "@/lib/store/menu";
+import useMenuStore from "@/lib/store/menu.store";
 
 /* Utils */
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
