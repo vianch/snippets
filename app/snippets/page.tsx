@@ -187,7 +187,7 @@ export default function Page(): ReactElement {
 			await saveSnippet(updatedSnippet);
 			updateSnippetTagList(updatedSnippet).then(() => null);
 
-			if (fromButton) {
+			if (fromButton && codeEditorStates.touched) {
 				addToast({
 					type: ToastType.Success,
 					message: "Snippet saved successfully",
