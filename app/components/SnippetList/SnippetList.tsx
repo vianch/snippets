@@ -18,7 +18,7 @@ import formatDateToDDMMYYYY from "@/utils/date.utils";
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
 
 /* Lib */
-import useMenuStore from "@/lib/store/menu";
+import useMenuStore from "@/lib/store/menu.store";
 
 /* Components */
 import Trash from "@/components/ui/icons/Trash";

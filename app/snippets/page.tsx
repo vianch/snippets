@@ -18,6 +18,8 @@ import {
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
 import { useDeviceViewPort } from "@/utils/ui.utils";
 import { MenuItems } from "@/lib/constants/core";
+import useToastStore from "@/lib/store/toast.store";
+import { ToastType } from "@/lib/constants/toast";
 
 export default function Page(): ReactElement {
 	// Allow isMobile to be used across all Snippets page components
@@ -33,6 +35,7 @@ export default function Page(): ReactElement {
 	const [tags, setTags] = useState<TagItem[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
+	const { addToast } = useToastStore();
 
 	const findIndexForCurrentSnippet = (currentSnippet: CurrentSnippet): number =>
 		snippets.findIndex(
@@ -184,6 +187,13 @@ export default function Page(): ReactElement {
 			await saveSnippet(updatedSnippet);
 			updateSnippetTagList(updatedSnippet).then(() => null);
 
+			if (fromButton) {
+				addToast({
+					type: ToastType.Success,
+					message: "Snippet saved successfully",
+				});
+			}
+
 			if (activeSnippetIndex && fromButton !== "favorite" && !fromButton) {
 				setCodedEditorStates({
 					...codeEditorStates,
@@ -193,6 +203,13 @@ export default function Page(): ReactElement {
 				});
 			}
 		} else {
+			if (codeEditorStates.touched) {
+				addToast({
+					type: ToastType.Warning,
+					message: "Cannot save snippet without a name or content",
+				});
+			}
+
 			setTimeout(() => {
 				setCodedEditorStates({
 					...codeEditorStates,

@@ -1,6 +1,6 @@
 import { MouseEvent, MutableRefObject, useEffect } from "react";
-import useViewPortStore from "@/lib/store/viewPort";
-import useMenuStore from "@/lib/store/menu";
+import useViewPortStore from "@/lib/store/viewPort.store";
+import useMenuStore from "@/lib/store/menu.store";
 
 export const isClient = (): boolean => {
 	return typeof window !== "undefined";
