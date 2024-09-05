@@ -5,6 +5,10 @@
 	margin-bottom: -1.5625rem;
 }
 
+.markdownContainer {
+	width: 50%;
+}
+
 .noSnippetContainer {
 	display: flex;
 	justify-content: center;
@@ -109,6 +113,11 @@
 
 @media (width < 1140px) {
 	.codeEditorContainer {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.markdownContainer {
 		width: 100%;
 	}
 }
