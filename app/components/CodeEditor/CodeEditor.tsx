@@ -9,6 +9,7 @@ import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
+import { MenuItems } from "@/lib/constants/core";
 
 /* Components */
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
@@ -106,7 +107,7 @@ const CodeEditor = ({
 			...currentSnippet,
 			state: currentSnippet?.state === "favorite" ? "active" : "favorite",
 		} as CurrentSnippet;
-		const isFavoriteMenu = codeEditorStates?.menuType === "favorites";
+		const isFavoriteMenu = codeEditorStates?.menuType === MenuItems.Favorites;
 		const fromButton = isFavoriteMenu ? "favorite" : true;
 
 		setCurrentSnippet(newCurrentSnippet);
@@ -214,7 +215,7 @@ const CodeEditor = ({
 
 	return (
 		<div
-			className={`${styles.codeEditorContainer} ${!snippet && styles.noSnippetContainer}`}
+			className={`${styles.codeEditorContainer} ${!snippet && styles.noSnippetContainer} ${snippet?.language === SupportedLanguages.Markdown && styles.markdownContainer}`}
 		>
 			{snippet && (
 				<>

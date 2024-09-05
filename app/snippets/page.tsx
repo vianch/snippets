@@ -6,6 +6,7 @@ import { ReactElement, useEffect, useState } from "react";
 import Aside from "@/components/Aside/Aside";
 import SnippetList from "@/components/SnippetList/SnippetList";
 import CodeEditor from "@/components/CodeEditor/CodeEditor";
+import MarkdownReader from "@/components/MarkdownReader/MarkdownReader";
 
 /* Lib and Utils */
 import {
@@ -371,6 +372,14 @@ export default function Page(): ReactElement {
 				onSave={saveSnippetHandler}
 				onStarred={onStarredHandler}
 				onTouched={touchedHandler}
+			/>
+
+			<MarkdownReader
+				snippet={
+					snippets?.length > 0
+						? snippets[codeEditorStates.activeSnippetIndex]
+						: null
+				}
 			/>
 		</>
 	);
