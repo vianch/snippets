@@ -5,6 +5,27 @@
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
 	position: relative;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.container::-webkit-scrollbar {
+	width: 10px;
+}
+
+/* Track */
+.container::-webkit-scrollbar-track {
+	background: var(--bg-color);
+}
+
+/* Handle */
+.container::-webkit-scrollbar-thumb {
+	background: var(--current-line);
+}
+
+/* Handle on hover */
+.container::-webkit-scrollbar-thumb:hover {
+	background: var(--current-line);
 }
 
 .section {
@@ -29,10 +50,6 @@
 .titleClickable {
 	cursor: pointer;
 	transition: color 0.2s ease;
-}
-
-.titleClickable:hover {
-	color: var(--foreground-color);
 }
 
 .caretIcon {
@@ -162,3 +179,4 @@
 		opacity: 0.2;
 	}
 }
+
