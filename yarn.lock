@@ -607,7 +607,7 @@
     isows "^1.0.7"
     ws "^8.18.2"
 
-"@supabase/ssr@^0.7.0":
+"@supabase/ssr@^0.7.0-rc.2":
   version "0.7.0-rc.2"
   resolved "https://registry.yarnpkg.com/@supabase/ssr/-/ssr-0.7.0-rc.2.tgz#f6c5497c5291fec18550bbde39e4f2a2db6c5570"
   integrity sha512-bLUYQKC3iUaQCRZ/dW1ek7PKa94UTullZkKDcDuDbeN/U+ireEcsUFEuvGXZ2U4KsQubgQws0PgfhvPb5IZ6YA==
