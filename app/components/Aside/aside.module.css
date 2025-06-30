@@ -5,8 +5,7 @@
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
 	position: relative;
-	overflow-y: auto;
-	overflow-x: hidden;
+	overflow: hidden auto;
 }
 
 .container::-webkit-scrollbar {
@@ -179,4 +178,3 @@
 		opacity: 0.2;
 	}
 }
-
