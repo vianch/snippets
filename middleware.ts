@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import createSupabaseServerClient from "@/lib/supabase/server";
 
 export async function middleware(
 	request: NextRequest
 ): Promise<NextResponse | unknown> {
-	const response = NextResponse.next();
-	const supabase = createMiddlewareClient({ req: request, res: response });
+	const { supabaseResponse, supabase } =
+		await createSupabaseServerClient(request);
 	const {
 		data: { user },
 	} = await supabase.auth.getUser();
@@ -20,7 +20,7 @@ export async function middleware(
 		return NextResponse.redirect(new URL("/login", request.url));
 	}
 
-	return response;
+	return supabaseResponse;
 }
 
 // See "Matching Paths" below to learn more

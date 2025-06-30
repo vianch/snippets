@@ -65,13 +65,12 @@ const Aside = ({
 	): Promise<void> => {
 		setIsLoginOut(true);
 		event.preventDefault();
+		const { error } = await supabase.auth.signOut();
 
-		if (!isLoginOut) {
-			const { error } = await supabase.auth.signOut();
-
-			if (!error) {
-				router.push("/login");
-			}
+		if (!error) {
+			router.push("/login");
+		} else {
+			router.push("/login?error=logout_failed");
 		}
 
 		setIsLoginOut(false);

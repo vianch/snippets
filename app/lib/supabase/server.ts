@@ -1,27 +1,44 @@
 "user server";
 
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { NextResponse, NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
 
-export default async function createSupabaseServerClient(): Promise<SupabaseClient> {
-	const cookieStore = cookies();
+export default async function createSupabaseServerClient(
+	request: NextRequest
+): Promise<{
+	supabaseResponse: NextResponse<unknown>;
+	supabase: SupabaseClient;
+}> {
+	let supabaseResponse = NextResponse.next({
+		request,
+	});
 
-	return createServerClient(
+	const supabase = createServerClient(
 		process.env.NEXT_PUBLIC_SUPABASE_URL!,
 		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 		{
 			cookies: {
-				get(name: string) {
-					return cookieStore.get(name)?.value;
+				getAll() {
+					return request.cookies.getAll();
 				},
-				set(name: string, value: string, options: CookieOptions) {
-					cookieStore.set({ name, value, ...options });
-				},
-				remove(name: string, options: CookieOptions) {
-					cookieStore.set({ name, value: "", ...options });
+				setAll(cookiesToSet) {
+					cookiesToSet.forEach(({ name, value }) =>
+						request.cookies.set(name, value)
+					);
+					supabaseResponse = NextResponse.next({
+						request,
+					});
+					cookiesToSet.forEach(({ name, value, options }) =>
+						supabaseResponse.cookies.set(name, value, options)
+					);
 				},
 			},
 		}
 	);
+
+	return {
+		supabaseResponse,
+		supabase,
+	};
 }
