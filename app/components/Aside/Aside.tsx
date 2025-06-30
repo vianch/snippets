@@ -25,6 +25,7 @@ import Star from "@/components/ui/icons/Star";
 import Loading from "@/components/ui/icons/Loading";
 import List from "@/components/ui/icons/List";
 import Rows from "@/components/ui/icons/Rows";
+import CaretDown from "@/components/ui/icons/CaretDown";
 
 /* Styles */
 import { getUserEmailBySession } from "@/lib/supabase/queries";
@@ -50,6 +51,7 @@ const Aside = ({
 	const [userName, setUserName] = useState<string | undefined | null>("");
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
+	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(false);
 	const mainMenuOpen = useMenuStore((state) => state.mainMenuOpen);
 	const toggleSnippetList = useMenuStore((state) => state.toggleSnippetList);
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
@@ -111,6 +113,10 @@ const Aside = ({
 
 	const handlerTagClick = (tag: string): void => {
 		onTagClick(tag);
+	};
+
+	const toggleTagsExpansion = (): void => {
+		setIsTagsExpanded(!isTagsExpanded);
 	};
 
 	useEffect(() => {
@@ -182,16 +188,26 @@ const Aside = ({
 
 				{tags?.length > 0 && (
 					<section className={styles.section}>
-						<h2 className={`${styles.title} purple-color`}>
+						<h2
+							className={`${styles.title} purple-color ${styles.titleClickable}`}
+							onClick={toggleTagsExpansion}
+						>
 							<Bookmark className={styles.icon} width={18} height={18} />
 							Tags
+							<CaretDown
+								className={`${styles.caretIcon} ${isTagsExpanded ? styles.caretExpanded : styles.caretCollapsed}`}
+								width={12}
+								height={12}
+							/>
 						</h2>
 
-						<AsideItem
-							active={menuType}
-							items={tags}
-							onItemClicked={handlerTagClick}
-						/>
+						{isTagsExpanded && (
+							<AsideItem
+								active={menuType}
+								items={tags}
+								onItemClicked={handlerTagClick}
+							/>
+						)}
 					</section>
 				)}
 

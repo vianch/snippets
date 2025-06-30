@@ -26,6 +26,28 @@
 	margin-bottom: 0.313rem;
 }
 
+.titleClickable {
+	cursor: pointer;
+	transition: color 0.2s ease;
+}
+
+.titleClickable:hover {
+	color: var(--foreground-color);
+}
+
+.caretIcon {
+	margin-left: auto;
+	transition: transform 0.2s ease;
+}
+
+.caretExpanded {
+	transform: rotate(180deg);
+}
+
+.caretCollapsed {
+	transform: rotate(0deg);
+}
+
 .linkItem {
 	display: flex;
 	align-items: center;
