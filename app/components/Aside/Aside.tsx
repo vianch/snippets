@@ -13,6 +13,7 @@ import SignOut from "@/components/ui/icons/SignOut";
 /* Lib */
 import supabase from "@/lib/supabase/client";
 import useMenuStore from "@/lib/store/menu.store";
+import useViewPortStore from "@/lib/store/viewPort.store";
 
 /* Utils */
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
@@ -57,6 +58,9 @@ const Aside = ({
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
 	const closeMainMenu = useMenuStore((state) => state.closeMainMenu);
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
+	const openSnippetList = () =>
+		useMenuStore.setState({ snippetListOpen: true });
+	const isMobile = useViewPortStore((state) => state.isMobile);
 	const { menuType } = codeEditorStates;
 	const router = useRouter();
 
@@ -97,6 +101,12 @@ const Aside = ({
 
 			default:
 				break;
+		}
+
+		// If on mobile, open the snippet list and close the main menu after selecting a category
+		if (isMobile) {
+			closeMainMenu();
+			openSnippetList();
 		}
 	};
 
