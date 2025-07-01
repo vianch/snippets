@@ -1,0 +1,70 @@
+.container {
+	display: flex;
+	flex-direction: row;
+	height: 100vh;
+	overflow: hidden;
+}
+
+.mobileContainer {
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+}
+
+/* On mobile, CodeEditor should have calculated width to account for fixed-width aside and snippet list */
+@media (width < 1140px) {
+	.mobileContainer > *:last-child {
+		width: 100vw;
+	}
+}
+
+.panel {
+  width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+.resizer {
+	width: 4px;
+	background: var(--border-color);
+	cursor: col-resize;
+	flex-shrink: 0;
+	position: relative;
+	transition: background-color 0.2s ease;
+}
+
+.resizer:hover {
+	background: var(--foreground-color);
+}
+
+.resizer:active {
+	background: var(--cyan-color);
+}
+
+/* Visual indicator for resize handle */
+.resizer::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 20px;
+	background: currentColor;
+	opacity: 0.5;
+}
+
+/* Hide resizers on mobile */
+@media (width < 1140px) {
+	.resizer {
+		display: none;
+	}
+	
+	.container .panel {
+		width: auto !important;
+		flex: unset !important;
+	}
+}

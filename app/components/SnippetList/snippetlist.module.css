@@ -46,13 +46,19 @@
 	display: block;
 	width: 100%;
 	background: var(--bg-color-dark);
-	max-width: 23.75rem;
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
 	transition:
 		width 0.12s,
 		max-width 0.12s,
 		visibility 0.14s;
+}
+
+/* Add max-width back for mobile compatibility */
+@media (width < 1140px) {
+	.snippetsListContainer {
+		max-width: 23.75rem;
+	}
 }
 
 .fields {
@@ -193,7 +199,9 @@
 }
 
 @media (width <= 480px) {
-	max-width: inherit;
-	height: auto;
-	width: 100%;
+	.snippetsListContainer {
+		max-width: inherit;
+		height: auto;
+		width: 100%;
+	}
 }

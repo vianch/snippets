@@ -6,6 +6,7 @@ import { ReactElement, useEffect, useState } from "react";
 import Aside from "@/components/Aside/Aside";
 import SnippetList from "@/components/SnippetList/SnippetList";
 import CodeEditor from "@/components/CodeEditor/CodeEditor";
+import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
 
 /* Lib and Utils */
 import {
@@ -341,37 +342,41 @@ export default function Page(): ReactElement {
 	}, []);
 
 	return (
-		<>
-			<Aside
-				codeEditorStates={codeEditorStates}
-				tags={tags}
-				onGetAll={getSnippetsHandler}
-				onGetFavorites={getFavoritesHandler}
-				onGetTrash={getTrashHandler}
-				onTagClick={getSnippetsByTagHandler}
-			/>
-
-			<SnippetList
-				snippets={snippets}
-				codeEditorStates={codeEditorStates}
-				onNewSnippet={newSnippetHandler}
-				onActiveSnippet={setActiveSnippetIndex}
-				onDeleteSnippet={trashRestoreSnippetHandler}
-				onRestoreSnippet={trashRestoreSnippetHandler}
-				onEmptyTrash={emptyTrashHandler}
-			/>
-
-			<CodeEditor
-				snippet={
-					snippets?.length > 0
-						? snippets[codeEditorStates.activeSnippetIndex]
-						: null
-				}
-				codeEditorStates={codeEditorStates}
-				onSave={saveSnippetHandler}
-				onStarred={onStarredHandler}
-				onTouched={touchedHandler}
-			/>
-		</>
+		<ResizableLayout
+			aside={
+				<Aside
+					codeEditorStates={codeEditorStates}
+					tags={tags}
+					onGetAll={getSnippetsHandler}
+					onGetFavorites={getFavoritesHandler}
+					onGetTrash={getTrashHandler}
+					onTagClick={getSnippetsByTagHandler}
+				/>
+			}
+			snippetList={
+				<SnippetList
+					snippets={snippets}
+					codeEditorStates={codeEditorStates}
+					onNewSnippet={newSnippetHandler}
+					onActiveSnippet={setActiveSnippetIndex}
+					onDeleteSnippet={trashRestoreSnippetHandler}
+					onRestoreSnippet={trashRestoreSnippetHandler}
+					onEmptyTrash={emptyTrashHandler}
+				/>
+			}
+			codeEditor={
+				<CodeEditor
+					snippet={
+						snippets?.length > 0
+							? snippets[codeEditorStates.activeSnippetIndex]
+							: null
+					}
+					codeEditorStates={codeEditorStates}
+					onSave={saveSnippetHandler}
+					onStarred={onStarredHandler}
+					onTouched={touchedHandler}
+				/>
+			}
+		/>
 	);
 }
