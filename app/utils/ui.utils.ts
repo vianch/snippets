@@ -42,8 +42,8 @@ export const useCloseOutsideCodeEditor = (
 			"#mobile-icon-open-list"
 		);
 
-		const isClickInsideEditor = elementsToAvoidClosing.some(
-			(id: string) => (event.target as HTMLElement)?.id === id
+		const isClickInsideEditor = elementsToAvoidClosing.some((id: string) =>
+			(event.target as HTMLElement)?.closest(`#${id}`)
 		);
 
 		if (
