@@ -1,5 +1,5 @@
 .codeEditorContainer {
-	width: calc(100% - 39.375rem);
+	width: 100%;
 	height: calc(100vh - 1.5625rem);
 	position: relative;
 	margin-bottom: -1.5625rem;

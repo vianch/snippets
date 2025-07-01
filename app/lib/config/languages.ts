@@ -1,4 +1,4 @@
-enum SupportedLanguages {
+const enum SupportedLanguages {
 	JavaScript = "JavaScript",
 	CSS = "css",
 	HTML = "html",

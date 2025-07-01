@@ -1,4 +1,4 @@
-export enum ToastType {
+export const enum ToastType {
 	Default = "default",
 	Info = "info",
 	Success = "success",
@@ -6,7 +6,7 @@ export enum ToastType {
 	Error = "error",
 }
 
-export enum ToastPositions {
+export const enum ToastPositions {
 	BottomRight = "bottom-right",
 	BottomLeft = "bottom-left",
 	BottomCenter = "bottom-center",

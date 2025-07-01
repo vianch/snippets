@@ -1,4 +1,4 @@
-export enum MenuItems {
+export const enum MenuItems {
 	All = "all",
 	Favorites = "favorites",
 	Trash = "trash",

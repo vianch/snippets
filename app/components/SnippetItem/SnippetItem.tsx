@@ -4,6 +4,10 @@ import { FC, ReactElement, MouseEvent } from "react";
 import Trash from "@/components/ui/icons/Trash";
 import Restore from "@/components/ui/icons/Restore";
 
+/* Stores */
+import useMenuStore from "@/lib/store/menu.store";
+import useViewPortStore from "@/lib/store/viewPort.store";
+
 import styles from "@/components/SnippetList/snippetlist.module.css";
 
 interface SnippetItemPropsComponent extends SnippetItemProps {
@@ -23,6 +27,9 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 	onDeleteSnippet,
 	onRestoreSnippet,
 }: SnippetItemPropsComponent): ReactElement => {
+	const isMobile = useViewPortStore((state) => state.isMobile);
+	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
+
 	if (snippet) {
 		const snippetClickHandler = (
 			event: MouseEvent<HTMLLIElement>,
@@ -30,6 +37,11 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 		): void => {
 			event.preventDefault();
 			onActiveSnippet(index);
+
+			// Close the snippet list on mobile when a snippet is selected
+			if (isMobile) {
+				closeSnippetList();
+			}
 		};
 
 		const isSnippetActive = activeSnippetIndex === originalIndex;
