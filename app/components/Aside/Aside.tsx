@@ -51,7 +51,7 @@ const Aside = ({
 	const [userName, setUserName] = useState<string | undefined | null>("");
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
-	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(false);
+	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(true);
 	const mainMenuOpen = useMenuStore((state) => state.mainMenuOpen);
 	const toggleSnippetList = useMenuStore((state) => state.toggleSnippetList);
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
