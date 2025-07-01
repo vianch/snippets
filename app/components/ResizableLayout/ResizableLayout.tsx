@@ -4,11 +4,11 @@ import { ReactElement, useRef, useCallback, useEffect, useState } from "react";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import styles from "./resizableLayout.module.css";
 
-interface ResizableLayoutProps {
+type ResizableLayoutProps = {
 	aside: ReactElement;
 	snippetList: ReactElement;
 	codeEditor: ReactElement;
-}
+};
 
 const ResizableLayout = ({
 	aside,

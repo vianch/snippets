@@ -1,4 +1,4 @@
-export enum FormMessageTypes {
+export const enum FormMessageTypes {
 	Error = "error",
 	Success = "success",
 	Warning = "warning",
