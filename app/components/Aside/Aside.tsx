@@ -64,11 +64,8 @@ const Aside = ({
 	const { menuType } = codeEditorStates;
 	const router = useRouter();
 
-	const signOut = async (
-		event: MouseEvent<HTMLAnchorElement>
-	): Promise<void> => {
+	const signOut = async (): Promise<void> => {
 		setIsLoginOut(true);
-		event.preventDefault();
 		const { error } = await supabase.auth.signOut();
 
 		if (!error) {
@@ -78,6 +75,14 @@ const Aside = ({
 		}
 
 		setIsLoginOut(false);
+	};
+
+	const openSnippetListMobile = (): void => {
+		// If on mobile, open the snippet list and close the main menu after selecting a category
+		if (isMobile) {
+			closeMainMenu();
+			openSnippetList();
+		}
 	};
 
 	const clickMenuHandler = (
@@ -103,11 +108,7 @@ const Aside = ({
 				break;
 		}
 
-		// If on mobile, open the snippet list and close the main menu after selecting a category
-		if (isMobile) {
-			closeMainMenu();
-			openSnippetList();
-		}
+		openSnippetListMobile();
 	};
 
 	const handlerMobileOpenSnippetList = (): void => {
@@ -122,6 +123,7 @@ const Aside = ({
 
 	const handlerTagClick = (tag: string): void => {
 		onTagClick(tag);
+		openSnippetListMobile();
 	};
 
 	const toggleTagsExpansion = (): void => {
