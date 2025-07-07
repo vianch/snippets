@@ -20,6 +20,7 @@
 
 .codeMirrorContainer {
 	margin-top: 0;
+	touch-action: manipulation;
 }
 
 .codeMirrorContainer ::-webkit-scrollbar {
