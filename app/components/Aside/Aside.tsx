@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 /* Constants */
 import { MenuItems } from "@/lib/constants/core";
+import { defaultAvatar } from "@/lib/constants/account";
 
 /* Components */
 import AsideItem from "@/components/AsideItem/AsideItem";
@@ -14,6 +15,7 @@ import SignOut from "@/components/ui/icons/SignOut";
 import supabase from "@/lib/supabase/client";
 import useMenuStore from "@/lib/store/menu.store";
 import useViewPortStore from "@/lib/store/viewPort.store";
+import { getUserDataFromSession } from "@/lib/supabase/queries";
 
 /* Utils */
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
@@ -29,7 +31,6 @@ import Rows from "@/components/ui/icons/Rows";
 import CaretDown from "@/components/ui/icons/CaretDown";
 
 /* Styles */
-import { getUserEmailBySession } from "@/lib/supabase/queries";
 import styles from "./aside.module.css";
 
 type AsideProps = {
@@ -39,6 +40,7 @@ type AsideProps = {
 	onGetFavorites: () => void;
 	onGetTrash: () => void;
 	onTagClick: (tag: string) => void;
+	onAccountClick: () => void;
 };
 
 const Aside = ({
@@ -48,8 +50,10 @@ const Aside = ({
 	onGetAll,
 	onGetTrash,
 	onTagClick,
+	onAccountClick,
 }: AsideProps): ReactElement => {
-	const [userName, setUserName] = useState<string | undefined | null>("");
+	const [userName, setUserName] = useState<string | undefined | null>(null);
+	const [userAvatar, setUserAvatar] = useState<string>(defaultAvatar);
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
 	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(true);
@@ -66,6 +70,7 @@ const Aside = ({
 
 	const signOut = async (): Promise<void> => {
 		setIsLoginOut(true);
+
 		const { error } = await supabase.auth.signOut();
 
 		if (!error) {
@@ -131,11 +136,17 @@ const Aside = ({
 	};
 
 	useEffect(() => {
-		getUserEmailBySession().then((email) => {
-			if (email) {
-				const username = email.split("@")[0];
+		getUserDataFromSession().then((session) => {
+			if (session) {
+				const usernameFromEmail = session?.user?.email?.split("@")[0] ?? "";
 
-				setUserName(username);
+				if (session.user?.user_metadata?.avatar) {
+					setUserAvatar(session.user.user_metadata.avatar);
+				}
+
+				setUserName(
+					session?.user?.user_metadata?.username ?? usernameFromEmail
+				);
 			}
 		});
 	}, []);
@@ -150,19 +161,21 @@ const Aside = ({
 				className={`${styles.container} ${mainMenuOpen ? styles.containerOpen : styles.containerClosed}`}
 			>
 				<section className={styles.section}>
-					<div
-						className={`${styles.settingsItems} ${styles.mail} ${!userName && styles.mailLoading}`}
+					<button
+						type="button"
+						className={`${styles.settingsItems} ${styles.mail} ${!userName && styles.mailLoading} ${styles.userProfile}`}
+						onClick={onAccountClick}
 					>
 						{userName && (
 							<img
 								alt="user mask"
 								className={styles.icon}
-								src="/assets/images/avatars/frog.png"
+								src={userAvatar}
 								height="32"
 							/>
 						)}
 						{userName}
-					</div>
+					</button>
 				</section>
 
 				<section className={styles.section}>

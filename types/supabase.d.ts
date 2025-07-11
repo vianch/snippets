@@ -1,7 +1,18 @@
+interface InitialAccountStateData {
+	email?: string;
+	username?: string;
+	currentPassword: string;
+	newPassword?: string;
+	confirmPassword?: string;
+	avatar?: string;
+}
 interface User {
 	id: string;
 	app_metadata?: unknown;
-	user_metadata?: unknown;
+	user_metadata?: {
+		username?: string;
+		avatar?: string;
+	};
 	aud: string;
 	confirmation_sent_at?: string;
 	recovery_sent_at?: string;
@@ -22,3 +33,13 @@ interface User {
 	identities?: unknown[];
 	factors?: unknown[];
 }
+
+interface SessionData {
+	user: User;
+	expires_at: string;
+	refresh_token: string;
+	access_token: string;
+	token_type: string;
+}
+
+type Session = SessionData | null;

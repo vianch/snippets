@@ -1,0 +1,184 @@
+.accountModal {
+	width: 100%;
+	max-width: 600px;
+	max-height: 80vh;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.sectionTitle {
+	font-size: var(--normal-font-size);
+	font-weight: 600;
+	color: var(--purple-color);
+	margin: 0;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.avatarContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+}
+
+.currentAvatar {
+	display: flex;
+	justify-content: center;
+}
+
+.avatarPreview {
+	width: 3.75rem;
+	height: 3.75rem;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 2px solid var(--border-color);
+}
+
+.avatarOptions {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
+	gap: 0.5rem;
+	max-width: 100%;
+	justify-items: center;
+}
+
+.avatarOption {
+	width: 35px;
+	height: 35px;
+	border-radius: 50%;
+	border: 2px solid var(--border-color);
+	background: none;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	padding: 0;
+	overflow: hidden;
+}
+
+.avatarOption:hover {
+	border-color: var(--green-color);
+	transform: scale(1.1);
+}
+
+.avatarOption.avatarSelected {
+	border-color: var(--green-color);
+	border-width: 2px;
+	box-shadow: 0 0 0 2px var(--green-color);
+}
+
+.avatarOption img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.inputGroup {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.input {
+	color: var(--gray-color);
+}
+
+.emailText {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--yellow-color);
+	font-size: var(--normal-font-size);
+}
+
+.helpText {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+	margin: 0;
+	padding-left: 0.15rem;
+}
+
+.label {
+	font-size: var(--small-font-size);
+	color: var(--green-color);
+	margin-bottom: 0.5rem;
+}
+
+.alert {
+	margin: 0;
+}
+
+.buttonContainer {
+	display: flex;
+	gap: 1rem;
+	justify-content: flex-end;
+	padding-top: 1rem;
+	border-top: 1px solid var(--border-color);
+}
+
+.submitButton {
+	min-width: 120px;
+	padding: 0.75rem 1.25rem;
+}
+
+.cancelButton {
+	min-width: 120px;
+	padding: 0.75rem 1.25rem;
+}
+
+/* Responsive design */
+@media (width <= 768px) {
+	.accountModal {
+		max-width: 100%;
+		max-height: 95vh;
+	}
+
+	.avatarOptions {
+		grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+		gap: 0.25rem;
+	}
+
+	.avatarOption {
+		width: 30px;
+		height: 30px;
+	}
+
+	.avatarPreview {
+		width: 50px;
+		height: 50px;
+	}
+
+	.buttonContainer {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.submitButton,
+	.cancelButton {
+		width: 100%;
+		min-width: unset;
+	}
+
+	.container {
+		gap: 1rem;
+	}
+
+	.form {
+		gap: 1rem;
+	}
+}
