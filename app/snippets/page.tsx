@@ -347,12 +347,6 @@ export default function Page(): ReactElement {
 		setIsAccountModalOpen(false);
 	};
 
-	const handleProfileUpdate = (): void => {
-		// Force a re-render of the Aside component to update the avatar
-		// This could be improved by using a more sophisticated state management
-		// window.location.reload();
-	};
-
 	useEffect(() => {
 		getSnippets().then(() => null);
 	}, []);
@@ -399,7 +393,6 @@ export default function Page(): ReactElement {
 			<AccountModal
 				isOpen={isAccountModalOpen}
 				onClose={handleAccountModalClose}
-				onProfileUpdate={handleProfileUpdate}
 			/>
 		</>
 	);

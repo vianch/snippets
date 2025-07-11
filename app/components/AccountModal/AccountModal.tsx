@@ -27,6 +27,9 @@ import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
 
+/* Store */
+import useUserStore from "@/lib/store/user.store";
+
 /* Utils */
 import { isUserEmailDemo } from "@/utils/account.utils";
 
@@ -41,15 +44,16 @@ import styles from "./accountModal.module.css";
 interface AccountModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onProfileUpdate?: () => void;
 }
 
-const AccountModal = ({
-	isOpen,
-	onClose,
-	onProfileUpdate,
-}: AccountModalProps): ReactElement => {
+const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	const [loading, setLoading] = useState(false);
+	const {
+		userName: currentUserName,
+		userAvatar: currentUserAvatar,
+		setUserData: setStoreUserData,
+	} = useUserStore();
+
 	const [userData, setUserData] = useState<InitialAccountStateData>(
 		accountInitialStateData
 	);
@@ -78,6 +82,13 @@ const AccountModal = ({
 			...prev,
 			avatar: avatarPath,
 		}));
+	};
+
+	const checkForUserDataChanges = () => {
+		const hasUserNameChanged = userData.username !== currentUserName;
+		const hasUserAvatarChanged = userData.avatar !== currentUserAvatar;
+
+		return { hasUserNameChanged, hasUserAvatarChanged };
 	};
 
 	const updatePassword = async (): Promise<Error | null> => {
@@ -119,6 +130,15 @@ const AccountModal = ({
 	};
 
 	const updateUserNameAndAvatar = async (): Promise<Error | null> => {
+		// Check if username or avatar has actually changed
+		const { hasUserNameChanged, hasUserAvatarChanged } =
+			checkForUserDataChanges();
+
+		// Only make API call if there are actual changes
+		if (!hasUserNameChanged && !hasUserAvatarChanged) {
+			return null; // No changes, no need to update
+		}
+
 		const { error: updateError } = await updateUser({
 			data: {
 				username: userData.username,
@@ -133,6 +153,20 @@ const AccountModal = ({
 		}
 
 		return null;
+	};
+
+	const updateUserStore = (): void => {
+		// Only update the store if username or avatar has actually changed
+		const { hasUserNameChanged, hasUserAvatarChanged } =
+			checkForUserDataChanges();
+
+		if (hasUserNameChanged || hasUserAvatarChanged) {
+			setStoreUserData({
+				userName: userData.username,
+				userAvatar: userData.avatar,
+				email: userData.email,
+			});
+		}
 	};
 
 	const resetStateData = (): void => {
@@ -166,10 +200,7 @@ const AccountModal = ({
 					type: FormMessageTypes.Success,
 				});
 
-				// Call the callback to update the parent component
-				if (onProfileUpdate) {
-					onProfileUpdate();
-				}
+				updateUserStore();
 
 				// Close modal after successful update
 				setTimeout(() => {
@@ -203,14 +234,14 @@ const AccountModal = ({
 			try {
 				resetMessages();
 				resetStateData();
-				const email = await getUserEmailBySession();
+				const userEmail = await getUserEmailBySession();
 
-				if (email) {
-					const username = email?.split("@")[0] || "";
+				if (userEmail) {
+					const username = userEmail?.split("@")[0] || "";
 
 					setUserData((prev) => ({
 						...prev,
-						email,
+						email: userEmail,
 						username,
 					}));
 				}
