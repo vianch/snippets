@@ -1,7 +1,8 @@
 import supabase from "@/lib/supabase/client";
 import SnippetValueObject from "@/lib/models/Snippet";
+import { AuthError, UserAttributes, UserResponse } from "@supabase/supabase-js";
 
-const getUserDataFromServer = async (): Promise<User> => {
+export const getUserDataFromServer = async (): Promise<User> => {
 	const {
 		data: { user },
 	} = await supabase.auth.getUser();
@@ -9,15 +10,15 @@ const getUserDataFromServer = async (): Promise<User> => {
 	return user as User;
 };
 
-const getUserDataFromSession = async () => {
+export const getUserDataFromSession = async (): Promise<Session> => {
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
 
-	return session;
+	return session as Session;
 };
 
-const getUserIdBySession = async (): Promise<string | null> => {
+export const getUserIdBySession = async (): Promise<string | null> => {
 	const session = await getUserDataFromSession();
 
 	if (session) {
@@ -165,4 +166,17 @@ export const setNewSnippet = async (): Promise<Snippet | null> => {
 	}
 
 	return null;
+};
+
+export const updateUser = async (
+	attributes: UserAttributes
+): Promise<UserResponse> => {
+	if (supabase) {
+		return supabase.auth.updateUser(attributes);
+	}
+
+	return {
+		error: new AuthError("Supabase client not initialized", 503, undefined),
+		data: { user: null },
+	};
 };

@@ -1,10 +1,8 @@
 .inputContainer {
 	display: flex;
 	flex-flow: row nowrap;
-	width: calc(100% - 1.25rem);
 	box-sizing: border-box;
 	position: relative;
-	margin: 0.5rem 0.625rem;
 	border-radius: var(--border-radius);
 	border: 0.063rem solid var(--border-color);
 	align-items: center;
@@ -20,6 +18,16 @@
 
 .iconContainer {
 	padding: 0 0.625rem;
+}
+
+.marginEnabled {
+	margin: 0.5rem 0.625rem;
+	width: calc(100% - 1.25rem);
+}
+
+.marginDisabled {
+	margin: 0;
+	width: 100%;
 }
 
 .input {

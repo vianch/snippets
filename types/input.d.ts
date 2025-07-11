@@ -3,6 +3,8 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	fat?: boolean;
 	type?: "email" | "password" | "text";
 	placeholder?: string;
+	disabled?: boolean;
+	disableMargin?: boolean; // Added to control margin
 	value?: string | number | readonly string[] | undefined;
 	required?: boolean;
 	maxLength?: number;

@@ -88,6 +88,23 @@
 	font-size: var(--small-font-size);
 }
 
+.userProfile {
+	text-decoration: none;
+	transition: background-color 0.2s ease;
+	border-radius: 4px;
+	border: none;
+	background: transparent;
+	width: 100%;
+	text-align: left;
+	font-family: inherit;
+	font-size: inherit;
+	color: inherit;
+}
+
+.userProfile:hover {
+	background-color: var(--current-line);
+}
+
 .mailLoading {
 	background: var(--current-line);
 	animation: fade-in-out 2s infinite;

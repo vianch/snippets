@@ -7,6 +7,7 @@ import Aside from "@/components/Aside/Aside";
 import SnippetList from "@/components/SnippetList/SnippetList";
 import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
+import AccountModal from "@/components/AccountModal/AccountModal";
 
 /* Lib and Utils */
 import {
@@ -36,6 +37,7 @@ export default function Page(): ReactElement {
 	const [tags, setTags] = useState<TagItem[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
+	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const { addToast } = useToastStore();
 
 	const findIndexForCurrentSnippet = (currentSnippet: CurrentSnippet): number =>
@@ -337,46 +339,61 @@ export default function Page(): ReactElement {
 		setActiveSnippetIndex(0);
 	};
 
+	const handleAccountClick = (): void => {
+		setIsAccountModalOpen(true);
+	};
+
+	const handleAccountModalClose = (): void => {
+		setIsAccountModalOpen(false);
+	};
+
 	useEffect(() => {
 		getSnippets().then(() => null);
 	}, []);
 
 	return (
-		<ResizableLayout
-			aside={
-				<Aside
-					codeEditorStates={codeEditorStates}
-					tags={tags}
-					onGetAll={getSnippetsHandler}
-					onGetFavorites={getFavoritesHandler}
-					onGetTrash={getTrashHandler}
-					onTagClick={getSnippetsByTagHandler}
-				/>
-			}
-			snippetList={
-				<SnippetList
-					snippets={snippets}
-					codeEditorStates={codeEditorStates}
-					onNewSnippet={newSnippetHandler}
-					onActiveSnippet={setActiveSnippetIndex}
-					onDeleteSnippet={trashRestoreSnippetHandler}
-					onRestoreSnippet={trashRestoreSnippetHandler}
-					onEmptyTrash={emptyTrashHandler}
-				/>
-			}
-			codeEditor={
-				<CodeEditor
-					snippet={
-						snippets?.length > 0
-							? snippets[codeEditorStates.activeSnippetIndex]
-							: null
-					}
-					codeEditorStates={codeEditorStates}
-					onSave={saveSnippetHandler}
-					onStarred={onStarredHandler}
-					onTouched={touchedHandler}
-				/>
-			}
-		/>
+		<>
+			<ResizableLayout
+				aside={
+					<Aside
+						codeEditorStates={codeEditorStates}
+						tags={tags}
+						onGetAll={getSnippetsHandler}
+						onGetFavorites={getFavoritesHandler}
+						onGetTrash={getTrashHandler}
+						onTagClick={getSnippetsByTagHandler}
+						onAccountClick={handleAccountClick}
+					/>
+				}
+				snippetList={
+					<SnippetList
+						snippets={snippets}
+						codeEditorStates={codeEditorStates}
+						onNewSnippet={newSnippetHandler}
+						onActiveSnippet={setActiveSnippetIndex}
+						onDeleteSnippet={trashRestoreSnippetHandler}
+						onRestoreSnippet={trashRestoreSnippetHandler}
+						onEmptyTrash={emptyTrashHandler}
+					/>
+				}
+				codeEditor={
+					<CodeEditor
+						snippet={
+							snippets?.length > 0
+								? snippets[codeEditorStates.activeSnippetIndex]
+								: null
+						}
+						codeEditorStates={codeEditorStates}
+						onSave={saveSnippetHandler}
+						onStarred={onStarredHandler}
+						onTouched={touchedHandler}
+					/>
+				}
+			/>
+			<AccountModal
+				isOpen={isAccountModalOpen}
+				onClose={handleAccountModalClose}
+			/>
+		</>
 	);
 }

@@ -15,6 +15,8 @@ const Input = ({
 	cleanOnBlur = false,
 	fat = false,
 	dark = true,
+	disabled = false,
+	disableMargin = false,
 	type = "text",
 	placeholder = "",
 	required = false,
@@ -68,7 +70,7 @@ const Input = ({
 
 	return (
 		<div
-			className={`${styles.inputContainer} ${fat ? styles.isFat : styles.isFit} ${dark ? styles.inputDark : styles.inputLight}`}
+			className={`${disableMargin ? styles.marginDisabled : styles.marginEnabled} ${styles.inputContainer} ${fat ? styles.isFat : styles.isFit} ${dark ? styles.inputDark : styles.inputLight} `}
 		>
 			{Icon && <span className={styles.iconContainer}>{Icon}</span>}
 
@@ -78,6 +80,8 @@ const Input = ({
 				onBlur={handlerOnBlur}
 				value={updatedValue}
 				contentEditable
+				disabled={disabled}
+				aria-disabled={disabled}
 				placeholder={placeholder}
 				required={required}
 				maxLength={maxLength}
