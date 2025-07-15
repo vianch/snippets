@@ -2,7 +2,7 @@
 	display: flex;
 	align-items: center;
 	gap: 0;
-  margin-right: 0.625rem /* 10px in rems is 0.625rem */;
+	margin-right: 0.625rem /* 10px in rems is 0.625rem */;
 }
 
 .actionButton {
