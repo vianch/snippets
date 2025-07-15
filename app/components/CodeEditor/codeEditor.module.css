@@ -92,11 +92,27 @@
 	display: flex;
 	flex-flow: row nowrap;
 	align-items: center;
+	justify-content: space-between;
 	width: calc(100% - 0.624rem);
 	background: var(--bg-color-dark);
 	height: 3.2rem;
 	border-bottom: 1px solid var(--border-color);
-	padding: 0 0 0 0.624rem;
+	padding: 0 0.625rem 0 0.624rem;
+}
+
+.tagsLeft {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+}
+
+.tagsRight {
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	margin-left: 0.5rem;
 }
 
 .tagInput {
