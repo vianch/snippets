@@ -232,7 +232,7 @@ const CodeEditor = ({
 
 							<CodeEditorTags
 								activeTag={codeEditorStates?.menuType ?? ""}
-								tags={currentSnippet?.tags ?? ""}
+								currentSnippet={currentSnippet}
 								onNewTag={newTagHandler}
 								onChange={() => onTouched(true)}
 								onRemoveTag={removeTagHandler}
