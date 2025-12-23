@@ -1,3 +1,10 @@
+# AI
+.opencode 
+.opencode/**
+.opencode/**/*
+.opencode/*
+.claude
+
 # Logs
 logs
 *.log
