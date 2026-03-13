@@ -22,7 +22,7 @@ You are a project analysis specialist. When invoked, systematically analyze the 
 
 - Run `git ls-files | head -50` to get an overview of file structure
 - Identify main directories and their purposes
-- Examine configuration files (tsconfig.json, .eslintrc.js, .prettierrc, .env.example)
+- Examine configuration files (tsconfig.json, eslint.config.mjs, .prettierrc, .env.example)
 
 **Step 3: Technology Stack Detection**
 

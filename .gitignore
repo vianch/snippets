@@ -68,6 +68,7 @@ storybook-static/
 
 # next.js build output
 .next
+tsconfig.tsbuildinfo
 
 #Jest
 reports

@@ -27,7 +27,7 @@ const CodeEditorActions = ({
 				type: ToastType.Success,
 				message: "Code copied to clipboard",
 			});
-		} catch (error) {
+		} catch (_error) {
 			addToast({
 				type: ToastType.Error,
 				message: "Failed to copy code to clipboard",

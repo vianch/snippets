@@ -207,7 +207,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					onClose();
 				}, modalCloseDelay);
 			}
-		} catch (catchError) {
+		} catch (_catchError) {
 			setMessage({
 				text: "An error occurred while updating profile",
 				type: FormMessageTypes.Error,
@@ -257,7 +257,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 						avatar: userMetadata?.avatar ?? prev.avatar,
 					}));
 				}
-			} catch (catchError) {
+			} catch (_catchError) {
 				// Handle error silently or use a proper error handling mechanism
 				setMessage({
 					text: "Error loading user data",
