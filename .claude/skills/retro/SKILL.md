@@ -33,18 +33,19 @@ Run these git commands to gather data:
 
 ### Metrics Summary
 
-| Metric | Value |
-|--------|-------|
-| Commits | {count} |
-| LOC added / removed | +{added} / -{removed} |
-| Files changed | {count} |
-| Active days | {count} |
-| Commit types | feat: X, fix: Y, refactor: Z, ... |
-| Hotspot files | {top 5 most-changed files} |
+| Metric              | Value                             |
+| ------------------- | --------------------------------- |
+| Commits             | {count}                           |
+| LOC added / removed | +{added} / -{removed}             |
+| Files changed       | {count}                           |
+| Active days         | {count}                           |
+| Commit types        | feat: X, fix: Y, refactor: Z, ... |
+| Hotspot files       | {top 5 most-changed files}        |
 
 ### Work Sessions
 
 Detect coding sessions using 45-minute gaps between commits. Report:
+
 - Number of sessions
 - Average session length
 - Peak hours (based on commit timestamps)
@@ -55,19 +56,23 @@ Detect coding sessions using 45-minute gaps between commits. Report:
 Identify the largest feature or change by commit message analysis and LOC.
 
 ### What Went Well
+
 - Specific praise anchored in actual commits and data
 - Patterns worth repeating
 
 ### What Could Improve
+
 - Areas that need attention (test coverage, large commits, etc.)
 - Frame as investment opportunities, not criticism
 
 ### Habits for Next Week
+
 - 3 concrete, actionable suggestions based on the data
 
 ## Compare Mode
 
 When `$ARGUMENTS` is "compare":
+
 1. Run analysis for current window (default 7d)
 2. Run analysis for the prior same-length window
 3. Show side-by-side comparison with deltas

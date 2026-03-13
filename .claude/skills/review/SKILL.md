@@ -30,6 +30,7 @@ Read `.claude/skills/review/checklist.md` for the full review checklist.
 **Pass 2 (INFORMATIONAL):** Run React & Performance, TypeScript & Code Quality, Dead Code & Consistency, and Component Patterns. These are non-blocking but reported.
 
 For each issue found:
+
 - Cite exact `file:line`
 - One line describing the problem
 - One line with the fix

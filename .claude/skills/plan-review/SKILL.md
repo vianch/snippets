@@ -30,34 +30,41 @@ Present these options and ask the user to pick a direction before proceeding.
 Once the user picks a direction, produce a complete technical plan:
 
 ### Architecture
+
 - System boundaries and data flow
 - Which existing code/patterns to reuse (search the codebase)
 - New files and modules needed
 - State management approach (page state vs Zustand store)
 
 ### Implementation Sequence
+
 - Ordered list of implementation steps
 - Dependencies between steps
 - Which steps can be parallelized
 
 ### Edge Cases & Failure Modes
+
 - What happens when things go wrong?
 - Empty states, error states, loading states
 - Supabase query failures, auth edge cases
 - Concurrent user actions
 
 ### Diagrams
+
 Use ASCII diagrams to illustrate:
+
 - Component hierarchy (if UI changes)
 - Data flow (if new queries or state)
 - State transitions (if complex interactions)
 
 ### Test Strategy
+
 - What to validate: `npx tsc --noEmit`, `yarn lint`, `yarn build`
 - Manual verification steps
 - Edge cases to test
 
 ### NOT in Scope
+
 - Explicitly list what this plan does NOT include
 - Deferred work with rationale
 
