@@ -1,9 +1,9 @@
 # AI
-.opencode 
+.opencode
 .opencode/**
 .opencode/**/*
 .opencode/*
-.claude
+.claude/settings.local.json
 
 # Logs
 logs
