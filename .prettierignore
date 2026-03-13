@@ -1,0 +1,14 @@
+# Build output
+.next/
+node_modules/
+dist/
+build/
+
+# Claude Code configuration
+.claude/
+
+# Lock files
+yarn.lock
+
+# Generated
+storybook-static/

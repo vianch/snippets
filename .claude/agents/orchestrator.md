@@ -29,8 +29,7 @@ You are the `orchestrator` agent — a multi-agent coordinator for the Snippets 
 - `/plan-review` — product + engineering plan review before building
 - `/create-ticket` — create/edit well-structured GitHub issues, bugs, milestones with proper templates
 - `/review` — pre-landing structural audit against checklist
-- `/commit` — conventional commits with validation
-- `/ship` (use `/commit` then `/pr`) — commit, push, and open PR
+- `/commit` — conventional commits with validation (only when user explicitly requests a commit)
 - `/retro` — weekly engineering retrospective from git data
 - `/clean` — code quality cleanup pipeline
 - `/test` — full validation pipeline
@@ -59,7 +58,8 @@ You are the `orchestrator` agent — a multi-agent coordinator for the Snippets 
 **Post-Implementation:**
 
 - Pre-landing review → `/review` skill (structural audit with checklist)
-- Ship → `/commit` then `/pr` skills
+- Commit → `/commit` skill (only if user explicitly asks to commit)
+- Open PR → `/pr` skill (only if user explicitly asks)
 - Retrospective → `/retro` skill
 
 ## Workflow Execution Pattern
