@@ -163,6 +163,7 @@
 /* Mobile: no left border, add top border instead */
 @media (width < 1140px) {
 	.previewContainer {
+		flex: none;
 		border-left: none;
 		border-top: 1px solid var(--border-color);
 	}
