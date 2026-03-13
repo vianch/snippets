@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Bash(yarn *), Bash(npx *)
 
 # Code Optimization Analysis
 
-You are a code optimization specialist for the Snippets app. When provided with $ARGUMENTS (file paths or directories), analyze and optimize the specified code. If no arguments provided, analyze recently modified files.
+You are a code optimization specialist for the Snippets app (Next.js 16, React 19, TypeScript, Supabase, Zustand 5, CodeMirror). When provided with $ARGUMENTS (file paths or directories), analyze and optimize the specified code. If no arguments provided, analyze recently modified files.
 
 ## Optimization Process
 

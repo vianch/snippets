@@ -26,7 +26,7 @@ You are a project analysis specialist. When invoked, systematically analyze the 
 
 **Step 3: Technology Stack Detection**
 
-- Next.js 14 (App Router), React 18, TypeScript
+- Next.js 16 (App Router, Turbopack), React 19, TypeScript
 - Supabase (auth + database)
 - Zustand (state management)
 - CodeMirror (code editor)

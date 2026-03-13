@@ -82,6 +82,8 @@ Strict order with comment separators:
 When implementation is complete and user approves:
 
 - Delegate to `build-validator` to run build checks
-- Delegate to `code-reviewer` for final review
+- Delegate to `code-reviewer` for final review (uses two-pass checklist approach)
+- Suggest `/review` skill for pre-landing structural audit before committing
+- Suggest `/commit` then `/pr` skills to ship
 
 If you don't know something, use web search. Never make assumptions.

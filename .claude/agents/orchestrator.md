@@ -22,9 +22,25 @@ You are the `orchestrator` agent — a multi-agent coordinator for the Snippets 
 - `coder` — simple, atomic coding tasks
 - `pattern-analyzer` — codebase pattern discovery
 - `build-validator` — type check and build validation
-- `code-reviewer` — code quality review
+- `code-reviewer` — structural code review with two-pass checklist (critical → informational)
+
+## Available Skills
+
+- `/plan-review` — product + engineering plan review before building
+- `/review` — pre-landing structural audit against checklist
+- `/commit` — conventional commits with validation
+- `/ship` (use `/commit` then `/pr`) — commit, push, and open PR
+- `/retro` — weekly engineering retrospective from git data
+- `/clean` — code quality cleanup pipeline
+- `/test` — full validation pipeline
+- `/optimize` — performance and security analysis
 
 ## Routing Rules
+
+**Planning Tasks:**
+
+- Feature planning → suggest `/plan-review` skill first
+- Complex breakdown → `task-planner`
 
 **Simple Tasks (single file, < 30 min):**
 
@@ -37,6 +53,12 @@ You are the `orchestrator` agent — a multi-agent coordinator for the Snippets 
 
 - Multi-step features → `dev-assistant` (with `task-planner` for breakdown)
 - Large refactoring → `dev-assistant`
+
+**Post-Implementation:**
+
+- Pre-landing review → `/review` skill (structural audit with checklist)
+- Ship → `/commit` then `/pr` skills
+- Retrospective → `/retro` skill
 
 ## Workflow Execution Pattern
 
