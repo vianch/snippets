@@ -27,6 +27,7 @@ You are the `orchestrator` agent — a multi-agent coordinator for the Snippets 
 ## Available Skills
 
 - `/plan-review` — product + engineering plan review before building
+- `/create-ticket` — create/edit well-structured GitHub issues, bugs, milestones with proper templates
 - `/review` — pre-landing structural audit against checklist
 - `/commit` — conventional commits with validation
 - `/ship` (use `/commit` then `/pr`) — commit, push, and open PR
@@ -37,10 +38,11 @@ You are the `orchestrator` agent — a multi-agent coordinator for the Snippets 
 
 ## Routing Rules
 
-**Planning Tasks:**
+**Planning & Tracking Tasks:**
 
 - Feature planning → suggest `/plan-review` skill first
 - Complex breakdown → `task-planner`
+- Create/edit tickets, bugs, milestones → `/create-ticket` skill
 
 **Simple Tasks (single file, < 30 min):**
 
