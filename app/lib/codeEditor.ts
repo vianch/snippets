@@ -9,23 +9,28 @@ import { php } from "@codemirror/lang-php";
 import { json } from "@codemirror/lang-json";
 import { java } from "@codemirror/lang-java";
 import { yaml } from "@codemirror/lang-yaml";
+import { go } from "@codemirror/lang-go";
+import { cpp } from "@codemirror/lang-cpp";
 
 import SupportedLanguages from "@/lib/config/languages";
 
 const languageExtensions: LanguageExtensions = {
+	[SupportedLanguages.Markdown]: markdown(),
+	[SupportedLanguages.C]: cpp(),
+	[SupportedLanguages.Cpp]: cpp(),
+	[SupportedLanguages.CSS]: css(),
+	[SupportedLanguages.Go]: go(),
+	[SupportedLanguages.HTML]: html(),
+	[SupportedLanguages.Java]: java(),
 	[SupportedLanguages.JavaScript]: javascript({
 		jsx: true,
 		typescript: true,
 	}),
-	[SupportedLanguages.CSS]: css(),
-	[SupportedLanguages.HTML]: html(),
-	[SupportedLanguages.SQL]: sql(),
-	[SupportedLanguages.Python]: python(),
-	[SupportedLanguages.Markdown]: markdown(),
-	[SupportedLanguages.Rust]: rust(),
-	[SupportedLanguages.PHP]: php(),
 	[SupportedLanguages.JSON]: json(),
-	[SupportedLanguages.Java]: java(),
+	[SupportedLanguages.PHP]: php(),
+	[SupportedLanguages.Python]: python(),
+	[SupportedLanguages.Rust]: rust(),
+	[SupportedLanguages.SQL]: sql(),
 	[SupportedLanguages.YAML]: yaml(),
 };
 
