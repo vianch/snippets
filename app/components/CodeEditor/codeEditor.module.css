@@ -124,6 +124,54 @@
 	color: var(--bg-color-dark);
 }
 
+.splitView {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	overflow: hidden;
+}
+
+.splitViewMobile {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	overflow: hidden;
+}
+
+.editorPanel {
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.previewResizer {
+	width: 4px;
+	background: var(--border-color);
+	cursor: col-resize;
+	flex-shrink: 0;
+	position: relative;
+	transition: background-color 0.2s ease;
+}
+
+.previewResizer:hover {
+	background: var(--foreground-color);
+}
+
+.previewResizer:active {
+	background: var(--cyan-color);
+}
+
+.previewResizer::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 2px;
+	height: 20px;
+	background: currentcolor;
+	opacity: 0.5;
+}
+
 @media (width < 1140px) {
 	.codeEditorContainer {
 		width: 100%;

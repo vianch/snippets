@@ -1,6 +1,14 @@
 "use client";
 
-import { ReactElement, useState, useEffect, useMemo, ChangeEvent } from "react";
+import {
+	ReactElement,
+	useState,
+	useEffect,
+	useMemo,
+	useCallback,
+	useRef,
+	ChangeEvent,
+} from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { draculaInit } from "@uiw/codemirror-theme-dracula";
 
@@ -13,6 +21,7 @@ import codeMirrorOptions from "@/lib/constants/codeMirror";
 /* Components */
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
+import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -32,7 +41,7 @@ type CodeEditorProps = {
 const CodeEditor = ({
 	snippet,
 	codeEditorStates,
-	defaultLanguage = SupportedLanguages.JavaScript,
+	defaultLanguage = SupportedLanguages.Markdown,
 	onSave,
 	onStarred,
 	onTouched,
@@ -47,6 +56,38 @@ const CodeEditor = ({
 		language: defaultLanguage,
 		extension: languageExtensions[defaultLanguage],
 	});
+	const isMarkdownLanguage =
+		currentSnippet?.language === SupportedLanguages.Markdown;
+	const showPreview = isMarkdownLanguage && !isTrashActive;
+
+	const editorContentRef = useRef<HTMLDivElement>(null);
+	const [editorWidthPercent, setEditorWidthPercent] = useState(50);
+	const [isDraggingPreview, setIsDraggingPreview] = useState(false);
+
+	const handlePreviewMouseDown = useCallback(() => {
+		setIsDraggingPreview(true);
+		document.body.style.cursor = "col-resize";
+		document.body.style.userSelect = "none";
+	}, []);
+
+	const handlePreviewMouseMove = useCallback(
+		(e: MouseEvent) => {
+			if (!isDraggingPreview || !editorContentRef.current) return;
+
+			const rect = editorContentRef.current.getBoundingClientRect();
+			const mouseX = e.clientX - rect.left;
+			const percent = (mouseX / rect.width) * 100;
+
+			setEditorWidthPercent(Math.max(25, Math.min(75, percent)));
+		},
+		[isDraggingPreview]
+	);
+
+	const handlePreviewMouseUp = useCallback(() => {
+		setIsDraggingPreview(false);
+		document.body.style.cursor = "";
+		document.body.style.userSelect = "";
+	}, []);
 
 	const draculaTheme = useMemo(
 		() =>
@@ -153,7 +194,7 @@ const CodeEditor = ({
 
 	const calculateEditorHeight = (): string => {
 		if (isMobile && !isTrashActive) {
-			return "calc(100vh - 9.7rem)";
+			return isMarkdownLanguage ? "calc(50vh - 5rem)" : "calc(100vh - 9.7rem)";
 		}
 
 		if (isTrashActive && !isMobile) {
@@ -162,6 +203,14 @@ const CodeEditor = ({
 
 		if (isTrashActive && isMobile) {
 			return "calc(100vh - 3.2rem)";
+		}
+
+		return "calc(100vh - 6.45rem)";
+	};
+
+	const calculatePreviewHeight = (): string => {
+		if (isMobile) {
+			return "calc(50vh - 5rem)";
 		}
 
 		return "calc(100vh - 6.45rem)";
@@ -212,6 +261,20 @@ const CodeEditor = ({
 		};
 	}, [currentSnippet]);
 
+	useEffect(() => {
+		if (isDraggingPreview) {
+			document.addEventListener("mousemove", handlePreviewMouseMove);
+			document.addEventListener("mouseup", handlePreviewMouseUp);
+
+			return () => {
+				document.removeEventListener("mousemove", handlePreviewMouseMove);
+				document.removeEventListener("mouseup", handlePreviewMouseUp);
+			};
+		}
+
+		return undefined;
+	}, [isDraggingPreview, handlePreviewMouseMove, handlePreviewMouseUp]);
+
 	return (
 		<div
 			className={`${styles.codeEditorContainer} ${!snippet && styles.noSnippetContainer}`}
@@ -240,22 +303,60 @@ const CodeEditor = ({
 						</>
 					)}
 
-					<CodeMirror
-						autoFocus={false}
-						indentWithTab={true}
-						basicSetup={
-							isTrashActive ? { lineNumbers: true } : codeMirrorOptions
-						}
-						placeholder={"Write your snipped here"}
-						className={styles.codeMirrorContainer}
-						value={snippet?.snippet ?? ""}
-						extensions={[currentSnippet.extension]}
-						theme={draculaTheme}
-						height={calculateEditorHeight()}
-						width="100%"
-						readOnly={isTrashActive}
-						onChange={updateCurrentSnippetValue}
-					/>
+					{showPreview ? (
+						<div
+							ref={editorContentRef}
+							className={isMobile ? styles.splitViewMobile : styles.splitView}
+						>
+							<div
+								className={styles.editorPanel}
+								style={
+									!isMobile ? { width: `${editorWidthPercent}%` } : undefined
+								}
+							>
+								<CodeMirror
+									autoFocus={false}
+									indentWithTab={true}
+									basicSetup={codeMirrorOptions}
+									placeholder={"Write your snipped here"}
+									className={styles.codeMirrorContainer}
+									value={snippet?.snippet ?? ""}
+									extensions={[currentSnippet.extension]}
+									theme={draculaTheme}
+									height={calculateEditorHeight()}
+									width="100%"
+									onChange={updateCurrentSnippetValue}
+								/>
+							</div>
+							{!isMobile && (
+								<div
+									className={styles.previewResizer}
+									onMouseDown={handlePreviewMouseDown}
+								/>
+							)}
+							<MarkdownPreview
+								content={currentSnippet.snippet}
+								height={calculatePreviewHeight()}
+							/>
+						</div>
+					) : (
+						<CodeMirror
+							autoFocus={false}
+							indentWithTab={true}
+							basicSetup={
+								isTrashActive ? { lineNumbers: true } : codeMirrorOptions
+							}
+							placeholder={"Write your snipped here"}
+							className={styles.codeMirrorContainer}
+							value={snippet?.snippet ?? ""}
+							extensions={[currentSnippet.extension]}
+							theme={draculaTheme}
+							height={calculateEditorHeight()}
+							width="100%"
+							readOnly={isTrashActive}
+							onChange={updateCurrentSnippetValue}
+						/>
+					)}
 				</>
 			)}
 

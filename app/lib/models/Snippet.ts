@@ -33,7 +33,7 @@ export default class SnippetValueObject implements Snippet {
 		this.url = null;
 		this.notes = null;
 		this.snippet = "";
-		this.language = SupportedLanguages.JavaScript;
+		this.language = SupportedLanguages.Markdown;
 		this.state = "active";
 		this.tags = null;
 	}
