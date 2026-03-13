@@ -15,12 +15,11 @@ Run the complete validation pipeline for the Snippets project, fix any failures,
 2. **Code Linting**: Run `yarn lint:code-style` to check ESLint errors
 3. **Style Linting**: Run `yarn lint:style` to check CSS/Stylelint errors
 4. **Formatting**: Run `yarn lint:formatting` to check Prettier formatting
-5. **Next.js Lint**: Run `yarn lint:next` for Next.js specific checks
-6. **Build**: Run `yarn build` to ensure production build succeeds
-7. **Report**: Report any failures found
-8. **Fix**: Fix any failures encountered
-9. **Repeat**: Re-run failed steps until all pass
-10. **Success**: Report final success with summary
+5. **Build**: Run `yarn build` to ensure production build succeeds
+6. **Report**: Report any failures found
+7. **Fix**: Fix any failures encountered
+8. **Repeat**: Re-run failed steps until all pass
+9. **Success**: Report final success with summary
 
 ## Behavior
 

@@ -12,7 +12,7 @@ Snippets — a personal code snippet manager. Users authenticate, then create/ed
 yarn install          # Install dependencies
 yarn dev              # Start dev server (Next.js)
 yarn build            # Production build
-yarn lint             # Run all linters (ESLint + Stylelint + Prettier + next lint)
+yarn lint             # Run all linters (ESLint + Stylelint + Prettier)
 yarn lint:code-style  # ESLint only (with --fix)
 yarn lint:style       # Stylelint only (CSS, with --fix)
 yarn lint:formatting  # Prettier only (with --write)
@@ -27,7 +27,7 @@ Package manager is **yarn** (not npm/pnpm). The `yarn init` script nukes node_mo
 
 ## Architecture
 
-**Stack**: Next.js 14 (App Router) + TypeScript + Supabase + Zustand + CodeMirror + Vercel Analytics. Deployed on Vercel.
+**Stack**: Next.js 16 (App Router, Turbopack) + React 19 + TypeScript + Supabase + Zustand 5 + CodeMirror + Vercel Analytics. Deployed on Vercel.
 
 ### Path Aliases (tsconfig)
 
@@ -56,7 +56,7 @@ The main app page (`app/snippets/page.tsx`) is a client component that owns all 
 
 ### Auth
 
-Supabase auth with middleware-based route protection (`middleware.ts`). Unauthenticated users hitting `/snippets` redirect to `/login`; authenticated users hitting `/login` redirect to `/snippets`.
+Supabase auth with proxy-based route protection (`proxy.ts`, renamed from `middleware.ts` in Next.js 16). Unauthenticated users hitting `/snippets` redirect to `/login`; authenticated users hitting `/login` redirect to `/snippets`.
 
 ### Routes
 
@@ -77,10 +77,10 @@ Copy `.env.example` → `.env.local`. Required:
 ## Code Style
 
 - Tabs for indentation, double quotes, trailing commas (`es5`), semicolons
-- ESLint extends airbnb-base + airbnb-typescript + prettier
+- ESLint 9 flat config (`eslint.config.mjs`) with typescript-eslint, next/core-web-vitals, and prettier
 - `no-console` is an error
-- Blank lines enforced between blocks, returns, control flow, and variable declarations (see `.eslintrc.js` padding rules)
-- `react-hooks/exhaustive-deps` is disabled
+- Blank lines enforced between blocks, returns, control flow, and variable declarations (see `eslint.config.mjs` padding rules)
+- `react-hooks/exhaustive-deps` and `react-hooks/set-state-in-effect` are disabled
 - Global types live in `types/*.d.ts` — domain types like `Snippet`, `UUID`, `SnippetState`, `CurrentSnippet`, `TagItem` are globally available without imports
 
 ## Memory & Rules System
@@ -111,5 +111,5 @@ Loaded automatically when Claude works with matching file paths:
 | Rule file       | Applies to                                                                       |
 | --------------- | -------------------------------------------------------------------------------- |
 | `components.md` | `app/components/**/*.tsx`                                                        |
-| `supabase.md`   | `app/lib/supabase/**/*.ts`, `middleware.ts`                                      |
+| `supabase.md`   | `app/lib/supabase/**/*.ts`, `proxy.ts`                                           |
 | `utilities.md`  | `app/utils/**`, `app/lib/constants/**`, `app/lib/config/**`, `app/lib/models/**` |

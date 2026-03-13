@@ -1,5 +1,6 @@
 import { ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 /* components */
 import Button from "@/components/ui/Button/Button";
@@ -28,7 +29,7 @@ const NavHeader = (): ReactElement => {
 	return (
 		<header className={styles.header}>
 			<div className={`container ${styles.headerContainer}`}>
-				<a href="/" className={styles.logo}>
+				<Link href="/" className={styles.logo}>
 					<img
 						className={styles.logoImage}
 						src="/assets/images/png/logo.png"
@@ -37,7 +38,7 @@ const NavHeader = (): ReactElement => {
 						height={48}
 					/>
 					Snippets
-				</a>
+				</Link>
 
 				<nav>
 					<Button
