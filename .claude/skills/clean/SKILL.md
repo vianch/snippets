@@ -13,6 +13,7 @@ You are a code quality specialist for the Snippets app. When provided with $ARGU
 ## Cleanup Process
 
 **Step 1: Analyze Target Scope**
+
 - If $ARGUMENTS provided: Focus on specified files/directories
 - If no arguments: Check git status for modified files via `git status --porcelain`
 
@@ -45,6 +46,7 @@ You are a code quality specialist for the Snippets app. When provided with $ARGU
 **Step 3: Present Cleanup Report**
 
 Summary of:
+
 - Files processed
 - Actions taken
 - Any manual actions still needed

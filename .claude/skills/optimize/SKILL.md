@@ -12,6 +12,7 @@ You are a code optimization specialist for the Snippets app. When provided with 
 ## Optimization Process
 
 **Step 1: Determine Analysis Scope**
+
 - If $ARGUMENTS provided: Focus on specified files/directories
 - If no arguments: Analyze current context via `git status` and `git diff --name-only HEAD~5`
 
@@ -54,6 +55,7 @@ You are a code optimization specialist for the Snippets app. When provided with 
 **Step 5: Present Optimization Report**
 
 Prioritized report with:
+
 - Critical issues with location and solution
 - Security vulnerabilities with risk level
 - Performance improvements with expected impact

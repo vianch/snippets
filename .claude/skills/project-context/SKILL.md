@@ -13,16 +13,19 @@ You are a project analysis specialist. When invoked, systematically analyze the 
 ## Analysis Process
 
 **Step 1: Project Discovery**
+
 - Read CLAUDE.md to understand project purpose and standards
 - Examine package.json for dependencies, scripts, and configuration
 - Read `.claude/memory/MEMORY.md` for persistent project context
 
 **Step 2: Codebase Structure Analysis**
+
 - Run `git ls-files | head -50` to get an overview of file structure
 - Identify main directories and their purposes
 - Examine configuration files (tsconfig.json, .eslintrc.js, .prettierrc, .env.example)
 
 **Step 3: Technology Stack Detection**
+
 - Next.js 14 (App Router), React 18, TypeScript
 - Supabase (auth + database)
 - Zustand (state management)
@@ -31,6 +34,7 @@ You are a project analysis specialist. When invoked, systematically analyze the 
 - yarn (package manager)
 
 **Step 4: Current Project State**
+
 - Check git status and recent commit history with `git log --oneline -10`
 - Check `.claude/memory/session_log.md` for recent session activity
 

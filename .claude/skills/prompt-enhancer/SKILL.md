@@ -21,11 +21,13 @@ Transform prompts into high-performance agents through systematic analysis, rest
 5. Determine complexity level
 
 **Complexity Assessment:**
+
 - **Simple**: Single task, linear flow → basic optimization
 - **Moderate**: Multiple steps, some routing → enhanced structure
 - **Complex**: Multi-agent coordination, dynamic routing → full orchestration
 
 **Scoring Criteria (10 points):**
+
 - Component order (context → role → task → instructions): 2 points
 - Hierarchical context (system → domain → task → execution): 2 points
 - Routing logic with executable conditions: 2 points
@@ -35,6 +37,7 @@ Transform prompts into high-performance agents through systematic analysis, rest
 ### Stage 2: Restructure Core
 
 Apply optimal component sequence:
+
 1. **Context** (15-25%): Hierarchical information
 2. **Role** (5-10%): Clear identity
 3. **Task** (5-10%): Primary objective
@@ -46,6 +49,7 @@ Apply optimal component sequence:
 ### Stage 3: Enhance Workflow
 
 Based on complexity:
+
 - **Simple**: Numbered steps with actions and validation checkpoints
 - **Moderate**: Multi-step workflow with decision points and routing logic
 - **Complex**: Multi-stage workflow with routing intelligence and validation gates
@@ -59,6 +63,7 @@ Based on complexity:
 ### Stage 5: Deliver
 
 Present the optimized prompt with:
+
 - Original vs optimized score
 - Key optimizations applied
 - Expected performance gains

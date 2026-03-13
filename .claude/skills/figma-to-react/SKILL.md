@@ -26,14 +26,18 @@ Create production-ready React components from Figma designs using the Figma MCP 
 ## Implementation Steps
 
 ### Step 1: Check project structure
+
 Examine existing components in `app/components/` and `app/components/ui/` to understand:
+
 - One component per directory (`ComponentName/ComponentName.tsx`)
 - TypeScript types for props
 - Import organization with comment separators
 - CSS modules or inline styles usage
 
 ### Step 2: Fetch Figma design
+
 Use the Figma MCP tool to fetch design specifications:
+
 - Layout and structure
 - Colors (hex values)
 - Typography (font sizes, weights)
@@ -41,7 +45,9 @@ Use the Figma MCP tool to fetch design specifications:
 - Component variants/states
 
 ### Step 3: Convert design to code
+
 Create the React component with:
+
 - TypeScript types for props
 - `ReactElement` return type
 - `"use client"` directive if using hooks or browser APIs
@@ -50,7 +56,9 @@ Create the React component with:
 - Proper exports
 
 ### Step 4: Verify and export
+
 Ensure:
+
 - Component follows project conventions from CLAUDE.md
 - Import order follows project standards (with comment separators)
 - Path aliases are used (`@/components`, `@/lib`, `@/utils`)
@@ -60,6 +68,7 @@ Ensure:
 ## Output
 
 After completion, you'll have:
+
 1. `app/components/ui/$0/$0.tsx` — React component with TypeScript (for UI primitives)
    or `app/components/$0/$0.tsx` — for feature components
 

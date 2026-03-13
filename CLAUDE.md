@@ -31,12 +31,12 @@ Package manager is **yarn** (not npm/pnpm). The `yarn init` script nukes node_mo
 
 ### Path Aliases (tsconfig)
 
-| Alias | Maps to |
-|-------|---------|
+| Alias            | Maps to            |
+| ---------------- | ------------------ |
 | `@/components/*` | `app/components/*` |
-| `@/models/*` | `app/models/*` |
-| `@/lib/*` | `app/lib/*` |
-| `@/utils/*` | `app/utils/*` |
+| `@/models/*`     | `app/models/*`     |
+| `@/lib/*`        | `app/lib/*`        |
+| `@/utils/*`      | `app/utils/*`      |
 
 ### Key Directories
 
@@ -69,6 +69,7 @@ Supabase auth with middleware-based route protection (`middleware.ts`). Unauthen
 ## Environment Variables
 
 Copy `.env.example` → `.env.local`. Required:
+
 - `NEXT_PUBLIC_BASE_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
@@ -90,13 +91,14 @@ This project uses Claude Code's persistent memory and path-scoped rules:
 
 Stored at `~/.claude/projects/-Users-victorchavarro-Documents-dev-personal-snippets/memory/`. Claude reads `MEMORY.md` (the index) at the start of every session and loads topic files on demand.
 
-| File | Purpose |
-|------|---------|
-| `MEMORY.md` | Index of all memory files (first 200 lines loaded every session) |
-| `project_overview.md` | Architecture patterns and key decisions |
-| `session_log.md` | Running log of changes, decisions, and discoveries per session |
+| File                  | Purpose                                                          |
+| --------------------- | ---------------------------------------------------------------- |
+| `MEMORY.md`           | Index of all memory files (first 200 lines loaded every session) |
+| `project_overview.md` | Architecture patterns and key decisions                          |
+| `session_log.md`      | Running log of changes, decisions, and discoveries per session   |
 
 **Maintenance rules:**
+
 - After significant work, append a dated entry to `session_log.md`
 - When discovering new patterns or making architectural decisions, update `project_overview.md`
 - When receiving correction or feedback, create a `feedback_*.md` memory file
@@ -106,8 +108,8 @@ Stored at `~/.claude/projects/-Users-victorchavarro-Documents-dev-personal-snipp
 
 Loaded automatically when Claude works with matching file paths:
 
-| Rule file | Applies to |
-|-----------|------------|
-| `components.md` | `app/components/**/*.tsx` |
-| `supabase.md` | `app/lib/supabase/**/*.ts`, `middleware.ts` |
-| `utilities.md` | `app/utils/**`, `app/lib/constants/**`, `app/lib/config/**`, `app/lib/models/**` |
+| Rule file       | Applies to                                                                       |
+| --------------- | -------------------------------------------------------------------------------- |
+| `components.md` | `app/components/**/*.tsx`                                                        |
+| `supabase.md`   | `app/lib/supabase/**/*.ts`, `middleware.ts`                                      |
+| `utilities.md`  | `app/utils/**`, `app/lib/constants/**`, `app/lib/config/**`, `app/lib/models/**` |

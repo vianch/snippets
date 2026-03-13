@@ -14,6 +14,7 @@ Review recently written or modified code changes to ensure they meet the highest
 ## Review Framework
 
 ### 1. Component Structure & Patterns
+
 - Verify components follow one-component-per-directory pattern (e.g., `CodeEditor/CodeEditor.tsx`)
 - Check for proper `ReactElement` return type annotation
 - Validate component props use TypeScript types
@@ -21,13 +22,16 @@ Review recently written or modified code changes to ensure they meet the highest
 - Check that `"use client"` directive is present on client components using hooks or browser APIs
 
 ### 2. TypeScript Standards
+
 - Enforce strict typing with no `any` usage
 - Verify global types from `types/*.d.ts` are used (not redeclared) — `Snippet`, `UUID`, `SnippetState`, `CurrentSnippet`, `TagItem` are globally available
 - Validate proper use of path aliases (`@/components`, `@/models`, `@/lib`, `@/utils`)
 - Ensure new shared types go in `types/` as `.d.ts` files
 
 ### 3. Import Organization
+
 Verify import order with comment separators between groups:
+
 1. React and external libraries
 2. Components (with `/* Components */` comment)
 3. Lib and Utils (with `/* Lib and Utils */` comment)
@@ -35,6 +39,7 @@ Verify import order with comment separators between groups:
 5. Styles (with `/* Styles */` comment)
 
 ### 4. Code Quality
+
 - Ensure blank lines between blocks, returns, control flow, and variable declarations (ESLint padding rules)
 - Verify `console.log` is not used (`no-console` is an error)
 - Check that Supabase queries are centralized in `app/lib/supabase/queries.ts`
@@ -42,15 +47,18 @@ Verify import order with comment separators between groups:
 - Confirm complex state logic stays in page components, not leaked into child components
 
 ### 5. Styling & CSS
+
 - Check proper use of CSS modules and global styles
 - Verify responsive patterns where applicable
 
 ### 6. Data Flow
+
 - Verify Supabase calls go through `queries.ts`, not scattered in components
 - Check that snippet state management stays in `app/snippets/page.tsx`
 - Ensure stores are only used for cross-component state (menu, toast, viewport, user)
 
 ### 7. Security
+
 - Flag any hardcoded secrets, API keys, or Supabase credentials
 - Verify proper auth checks via middleware pattern
 - Check for proper error handling in Supabase operations
