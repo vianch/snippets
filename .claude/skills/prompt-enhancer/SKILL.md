@@ -68,3 +68,7 @@ Present the optimized prompt with:
 - Key optimizations applied
 - Expected performance gains
 - Implementation notes
+
+## Example
+
+See `example.md` in this skill directory for a full end-to-end workflow showing how all Snippets project skills chain together — from `/plan-review` through `/commit` and `/pr`.
