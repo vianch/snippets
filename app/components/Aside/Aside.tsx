@@ -22,6 +22,7 @@ import { getUserDataFromSession } from "@/lib/supabase/queries";
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
 
 /* Components */
+import Tray from "@/components/ui/icons/Tray";
 import Trash from "@/components/ui/icons/Trash";
 import Book from "@/components/ui/icons/Book";
 import Bookmark from "@/components/ui/icons/Bookmark";
@@ -38,6 +39,7 @@ type AsideProps = {
 	codeEditorStates: SnippetEditorStates;
 	tags: TagItem[];
 	onGetAll: () => void;
+	onGetUncategorized: () => void;
 	onGetFavorites: () => void;
 	onGetTrash: () => void;
 	onTagClick: (tag: string) => void;
@@ -49,6 +51,7 @@ const Aside = ({
 	tags,
 	onGetFavorites,
 	onGetAll,
+	onGetUncategorized,
 	onGetTrash,
 	onTagClick,
 	onAccountClick,
@@ -105,6 +108,10 @@ const Aside = ({
 		switch (type) {
 			case MenuItems.All:
 				onGetAll();
+				break;
+
+			case MenuItems.Uncategorized:
+				onGetUncategorized();
 				break;
 
 			case MenuItems.Favorites:
@@ -195,6 +202,16 @@ const Aside = ({
 					>
 						<Book className={styles.icon} width={18} height={18} />
 						All Snippets
+					</a>
+
+					<a
+						className={`${styles.linkItem} cyan-color ${menuType === MenuItems.Uncategorized && styles.linkItemActive}`}
+						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+							clickMenuHandler(event, "uncategorized")
+						}
+					>
+						<Tray className={styles.icon} width={18} height={18} />
+						Uncategorized
 					</a>
 
 					<a

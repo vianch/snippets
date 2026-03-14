@@ -83,6 +83,26 @@ export const getSnippetsByState = async (
 	return [] as Snippet[];
 };
 
+export const getUncategorizedSnippets = async (): Promise<Snippet[]> => {
+	if (supabase) {
+		const userId = await getUserIdBySession();
+
+		if (userId) {
+			const { data } = await supabase
+				.from("snippet")
+				.select()
+				.order("updated_at", { ascending: false })
+				.match({ user_id: userId })
+				.neq("state", "inactive")
+				.or("tags.is.null,tags.eq.");
+
+			return data as Snippet[];
+		}
+	}
+
+	return [] as Snippet[];
+};
+
 export const getSnippetsByTag = async (tag: string): Promise<Snippet[]> => {
 	if (supabase && tag) {
 		const userId = await getUserIdBySession();

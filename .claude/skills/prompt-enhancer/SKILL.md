@@ -2,7 +2,7 @@
 name: prompt-enhancer
 description: Analyze and optimize prompts for better AI performance using research-backed XML structures and systematic workflow
 disable-model-invocation: true
-argument-hint: "[file path to prompt]"
+argument-hint: "[file path or prompt text]"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
@@ -10,11 +10,20 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 Transform prompts into high-performance agents through systematic analysis, restructuring, and validation using research-backed patterns.
 
+## Input Resolution
+
+Determine whether `$ARGUMENTS` is a file path or inline prompt text:
+
+1. If `$ARGUMENTS` looks like a file path (contains `/`, `.md`, `.txt`, or matches an existing file) → read the file and use its contents as the prompt to optimize
+2. Otherwise → treat `$ARGUMENTS` itself as the raw prompt text to optimize
+
+If `$ARGUMENTS` is empty, ask the user to provide either a file path or prompt text.
+
 ## Workflow
 
 ### Stage 1: Analyze
 
-1. Read target prompt file from $ARGUMENTS
+1. Resolve the input prompt (file or text) using the rules above
 2. Assess prompt type (command, agent, subagent, workflow)
 3. Analyze current structure against research patterns
 4. Identify optimization opportunities

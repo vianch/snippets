@@ -14,6 +14,7 @@ import {
 	getAllSnippets,
 	getSnippetsByState,
 	getSnippetsByTag,
+	getUncategorizedSnippets,
 	saveSnippet,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
@@ -269,6 +270,19 @@ export default function Page(): ReactElement {
 		}
 	};
 
+	const getUncategorizedHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== MenuItems.Uncategorized) {
+			const data = await getUncategorizedSnippets();
+
+			setSnippets(data);
+
+			setCodedEditorStates({
+				...defaultCodeEditorStates,
+				menuType: MenuItems.Uncategorized,
+			});
+		}
+	};
+
 	const getFavoritesHandler = async (): Promise<void> => {
 		if (codeEditorStates.menuType !== MenuItems.Favorites) {
 			await getSnippets("favorite");
@@ -359,6 +373,7 @@ export default function Page(): ReactElement {
 						codeEditorStates={codeEditorStates}
 						tags={tags}
 						onGetAll={getSnippetsHandler}
+						onGetUncategorized={getUncategorizedHandler}
 						onGetFavorites={getFavoritesHandler}
 						onGetTrash={getTrashHandler}
 						onTagClick={getSnippetsByTagHandler}
