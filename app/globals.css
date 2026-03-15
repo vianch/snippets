@@ -194,10 +194,10 @@ table {
 	--red-color: #ff628c;
 	--dark-red-color: #ec3a37;
 	--foreground-color: #a599e9;
-	--success-color: #1e3f1e;
-	--error-color: #3f1e1e;
-	--warning-color: #3f3a1e;
-	--info-color: #1e1e3f;
+	--success-color: #eff7ee;
+	--error-color: #fbeeed;
+	--warning-color: #fef4e6;
+	--info-color: #e8f6fd;
 	--skeleton-shimmer: #4b3a8a;
 }
 
@@ -267,10 +267,10 @@ table {
 	--red-color: #f85149;
 	--dark-red-color: #da3633;
 	--foreground-color: #e6edf3;
-	--success-color: #122117;
-	--error-color: #2d1214;
-	--warning-color: #2d2411;
-	--info-color: #0d1d30;
+	--success-color: #eff7ee;
+	--error-color: #fbeeed;
+	--warning-color: #fef4e6;
+	--info-color: #e8f6fd;
 }
 
 [data-theme="github-light"] {
