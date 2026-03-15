@@ -22,11 +22,13 @@ import codeMirrorOptions from "@/lib/constants/codeMirror";
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
+import SkeletonCodeEditor from "@/components/ui/Skeleton/SkeletonCodeEditor";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
 
 type CodeEditorProps = {
+	isLoading: boolean;
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
 	codeEditorStates: SnippetEditorStates;
@@ -39,6 +41,7 @@ type CodeEditorProps = {
 };
 
 const CodeEditor = ({
+	isLoading,
 	snippet,
 	codeEditorStates,
 	defaultLanguage = SupportedLanguages.Markdown,
@@ -277,9 +280,11 @@ const CodeEditor = ({
 
 	return (
 		<div
-			className={`${styles.codeEditorContainer} ${!snippet && styles.noSnippetContainer}`}
+			className={`${styles.codeEditorContainer} ${!snippet && !isLoading && styles.noSnippetContainer}`}
 		>
-			{snippet && (
+			{isLoading ? (
+				<SkeletonCodeEditor />
+			) : snippet ? (
 				<>
 					{!isTrashActive && (
 						<>
@@ -358,9 +363,9 @@ const CodeEditor = ({
 						/>
 					)}
 				</>
+			) : (
+				<p className={styles.noSnippet}>No snippet selected</p>
 			)}
-
-			{!snippet && <p className={styles.noSnippet}>No snippet selected</p>}
 		</div>
 	);
 };

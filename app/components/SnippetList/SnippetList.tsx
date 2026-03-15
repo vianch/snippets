@@ -27,18 +27,21 @@ import Alert from "@/components/ui/Alert/Alert";
 import Check from "@/components/ui/icons/Check";
 import CloseSquare from "@/components/ui/icons/CloseSquare";
 import Loading from "@/components/ui/icons/Loading";
+import SkeletonSnippetItem from "@/components/ui/Skeleton/SkeletonSnippetItem";
 import SnippetItem from "@/components/SnippetItem/SnippetItem";
 
 /* Styles */
 import styles from "./snippetlist.module.css";
 
 interface SnippetListProps extends SnippetItemProps {
+	isLoading: boolean;
 	snippets?: Snippet[];
 	onNewSnippet: (newSnippet: Snippet) => void;
 	onEmptyTrash: () => void;
 }
 
 const SnippetList = ({
+	isLoading,
 	snippets = [],
 	codeEditorStates,
 	onNewSnippet,
@@ -163,7 +166,13 @@ const SnippetList = ({
 				)}
 			</div>
 
-			{searchData?.snippetsFound?.length > 0 ? (
+			{isLoading ? (
+				<ul className={styles.snippetsList}>
+					{Array.from({ length: 6 }).map((_, index) => (
+						<SkeletonSnippetItem key={index} />
+					))}
+				</ul>
+			) : searchData?.snippetsFound?.length > 0 ? (
 				<ul id="snippet-list-items" className={styles.snippetsList}>
 					<li
 						className={`${styles.deleteAlert} ${deleteAll ? styles.alertShow : styles.alertHide}`}
