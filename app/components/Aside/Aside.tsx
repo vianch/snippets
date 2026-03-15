@@ -10,6 +10,8 @@ import { defaultAvatar } from "@/lib/constants/account";
 /* Components */
 import AsideItem from "@/components/AsideItem/AsideItem";
 import SignOut from "@/components/ui/icons/SignOut";
+import Skeleton from "@/components/ui/Skeleton/Skeleton";
+import SkeletonAsideTags from "@/components/ui/Skeleton/SkeletonAsideTags";
 
 /* Lib */
 import supabase from "@/lib/supabase/client";
@@ -36,6 +38,7 @@ import CaretDown from "@/components/ui/icons/CaretDown";
 import styles from "./aside.module.css";
 
 type AsideProps = {
+	isLoading: boolean;
 	codeEditorStates: SnippetEditorStates;
 	tags: TagItem[];
 	onGetAll: () => void;
@@ -47,6 +50,7 @@ type AsideProps = {
 };
 
 const Aside = ({
+	isLoading,
 	codeEditorStates,
 	tags,
 	onGetFavorites,
@@ -176,21 +180,35 @@ const Aside = ({
 				className={`${styles.container} ${mainMenuOpen ? styles.containerOpen : styles.containerClosed}`}
 			>
 				<section className={styles.section}>
-					<button
-						type="button"
-						className={`${styles.settingsItems} ${styles.mail} ${!userName && styles.mailLoading} ${styles.userProfile}`}
-						onClick={onAccountClick}
-					>
-						{userName && (
-							<img
-								alt="user mask"
+					{isLoading ? (
+						<div
+							className={`${styles.settingsItems} ${styles.mail} ${styles.userProfile}`}
+						>
+							<Skeleton
 								className={styles.icon}
-								src={userAvatar}
-								height="32"
+								width="2rem"
+								height="2rem"
+								borderRadius="50%"
 							/>
-						)}
-						{userName}
-					</button>
+							<Skeleton width="6rem" height="0.75rem" />
+						</div>
+					) : (
+						<button
+							type="button"
+							className={`${styles.settingsItems} ${styles.mail} ${!userName && styles.mailLoading} ${styles.userProfile}`}
+							onClick={onAccountClick}
+						>
+							{userName && (
+								<img
+									alt="user mask"
+									className={styles.icon}
+									src={userAvatar}
+									height="32"
+								/>
+							)}
+							{userName}
+						</button>
+					)}
 				</section>
 
 				<section className={styles.section}>
@@ -235,29 +253,39 @@ const Aside = ({
 					</a>
 				</section>
 
-				{tags?.length > 0 && (
+				{isLoading ? (
 					<section className={styles.section}>
-						<h2
-							className={`${styles.title} purple-color ${styles.titleClickable}`}
-							onClick={toggleTagsExpansion}
-						>
+						<h2 className={`${styles.title} purple-color`}>
 							<Bookmark className={styles.icon} width={18} height={18} />
 							Tags
-							<CaretDown
-								className={`${styles.caretIcon} ${isTagsExpanded ? styles.caretExpanded : styles.caretCollapsed}`}
-								width={12}
-								height={12}
-							/>
 						</h2>
-
-						{isTagsExpanded && (
-							<AsideItem
-								active={menuType}
-								items={tags}
-								onItemClicked={handlerTagClick}
-							/>
-						)}
+						<SkeletonAsideTags />
 					</section>
+				) : (
+					tags?.length > 0 && (
+						<section className={styles.section}>
+							<h2
+								className={`${styles.title} purple-color ${styles.titleClickable}`}
+								onClick={toggleTagsExpansion}
+							>
+								<Bookmark className={styles.icon} width={18} height={18} />
+								Tags
+								<CaretDown
+									className={`${styles.caretIcon} ${isTagsExpanded ? styles.caretExpanded : styles.caretCollapsed}`}
+									width={12}
+									height={12}
+								/>
+							</h2>
+
+							{isTagsExpanded && (
+								<AsideItem
+									active={menuType}
+									items={tags}
+									onItemClicked={handlerTagClick}
+								/>
+							)}
+						</section>
+					)
 				)}
 
 				<section className={styles.section}>
