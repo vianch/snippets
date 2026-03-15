@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
+import { cookies } from "next/headers";
 
 /* Styles */
 import "./globals.css";
+
+/* Lib */
+import { themeCookieName } from "@/lib/constants/cookies";
 
 /* Utils */
 import metaGenerator from "@/utils/meta.utils";
@@ -21,13 +25,16 @@ export const metadata: Metadata = metaGenerator({
 	canonicalPath: "/",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	const cookieStore = await cookies();
+	const theme = cookieStore.get(themeCookieName)?.value;
+
 	return (
-		<html lang="en">
+		<html lang="en" {...(theme ? { "data-theme": theme } : {})}>
 			<head>
 				<meta
 					name="viewport"

@@ -12,6 +12,9 @@ import {
 	getUserEmailBySession,
 	updateUser,
 } from "@/lib/supabase/queries";
+import { ThemeName, isValidTheme } from "@/lib/config/themes";
+import { setCookie } from "@/lib/cookies";
+import { themeCookieName } from "@/lib/constants/cookies";
 
 /* Constants */
 import {
@@ -26,6 +29,7 @@ import Modal from "@/components/ui/Modal/Modal";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
+import ThemePreview from "@/components/AccountModal/ThemePreview";
 
 /* Store */
 import useUserStore from "@/lib/store/user.store";
@@ -62,6 +66,9 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		type: FormMessageTypes;
 	}>({ text: "", type: FormMessageTypes.Unset });
 	const [avatarOptions] = useState(avatarImages);
+	const [originalTheme, setOriginalTheme] = useState<string | undefined>(
+		accountInitialStateData.theme
+	);
 
 	const handleInputChange = (
 		event: ChangeEvent<HTMLInputElement>,
@@ -83,6 +90,23 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			avatar: avatarPath,
 		}));
 	};
+
+	const handleThemeChange = (themeName: ThemeName): void => {
+		setUserData((prev) => ({
+			...prev,
+			theme: themeName,
+		}));
+
+		useUserStore.getState().setTheme(themeName);
+	};
+
+	// Apply theme to the document whenever userData.theme changes (optimistic update)
+	useEffect(() => {
+		if (userData.theme) {
+			document.documentElement.dataset.theme = userData.theme;
+			setCookie(themeCookieName, userData.theme);
+		}
+	}, [userData.theme]);
 
 	const checkForUserDataChanges = () => {
 		const hasUserNameChanged = userData.username !== currentUserName;
@@ -130,12 +154,13 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	};
 
 	const updateUserNameAndAvatar = async (): Promise<Error | null> => {
-		// Check if username or avatar has actually changed
+		// Check if username, avatar, or theme has actually changed
 		const { hasUserNameChanged, hasUserAvatarChanged } =
 			checkForUserDataChanges();
+		const hasThemeChanged = userData.theme !== originalTheme;
 
 		// Only make API call if there are actual changes
-		if (!hasUserNameChanged && !hasUserAvatarChanged) {
+		if (!hasUserNameChanged && !hasUserAvatarChanged && !hasThemeChanged) {
 			return null; // No changes, no need to update
 		}
 
@@ -143,6 +168,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			data: {
 				username: userData.username,
 				avatar: userData.avatar,
+				theme: userData.theme,
 			},
 		});
 
@@ -156,16 +182,22 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	};
 
 	const updateUserStore = (): void => {
-		// Only update the store if username or avatar has actually changed
+		// Only update the store if username, avatar, or theme has actually changed
 		const { hasUserNameChanged, hasUserAvatarChanged } =
 			checkForUserDataChanges();
+		const hasThemeChanged = userData.theme !== originalTheme;
 
-		if (hasUserNameChanged || hasUserAvatarChanged) {
+		if (hasUserNameChanged || hasUserAvatarChanged || hasThemeChanged) {
 			setStoreUserData({
 				userName: userData.username,
 				userAvatar: userData.avatar,
 				email: userData.email,
+				theme: userData.theme,
 			});
+
+			if (hasThemeChanged) {
+				setOriginalTheme(userData.theme);
+			}
 		}
 	};
 
@@ -221,6 +253,13 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	const handleClose = (): void => {
 		resetMessages();
 		resetStateData();
+
+		if (originalTheme && userData.theme !== originalTheme) {
+			document.documentElement.dataset.theme = originalTheme;
+			setCookie(themeCookieName, originalTheme);
+			useUserStore.getState().setTheme(originalTheme);
+		}
+
 		onClose();
 	};
 
@@ -256,6 +295,14 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 						username: userMetadata?.username ?? prev.username,
 						avatar: userMetadata?.avatar ?? prev.avatar,
 					}));
+				}
+
+				if (userMetadata?.theme && isValidTheme(userMetadata.theme)) {
+					setUserData((prev) => ({
+						...prev,
+						theme: userMetadata.theme,
+					}));
+					setOriginalTheme(userMetadata.theme);
 				}
 			} catch (_catchError) {
 				// Handle error silently or use a proper error handling mechanism
@@ -381,6 +428,15 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 						<small className={styles.helpText}>
 							Leave empty to keep current password
 						</small>
+					</div>
+
+					{/* Theme */}
+					<div className={styles.section}>
+						<h3 className={styles.sectionTitle}>Theme</h3>
+						<ThemePreview
+							activeTheme={userData.theme}
+							onThemeChange={handleThemeChange}
+						/>
 					</div>
 
 					{/* Message */}

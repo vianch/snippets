@@ -5,6 +5,7 @@ interface InitialAccountStateData {
 	newPassword?: string;
 	confirmPassword?: string;
 	avatar?: string;
+	theme?: string;
 }
 interface User {
 	id: string;
@@ -12,6 +13,7 @@ interface User {
 	user_metadata?: {
 		username?: string;
 		avatar?: string;
+		theme?: string;
 	};
 	aud: string;
 	confirmation_sent_at?: string;

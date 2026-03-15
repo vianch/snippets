@@ -1188,7 +1188,14 @@
   dependencies:
     "@uiw/codemirror-themes" "4.25.8"
 
-"@uiw/codemirror-themes@4.25.8":
+"@uiw/codemirror-theme-github@^4.25.8":
+  version "4.25.8"
+  resolved "https://registry.yarnpkg.com/@uiw/codemirror-theme-github/-/codemirror-theme-github-4.25.8.tgz#a52f24f4330df3d32b7e82aaa9291b646cc6e5eb"
+  integrity sha512-kTZsf2PmOCHBuudB50BX1kAODmErzks6lxxhbHj76KQ+p4eizu0giowV1LoyY/FCLLqRjIe77tE31hvo8agasg==
+  dependencies:
+    "@uiw/codemirror-themes" "4.25.8"
+
+"@uiw/codemirror-themes@4.25.8", "@uiw/codemirror-themes@^4.25.8":
   version "4.25.8"
   resolved "https://registry.yarnpkg.com/@uiw/codemirror-themes/-/codemirror-themes-4.25.8.tgz#47eeee8d8b703693f237b68d6f53db9b1a73baf1"
   integrity sha512-U6ZSO9A+nsN8zvNddtwhxxpi33J9okb4Li9HdhAItApKjYM22IgC8XSpGfs+ABGfsp1u6NhDSfBR9vAh3oTWXg==
