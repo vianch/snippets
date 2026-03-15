@@ -10,13 +10,14 @@ import {
 	ChangeEvent,
 } from "react";
 import CodeMirror from "@uiw/react-codemirror";
-import { draculaInit } from "@uiw/codemirror-theme-dracula";
 
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import useViewPortStore from "@/lib/store/viewPort.store";
+import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
+import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
 
 /* Components */
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
@@ -50,6 +51,7 @@ const CodeEditor = ({
 	onTouched,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
+	const theme = useUserStore((state) => state.theme) as ThemeName;
 	const { menuType, touched } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
 	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
@@ -92,16 +94,7 @@ const CodeEditor = ({
 		document.body.style.userSelect = "";
 	}, []);
 
-	const draculaTheme = useMemo(
-		() =>
-			draculaInit({
-				settings: {
-					background: "#363945",
-					fontFamily: "monospace",
-				},
-			}),
-		[]
-	);
+	const editorTheme = useMemo(() => getCodeMirrorTheme(theme), [theme]);
 
 	const setLanguageExtension = (newLanguage: SupportedLanguages): void => {
 		setCurrentSnippet({
@@ -327,7 +320,7 @@ const CodeEditor = ({
 									className={styles.codeMirrorContainer}
 									value={snippet?.snippet ?? ""}
 									extensions={[currentSnippet.extension]}
-									theme={draculaTheme}
+									theme={editorTheme}
 									height={calculateEditorHeight()}
 									width="100%"
 									onChange={updateCurrentSnippetValue}
@@ -355,7 +348,7 @@ const CodeEditor = ({
 							className={styles.codeMirrorContainer}
 							value={snippet?.snippet ?? ""}
 							extensions={[currentSnippet.extension]}
-							theme={draculaTheme}
+							theme={editorTheme}
 							height={calculateEditorHeight()}
 							width="100%"
 							readOnly={isTrashActive}

@@ -25,7 +25,7 @@
 	background: linear-gradient(
 		90deg,
 		transparent 0%,
-		#4a4e5e 50%,
+		var(--skeleton-shimmer, #4a4e5e) 50%,
 		transparent 100%
 	);
 	animation: shimmer 1.5s infinite;

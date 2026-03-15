@@ -1,3 +1,5 @@
+import { ThemeNames } from "@/lib/config/themes";
+
 export const avatarImages = [
 	"/assets/images/avatars/frog.png",
 	"/assets/images/avatars/frog_face.png",
@@ -26,6 +28,7 @@ export const accountInitialStateData: InitialAccountStateData = {
 	newPassword: "",
 	confirmPassword: "",
 	avatar: defaultAvatar,
+	theme: ThemeNames.Dracula,
 };
 
 export const demoAccountData = {

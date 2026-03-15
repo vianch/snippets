@@ -176,6 +176,127 @@ table {
 	--border-radius: 0.313rem;
 }
 
+[data-theme="shades-of-purple"] {
+	--bg-color-dark: #1e1e3f;
+	--bg-color: #2d2b55;
+	--border-color: #3b2d6b;
+	--current-line: #3b2d6b;
+	--comment-color: #b362ff;
+	--cyan-color: #9effff;
+	--blue-color: #6943d8;
+	--green-color: #a5ff90;
+	--dark-green-color: #2e5a1e;
+	--gray-color: #7e7e9a;
+	--purple-color: #a599e9;
+	--yellow-color: #fad000;
+	--orange-color: #ff9d00;
+	--dark-orange-color: #ff7200;
+	--red-color: #ff628c;
+	--dark-red-color: #ec3a37;
+	--foreground-color: #a599e9;
+	--success-color: #1e3f1e;
+	--error-color: #3f1e1e;
+	--warning-color: #3f3a1e;
+	--info-color: #1e1e3f;
+	--skeleton-shimmer: #4b3a8a;
+}
+
+[data-theme="catppuccin-latte"] {
+	--bg-color-dark: #e6e9ef;
+	--bg-color: #eff1f5;
+	--border-color: #bcc0cc;
+	--current-line: #ccd0da;
+	--comment-color: #8c8fa1;
+	--cyan-color: #04a5e5;
+	--blue-color: #1e66f5;
+	--green-color: #40a02b;
+	--dark-green-color: #2c7a1f;
+	--gray-color: #6c6f85;
+	--purple-color: #8839ef;
+	--yellow-color: #df8e1d;
+	--orange-color: #fe640b;
+	--dark-orange-color: #d65a06;
+	--red-color: #d20f39;
+	--dark-red-color: #b50d31;
+	--foreground-color: #4c4f69;
+	--success-color: #ddf1d7;
+	--error-color: #f5d5d8;
+	--warning-color: #f5ead0;
+	--info-color: #d0e8f5;
+}
+
+[data-theme="ayu-light"] {
+	--bg-color-dark: #f0f0f0;
+	--bg-color: #fafafa;
+	--border-color: #e0e0e0;
+	--current-line: #e8e8e8;
+	--comment-color: #aaa;
+	--cyan-color: #399ee6;
+	--blue-color: #1b7dc4;
+	--green-color: #318866;
+	--dark-green-color: #256b50;
+	--gray-color: #666;
+	--purple-color: #a37acc;
+	--yellow-color: #ed9366;
+	--orange-color: #ed9366;
+	--dark-orange-color: #d07a4e;
+	--red-color: #f07171;
+	--dark-red-color: #d45858;
+	--foreground-color: #575f66;
+	--success-color: #e0f0e0;
+	--error-color: #f5dede;
+	--warning-color: #f5ede0;
+	--info-color: #deeaf5;
+}
+
+[data-theme="github-dark"] {
+	--bg-color-dark: #0d1117;
+	--bg-color: #161b22;
+	--border-color: #30363d;
+	--current-line: #21262d;
+	--comment-color: #8b949e;
+	--cyan-color: #79c0ff;
+	--blue-color: #58a6ff;
+	--green-color: #3fb950;
+	--dark-green-color: #238636;
+	--gray-color: #8b949e;
+	--purple-color: #d2a8ff;
+	--yellow-color: #e3b341;
+	--orange-color: #d29922;
+	--dark-orange-color: #bb8009;
+	--red-color: #f85149;
+	--dark-red-color: #da3633;
+	--foreground-color: #e6edf3;
+	--success-color: #122117;
+	--error-color: #2d1214;
+	--warning-color: #2d2411;
+	--info-color: #0d1d30;
+}
+
+[data-theme="github-light"] {
+	--bg-color-dark: #f6f8fa;
+	--bg-color: #fff;
+	--border-color: #d0d7de;
+	--current-line: #f0f2f5;
+	--comment-color: #6a737d;
+	--cyan-color: #0969da;
+	--blue-color: #0969da;
+	--green-color: #1a7f37;
+	--dark-green-color: #116329;
+	--gray-color: #656d76;
+	--purple-color: #8250df;
+	--yellow-color: #bf8700;
+	--orange-color: #bc4c00;
+	--dark-orange-color: #953800;
+	--red-color: #cf222e;
+	--dark-red-color: #a40e26;
+	--foreground-color: #1f2328;
+	--success-color: #dafbe1;
+	--error-color: #ffebe9;
+	--warning-color: #fff8c5;
+	--info-color: #ddf4ff;
+}
+
 html,
 body {
 	max-width: 100vw;
@@ -212,11 +333,9 @@ body {
 	color: var(--foreground-color);
 	background-image: linear-gradient(
 		to right top,
-		#282a36,
-		#2f313f,
-		#363848,
-		#3d4051,
-		#44475a
+		var(--bg-color-dark),
+		var(--bg-color),
+		var(--current-line)
 	);
 }
 
@@ -231,7 +350,19 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-	html {
+	html:not([data-theme]) {
 		color-scheme: dark;
 	}
+}
+
+html[data-theme="dracula"],
+html[data-theme="shades-of-purple"],
+html[data-theme="github-dark"] {
+	color-scheme: dark;
+}
+
+html[data-theme="catppuccin-latte"],
+html[data-theme="ayu-light"],
+html[data-theme="github-light"] {
+	color-scheme: light;
 }

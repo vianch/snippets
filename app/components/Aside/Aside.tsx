@@ -19,6 +19,9 @@ import useMenuStore from "@/lib/store/menu.store";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import { getUserDataFromSession } from "@/lib/supabase/queries";
+import { isValidTheme, ThemeName, ThemeNames } from "@/lib/config/themes";
+import { setCookie } from "@/lib/cookies";
+import { themeCookieName } from "@/lib/constants/cookies";
 
 /* Utils */
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
@@ -80,6 +83,7 @@ const Aside = ({
 	const userAvatar = useUserStore((state) => state.userAvatar);
 	const setUserData = useUserStore((state) => state.setUserData);
 	const setLoading = useUserStore((state) => state.setLoading);
+	const setTheme = useUserStore((state) => state.setTheme);
 
 	const signOut = async (): Promise<void> => {
 		setIsLoginOut(true);
@@ -164,11 +168,22 @@ const Aside = ({
 				};
 
 				setUserData(userData);
+
+				const savedTheme = session?.user?.user_metadata?.theme;
+
+				if (savedTheme && isValidTheme(savedTheme as string)) {
+					setTheme(savedTheme as ThemeName);
+					document.documentElement.dataset.theme = savedTheme as ThemeName;
+					setCookie(themeCookieName, savedTheme as ThemeName);
+				} else {
+					document.documentElement.dataset.theme = ThemeNames.Dracula;
+					setCookie(themeCookieName, ThemeNames.Dracula);
+				}
 			}
 
 			setLoading(false);
 		});
-	}, [setUserData, setLoading]);
+	}, [setUserData, setLoading, setTheme]);
 
 	useCloseOutsideCodeEditor(asideRef);
 
