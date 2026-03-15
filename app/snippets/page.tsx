@@ -38,6 +38,7 @@ export default function Page(): ReactElement {
 	const [tags, setTags] = useState<TagItem[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const { addToast } = useToastStore();
 
@@ -107,6 +108,7 @@ export default function Page(): ReactElement {
 		}
 
 		setCodedEditorStates(defaultCodeEditorStates);
+		setIsLoading(false);
 	};
 
 	const updateSnippet = (
@@ -370,6 +372,7 @@ export default function Page(): ReactElement {
 			<ResizableLayout
 				aside={
 					<Aside
+						isLoading={isLoading}
 						codeEditorStates={codeEditorStates}
 						tags={tags}
 						onGetAll={getSnippetsHandler}
@@ -382,6 +385,7 @@ export default function Page(): ReactElement {
 				}
 				snippetList={
 					<SnippetList
+						isLoading={isLoading}
 						snippets={snippets}
 						codeEditorStates={codeEditorStates}
 						onNewSnippet={newSnippetHandler}
@@ -393,6 +397,7 @@ export default function Page(): ReactElement {
 				}
 				codeEditor={
 					<CodeEditor
+						isLoading={isLoading}
 						snippet={
 							snippets?.length > 0
 								? snippets[codeEditorStates.activeSnippetIndex]
