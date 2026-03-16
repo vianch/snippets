@@ -46,6 +46,9 @@ type AsideProps = {
 	codeEditorStates: SnippetEditorStates;
 	tags: TagItem[];
 	publicCount: number;
+	allCount: number;
+	uncategorizedCount: number;
+	favoritesCount: number;
 	onGetAll: () => void;
 	onGetUncategorized: () => void;
 	onGetPublic: () => void;
@@ -60,6 +63,9 @@ const Aside = ({
 	codeEditorStates,
 	tags,
 	publicCount,
+	allCount,
+	uncategorizedCount,
+	favoritesCount,
 	onGetFavorites,
 	onGetAll,
 	onGetUncategorized,
@@ -244,6 +250,7 @@ const Aside = ({
 					>
 						<Book className={styles.icon} width={18} height={18} />
 						All Snippets
+						<span className={styles.numberOfItems}>({allCount})</span>
 					</a>
 
 					<a
@@ -254,6 +261,7 @@ const Aside = ({
 					>
 						<Tray className={styles.icon} width={18} height={18} />
 						Uncategorized
+						<span className={styles.numberOfItems}>({uncategorizedCount})</span>
 					</a>
 
 					{publicCount > 0 && (
@@ -265,9 +273,7 @@ const Aside = ({
 						>
 							<Globe className={styles.icon} width={18} height={18} />
 							Public
-							<span className={styles.numberOfItems}>
-								({publicCount})
-							</span>
+							<span className={styles.numberOfItems}>({publicCount})</span>
 						</a>
 					)}
 
@@ -279,6 +285,7 @@ const Aside = ({
 					>
 						<Star className={styles.icon} width={18} height={18} />
 						Favorites
+						<span className={styles.numberOfItems}>({favoritesCount})</span>
 					</a>
 
 					<a

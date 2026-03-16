@@ -20,7 +20,10 @@ import useToastStore from "@/lib/store/toast.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
 import { ToastType } from "@/lib/constants/toast";
-import { toggleSnippetPublic, getSnippetVersions } from "@/lib/supabase/queries";
+import {
+	toggleSnippetPublic,
+	getSnippetVersions,
+} from "@/lib/supabase/queries";
 
 /* Components */
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
@@ -437,9 +440,7 @@ const CodeEditor = ({
 											</div>
 
 											<div className={styles.detailsField}>
-												<label className={styles.detailsLabel}>
-													Version
-												</label>
+												<label className={styles.detailsLabel}>Version</label>
 												<span className={styles.detailsValue}>
 													{versionCount > 0
 														? `v${versionCount}`

@@ -40,6 +40,9 @@ export default function Page(): ReactElement {
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
 	const [publicCount, setPublicCount] = useState<number>(0);
+	const [allCount, setAllCount] = useState<number>(0);
+	const [uncategorizedCount, setUncategorizedCount] = useState<number>(0);
+	const [favoritesCount, setFavoritesCount] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const { addToast } = useToastStore();
@@ -97,6 +100,17 @@ export default function Page(): ReactElement {
 		setTags(newTags);
 	};
 
+	const updateMenuCounts = (snippetList: Snippet[]): void => {
+		setAllCount(snippetList.length);
+		setUncategorizedCount(
+			snippetList.filter((s: Snippet) => !s.tags || s.tags.length === 0).length
+		);
+		setFavoritesCount(
+			snippetList.filter((s: Snippet) => s.state === "favorite").length
+		);
+		setPublicCount(snippetList.filter((s: Snippet) => s.is_public).length);
+	};
+
 	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
 		const isActive = state === "active";
 		const data = isActive
@@ -107,7 +121,7 @@ export default function Page(): ReactElement {
 
 		if (isActive) {
 			getTags(data);
-			setPublicCount(data.filter((s: Snippet) => s.is_public).length);
+			updateMenuCounts(data);
 		}
 
 		setCodedEditorStates(defaultCodeEditorStates);
@@ -169,9 +183,7 @@ export default function Page(): ReactElement {
 			: allSnippets;
 
 		getTags(updatedSnippetList);
-		setPublicCount(
-			updatedSnippetList.filter((s: Snippet) => s.is_public).length
-		);
+		updateMenuCounts(updatedSnippetList);
 	};
 
 	const saveSnippetHandler = async (
@@ -438,6 +450,9 @@ export default function Page(): ReactElement {
 						codeEditorStates={codeEditorStates}
 						tags={tags}
 						publicCount={publicCount}
+						allCount={allCount}
+						uncategorizedCount={uncategorizedCount}
+						favoritesCount={favoritesCount}
 						onGetAll={getSnippetsHandler}
 						onGetUncategorized={getUncategorizedHandler}
 						onGetPublic={getPublicHandler}
