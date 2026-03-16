@@ -449,16 +449,14 @@ export default function Page(): ReactElement {
 	}, []);
 
 	useEffect(() => {
-		const handleBeforeUnload = (event: BeforeUnloadEvent): void => {
-			if (codeEditorStates.touched) {
-				event.preventDefault();
-			}
-		};
-
-		window.addEventListener("beforeunload", handleBeforeUnload);
+		if (codeEditorStates.touched) {
+			window.onbeforeunload = () => "You have unsaved changes.";
+		} else {
+			window.onbeforeunload = null;
+		}
 
 		return () => {
-			window.removeEventListener("beforeunload", handleBeforeUnload);
+			window.onbeforeunload = null;
 		};
 	}, [codeEditorStates.touched]);
 
