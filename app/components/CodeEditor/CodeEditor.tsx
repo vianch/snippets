@@ -43,6 +43,7 @@ type CodeEditorProps = {
 		fromButton: boolean | "favorite"
 	) => void;
 	onStarred: (currentSnippet: CurrentSnippet) => void;
+	onPublicToggle: (currentSnippet: CurrentSnippet) => void;
 	onTouched: (touched: boolean) => void;
 };
 
@@ -53,6 +54,7 @@ const CodeEditor = ({
 	defaultLanguage = SupportedLanguages.Markdown,
 	onSave,
 	onStarred,
+	onPublicToggle,
 	onTouched,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
@@ -218,12 +220,14 @@ const CodeEditor = ({
 			currentSnippet.public_slug
 		);
 
-		setCurrentSnippet({
+		const updatedSnippet = {
 			...currentSnippet,
 			is_public: newIsPublic,
 			public_slug: slug,
-		});
+		};
 
+		setCurrentSnippet(updatedSnippet);
+		onPublicToggle(updatedSnippet);
 		onTouched(false);
 
 		if (newIsPublic && slug) {

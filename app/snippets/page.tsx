@@ -39,6 +39,7 @@ export default function Page(): ReactElement {
 	const [tags, setTags] = useState<TagItem[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
+	const [publicCount, setPublicCount] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const { addToast } = useToastStore();
@@ -106,6 +107,7 @@ export default function Page(): ReactElement {
 
 		if (isActive) {
 			getTags(data);
+			setPublicCount(data.filter((s: Snippet) => s.is_public).length);
 		}
 
 		setCodedEditorStates(defaultCodeEditorStates);
@@ -167,6 +169,9 @@ export default function Page(): ReactElement {
 			: allSnippets;
 
 		getTags(updatedSnippetList);
+		setPublicCount(
+			updatedSnippetList.filter((s: Snippet) => s.is_public).length
+		);
 	};
 
 	const saveSnippetHandler = async (
@@ -249,6 +254,38 @@ export default function Page(): ReactElement {
 		setActiveSnippetIndex(currentIndex > 0 ? currentIndex - 1 : 0);
 	};
 
+	const onPublicToggleHandler = (currentSnippet: CurrentSnippet): void => {
+		const newCount = currentSnippet.is_public
+			? publicCount + 1
+			: publicCount - 1;
+
+		setPublicCount(newCount);
+
+		if (
+			!currentSnippet.is_public &&
+			codeEditorStates.menuType === MenuItems.Public
+		) {
+			if (newCount <= 0) {
+				getSnippets();
+
+				return;
+			}
+
+			const currentIndex = findIndexForCurrentSnippet(currentSnippet);
+
+			if (currentIndex === -1) {
+				return;
+			}
+
+			const cloneSnippets = [...snippets];
+
+			cloneSnippets.splice(currentIndex, 1);
+			setSnippets(cloneSnippets);
+
+			setActiveSnippetIndex(currentIndex > 0 ? currentIndex - 1 : 0);
+		}
+	};
+
 	const newSnippetHandler = (newSnippet: Snippet): void => {
 		if (newSnippet) {
 			setSnippets([newSnippet, ...snippets]);
@@ -290,6 +327,22 @@ export default function Page(): ReactElement {
 			setCodedEditorStates({
 				...defaultCodeEditorStates,
 				menuType: MenuItems.Uncategorized,
+			});
+		}
+	};
+
+	const getPublicHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== MenuItems.Public) {
+			const allSnippets = await getAllSnippets();
+			const publicSnippets = allSnippets.filter(
+				(snippet: Snippet) => snippet.is_public
+			);
+
+			setSnippets(publicSnippets);
+
+			setCodedEditorStates({
+				...defaultCodeEditorStates,
+				menuType: MenuItems.Public,
 			});
 		}
 	};
@@ -384,8 +437,10 @@ export default function Page(): ReactElement {
 						isLoading={isLoading}
 						codeEditorStates={codeEditorStates}
 						tags={tags}
+						publicCount={publicCount}
 						onGetAll={getSnippetsHandler}
 						onGetUncategorized={getUncategorizedHandler}
+						onGetPublic={getPublicHandler}
 						onGetFavorites={getFavoritesHandler}
 						onGetTrash={getTrashHandler}
 						onTagClick={getSnippetsByTagHandler}
@@ -415,6 +470,7 @@ export default function Page(): ReactElement {
 						codeEditorStates={codeEditorStates}
 						onSave={saveSnippetHandler}
 						onStarred={onStarredHandler}
+						onPublicToggle={onPublicToggleHandler}
 						onTouched={touchedHandler}
 					/>
 				}

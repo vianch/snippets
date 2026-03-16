@@ -36,6 +36,7 @@ import Loading from "@/components/ui/icons/Loading";
 import List from "@/components/ui/icons/List";
 import Rows from "@/components/ui/icons/Rows";
 import CaretDown from "@/components/ui/icons/CaretDown";
+import Globe from "@/components/ui/icons/Globe";
 
 /* Styles */
 import styles from "./aside.module.css";
@@ -44,8 +45,10 @@ type AsideProps = {
 	isLoading: boolean;
 	codeEditorStates: SnippetEditorStates;
 	tags: TagItem[];
+	publicCount: number;
 	onGetAll: () => void;
 	onGetUncategorized: () => void;
+	onGetPublic: () => void;
 	onGetFavorites: () => void;
 	onGetTrash: () => void;
 	onTagClick: (tag: string) => void;
@@ -56,9 +59,11 @@ const Aside = ({
 	isLoading,
 	codeEditorStates,
 	tags,
+	publicCount,
 	onGetFavorites,
 	onGetAll,
 	onGetUncategorized,
+	onGetPublic,
 	onGetTrash,
 	onTagClick,
 	onAccountClick,
@@ -120,6 +125,10 @@ const Aside = ({
 
 			case MenuItems.Uncategorized:
 				onGetUncategorized();
+				break;
+
+			case MenuItems.Public:
+				onGetPublic();
 				break;
 
 			case MenuItems.Favorites:
@@ -246,6 +255,21 @@ const Aside = ({
 						<Tray className={styles.icon} width={18} height={18} />
 						Uncategorized
 					</a>
+
+					{publicCount > 0 && (
+						<a
+							className={`${styles.linkItem} blue-color ${menuType === MenuItems.Public && styles.linkItemActive}`}
+							onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+								clickMenuHandler(event, "public")
+							}
+						>
+							<Globe className={styles.icon} width={18} height={18} />
+							Public
+							<span className={styles.numberOfItems}>
+								({publicCount})
+							</span>
+						</a>
+					)}
 
 					<a
 						className={`${styles.linkItem} yellow-color ${menuType === MenuItems.Favorites && styles.linkItemActive}`}
