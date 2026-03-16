@@ -76,6 +76,11 @@
 	color: var(--foreground-color);
 }
 
+.numberOfItems {
+	font-size: var(--small-font-size);
+	margin-left: 0.313rem;
+}
+
 .settingsItems {
 	color: var(--gray-color);
 	cursor: pointer;

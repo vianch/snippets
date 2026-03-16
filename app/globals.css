@@ -338,6 +338,10 @@ body {
 	color: var(--orange-color);
 }
 
+.blue-color {
+	color: var(--blue-color);
+}
+
 .gradient-background {
 	color: var(--foreground-color);
 	background-image: linear-gradient(
