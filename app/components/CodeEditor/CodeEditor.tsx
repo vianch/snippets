@@ -29,6 +29,7 @@ import {
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
+import History from "@/components/History/History";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
 import Input from "@/components/ui/Input/Input";
 import SkeletonCodeEditor from "@/components/ui/Skeleton/SkeletonCodeEditor";
@@ -76,7 +77,10 @@ const CodeEditor = ({
 		currentSnippet?.language === SupportedLanguages.Markdown;
 	const showPreview = isMarkdownLanguage && !isTrashActive;
 	const [showDetails, setShowDetails] = useState(false);
+	const [showHistory, setShowHistory] = useState(false);
 	const [versionCount, setVersionCount] = useState(0);
+	const [preRestoreSnapshot, setPreRestoreSnapshot] =
+		useState<CurrentSnippet | null>(null);
 
 	const editorContentRef = useRef<HTMLDivElement>(null);
 	const [editorWidthPercent, setEditorWidthPercent] = useState(50);
@@ -310,6 +314,7 @@ const CodeEditor = ({
 			});
 
 			onTouched(false);
+			setPreRestoreSnapshot(null);
 		}
 	}, [snippet]);
 
@@ -323,12 +328,12 @@ const CodeEditor = ({
 	}, [currentSnippet]);
 
 	useEffect(() => {
-		if (showDetails && currentSnippet?.snippet_id) {
+		if (currentSnippet?.snippet_id) {
 			getSnippetVersions(currentSnippet.snippet_id)
 				.then((versions) => setVersionCount(versions.length))
 				.catch(() => setVersionCount(0));
 		}
-	}, [showDetails]);
+	}, [currentSnippet?.snippet_id]);
 
 	useEffect(() => {
 		if (isDraggingPreview) {
@@ -374,6 +379,9 @@ const CodeEditor = ({
 								onRemoveTag={removeTagHandler}
 								onToggleDetails={() => setShowDetails(!showDetails)}
 								onTogglePublic={togglePublicHandler}
+								onToggleHistory={() => setShowHistory(!showHistory)}
+								showHistory={showHistory}
+								hasVersions={versionCount > 0}
 							/>
 
 							{isMobile && (
@@ -384,8 +392,55 @@ const CodeEditor = ({
 										showDetails={showDetails}
 										onToggleDetails={() => setShowDetails(!showDetails)}
 										onTogglePublic={togglePublicHandler}
+										onToggleHistory={() => setShowHistory(!showHistory)}
+										showHistory={showHistory}
+										hasVersions={versionCount > 0}
 									/>
 								</div>
+							)}
+
+							{currentSnippet.snippet_id && (
+								<History
+									snippetId={currentSnippet.snippet_id}
+									isOpen={showHistory}
+									onClose={() => {
+										setShowHistory(false);
+										setPreRestoreSnapshot(null);
+									}}
+									onRestore={(version) => {
+										const restoredLanguage =
+											version.language as SupportedLanguages;
+
+										setPreRestoreSnapshot({ ...currentSnippet });
+
+										setCurrentSnippet({
+											...currentSnippet,
+											snippet: version.content,
+											language: restoredLanguage,
+											name: version.name,
+											tags: version.tags,
+											extension: languageExtensions[restoredLanguage],
+										});
+										onTouched(true);
+										setShowDetails(false);
+
+										getSnippetVersions(currentSnippet.snippet_id)
+											.then((v) => setVersionCount(v.length))
+											.catch(() => setVersionCount(0));
+									}}
+									undoSnapshot={preRestoreSnapshot}
+									onUndo={() => {
+										if (!preRestoreSnapshot) return;
+
+										setCurrentSnippet({ ...preRestoreSnapshot });
+										onTouched(true);
+										setPreRestoreSnapshot(null);
+
+										getSnippetVersions(currentSnippet.snippet_id)
+											.then((v) => setVersionCount(v.length))
+											.catch(() => setVersionCount(0));
+									}}
+								/>
 							)}
 
 							{showDetails && (
@@ -439,15 +494,6 @@ const CodeEditor = ({
 												/>
 											</div>
 
-											<div className={styles.detailsField}>
-												<label className={styles.detailsLabel}>Version</label>
-												<span className={styles.detailsValue}>
-													{versionCount > 0
-														? `v${versionCount}`
-														: "No versions saved yet"}
-												</span>
-											</div>
-
 											{currentSnippet.is_public &&
 												currentSnippet.public_slug && (
 													<div className={styles.detailsField}>
@@ -488,7 +534,7 @@ const CodeEditor = ({
 									basicSetup={codeMirrorOptions}
 									placeholder={"Write your snipped here"}
 									className={styles.codeMirrorContainer}
-									value={snippet?.snippet ?? ""}
+									value={currentSnippet?.snippet ?? ""}
 									extensions={[currentSnippet.extension]}
 									theme={editorTheme}
 									height={calculateEditorHeight()}
@@ -516,7 +562,7 @@ const CodeEditor = ({
 							}
 							placeholder={"Write your snipped here"}
 							className={styles.codeMirrorContainer}
-							value={snippet?.snippet ?? ""}
+							value={currentSnippet?.snippet ?? ""}
 							extensions={[currentSnippet.extension]}
 							theme={editorTheme}
 							height={calculateEditorHeight()}
