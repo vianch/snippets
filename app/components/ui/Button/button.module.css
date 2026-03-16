@@ -9,17 +9,17 @@
 }
 
 .primary {
-	background: transparent;
+	background: var(--button-bg);
 	color: var(--foreground-color);
 }
 
 .secondary {
-	background: var(--current-line);
+	background: var(--button-bg);
 	color: var(--gray-color);
 }
 
 .tertiary {
-	background-color: var(--bg-color-dark);
+	background-color: var(--button-bg);
 	color: var(--foreground-color);
 }
 
