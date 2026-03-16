@@ -22,6 +22,9 @@ type CodeEditorTagsProps = {
 	onRemoveTag: (tag: string) => void;
 	onToggleDetails: () => void;
 	onTogglePublic: () => void;
+	onToggleHistory: () => void;
+	showHistory: boolean;
+	hasVersions: boolean;
 };
 
 const CodeEditorTags = ({
@@ -34,6 +37,9 @@ const CodeEditorTags = ({
 	onRemoveTag,
 	onToggleDetails,
 	onTogglePublic,
+	onToggleHistory,
+	showHistory,
+	hasVersions,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
 	const getTagForSnippet = (snippetTag: Tags): string[] =>
@@ -96,6 +102,9 @@ const CodeEditorTags = ({
 					showDetails={showDetails}
 					onToggleDetails={onToggleDetails}
 					onTogglePublic={onTogglePublic}
+					onToggleHistory={onToggleHistory}
+					showHistory={showHistory}
+					hasVersions={hasVersions}
 				/>
 			</div>
 		</section>

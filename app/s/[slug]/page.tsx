@@ -107,7 +107,6 @@ export default function PublicSnippetPage({ params }: PageProps): ReactElement {
 						readOnly={true}
 						basicSetup={{ lineNumbers: true, foldGutter: false }}
 						height="auto"
-						maxHeight="80vh"
 					/>
 				</div>
 

@@ -109,8 +109,9 @@ export default function Page(): ReactElement {
 			).length
 		);
 		setFavoritesCount(
-			snippetList.filter((snippetItem: Snippet) => snippetItem.state === "favorite")
-			.length
+			snippetList.filter(
+				(snippetItem: Snippet) => snippetItem.state === "favorite"
+			).length
 		);
 		setPublicCount(
 			snippetList.filter((snippetItem: Snippet) => snippetItem.is_public).length

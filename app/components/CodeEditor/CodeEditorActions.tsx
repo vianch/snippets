@@ -1,6 +1,7 @@
 import { ReactElement } from "react";
 
 /* Components */
+import Clock from "@/components/ui/icons/Clock";
 import Copy from "@/components/ui/icons/Copy";
 import Globe from "@/components/ui/icons/Globe";
 import Info from "@/components/ui/icons/Info";
@@ -19,6 +20,9 @@ type CodeEditorActionsProps = {
 	showDetails: boolean;
 	onToggleDetails: () => void;
 	onTogglePublic: () => void;
+	onToggleHistory?: () => void;
+	showHistory?: boolean;
+	hasVersions?: boolean;
 };
 
 const CodeEditorActions = ({
@@ -27,6 +31,9 @@ const CodeEditorActions = ({
 	showDetails,
 	onToggleDetails,
 	onTogglePublic,
+	onToggleHistory,
+	showHistory = false,
+	hasVersions = false,
 }: CodeEditorActionsProps): ReactElement => {
 	const { addToast } = useToastStore();
 
@@ -64,6 +71,16 @@ const CodeEditorActions = ({
 
 	return (
 		<div className={styles.actionsContainer}>
+			{hasVersions && (
+				<button
+					className={`${styles.actionButton} ${showHistory ? styles.actionButtonActive : ""}`}
+					onClick={onToggleHistory}
+					type="button"
+				>
+					<Clock width={24} height={24} />
+					<span className={styles.tooltip}>History</span>
+				</button>
+			)}
 			<button
 				className={`${styles.actionButton} ${showDetails ? styles.actionButtonActive : ""}`}
 				onClick={onToggleDetails}
