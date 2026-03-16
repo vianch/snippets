@@ -103,12 +103,18 @@ export default function Page(): ReactElement {
 	const updateMenuCounts = (snippetList: Snippet[]): void => {
 		setAllCount(snippetList.length);
 		setUncategorizedCount(
-			snippetList.filter((s: Snippet) => !s.tags || s.tags.length === 0).length
+			snippetList.filter(
+				(snippetItem: Snippet) =>
+					!snippetItem.tags || snippetItem.tags.length === 0
+			).length
 		);
 		setFavoritesCount(
-			snippetList.filter((s: Snippet) => s.state === "favorite").length
+			snippetList.filter((snippetItem: Snippet) => snippetItem.state === "favorite")
+			.length
 		);
-		setPublicCount(snippetList.filter((s: Snippet) => s.is_public).length);
+		setPublicCount(
+			snippetList.filter((snippetItem: Snippet) => snippetItem.is_public).length
+		);
 	};
 
 	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
