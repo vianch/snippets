@@ -1,41 +1,93 @@
-# snippets
+<h1 align="center">
+  Snippets
+</h1>
 
-Snippets platform to save pieces of code
-<img width="1929" height="1005" alt="Screenshot 2026-03-16 at 15 52 09" src="https://github.com/user-attachments/assets/023d3a29-9a3b-4a8b-a7d4-937ac5087ed0" />
+<p align="center">
+  <i align="center">A personal code snippet manager to save, organize, and share pieces of code</i>
+</p>
 
-<img width="1225" height="1012" alt="Screenshot 2026-03-16 at 15 52 19" src="https://github.com/user-attachments/assets/9573b494-94ae-40fa-baae-27526f18949c" />
+<h4 align="center">
+  <a href="https://github.com/vianch/snippets/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="license" style="height: 20px;">
+  </a>
+  <a href="https://github.com/vianch/snippets/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/vianch/snippets?color=yellow&style=flat-square" alt="contributors" style="height: 20px;">
+  </a>
+  <a href="https://github.com/vianch/snippets/issues">
+    <img src="https://img.shields.io/github/issues/vianch/snippets?style=flat-square" alt="issues" style="height: 20px;">
+  </a>
+  <br>
+  <a href="https://snippets.vianch.com">
+    <img src="https://img.shields.io/badge/demo-snippets.vianch.com-7c3aed?style=flat-square" alt="live demo" style="height: 20px;">
+  </a>
+</h4>
 
-<img width="673" height="1073" alt="Screenshot 2026-03-16 at 15 51 17" src="https://github.com/user-attachments/assets/4499bf3b-7d02-4c9e-a401-6e61b1560e25" />
+<p align="center">
+    <img src="https://github.com/user-attachments/assets/023d3a29-9a3b-4a8b-a7d4-937ac5087ed0" alt="Snippets dashboard" width="1929" height="1005" />
+</p>
 
-### Live demo
+## Introduction
 
-[Try the demo](https://snippets.vianch.com/)
+**Snippets** is a web-based code snippet manager that lets you save, organize, tag, and retrieve pieces of code through an in-browser editor. Built for developers who want a fast, personal library for reusable code — without the overhead of a full note-taking app.
 
-## About
+With Snippets you can:
 
-### What is snippets?
+- **Save and edit** code with full syntax highlighting via CodeMirror
+- **Organize** snippets with tags, favorites, and trash
+- **Search** across your entire snippet library instantly
+- **Share** public snippets with a direct link
+- **Switch themes** between Dracula, GitHub, and more
+- **Support 13+ languages** — JavaScript, TypeScript, Python, Rust, Go, Java, SQL, and more
 
-Snippets is a platform designed to help you save pieces of code and organize your development workflow. With Snippets, you can easily store and retrieve code snippets, making it easier to reuse and share code between projects.
+<details open>
+<summary>
+ Screenshots
+</summary> <br />
 
-### Why snippets?
+<p align="center">
+    <img width="49%" src="https://github.com/user-attachments/assets/023d3a29-9a3b-4a8b-a7d4-937ac5087ed0" alt="Dashboard view"/>
+&nbsp;
+    <img width="49%" src="https://github.com/user-attachments/assets/9573b494-94ae-40fa-baae-27526f18949c" alt="Snippet editor"/>
+</p>
 
-By using Snippets, you can:
+<p align="center">
+    <img width="33%" src="https://github.com/user-attachments/assets/4499bf3b-7d02-4c9e-a401-6e61b1560e25" alt="Mobile view"/>
+</p>
 
-- Reduce repetition and improve code consistency
-- Easily share and collaborate with others on code snippets
-- Keep track of your progress and learn from previous work
+</details>
 
-## Features
+## Tech Stack
 
-- **Development Environment**: Utilizes Next.js for fast refresh and server-side rendering capabilities.
-- **Code Quality Tools**: Integrated ESLint, Stylelint, and Prettier for consistent code style and formatting.
-- **Language Support**: Extensive language support through CodeMirror, covering CSS, HTML, Java, JavaScript, JSON, Markdown, PHP, Python, Rust, SQL, and YAML.
-- **Supabase Integration**: Includes Supabase for real-time database and authenticati+on helpers specifically tailored for Next.js applications.
-- **Theming**: Dracula theme support for CodeMirror provided by `@uiw/codemirror-theme-dracula`.
+| Technology | Purpose |
+|-----------|---------|
+| [Next.js 16](https://nextjs.org/) | React framework with App Router & Turbopack |
+| [React 19](https://react.dev/) | UI library |
+| [TypeScript](https://www.typescriptlang.org/) | Type safety |
+| [Supabase](https://supabase.com/) | Auth & real-time database |
+| [CodeMirror](https://codemirror.net/) | In-browser code editor |
+| [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight state management |
+| [Vercel](https://vercel.com/) | Deployment & analytics |
+| [Phosphor Icons](https://phosphoricons.com/) | Icon set |
 
 ## Getting Started
 
-To get started with Snippets, clone the repository and install dependencies:
+<details open>
+<summary>
+Prerequisites
+</summary> <br />
+
+- [Node.js](https://nodejs.org/) (v18+)
+- [Yarn](https://yarnpkg.com/) package manager
+- A [Supabase](https://supabase.com/) project (for auth and database)
+
+</details>
+
+<details open>
+<summary>
+Installation
+</summary> <br />
+
+1. Clone the repository and install dependencies:
 
 ```bash
 git clone git@github.com:vianch/snippets.git
@@ -43,28 +95,70 @@ cd snippets
 yarn install
 ```
 
-| Script       | Description                                                                                     |
-| ------------ | ----------------------------------------------------------------------------------------------- |
-| `yarn init`  | Resets the project setup by removing node modules and lock files, then reinstalls dependencies. |
-| `yarn dev`   | Starts the development server.                                                                  |
-| `yarn build` | Builds the application for production usage.                                                    |
-| `yarn start` | Runs the built app in production mode.                                                          |
-| `yarn lint`  | Runs all linting scripts for code style, styling, and formatting.                               |
-
-### Linting
+2. Set up environment variables:
 
 ```bash
-yarn lint
+cp .env.example .env.local
 ```
+
+Fill in the required values:
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_BASE_URL` | Your app's base URL |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
+
+3. Start the development server:
+
+```bash
+yarn dev
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+</details>
+
+## Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `yarn dev` | Start the development server |
+| `yarn build` | Build for production |
+| `yarn start` | Run the production build |
+| `yarn lint` | Run all linters (ESLint + Stylelint + Prettier) |
+| `yarn lint:code-style` | Run ESLint with auto-fix |
+| `yarn lint:style` | Run Stylelint for CSS with auto-fix |
+| `yarn lint:formatting` | Run Prettier with auto-write |
+| `yarn init` | Reset project (removes node_modules & lock files, reinstalls) |
+
+## Project Structure
+
+```
+app/
+├── components/       # React components (each in its own directory)
+│   └── ui/           # Reusable UI primitives (Button, Input, Modal, etc.)
+├── lib/
+│   ├── supabase/     # Supabase client & database queries
+│   ├── store/        # Zustand stores (menu, toast, viewport, user)
+│   ├── constants/    # App constants (menu items, toast types, CodeMirror config)
+│   ├── config/       # Language extension mappings
+│   └── models/       # Value objects (Snippet factory)
+├── utils/            # Pure utility functions
+├── snippets/         # Main app route (protected)
+├── login/            # Auth route
+└── tools/            # Tools section
+types/                # Global TypeScript declarations (.d.ts)
+```
+
+## Supported Languages
+
+CSS, C++, Go, HTML, Java, JavaScript, JSON, Markdown, PHP, Python, Rust, SQL, and YAML.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
 
 ## Author
 
-Developed by info@vianch.com. Feel free to reach out for any questions or contributions!
-
-# Packages used
-
-- icons: https://phosphoricons.com/
-- code editor: https://codemirror.net/
-- vercel: https://vercel.com/
-- ShadCN: httcps://ui.shadcn.com/
-- state: https://github.com/pmndrs/zustand
+Developed by [vianch](https://vianch.com) — info@vianch.com
