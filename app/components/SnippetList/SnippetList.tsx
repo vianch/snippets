@@ -29,6 +29,7 @@ import CloseSquare from "@/components/ui/icons/CloseSquare";
 import Loading from "@/components/ui/icons/Loading";
 import SkeletonSnippetItem from "@/components/ui/Skeleton/SkeletonSnippetItem";
 import SnippetItem from "@/components/SnippetItem/SnippetItem";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 
 /* Styles */
 import styles from "./snippetlist.module.css";
@@ -77,9 +78,9 @@ const SnippetList = ({
 		}
 	};
 
-	const handleSearchInputChange = async (
+	const handleSearchInputChange = (
 		event: ChangeEvent<HTMLInputElement>
-	): Promise<void> => {
+	): void => {
 		const query = event.target.value;
 
 		setSearchData({
@@ -230,7 +231,35 @@ const SnippetList = ({
 				</ul>
 			) : (
 				<div className={styles.noSnippetContainer}>
-					<p className={styles.noSnippet}>No Snippets found</p>
+					{searchData.searchQuery ? (
+						<EmptyState
+							title="No matches found"
+							description="Try a different search term"
+							illustration="search"
+							actionLabel="Clear search"
+							onAction={() =>
+								setSearchData({
+									searchQuery: "",
+									originalSnippets: snippets,
+									snippetsFound: snippets,
+								})
+							}
+						/>
+					) : isTrashActive ? (
+						<EmptyState
+							title="Trash is empty"
+							description="Deleted snippets will appear here"
+							illustration="trash"
+						/>
+					) : (
+						<EmptyState
+							title="No snippets yet"
+							description="Create your first snippet to get started"
+							illustration="code"
+							actionLabel="Create snippet"
+							onAction={newSnippetHandler}
+						/>
+					)}
 				</div>
 			)}
 		</aside>

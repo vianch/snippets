@@ -8,6 +8,7 @@ import useViewPortStore from "@/lib/store/viewPort.store";
 
 /* Components */
 import Button from "@/components/ui/Button/Button";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 
 /* Styles */
 import styles from "./history.module.css";
@@ -28,7 +29,7 @@ const History = ({
 	onClose,
 	undoSnapshot,
 	onUndo,
-}: HistoryProps): ReactElement => {
+}: HistoryProps): ReactElement | null => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const [versions, setVersions] = useState<SnippetVersion[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +45,7 @@ const History = ({
 			.finally(() => setIsLoading(false));
 	}, [isOpen, snippetId]);
 
-	if (!isOpen) return <></>;
+	if (!isOpen) return null;
 
 	return (
 		<>
@@ -70,18 +71,24 @@ const History = ({
 						</div>
 					)}
 
-					{isLoading && (
-						<p className={styles.emptyState}>Loading history...</p>
-					)}
+					{isLoading && <p className={styles.emptyState}>Loading history...</p>}
 
 					{!isLoading && versions.length === 0 && (
-						<p className={styles.emptyState}>No history yet</p>
+						<EmptyState
+							title="No history yet"
+							description="Save changes to create version history"
+							illustration="clock"
+						/>
 					)}
 
 					{!isLoading && versions.length > 0 && (
 						<ul className={styles.list}>
 							{versions.map((version) => (
-								<li key={version.version_id} className={styles.listItem}>
+								<li
+									key={version.version_id}
+									className={styles.listItem}
+									onClick={() => onRestore(version)}
+								>
 									<div className={styles.versionMeta}>
 										<span className={styles.versionNumber}>
 											v{version.version_number}
@@ -91,14 +98,6 @@ const History = ({
 											{version.language}
 										</span>
 									</div>
-
-									<Button
-										variant="secondary"
-										className={styles.restoreButton}
-										onClick={() => onRestore(version)}
-									>
-										Restore
-									</Button>
 								</li>
 							))}
 						</ul>

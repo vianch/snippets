@@ -123,6 +123,34 @@ export const getSnippetsByTag = async (tag: string): Promise<Snippet[]> => {
 	return [] as Snippet[];
 };
 
+export const searchSnippets = async (query: string): Promise<Snippet[]> => {
+	if (supabase && query) {
+		const userId = await getUserIdBySession();
+
+		if (userId) {
+			const tsQuery = query
+				.trim()
+				.split(/\s+/)
+				.map((term) => term.replace(/[^a-zA-Z0-9]/g, ""))
+				.filter(Boolean)
+				.map((term) => `${term}:*`)
+				.join(" & ");
+
+			const { data } = await supabase
+				.from("snippet")
+				.select()
+				.order("updated_at", { ascending: false })
+				.match({ user_id: userId })
+				.neq("state", "inactive")
+				.textSearch("fts", tsQuery);
+
+			return (data ?? []) as Snippet[];
+		}
+	}
+
+	return [] as Snippet[];
+};
+
 export const saveSnippet = async (
 	currentSnippet: CurrentSnippet
 ): Promise<void> => {

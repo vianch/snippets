@@ -3,6 +3,7 @@ import { FC, ReactElement, MouseEvent } from "react";
 /* Components */
 import Trash from "@/components/ui/icons/Trash";
 import Restore from "@/components/ui/icons/Restore";
+import LanguageBadge from "@/components/ui/LanguageBadge/LanguageBadge";
 
 /* Stores */
 import useMenuStore from "@/lib/store/menu.store";
@@ -78,6 +79,7 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 					)}
 					{touched && isSnippetActive && "* "}
 					{snippet?.name ?? "Untitled"}
+					<LanguageBadge language={snippet.language} />
 				</div>
 
 				{dateFormatted && (

@@ -448,6 +448,20 @@ export default function Page(): ReactElement {
 		getSnippets().then(() => null);
 	}, []);
 
+	useEffect(() => {
+		const handleBeforeUnload = (event: BeforeUnloadEvent): void => {
+			if (codeEditorStates.touched) {
+				event.preventDefault();
+			}
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+
+		return () => {
+			window.removeEventListener("beforeunload", handleBeforeUnload);
+		};
+	}, [codeEditorStates.touched]);
+
 	return (
 		<>
 			<ResizableLayout
