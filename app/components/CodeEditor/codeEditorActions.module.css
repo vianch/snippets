@@ -2,7 +2,6 @@
 	display: flex;
 	align-items: center;
 	gap: 0;
-	margin-right: 0.625rem /* 10px in rems is 0.625rem */;
 }
 
 .actionButton {
@@ -16,6 +15,7 @@
 	cursor: pointer;
 	color: var(--text-color);
 	transition: all 0.2s ease;
+	position: relative;
 }
 
 .actionButton:hover {
@@ -30,4 +30,35 @@
 .actionButton:focus {
 	outline: none;
 	box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.actionButtonActive {
+	color: var(--cyan-color);
+}
+
+.tooltip {
+	position: absolute;
+	bottom: calc(100% + 0.375rem);
+	left: 50%;
+	transform: translateX(-50%);
+	background: var(--bg-color-dark);
+	color: var(--foreground-color);
+	font-size: var(--tiny-font-size);
+	padding: 0.25rem 0.5rem;
+	border-radius: var(--border-radius);
+	white-space: nowrap;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	border: 1px solid var(--border-color);
+}
+
+.actionButton:hover .tooltip {
+	opacity: 1;
+}
+
+.actionButton:last-child .tooltip {
+	left: auto;
+	right: 0;
+	transform: none;
 }

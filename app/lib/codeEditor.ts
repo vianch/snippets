@@ -16,9 +16,11 @@ import SupportedLanguages from "@/lib/config/languages";
 
 const languageExtensions: LanguageExtensions = {
 	[SupportedLanguages.Markdown]: markdown(),
+	[SupportedLanguages.Bash]: python(),
 	[SupportedLanguages.C]: cpp(),
 	[SupportedLanguages.Cpp]: cpp(),
 	[SupportedLanguages.CSS]: css(),
+	[SupportedLanguages.Dart]: java(),
 	[SupportedLanguages.Go]: go(),
 	[SupportedLanguages.HTML]: html(),
 	[SupportedLanguages.Java]: java(),
@@ -27,10 +29,17 @@ const languageExtensions: LanguageExtensions = {
 		typescript: true,
 	}),
 	[SupportedLanguages.JSON]: json(),
+	[SupportedLanguages.Kotlin]: java(),
 	[SupportedLanguages.PHP]: php(),
 	[SupportedLanguages.Python]: python(),
+	[SupportedLanguages.Ruby]: python(),
 	[SupportedLanguages.Rust]: rust(),
 	[SupportedLanguages.SQL]: sql(),
+	[SupportedLanguages.Swift]: java(),
+	[SupportedLanguages.TypeScript]: javascript({
+		jsx: true,
+		typescript: true,
+	}),
 	[SupportedLanguages.YAML]: yaml(),
 };
 

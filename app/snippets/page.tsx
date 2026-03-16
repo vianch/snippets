@@ -16,6 +16,7 @@ import {
 	getSnippetsByTag,
 	getUncategorizedSnippets,
 	saveSnippet,
+	saveSnippetVersion,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
@@ -191,6 +192,14 @@ export default function Page(): ReactElement {
 			const activeSnippetIndex = updateSnippet(updatedSnippet, fromButton);
 
 			await saveSnippet(updatedSnippet);
+
+			if (fromButton === true) {
+				saveSnippetVersion(
+					updatedSnippet.snippet_id,
+					updatedSnippet as CurrentSnippet
+				).catch(() => null);
+			}
+
 			updateSnippetTagList(updatedSnippet).then(() => null);
 
 			if (fromButton && codeEditorStates.touched) {

@@ -22,6 +22,10 @@ export default class SnippetValueObject implements Snippet {
 
 	public tags: Tags;
 
+	public is_public: boolean;
+
+	public public_slug: string | null;
+
 	language: SupportedLanguages;
 
 	constructor(user_id: UUID) {
@@ -36,5 +40,7 @@ export default class SnippetValueObject implements Snippet {
 		this.language = SupportedLanguages.Markdown;
 		this.state = "active";
 		this.tags = null;
+		this.is_public = false;
+		this.public_slug = null;
 	}
 }
