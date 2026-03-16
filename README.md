@@ -1,7 +1,11 @@
 # snippets
 
 Snippets platform to save pieces of code
-![snippetss](https://github.com/vianch/snippets/assets/1800887/5eaf70f8-7b3c-4a08-ae02-5cad90a9a380)
+<img width="1929" height="1005" alt="Screenshot 2026-03-16 at 15 52 09" src="https://github.com/user-attachments/assets/023d3a29-9a3b-4a8b-a7d4-937ac5087ed0" />
+
+<img width="1225" height="1012" alt="Screenshot 2026-03-16 at 15 52 19" src="https://github.com/user-attachments/assets/9573b494-94ae-40fa-baae-27526f18949c" />
+
+<img width="673" height="1073" alt="Screenshot 2026-03-16 at 15 51 17" src="https://github.com/user-attachments/assets/4499bf3b-7d02-4c9e-a401-6e61b1560e25" />
 
 ### Live demo
 
