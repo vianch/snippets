@@ -15,17 +15,25 @@ import styles from "./codeEditor.module.css";
 type CodeEditorTagsProps = {
 	activeTag: MenuItems | string;
 	currentSnippet: CurrentSnippet;
+	isPublic: boolean;
+	showDetails: boolean;
 	onNewTag: (tag: string) => void;
 	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 	onRemoveTag: (tag: string) => void;
+	onToggleDetails: () => void;
+	onTogglePublic: () => void;
 };
 
 const CodeEditorTags = ({
 	activeTag,
 	currentSnippet,
+	isPublic,
+	showDetails,
 	onNewTag,
 	onChange,
 	onRemoveTag,
+	onToggleDetails,
+	onTogglePublic,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
 	const getTagForSnippet = (snippetTag: Tags): string[] =>
@@ -82,7 +90,13 @@ const CodeEditorTags = ({
 				)}
 			</div>
 			<div className={styles.tagsRight}>
-				<CodeEditorActions currentSnippet={currentSnippet} />
+				<CodeEditorActions
+					currentSnippet={currentSnippet}
+					isPublic={isPublic}
+					showDetails={showDetails}
+					onToggleDetails={onToggleDetails}
+					onTogglePublic={onTogglePublic}
+				/>
 			</div>
 		</section>
 	);

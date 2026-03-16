@@ -13,6 +13,8 @@ const snippetListFixture: Snippet[] = [
 		snippet: "console.log('Hello, World!');",
 		state: "active" as SnippetState,
 		tags: "JavaScript",
+		is_public: false,
+		public_slug: null,
 	},
 ];
 

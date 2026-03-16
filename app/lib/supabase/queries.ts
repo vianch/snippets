@@ -135,6 +135,8 @@ export const saveSnippet = async (
 			updated_at: currentSnippet?.updated_at,
 			state: currentSnippet?.state,
 			tags: currentSnippet?.tags ?? null,
+			url: currentSnippet?.url ?? null,
+			notes: currentSnippet?.notes ?? null,
 		});
 
 		if (error) {
@@ -183,6 +185,125 @@ export const setNewSnippet = async (): Promise<Snippet | null> => {
 		if (userId) {
 			return new SnippetValueObject(userId as UUID);
 		}
+	}
+
+	return null;
+};
+
+/* ─── Snippet Versioning ─── */
+
+export const saveSnippetVersion = async (
+	snippetId: UUID,
+	currentSnippet: CurrentSnippet
+): Promise<void> => {
+	if (supabase) {
+		const { data: latestVersion } = await supabase
+			.from("snippet_version")
+			.select("version_number")
+			.eq("snippet_id", snippetId)
+			.order("version_number", { ascending: false })
+			.limit(1)
+			.single();
+
+		const nextVersion = (latestVersion?.version_number ?? 0) + 1;
+
+		const { error } = await supabase.from("snippet_version").insert({
+			snippet_id: snippetId,
+			content: currentSnippet.snippet,
+			language: currentSnippet.language,
+			name: currentSnippet.name,
+			tags: currentSnippet.tags ?? null,
+			version_number: nextVersion,
+		});
+
+		if (error) {
+			throw new Error("Error saving snippet version");
+		}
+	}
+};
+
+export const getSnippetVersions = async (
+	snippetId: UUID
+): Promise<SnippetVersion[]> => {
+	if (supabase) {
+		const { data } = await supabase
+			.from("snippet_version")
+			.select()
+			.eq("snippet_id", snippetId)
+			.order("version_number", { ascending: false })
+			.limit(50);
+
+		return (data ?? []) as SnippetVersion[];
+	}
+
+	return [];
+};
+
+export const getSnippetVersion = async (
+	versionId: UUID
+): Promise<SnippetVersion | null> => {
+	if (supabase) {
+		const { data } = await supabase
+			.from("snippet_version")
+			.select()
+			.eq("version_id", versionId)
+			.single();
+
+		return data as SnippetVersion | null;
+	}
+
+	return null;
+};
+
+/* ─── Public Snippets ─── */
+
+const generateSlug = (): string => {
+	const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+	let slug = "";
+
+	for (let i = 0; i < 10; i++) {
+		slug += chars.charAt(Math.floor(Math.random() * chars.length));
+	}
+
+	return slug;
+};
+
+export const toggleSnippetPublic = async (
+	snippetId: UUID,
+	isPublic: boolean,
+	existingSlug: string | null = null
+): Promise<string | null> => {
+	if (supabase) {
+		const slug = isPublic ? (existingSlug ?? generateSlug()) : existingSlug;
+
+		const { error } = await supabase
+			.from("snippet")
+			.update({ is_public: isPublic, public_slug: slug })
+			.match({ snippet_id: snippetId });
+
+		if (error) {
+			throw new Error("Error toggling snippet visibility");
+		}
+
+		return slug;
+	}
+
+	return null;
+};
+
+export const getPublicSnippet = async (
+	slug: string
+): Promise<Snippet | null> => {
+	if (supabase && slug) {
+		const { data } = await supabase
+			.from("snippet")
+			.select()
+			.eq("public_slug", slug)
+			.eq("is_public", true)
+			.neq("state", "inactive")
+			.single();
+
+		return data as Snippet | null;
 	}
 
 	return null;

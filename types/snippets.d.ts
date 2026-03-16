@@ -30,6 +30,20 @@ declare global {
 		language: SupportedLanguages;
 		state: SnippetState;
 		tags?: Tags;
+		is_public: boolean;
+		public_slug: string | null;
+	}
+
+	interface SnippetVersion {
+		version_id: UUID;
+		snippet_id: UUID;
+		user_id: UUID;
+		content: string;
+		language: string;
+		name: string;
+		tags: Tags;
+		version_number: number;
+		created_at: string;
 	}
 
 	interface CurrentSnippet extends Snippet {

@@ -2,6 +2,8 @@ import { ReactElement } from "react";
 
 /* Components */
 import Copy from "@/components/ui/icons/Copy";
+import Globe from "@/components/ui/icons/Globe";
+import Info from "@/components/ui/icons/Info";
 import Share from "@/components/ui/icons/Share";
 
 /* Lib */
@@ -13,10 +15,18 @@ import styles from "./codeEditorActions.module.css";
 
 type CodeEditorActionsProps = {
 	currentSnippet: CurrentSnippet;
+	isPublic: boolean;
+	showDetails: boolean;
+	onToggleDetails: () => void;
+	onTogglePublic: () => void;
 };
 
 const CodeEditorActions = ({
 	currentSnippet,
+	isPublic,
+	showDetails,
+	onToggleDetails,
+	onTogglePublic,
 }: CodeEditorActionsProps): ReactElement => {
 	const { addToast } = useToastStore();
 
@@ -42,7 +52,6 @@ const CodeEditorActions = ({
 				text: currentSnippet?.snippet ?? "",
 			});
 		} else {
-			// Fallback for browsers that don't support Web Share API
 			const shareData = `Code Snippet: ${currentSnippet?.name ?? "Untitled"}\n\n${currentSnippet?.snippet ?? ""}`;
 
 			await navigator.clipboard.writeText(shareData);
@@ -56,20 +65,38 @@ const CodeEditorActions = ({
 	return (
 		<div className={styles.actionsContainer}>
 			<button
+				className={`${styles.actionButton} ${showDetails ? styles.actionButtonActive : ""}`}
+				onClick={onToggleDetails}
+				type="button"
+			>
+				<Info width={24} height={24} />
+				<span className={styles.tooltip}>Details</span>
+			</button>
+			<button
 				className={styles.actionButton}
 				onClick={handleCopy}
-				title="Copy to clipboard"
 				type="button"
 			>
 				<Copy width={24} height={24} />
+				<span className={styles.tooltip}>Copy code</span>
 			</button>
 			<button
 				className={styles.actionButton}
 				onClick={handleShare}
-				title="Share snippet"
 				type="button"
 			>
 				<Share width={24} height={24} />
+				<span className={styles.tooltip}>Share</span>
+			</button>
+			<button
+				className={`${styles.actionButton} ${isPublic ? styles.actionButtonActive : ""}`}
+				onClick={onTogglePublic}
+				type="button"
+			>
+				<Globe width={24} height={24} />
+				<span className={styles.tooltip}>
+					{isPublic ? "Make private" : "Make public"}
+				</span>
 			</button>
 		</div>
 	);

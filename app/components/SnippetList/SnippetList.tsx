@@ -80,16 +80,22 @@ const SnippetList = ({
 	const handleSearchInputChange = async (
 		event: ChangeEvent<HTMLInputElement>
 	): Promise<void> => {
+		const query = event.target.value;
+
 		setSearchData({
 			...searchData,
-			searchQuery: event.target.value,
+			searchQuery: query,
 			snippetsFound:
-				event.target.value?.length > 0
-					? searchData.originalSnippets.filter((item: Snippet) =>
-							item.name
-								.toLowerCase()
-								.includes(searchData.searchQuery.toLowerCase())
-						)
+				query?.length > 0
+					? searchData.originalSnippets.filter((item: Snippet) => {
+							const lowerQuery = query.toLowerCase();
+
+							return (
+								item.name.toLowerCase().includes(lowerQuery) ||
+								item.snippet.toLowerCase().includes(lowerQuery) ||
+								(item.tags ?? "").toLowerCase().includes(lowerQuery)
+							);
+						})
 					: searchData.originalSnippets,
 		});
 	};

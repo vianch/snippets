@@ -11,7 +11,6 @@ import Select from "@/components/ui/Select/Select";
 import Button from "@/components/ui/Button/Button";
 import Loading from "@/components/ui/icons/Loading";
 import Floppy from "@/components/ui/icons/Floppy";
-
 /* Styles */
 import styles from "./codeEditor.module.css";
 
