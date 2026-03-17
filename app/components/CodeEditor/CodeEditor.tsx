@@ -281,7 +281,7 @@ const CodeEditor = ({
 
 	const refreshVersionCount = (snippetId: UUID): void => {
 		getSnippetVersions(snippetId)
-			.then((v) => setVersionCount(v.length))
+			.then((versions) => setVersionCount(versions.length))
 			.catch(() => setVersionCount(0));
 	};
 
