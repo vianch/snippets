@@ -44,6 +44,19 @@
 		"react-dom": "^19.2.0",
 		"zustand": "^5.0.11"
 	},
+	"lint-staged": {
+		"*.{ts,tsx}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.css": [
+			"stylelint --fix",
+			"prettier --write"
+		],
+		"*.{json,md,mjs}": [
+			"prettier --write"
+		]
+	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.1",
 		"@eslint/js": "^9.28.0",
@@ -56,6 +69,7 @@
 		"eslint-plugin-prettier": "^5.5.5",
 		"globals": "^16.1.0",
 		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0",
 		"prettier": "^3.8.1",
 		"stylelint": "^16.20.0",
 		"stylelint-config-standard": "^36.0.0",
