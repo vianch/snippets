@@ -448,6 +448,18 @@ export default function Page(): ReactElement {
 		getSnippets().then(() => null);
 	}, []);
 
+	useEffect(() => {
+		if (codeEditorStates.touched) {
+			window.onbeforeunload = () => "You have unsaved changes.";
+		} else {
+			window.onbeforeunload = null;
+		}
+
+		return () => {
+			window.onbeforeunload = null;
+		};
+	}, [codeEditorStates.touched]);
+
 	return (
 		<>
 			<ResizableLayout

@@ -24,6 +24,7 @@ import {
 	toggleSnippetPublic,
 	getSnippetVersions,
 } from "@/lib/supabase/queries";
+import { formatCode, isFormattableLanguage } from "@/utils/formatter.utils";
 
 /* Components */
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
@@ -33,6 +34,7 @@ import History from "@/components/History/History";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
 import Input from "@/components/ui/Input/Input";
 import SkeletonCodeEditor from "@/components/ui/Skeleton/SkeletonCodeEditor";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -277,20 +279,71 @@ const CodeEditor = ({
 		return "calc(100vh - 6.45rem)";
 	};
 
-	const handleExplicitSave = (): void => {
-		onSave(currentSnippet, true);
+	const refreshVersionCount = (snippetId: UUID): void => {
+		getSnippetVersions(snippetId)
+			.then((versions) => setVersionCount(versions.length))
+			.catch(() => setVersionCount(0));
+	};
+
+	const handleFormat = async (): Promise<void> => {
+		if (!isFormattableLanguage(currentSnippet.language)) return;
+
+		try {
+			const formatted = await formatCode(
+				currentSnippet.snippet,
+				currentSnippet.language
+			);
+
+			setCurrentSnippet({
+				...currentSnippet,
+				snippet: formatted,
+			});
+			onTouched(true);
+		} catch (_error) {
+			addToast({
+				type: ToastType.Error,
+				message: "Failed to format code",
+			});
+		}
+	};
+
+	const handleFormatAndSave = async (): Promise<void> => {
+		if (isFormattableLanguage(currentSnippet.language)) {
+			try {
+				const formatted = await formatCode(
+					currentSnippet.snippet,
+					currentSnippet.language
+				);
+
+				const updatedSnippet = {
+					...currentSnippet,
+					snippet: formatted,
+				};
+
+				setCurrentSnippet(updatedSnippet);
+				onSave(updatedSnippet, true);
+			} catch (_error) {
+				onSave(currentSnippet, true);
+			}
+		} else {
+			onSave(currentSnippet, true);
+		}
 	};
 
 	const handleKeyBoardSave = (event: KeyboardEvent): void => {
-		if (
-			(event.ctrlKey && event.key === "s") ||
-			(event.metaKey && event.key === "s")
-		) {
-			if (!isTrashActive) {
-				handleExplicitSave();
-			}
+		const isModifierPressed = event.ctrlKey || event.metaKey;
 
+		if (isModifierPressed && event.key === "s") {
 			event.preventDefault();
+
+			if (!isTrashActive) {
+				handleFormatAndSave();
+			}
+		}
+
+		if (isModifierPressed && event.shiftKey && event.key === "f") {
+			event.preventDefault();
+			handleFormat();
 		}
 	};
 
@@ -321,7 +374,6 @@ const CodeEditor = ({
 	useEffect(() => {
 		window.addEventListener("keydown", handleKeyBoardSave);
 
-		// Clean up event listener when component unmounts
 		return () => {
 			window.removeEventListener("keydown", handleKeyBoardSave);
 		};
@@ -329,9 +381,7 @@ const CodeEditor = ({
 
 	useEffect(() => {
 		if (currentSnippet?.snippet_id) {
-			getSnippetVersions(currentSnippet.snippet_id)
-				.then((versions) => setVersionCount(versions.length))
-				.catch(() => setVersionCount(0));
+			refreshVersionCount(currentSnippet.snippet_id);
 		}
 	}, [currentSnippet?.snippet_id]);
 
@@ -363,10 +413,14 @@ const CodeEditor = ({
 								currentSnippet={currentSnippet}
 								codeEditorStates={codeEditorStates}
 								snippetName={snippet?.name ?? ""}
+								showFormatButton={isFormattableLanguage(
+									currentSnippet.language
+								)}
 								onStarred={starringHandler}
 								onUpdateName={updateCurrentSnippetName}
 								onSetLanguage={setLanguageHandler}
-								onSave={handleExplicitSave}
+								onSave={handleFormatAndSave}
+								onFormat={handleFormat}
 							/>
 
 							<CodeEditorTags
@@ -411,7 +465,9 @@ const CodeEditor = ({
 										const restoredLanguage =
 											version.language as SupportedLanguages;
 
-										setPreRestoreSnapshot({ ...currentSnippet });
+										if (!preRestoreSnapshot) {
+											setPreRestoreSnapshot({ ...currentSnippet });
+										}
 
 										setCurrentSnippet({
 											...currentSnippet,
@@ -423,10 +479,7 @@ const CodeEditor = ({
 										});
 										onTouched(true);
 										setShowDetails(false);
-
-										getSnippetVersions(currentSnippet.snippet_id)
-											.then((v) => setVersionCount(v.length))
-											.catch(() => setVersionCount(0));
+										refreshVersionCount(currentSnippet.snippet_id);
 									}}
 									undoSnapshot={preRestoreSnapshot}
 									onUndo={() => {
@@ -435,10 +488,7 @@ const CodeEditor = ({
 										setCurrentSnippet({ ...preRestoreSnapshot });
 										onTouched(true);
 										setPreRestoreSnapshot(null);
-
-										getSnippetVersions(currentSnippet.snippet_id)
-											.then((v) => setVersionCount(v.length))
-											.catch(() => setVersionCount(0));
+										refreshVersionCount(currentSnippet.snippet_id);
 									}}
 								/>
 							)}
@@ -573,7 +623,11 @@ const CodeEditor = ({
 					)}
 				</>
 			) : (
-				<p className={styles.noSnippet}>No snippet selected</p>
+				<EmptyState
+					title="No snippet selected"
+					description="Select a snippet from the list to start editing"
+					illustration="cursor"
+				/>
 			)}
 		</div>
 	);

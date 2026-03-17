@@ -58,16 +58,16 @@ With Snippets you can:
 
 ## Tech Stack
 
-| Technology | Purpose |
-|-----------|---------|
-| [Next.js 16](https://nextjs.org/) | React framework with App Router & Turbopack |
-| [React 19](https://react.dev/) | UI library |
-| [TypeScript](https://www.typescriptlang.org/) | Type safety |
-| [Supabase](https://supabase.com/) | Auth & real-time database |
-| [CodeMirror](https://codemirror.net/) | In-browser code editor |
-| [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight state management |
-| [Vercel](https://vercel.com/) | Deployment & analytics |
-| [Phosphor Icons](https://phosphoricons.com/) | Icon set |
+| Technology                                     | Purpose                                     |
+| ---------------------------------------------- | ------------------------------------------- |
+| [Next.js 16](https://nextjs.org/)              | React framework with App Router & Turbopack |
+| [React 19](https://react.dev/)                 | UI library                                  |
+| [TypeScript](https://www.typescriptlang.org/)  | Type safety                                 |
+| [Supabase](https://supabase.com/)              | Auth & real-time database                   |
+| [CodeMirror](https://codemirror.net/)          | In-browser code editor                      |
+| [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight state management                |
+| [Vercel](https://vercel.com/)                  | Deployment & analytics                      |
+| [Phosphor Icons](https://phosphoricons.com/)   | Icon set                                    |
 
 ## Getting Started
 
@@ -103,10 +103,10 @@ cp .env.example .env.local
 
 Fill in the required values:
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_BASE_URL` | Your app's base URL |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| Variable                        | Description            |
+| ------------------------------- | ---------------------- |
+| `NEXT_PUBLIC_BASE_URL`          | Your app's base URL    |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL   |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
 
 3. Start the development server:
@@ -121,16 +121,16 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 
 ## Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `yarn dev` | Start the development server |
-| `yarn build` | Build for production |
-| `yarn start` | Run the production build |
-| `yarn lint` | Run all linters (ESLint + Stylelint + Prettier) |
-| `yarn lint:code-style` | Run ESLint with auto-fix |
-| `yarn lint:style` | Run Stylelint for CSS with auto-fix |
-| `yarn lint:formatting` | Run Prettier with auto-write |
-| `yarn init` | Reset project (removes node_modules & lock files, reinstalls) |
+| Script                 | Description                                                   |
+| ---------------------- | ------------------------------------------------------------- |
+| `yarn dev`             | Start the development server                                  |
+| `yarn build`           | Build for production                                          |
+| `yarn start`           | Run the production build                                      |
+| `yarn lint`            | Run all linters (ESLint + Stylelint + Prettier)               |
+| `yarn lint:code-style` | Run ESLint with auto-fix                                      |
+| `yarn lint:style`      | Run Stylelint for CSS with auto-fix                           |
+| `yarn lint:formatting` | Run Prettier with auto-write                                  |
+| `yarn init`            | Reset project (removes node_modules & lock files, reinstalls) |
 
 ## Project Structure
 

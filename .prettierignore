@@ -12,3 +12,4 @@ yarn.lock
 
 # Generated
 storybook-static/
+next-env.d.ts

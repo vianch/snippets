@@ -82,6 +82,7 @@ Copy `.env.example` → `.env.local`. Required:
 - Blank lines enforced between blocks, returns, control flow, and variable declarations (see `eslint.config.mjs` padding rules)
 - `react-hooks/exhaustive-deps` and `react-hooks/set-state-in-effect` are disabled
 - Global types live in `types/*.d.ts` — domain types like `Snippet`, `UUID`, `SnippetState`, `CurrentSnippet`, `TagItem` are globally available without imports
+- No single-letter or abbreviated variable names — use descriptive names (`versions` not `v`, `snippet` not `s`, `index` not `i`). Exception: standard loop counters in `Array.from` or `.map` where the variable is unused (`_`)
 
 ## Memory & Rules System
 

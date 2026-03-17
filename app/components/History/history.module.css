@@ -122,6 +122,11 @@
 	background: var(--bg-color);
 	border: 1px solid var(--border-color);
 	border-radius: var(--border-radius);
+	cursor: pointer;
+}
+
+.listItem:hover {
+	background: var(--current-line);
 }
 
 .versionMeta {
@@ -152,9 +157,4 @@
 	font-size: var(--tiny-font-size);
 	color: var(--comment-color);
 	text-transform: uppercase;
-}
-
-.restoreButton {
-	align-self: flex-end;
-	margin-top: 0.25rem;
 }
