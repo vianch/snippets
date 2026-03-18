@@ -53,7 +53,8 @@ const useAiActions = ({
 				currentSnippet.language,
 				userMetadata?.ai_api_key,
 				userMetadata?.ollama_model,
-				userMetadata?.ollama_url
+				userMetadata?.ollama_url,
+				userMetadata?.ollama_api_key
 			);
 
 			setAiResult(response.result);

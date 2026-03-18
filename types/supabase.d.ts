@@ -9,6 +9,7 @@ interface InitialAccountStateData {
 	aiApiKey?: string;
 	ollamaModel?: string;
 	ollamaUrl?: string;
+	ollamaApiKey?: string;
 	autoSave?: boolean;
 }
 interface User {
@@ -21,6 +22,7 @@ interface User {
 		ai_api_key?: string;
 		ollama_model?: string;
 		ollama_url?: string;
+		ollama_api_key?: string;
 		auto_save?: boolean;
 	};
 	aud: string;

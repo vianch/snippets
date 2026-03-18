@@ -1,11 +1,20 @@
 export const fetchOllamaModels = async (
-	ollamaUrl?: string
+	ollamaUrl?: string,
+	ollamaApiKey?: string
 ): Promise<string[]> => {
 	try {
-		const params = ollamaUrl
-			? `?ollama_url=${encodeURIComponent(ollamaUrl)}`
-			: "";
-		const response = await fetch(`/api/ai/models${params}`);
+		const params = new URLSearchParams();
+
+		if (ollamaUrl) {
+			params.set("ollama_url", ollamaUrl);
+		}
+
+		if (ollamaApiKey) {
+			params.set("ollama_api_key", ollamaApiKey);
+		}
+
+		const query = params.toString() ? `?${params.toString()}` : "";
+		const response = await fetch(`/api/ai/models${query}`);
 		const data = await response.json();
 
 		return data.models || [];
@@ -20,7 +29,8 @@ export const requestAiAction = async (
 	language: string,
 	apiKey?: string,
 	ollamaModel?: string,
-	ollamaUrl?: string
+	ollamaUrl?: string,
+	ollamaApiKey?: string
 ): Promise<AiResponse> => {
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
@@ -36,6 +46,10 @@ export const requestAiAction = async (
 
 	if (ollamaUrl) {
 		headers["x-ollama-url"] = ollamaUrl;
+	}
+
+	if (ollamaApiKey) {
+		headers["x-ollama-api-key"] = ollamaApiKey;
 	}
 
 	const response = await fetch("/api/ai", {

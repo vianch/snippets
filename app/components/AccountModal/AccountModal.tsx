@@ -166,6 +166,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			ai_api_key: userData.aiApiKey ?? "",
 			ollama_model: userData.ollamaModel ?? "",
 			ollama_url: userData.ollamaUrl ?? "",
+			ollama_api_key: userData.ollamaApiKey ?? "",
 		};
 
 		const { error: updateError } = await updateUser({
@@ -273,7 +274,10 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	};
 
 	const refreshModels = async (): Promise<void> => {
-		const models = await fetchOllamaModels(userData.ollamaUrl);
+		const models = await fetchOllamaModels(
+			userData.ollamaUrl,
+			userData.ollamaApiKey
+		);
 
 		setOllamaModels(models);
 	};
@@ -349,8 +353,18 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					setOriginalOllamaUrl(userMetadata.ollama_url);
 				}
 
+				if (userMetadata?.ollama_api_key) {
+					setUserData((prev) => ({
+						...prev,
+						ollamaApiKey: userMetadata.ollama_api_key,
+					}));
+				}
+
 				// Fetch available Ollama models
-				const models = await fetchOllamaModels(userMetadata?.ollama_url);
+				const models = await fetchOllamaModels(
+					userMetadata?.ollama_url,
+					userMetadata?.ollama_api_key
+				);
 
 				setOllamaModels(models);
 			} catch (_catchError) {
@@ -536,6 +550,27 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					<small className={styles.helpText}>
 						Custom Ollama endpoint. Leave empty to use default. Models refresh
 						after saving.
+					</small>
+				</div>
+
+				<div className={styles.inputGroup}>
+					<span className={styles.label}>Ollama API Key</span>
+					<Input
+						type="password"
+						name="ollamaApiKey"
+						placeholder="ollama-api-key..."
+						fat
+						value={userData.ollamaApiKey ?? ""}
+						onChange={(event: ChangeEvent<HTMLInputElement>) =>
+							handleInputChange(event, "ollamaApiKey")
+						}
+						disableMargin
+						Icon={<Lock width={18} height={18} />}
+						className={styles.input}
+						maxLength={120}
+					/>
+					<small className={styles.helpText}>
+						API key from ollama.com/settings/keys for cloud models
 					</small>
 				</div>
 

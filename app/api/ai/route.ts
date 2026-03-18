@@ -15,14 +15,22 @@ const requestOllama = async (
 	prompt: string,
 	systemPrompt: string,
 	model: string,
-	baseUrl: string
+	baseUrl: string,
+	apiKey?: string
 ): Promise<string> => {
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), ollamaTimeout);
+	const headers: Record<string, string> = {
+		"Content-Type": "application/json",
+	};
+
+	if (apiKey) {
+		headers["Authorization"] = `Bearer ${apiKey}`;
+	}
 
 	const response = await fetch(`${baseUrl}/api/generate`, {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
+		headers,
 		body: JSON.stringify({
 			model,
 			prompt,
@@ -103,6 +111,10 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			process.env.OLLAMA_MODEL ||
 			"codellama";
 		const ollamaUrl = request.headers.get("x-ollama-url") || defaultOllamaUrl;
+		const ollamaApiKey =
+			request.headers.get("x-ollama-api-key") ||
+			process.env.OLLAMA_API_KEY ||
+			undefined;
 
 		// Try Ollama first, fallback to Claude
 		try {
@@ -110,7 +122,8 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				prompt,
 				systemPrompt,
 				ollamaModel,
-				ollamaUrl
+				ollamaUrl,
+				ollamaApiKey
 			);
 
 			return NextResponse.json({ result, provider: "ollama" });

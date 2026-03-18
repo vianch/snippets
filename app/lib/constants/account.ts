@@ -32,6 +32,7 @@ export const accountInitialStateData: InitialAccountStateData = {
 	aiApiKey: "",
 	ollamaModel: "",
 	ollamaUrl: "",
+	ollamaApiKey: "",
 	autoSave: false,
 };
 

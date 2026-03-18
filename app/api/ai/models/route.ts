@@ -6,7 +6,17 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 	try {
 		const ollamaUrl =
 			request.nextUrl.searchParams.get("ollama_url") || defaultOllamaUrl;
-		const response = await fetch(`${ollamaUrl}/api/tags`);
+		const ollamaApiKey =
+			request.nextUrl.searchParams.get("ollama_api_key") ||
+			process.env.OLLAMA_API_KEY ||
+			"";
+		const headers: Record<string, string> = {};
+
+		if (ollamaApiKey) {
+			headers["Authorization"] = `Bearer ${ollamaApiKey}`;
+		}
+
+		const response = await fetch(`${ollamaUrl}/api/tags`, { headers });
 
 		if (!response.ok) {
 			return NextResponse.json({ models: [] });
