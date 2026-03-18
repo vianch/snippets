@@ -5,10 +5,17 @@ import { useState } from "react";
 /* Lib */
 import useToastStore from "@/lib/store/toast.store";
 import { ToastType } from "@/lib/constants/toast";
+import { localActions } from "@/lib/constants/ai";
 import { getUserDataFromSession } from "@/lib/supabase/queries";
 
 /* Utils */
 import { requestAiAction } from "@/utils/ai.utils";
+
+const parseJson = (code: string): string => {
+	const parsed = JSON.parse(code);
+
+	return JSON.stringify(parsed, null, 2);
+};
 
 type UseAiActionsProps = {
 	currentSnippet: CurrentSnippet;
@@ -37,13 +44,22 @@ const useAiActions = ({
 	const [aiError, setAiError] = useState("");
 	const [aiAction, setAiAction] = useState<AiAction | null>(null);
 
-	const handleAiAction = async (action: AiAction): Promise<void> => {
-		setAiAction(action);
-		setAiResult("");
-		setAiError("");
-		setAiLoading(true);
-		setAiModalOpen(true);
+	const handleLocalAction = (action: AiAction): void => {
+		try {
+			if (action === "json") {
+				setAiResult(parseJson(currentSnippet.snippet));
+			}
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : "Invalid JSON";
 
+			setAiError(errorMessage);
+		}
+
+		setAiLoading(false);
+	};
+
+	const handleRemoteAction = async (action: AiAction): Promise<void> => {
 		try {
 			const sessionData = await getUserDataFromSession();
 			const userMetadata = sessionData?.user?.user_metadata;
@@ -66,6 +82,20 @@ const useAiActions = ({
 		}
 
 		setAiLoading(false);
+	};
+
+	const handleAiAction = async (action: AiAction): Promise<void> => {
+		setAiAction(action);
+		setAiResult("");
+		setAiError("");
+		setAiLoading(true);
+		setAiModalOpen(true);
+
+		if (localActions.includes(action)) {
+			handleLocalAction(action);
+		} else {
+			await handleRemoteAction(action);
+		}
 	};
 
 	const handleAiApply = (): void => {

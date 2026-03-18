@@ -3,6 +3,7 @@ export const aiActions = {
 	comments: "comments",
 	format: "format",
 	optimize: "optimize",
+	json: "json",
 } as const;
 
 export const aiActionLabels: Record<AiAction, string> = {
@@ -10,6 +11,7 @@ export const aiActionLabels: Record<AiAction, string> = {
 	comments: "Add comments",
 	format: "Format this code",
 	optimize: "Optimize",
+	json: "JSON parse & format",
 };
 
 export const aiSystemPrompts: Record<AiAction, (language: string) => string> = {
@@ -21,6 +23,14 @@ export const aiSystemPrompts: Record<AiAction, (language: string) => string> = {
 		`Format this ${language} code following standard conventions and best practices for indentation, spacing, and line breaks. Return ONLY the formatted code, no explanation.`,
 	optimize: (language) =>
 		`Optimize this ${language} code for readability and performance. Return ONLY the optimized code. Add a brief comment at the top explaining what changed.`,
+	json: (_language) => "",
 };
 
-export const codeActions: AiAction[] = ["comments", "format", "optimize"];
+export const codeActions: AiAction[] = [
+	"comments",
+	"format",
+	"optimize",
+	"json",
+];
+
+export const localActions: AiAction[] = ["json"];

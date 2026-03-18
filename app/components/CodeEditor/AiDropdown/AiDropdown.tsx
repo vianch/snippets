@@ -15,7 +15,13 @@ type AiDropdownProps = {
 	onClose: () => void;
 };
 
-const actions: AiAction[] = ["explain", "comments", "format", "optimize"];
+const actions: AiAction[] = [
+	"explain",
+	"comments",
+	"format",
+	"optimize",
+	"json",
+];
 
 const AiDropdown = ({
 	isOpen,
