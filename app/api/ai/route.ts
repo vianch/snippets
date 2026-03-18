@@ -117,6 +117,8 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			undefined;
 
 		// Try Ollama first, fallback to Claude
+		let ollamaErrorMessage = "";
+
 		try {
 			const result = await requestOllama(
 				prompt,
@@ -127,27 +129,31 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			);
 
 			return NextResponse.json({ result, provider: "ollama" });
-		} catch (_ollamaError) {
-			// Ollama not available, try Claude
-			const apiKey =
-				request.headers.get("x-ai-api-key") ||
-				process.env.ANTHROPIC_API_KEY ||
-				"";
-
-			if (!apiKey) {
-				return NextResponse.json(
-					{
-						error:
-							"AI not available. Start Ollama or add an API key in settings.",
-					},
-					{ status: 503 }
-				);
-			}
-
-			const result = await requestClaude(prompt, systemPrompt, apiKey);
-
-			return NextResponse.json({ result, provider: "claude" });
+		} catch (ollamaError) {
+			ollamaErrorMessage =
+				ollamaError instanceof Error
+					? ollamaError.message
+					: "Unknown Ollama error";
 		}
+
+		// Ollama failed, try Claude
+		const apiKey =
+			request.headers.get("x-ai-api-key") ||
+			process.env.ANTHROPIC_API_KEY ||
+			"";
+
+		if (!apiKey) {
+			return NextResponse.json(
+				{
+					error: `AI not available. Ollama failed (${ollamaErrorMessage}) at ${ollamaUrl} with model ${ollamaModel}. No Anthropic API key configured as fallback.`,
+				},
+				{ status: 503 }
+			);
+		}
+
+		const result = await requestClaude(prompt, systemPrompt, apiKey);
+
+		return NextResponse.json({ result, provider: "claude" });
 	} catch (error) {
 		const errorMessage =
 			error instanceof Error ? error.message : "An unexpected error occurred";
