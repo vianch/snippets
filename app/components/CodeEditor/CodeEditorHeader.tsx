@@ -11,7 +11,6 @@ import Select from "@/components/ui/Select/Select";
 import Button from "@/components/ui/Button/Button";
 import Loading from "@/components/ui/icons/Loading";
 import Floppy from "@/components/ui/icons/Floppy";
-import Format from "@/components/ui/icons/Format";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -20,24 +19,20 @@ type CodeEditorHeaderTypes = {
 	currentSnippet: CurrentSnippet;
 	codeEditorStates: SnippetEditorStates;
 	snippetName: string;
-	showFormatButton: boolean;
 	onStarred: () => void;
 	onUpdateName: (event: ChangeEvent<HTMLInputElement>) => void;
 	onSetLanguage: (language: string) => void;
 	onSave: () => void;
-	onFormat: () => void;
 };
 
 const CodeEditorHeader = ({
 	currentSnippet,
 	codeEditorStates,
 	snippetName = "",
-	showFormatButton,
 	onStarred,
 	onUpdateName,
 	onSetLanguage,
 	onSave,
-	onFormat,
 }: CodeEditorHeaderTypes): ReactElement => {
 	const { isSaving, touched } = codeEditorStates ?? {};
 
@@ -75,16 +70,6 @@ const CodeEditorHeader = ({
 					items={Object.keys(languageExtensions)}
 					onSelect={onSetLanguage}
 				/>
-
-				{showFormatButton && (
-					<Button
-						className={styles.button}
-						variant="secondary"
-						onClick={onFormat}
-					>
-						<Format className={styles.icon} width={16} height={16} /> Format
-					</Button>
-				)}
 
 				<Button
 					className={`${styles.button} ${touched ? styles.touched : ""}`}
