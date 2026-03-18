@@ -9,12 +9,17 @@ const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
 const anthropicModel =
 	process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
 
+const ollamaTimeout = 60000;
+
 const requestOllama = async (
 	prompt: string,
 	systemPrompt: string,
 	model: string,
 	baseUrl: string
 ): Promise<string> => {
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), ollamaTimeout);
+
 	const response = await fetch(`${baseUrl}/api/generate`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -24,7 +29,10 @@ const requestOllama = async (
 			system: systemPrompt,
 			stream: false,
 		}),
+		signal: controller.signal,
 	});
+
+	clearTimeout(timeoutId);
 
 	if (!response.ok) {
 		throw new Error("Ollama request failed");
@@ -127,10 +135,10 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
 			return NextResponse.json({ result, provider: "claude" });
 		}
-	} catch (_error) {
-		return NextResponse.json(
-			{ error: "An unexpected error occurred" },
-			{ status: 500 }
-		);
+	} catch (error) {
+		const errorMessage =
+			error instanceof Error ? error.message : "An unexpected error occurred";
+
+		return NextResponse.json({ error: errorMessage }, { status: 500 });
 	}
 };
