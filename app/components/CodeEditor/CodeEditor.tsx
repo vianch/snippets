@@ -1,14 +1,6 @@
 "use client";
 
-import {
-	ReactElement,
-	useState,
-	useEffect,
-	useMemo,
-	useCallback,
-	useRef,
-	ChangeEvent,
-} from "react";
+import { ReactElement, useMemo, useRef } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 
 /* Lib */
@@ -16,23 +8,31 @@ import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
-import useToastStore from "@/lib/store/toast.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
-import { ToastType } from "@/lib/constants/toast";
-import {
-	toggleSnippetPublic,
-	getSnippetVersions,
-} from "@/lib/supabase/queries";
+
+/* Hooks */
+import useCurrentSnippet from "@/components/CodeEditor/hooks/useCurrentSnippet";
+import useAiActions from "@/components/CodeEditor/hooks/useAiActions";
+import useKeyboardSave from "@/components/CodeEditor/hooks/useKeyboardSave";
+import usePreviewResize from "@/components/CodeEditor/hooks/usePreviewResize";
+
 /* Components */
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
+import AiResultModal from "@/components/CodeEditor/AiResultModal/AiResultModal";
+import SnippetDetails from "@/components/CodeEditor/SnippetDetails/SnippetDetails";
 import History from "@/components/History/History";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
-import Input from "@/components/ui/Input/Input";
 import SkeletonCodeEditor from "@/components/ui/Skeleton/SkeletonCodeEditor";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
+
+/* Utils */
+import {
+	calculateEditorHeight,
+	calculatePreviewHeight,
+} from "@/components/CodeEditor/editorHeight";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -63,293 +63,68 @@ const CodeEditor = ({
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const theme = useUserStore((state) => state.theme) as ThemeName;
-	const { addToast } = useToastStore();
-	const { menuType, touched } = codeEditorStates ?? {};
+	const { menuType } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
-	const [currentSnippet, setCurrentSnippet] = useState<CurrentSnippet>({
-		...({} as Snippet),
-		snippet: "",
-		tags: null,
-		language: defaultLanguage,
-		extension: languageExtensions[defaultLanguage],
+	const editorContentRef = useRef<HTMLDivElement>(null);
+	const editorTheme = useMemo(() => getCodeMirrorTheme(theme), [theme]);
+
+	const {
+		currentSnippet,
+		setCurrentSnippet,
+		showDetails,
+		setShowDetails,
+		showHistory,
+		setShowHistory,
+		versionCount,
+		preRestoreSnapshot,
+		setPreRestoreSnapshot,
+		updateCurrentSnippetValue,
+		updateCurrentSnippetName,
+		updateCurrentSnippetUrl,
+		updateCurrentSnippetNotes,
+		setLanguageHandler,
+		starringHandler,
+		newTagHandler,
+		removeTagHandler,
+		togglePublicHandler,
+		refreshVersionCount,
+		saveHandler,
+	} = useCurrentSnippet({
+		snippet,
+		defaultLanguage,
+		codeEditorStates,
+		onSave,
+		onStarred,
+		onPublicToggle,
+		onTouched,
 	});
+
+	const {
+		aiModalOpen,
+		aiLoading,
+		aiResult,
+		aiError,
+		aiAction,
+		handleAiAction,
+		handleAiApply,
+		handleAiDiscard,
+	} = useAiActions({ currentSnippet, updateCurrentSnippetValue });
+
+	useKeyboardSave(saveHandler, isTrashActive);
+
+	const { editorWidthPercent, handlePreviewMouseDown } =
+		usePreviewResize(editorContentRef);
+
 	const isMarkdownLanguage =
 		currentSnippet?.language === SupportedLanguages.Markdown;
 	const showPreview = isMarkdownLanguage && !isTrashActive;
-	const [showDetails, setShowDetails] = useState(false);
-	const [showHistory, setShowHistory] = useState(false);
-	const [versionCount, setVersionCount] = useState(0);
-	const [preRestoreSnapshot, setPreRestoreSnapshot] =
-		useState<CurrentSnippet | null>(null);
 
-	const editorContentRef = useRef<HTMLDivElement>(null);
-	const [editorWidthPercent, setEditorWidthPercent] = useState(50);
-	const [isDraggingPreview, setIsDraggingPreview] = useState(false);
-
-	const handlePreviewMouseDown = useCallback(() => {
-		setIsDraggingPreview(true);
-		document.body.style.cursor = "col-resize";
-		document.body.style.userSelect = "none";
-	}, []);
-
-	const handlePreviewMouseMove = useCallback(
-		(e: MouseEvent) => {
-			if (!isDraggingPreview || !editorContentRef.current) return;
-
-			const rect = editorContentRef.current.getBoundingClientRect();
-			const mouseX = e.clientX - rect.left;
-			const percent = (mouseX / rect.width) * 100;
-
-			setEditorWidthPercent(Math.max(25, Math.min(75, percent)));
-		},
-		[isDraggingPreview]
-	);
-
-	const handlePreviewMouseUp = useCallback(() => {
-		setIsDraggingPreview(false);
-		document.body.style.cursor = "";
-		document.body.style.userSelect = "";
-	}, []);
-
-	const editorTheme = useMemo(() => getCodeMirrorTheme(theme), [theme]);
-
-	const setLanguageExtension = (newLanguage: SupportedLanguages): void => {
-		setCurrentSnippet({
-			...currentSnippet,
-			language: newLanguage,
-			extension: languageExtensions[newLanguage],
-		});
-
-		onTouched(true);
-	};
-
-	const setLanguageHandler = (selectedLanguage: string): void => {
-		const languageSelected = selectedLanguage ?? defaultLanguage;
-
-		setLanguageExtension(languageSelected as SupportedLanguages);
-	};
-
-	const updateCurrentSnippetValue = (value: string): void => {
-		setCurrentSnippet({
-			...currentSnippet,
-			snippet: value ?? "",
-		});
-
-		onTouched(true);
-	};
-
-	const updateCurrentSnippetName = (
-		event: ChangeEvent<HTMLInputElement>
-	): void => {
-		event?.preventDefault();
-
-		const name = event?.target?.value ?? "";
-
-		const newCurrentSnippet = {
-			...currentSnippet,
-			name,
-		};
-
-		setCurrentSnippet(newCurrentSnippet);
-
-		onTouched(name?.length > 0);
-	};
-
-	const starringHandler = (): void => {
-		const newCurrentSnippet = {
-			...currentSnippet,
-			state: currentSnippet?.state === "favorite" ? "active" : "favorite",
-		} as CurrentSnippet;
-		const isFavoriteMenu = codeEditorStates?.menuType === "favorites";
-		const fromButton = isFavoriteMenu ? "favorite" : true;
-
-		setCurrentSnippet(newCurrentSnippet);
-		onSave(newCurrentSnippet, fromButton);
-
-		if (isFavoriteMenu) {
-			onStarred(newCurrentSnippet);
-		}
-	};
-
-	const newTagHandler = (newTagValue: string): void => {
-		const tagList = currentSnippet?.tags ? currentSnippet.tags?.split(",") : [];
-		const newTagValueTrimmed = newTagValue.trim();
-
-		if (
-			!newTagValue ||
-			newTagValue.length >= 28 ||
-			tagList.length >= 3 ||
-			tagList.includes(newTagValueTrimmed)
-		)
-			return;
-
-		const updatedTags = currentSnippet?.tags
-			? `${currentSnippet.tags},${newTagValueTrimmed}`
-			: newTagValueTrimmed;
-
-		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
-		onTouched(true);
-	};
-
-	const removeTagHandler = (tagRemoved: string): void => {
-		if (!tagRemoved) return;
-
-		const updatedTags = currentSnippet?.tags
-			? currentSnippet.tags
-					.split(",")
-					.filter((tag: string) => tag !== tagRemoved)
-					.join(",")
-			: null;
-
-		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
-		onTouched(true);
-	};
-
-	const updateCurrentSnippetUrl = (
-		event: ChangeEvent<HTMLInputElement>
-	): void => {
-		setCurrentSnippet({ ...currentSnippet, url: event.target.value });
-		onTouched(true);
-	};
-
-	const updateCurrentSnippetNotes = (
-		event: ChangeEvent<HTMLTextAreaElement>
-	): void => {
-		setCurrentSnippet({ ...currentSnippet, notes: event.target.value });
-		onTouched(true);
-	};
-
-	const togglePublicHandler = async (): Promise<void> => {
-		const newIsPublic = !currentSnippet.is_public;
-		const slug = await toggleSnippetPublic(
-			currentSnippet.snippet_id,
-			newIsPublic,
-			currentSnippet.public_slug
-		);
-
-		const updatedSnippet = {
-			...currentSnippet,
-			is_public: newIsPublic,
-			public_slug: slug,
-		};
-
-		setCurrentSnippet(updatedSnippet);
-		onPublicToggle(updatedSnippet);
-		onTouched(false);
-
-		if (newIsPublic && slug) {
-			const shareUrl = `${window.location.origin}/s/${slug}`;
-
-			await navigator.clipboard.writeText(shareUrl).catch(() => null);
-			addToast({
-				type: ToastType.Success,
-				message: "Snippet is now public! Link copied.",
-			});
-		} else {
-			addToast({
-				type: ToastType.Info,
-				message: "Snippet is now private",
-			});
-		}
-	};
-
-	const calculateEditorHeight = (): string => {
-		if (isMobile && !isTrashActive) {
-			return isMarkdownLanguage ? "calc(50vh - 5rem)" : "calc(100vh - 9.7rem)";
-		}
-
-		if (isTrashActive && !isMobile) {
-			return "100vh";
-		}
-
-		if (isTrashActive && isMobile) {
-			return "calc(100vh - 3.2rem)";
-		}
-
-		return "calc(100vh - 6.45rem)";
-	};
-
-	const calculatePreviewHeight = (): string => {
-		if (isMobile) {
-			return "calc(50vh - 5rem)";
-		}
-
-		return "calc(100vh - 6.45rem)";
-	};
-
-	const refreshVersionCount = (snippetId: UUID): void => {
-		getSnippetVersions(snippetId)
-			.then((versions) => setVersionCount(versions.length))
-			.catch(() => setVersionCount(0));
-	};
-
-	const saveHandler = (): void => {
-		onSave(currentSnippet, true);
-	};
-
-	const handleKeyBoardSave = (event: KeyboardEvent): void => {
-		const isModifierPressed = event.ctrlKey || event.metaKey;
-
-		if (isModifierPressed && event.key === "s") {
-			event.preventDefault();
-
-			if (!isTrashActive) {
-				saveHandler();
-			}
-		}
-	};
-
-	useEffect(() => {
-		if (snippet?.language) {
-			setLanguageExtension(snippet.language);
-		}
-	}, [snippet?.language]);
-
-	useEffect(() => {
-		if (snippet) {
-			if (touched && !isTrashActive) {
-				onSave(currentSnippet, false);
-			}
-
-			// New Snippet selected info
-			setCurrentSnippet({
-				...currentSnippet,
-				...snippet,
-				extension: languageExtensions[snippet.language ?? defaultLanguage],
-			});
-
-			onTouched(false);
-			setPreRestoreSnapshot(null);
-		}
-	}, [snippet]);
-
-	useEffect(() => {
-		window.addEventListener("keydown", handleKeyBoardSave);
-
-		return () => {
-			window.removeEventListener("keydown", handleKeyBoardSave);
-		};
-	}, [currentSnippet]);
-
-	useEffect(() => {
-		if (currentSnippet?.snippet_id) {
-			refreshVersionCount(currentSnippet.snippet_id);
-		}
-	}, [currentSnippet?.snippet_id]);
-
-	useEffect(() => {
-		if (isDraggingPreview) {
-			document.addEventListener("mousemove", handlePreviewMouseMove);
-			document.addEventListener("mouseup", handlePreviewMouseUp);
-
-			return () => {
-				document.removeEventListener("mousemove", handlePreviewMouseMove);
-				document.removeEventListener("mouseup", handlePreviewMouseUp);
-			};
-		}
-
-		return undefined;
-	}, [isDraggingPreview, handlePreviewMouseMove, handlePreviewMouseUp]);
+	const editorHeight = calculateEditorHeight({
+		isMobile,
+		isTrashActive,
+		isMarkdownLanguage,
+	});
+	const previewHeight = calculatePreviewHeight(isMobile);
 
 	return (
 		<div
@@ -384,6 +159,7 @@ const CodeEditor = ({
 								onToggleHistory={() => setShowHistory(!showHistory)}
 								showHistory={showHistory}
 								hasVersions={versionCount > 0}
+								onAiAction={handleAiAction}
 							/>
 
 							{isMobile && (
@@ -397,6 +173,7 @@ const CodeEditor = ({
 										onToggleHistory={() => setShowHistory(!showHistory)}
 										showHistory={showHistory}
 										hasVersions={versionCount > 0}
+										onAiAction={handleAiAction}
 									/>
 								</div>
 							)}
@@ -442,75 +219,13 @@ const CodeEditor = ({
 							)}
 
 							{showDetails && (
-								<>
-									{!isMobile && (
-										<div
-											className={styles.detailsOverlay}
-											onClick={() => setShowDetails(false)}
-										/>
-									)}
-									<div
-										className={
-											isMobile ? styles.detailsPanelMobile : styles.detailsPanel
-										}
-									>
-										<div className={styles.detailsHeader}>
-											<span className={styles.detailsTitle}>
-												Snippet Details
-											</span>
-											<button
-												type="button"
-												className={styles.detailsClose}
-												onClick={() => setShowDetails(false)}
-											>
-												&times;
-											</button>
-										</div>
-										<div className={styles.detailsContainer}>
-											<div className={styles.detailsField}>
-												<label className={styles.detailsLabel}>
-													Source URL
-												</label>
-												<Input
-													placeholder="https://..."
-													value={currentSnippet?.url ?? ""}
-													onChange={updateCurrentSnippetUrl}
-													maxLength={200}
-													disableMargin
-												/>
-											</div>
-
-											<div className={styles.detailsField}>
-												<label className={styles.detailsLabel}>Notes</label>
-												<textarea
-													className={styles.notesField}
-													placeholder="Add notes about this snippet..."
-													value={currentSnippet?.notes ?? ""}
-													onChange={updateCurrentSnippetNotes}
-													maxLength={500}
-													rows={4}
-												/>
-											</div>
-
-											{currentSnippet.is_public &&
-												currentSnippet.public_slug && (
-													<div className={styles.detailsField}>
-														<label className={styles.detailsLabel}>
-															Public link
-														</label>
-														<a
-															className={styles.publicLink}
-															href={`/s/${currentSnippet.public_slug}`}
-															target="_blank"
-															rel="noopener noreferrer"
-														>
-															{`${typeof window !== "undefined" ? window.location.origin : ""}/s/${currentSnippet.public_slug}`}
-														</a>
-													</div>
-												)}
-										</div>
-									</div>
-								</>
+								<SnippetDetails
+									currentSnippet={currentSnippet}
+									isMobile={isMobile}
+									onClose={() => setShowDetails(false)}
+									onUrlChange={updateCurrentSnippetUrl}
+									onNotesChange={updateCurrentSnippetNotes}
+								/>
 							)}
 						</>
 					)}
@@ -535,7 +250,7 @@ const CodeEditor = ({
 									value={currentSnippet?.snippet ?? ""}
 									extensions={[currentSnippet.extension]}
 									theme={editorTheme}
-									height={calculateEditorHeight()}
+									height={editorHeight}
 									width="100%"
 									onChange={updateCurrentSnippetValue}
 								/>
@@ -548,7 +263,7 @@ const CodeEditor = ({
 							)}
 							<MarkdownPreview
 								content={currentSnippet.snippet}
-								height={calculatePreviewHeight()}
+								height={previewHeight}
 							/>
 						</div>
 					) : (
@@ -563,12 +278,23 @@ const CodeEditor = ({
 							value={currentSnippet?.snippet ?? ""}
 							extensions={[currentSnippet.extension]}
 							theme={editorTheme}
-							height={calculateEditorHeight()}
+							height={editorHeight}
 							width="100%"
 							readOnly={isTrashActive}
 							onChange={updateCurrentSnippetValue}
 						/>
 					)}
+
+					<AiResultModal
+						isOpen={aiModalOpen}
+						isLoading={aiLoading}
+						action={aiAction}
+						result={aiResult}
+						error={aiError}
+						language={currentSnippet.language}
+						onApply={handleAiApply}
+						onDiscard={handleAiDiscard}
+					/>
 				</>
 			) : (
 				<EmptyState

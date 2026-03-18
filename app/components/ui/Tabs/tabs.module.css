@@ -1,0 +1,42 @@
+.tabsContainer {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.tabList {
+	display: flex;
+	border-bottom: 1px solid var(--border-color);
+	gap: 0;
+}
+
+.tabTrigger {
+	flex: 1;
+	padding: 0.625rem 1rem;
+	background: transparent;
+	border: none;
+	border-bottom: 2px solid transparent;
+	color: var(--gray-color);
+	font-size: var(--small-font-size);
+	font-family: inherit;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.tabTrigger:hover {
+	color: var(--text-color);
+	background: var(--bg-color);
+}
+
+.tabTriggerActive {
+	color: var(--green-color);
+	border-bottom-color: var(--green-color);
+}
+
+.tabContent {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	padding-top: 1.25rem;
+}

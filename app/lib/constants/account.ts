@@ -29,6 +29,10 @@ export const accountInitialStateData: InitialAccountStateData = {
 	confirmPassword: "",
 	avatar: defaultAvatar,
 	theme: ThemeNames.Dracula,
+	aiApiKey: "",
+	ollamaModel: "",
+	ollamaUrl: "",
+	autoSave: false,
 };
 
 export const demoAccountData = {

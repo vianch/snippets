@@ -38,6 +38,10 @@ export default tseslint.config(
 			"react-hooks/exhaustive-deps": "off",
 			"react-hooks/set-state-in-effect": "off",
 			"no-console": "error",
+			"max-lines": [
+				"warn",
+				{ max: 600, skipBlankLines: true, skipComments: true },
+			],
 			"@next/next/no-img-element": "off",
 			"@next/next/next-script-for-ga": "off",
 			"@next/next/no-css-tags": "off",

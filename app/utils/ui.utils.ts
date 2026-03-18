@@ -1,4 +1,4 @@
-import { MouseEvent, MutableRefObject, useEffect } from "react";
+import { MouseEvent, MutableRefObject, RefObject, useEffect } from "react";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useMenuStore from "@/lib/store/menu.store";
 
@@ -21,6 +21,31 @@ export const useDeviceViewPort = (): void => {
 			window.removeEventListener("resize", handleResize);
 		};
 	}, [setIsMobile]);
+};
+
+export const useClickOutside = (
+	reference: RefObject<HTMLElement | null>,
+	onClickOutside: () => void,
+	enabled: boolean = true
+): void => {
+	useEffect(() => {
+		if (!enabled) return;
+
+		const handleClickOutside = (event: globalThis.MouseEvent): void => {
+			if (
+				reference.current &&
+				!reference.current.contains(event.target as Node)
+			) {
+				onClickOutside();
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [reference, onClickOutside, enabled]);
 };
 
 export const useCloseOutsideCodeEditor = (

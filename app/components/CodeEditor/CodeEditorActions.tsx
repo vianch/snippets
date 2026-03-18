@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { ReactElement, useState } from "react";
 
 /* Components */
 import Clock from "@/components/ui/icons/Clock";
@@ -6,6 +6,8 @@ import Copy from "@/components/ui/icons/Copy";
 import Globe from "@/components/ui/icons/Globe";
 import Info from "@/components/ui/icons/Info";
 import Share from "@/components/ui/icons/Share";
+import Sparkle from "@/components/ui/icons/Sparkle";
+import AiDropdown from "@/components/CodeEditor/AiDropdown/AiDropdown";
 
 /* Lib */
 import useToastStore from "@/lib/store/toast.store";
@@ -23,6 +25,7 @@ type CodeEditorActionsProps = {
 	onToggleHistory?: () => void;
 	showHistory?: boolean;
 	hasVersions?: boolean;
+	onAiAction?: (action: AiAction) => void;
 };
 
 const CodeEditorActions = ({
@@ -34,8 +37,10 @@ const CodeEditorActions = ({
 	onToggleHistory,
 	showHistory = false,
 	hasVersions = false,
+	onAiAction,
 }: CodeEditorActionsProps): ReactElement => {
 	const { addToast } = useToastStore();
+	const [aiDropdownOpen, setAiDropdownOpen] = useState(false);
 
 	const handleCopy = async (): Promise<void> => {
 		try {
@@ -69,8 +74,41 @@ const CodeEditorActions = ({
 		}
 	};
 
+	const handleAiClick = (): void => {
+		if (!currentSnippet?.snippet?.trim()) {
+			addToast({
+				type: ToastType.Error,
+				message: "No code to analyze",
+			});
+
+			return;
+		}
+
+		setAiDropdownOpen(!aiDropdownOpen);
+	};
+
+	const handleAiAction = (action: AiAction): void => {
+		setAiDropdownOpen(false);
+		onAiAction?.(action);
+	};
+
 	return (
 		<div className={styles.actionsContainer}>
+			<div className={styles.aiButtonWrapper}>
+				<button
+					className={`${styles.actionButton} ${aiDropdownOpen ? styles.actionButtonActive : ""}`}
+					onClick={handleAiClick}
+					type="button"
+				>
+					<Sparkle width={24} height={24} />
+					<span className={styles.tooltip}>AI</span>
+				</button>
+				<AiDropdown
+					isOpen={aiDropdownOpen}
+					onAction={handleAiAction}
+					onClose={() => setAiDropdownOpen(false)}
+				/>
+			</div>
 			{hasVersions && (
 				<button
 					className={`${styles.actionButton} ${showHistory ? styles.actionButtonActive : ""}`}

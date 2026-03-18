@@ -62,3 +62,13 @@
 	right: 0;
 	transform: none;
 }
+
+.aiButtonWrapper {
+	position: relative;
+}
+
+@media (width <= 1140px) {
+	.aiButtonWrapper {
+		display: none;
+	}
+}
