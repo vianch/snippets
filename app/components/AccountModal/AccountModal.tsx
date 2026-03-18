@@ -157,40 +157,16 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		return null;
 	};
 
-	const updateUserNameAndAvatar = async (): Promise<Error | null> => {
-		// Check if username, avatar, or theme has actually changed
-		const { hasUserNameChanged, hasUserAvatarChanged } =
-			checkForUserDataChanges();
-		const hasThemeChanged = userData.theme !== originalTheme;
-
-		// Only make API call if there are actual changes (aiApiKey changes always trigger update)
-		if (
-			!hasUserNameChanged &&
-			!hasUserAvatarChanged &&
-			!hasThemeChanged &&
-			!userData.aiApiKey
-		) {
-			return null; // No changes, no need to update
-		}
-
+	const updateUserMetadata = async (): Promise<Error | null> => {
 		const updatePayload: Record<string, string | boolean | undefined> = {
 			username: userData.username,
 			avatar: userData.avatar,
 			theme: userData.theme,
 			auto_save: userData.autoSave ?? false,
+			ai_api_key: userData.aiApiKey ?? "",
+			ollama_model: userData.ollamaModel ?? "",
+			ollama_url: userData.ollamaUrl ?? "",
 		};
-
-		if (userData.aiApiKey) {
-			updatePayload.ai_api_key = userData.aiApiKey;
-		}
-
-		if (userData.ollamaModel !== undefined) {
-			updatePayload.ollama_model = userData.ollamaModel;
-		}
-
-		if (userData.ollamaUrl !== undefined) {
-			updatePayload.ollama_url = userData.ollamaUrl;
-		}
 
 		const { error: updateError } = await updateUser({
 			data: updatePayload,
@@ -251,7 +227,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 
 		try {
 			const updatePasswordError = await updatePassword();
-			const updateAvatarError = await updateUserNameAndAvatar();
+			const updateAvatarError = await updateUserMetadata();
 
 			if (!updatePasswordError && !updateAvatarError) {
 				setMessage({
