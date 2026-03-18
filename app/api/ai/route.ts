@@ -5,6 +5,7 @@ import { aiSystemPrompts } from "@/lib/constants/ai";
 const validActions: AiAction[] = ["explain", "comments", "format", "optimize"];
 
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
+const ollamaCloudUrl = "https://ollama.com";
 const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
 const anthropicModel =
 	process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
@@ -116,9 +117,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			process.env.OLLAMA_API_KEY ||
 			undefined;
 
-		// Try Ollama first, fallback to Claude
-		let ollamaErrorMessage = "";
-
+		// 1. Try custom Ollama URL (tunnel or local)
 		try {
 			const result = await requestOllama(
 				prompt,
@@ -129,14 +128,28 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			);
 
 			return NextResponse.json({ result, provider: "ollama" });
-		} catch (ollamaError) {
-			ollamaErrorMessage =
-				ollamaError instanceof Error
-					? ollamaError.message
-					: "Unknown Ollama error";
+		} catch (_ollamaError) {
+			// Custom Ollama URL failed
 		}
 
-		// Ollama failed, try Claude
+		// 2. Try Ollama Cloud directly with API key
+		if (ollamaApiKey && ollamaUrl !== ollamaCloudUrl) {
+			try {
+				const result = await requestOllama(
+					prompt,
+					systemPrompt,
+					ollamaModel,
+					ollamaCloudUrl,
+					ollamaApiKey
+				);
+
+				return NextResponse.json({ result, provider: "ollama-cloud" });
+			} catch (_ollamaCloudError) {
+				// Ollama Cloud failed
+			}
+		}
+
+		// 3. Fallback to Claude API
 		const apiKey =
 			request.headers.get("x-ai-api-key") ||
 			process.env.ANTHROPIC_API_KEY ||
@@ -145,7 +158,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		if (!apiKey) {
 			return NextResponse.json(
 				{
-					error: `AI not available. Ollama failed (${ollamaErrorMessage}) at ${ollamaUrl} with model ${ollamaModel}. No Anthropic API key configured as fallback.`,
+					error: `AI not available. Tried Ollama at ${ollamaUrl} and Ollama Cloud with model ${ollamaModel}. No Anthropic API key configured as fallback.`,
 				},
 				{ status: 503 }
 			);
