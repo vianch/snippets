@@ -24,8 +24,6 @@ import {
 	toggleSnippetPublic,
 	getSnippetVersions,
 } from "@/lib/supabase/queries";
-import { formatCode, isFormattableLanguage } from "@/utils/formatter.utils";
-
 /* Components */
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
@@ -285,49 +283,8 @@ const CodeEditor = ({
 			.catch(() => setVersionCount(0));
 	};
 
-	const handleFormat = async (): Promise<void> => {
-		if (!isFormattableLanguage(currentSnippet.language)) return;
-
-		try {
-			const formatted = await formatCode(
-				currentSnippet.snippet,
-				currentSnippet.language
-			);
-
-			setCurrentSnippet({
-				...currentSnippet,
-				snippet: formatted,
-			});
-			onTouched(true);
-		} catch (_error) {
-			addToast({
-				type: ToastType.Error,
-				message: "Failed to format code",
-			});
-		}
-	};
-
-	const handleFormatAndSave = async (): Promise<void> => {
-		if (isFormattableLanguage(currentSnippet.language)) {
-			try {
-				const formatted = await formatCode(
-					currentSnippet.snippet,
-					currentSnippet.language
-				);
-
-				const updatedSnippet = {
-					...currentSnippet,
-					snippet: formatted,
-				};
-
-				setCurrentSnippet(updatedSnippet);
-				onSave(updatedSnippet, true);
-			} catch (_error) {
-				onSave(currentSnippet, true);
-			}
-		} else {
-			onSave(currentSnippet, true);
-		}
+	const saveHandler = (): void => {
+		onSave(currentSnippet, true);
 	};
 
 	const handleKeyBoardSave = (event: KeyboardEvent): void => {
@@ -337,13 +294,8 @@ const CodeEditor = ({
 			event.preventDefault();
 
 			if (!isTrashActive) {
-				handleFormatAndSave();
+				saveHandler();
 			}
-		}
-
-		if (isModifierPressed && event.shiftKey && event.key === "f") {
-			event.preventDefault();
-			handleFormat();
 		}
 	};
 
@@ -413,14 +365,10 @@ const CodeEditor = ({
 								currentSnippet={currentSnippet}
 								codeEditorStates={codeEditorStates}
 								snippetName={snippet?.name ?? ""}
-								showFormatButton={isFormattableLanguage(
-									currentSnippet.language
-								)}
 								onStarred={starringHandler}
 								onUpdateName={updateCurrentSnippetName}
 								onSetLanguage={setLanguageHandler}
-								onSave={handleFormatAndSave}
-								onFormat={handleFormat}
+								onSave={saveHandler}
 							/>
 
 							<CodeEditorTags
