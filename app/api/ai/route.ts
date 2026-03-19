@@ -172,7 +172,8 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		if (!apiKey) {
 			return NextResponse.json(
 				{
-					error: `AI not available. Tried Ollama at ${ollamaUrl} and Ollama Cloud with model ${ollamaModel}. No Anthropic API key configured as fallback.`,
+					error:
+						"No AI provider configured. Set up your Ollama URL or API key in Account Settings > AI tab.",
 				},
 				{ status: 503 }
 			);
