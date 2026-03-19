@@ -4,6 +4,14 @@ import { aiSystemPrompts } from "@/lib/constants/ai";
 
 const validActions: AiAction[] = ["explain", "comments", "format", "optimize"];
 
+const stripMarkdownCodeFences = (text: string): string => {
+	const trimmed = text.trim();
+	const codeBlockRegex = /^```[\w]*\n?([\s\S]*?)```\s*$/;
+	const match = trimmed.match(codeBlockRegex);
+
+	return match ? match[1].trim() : trimmed;
+};
+
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
 const ollamaCloudUrl = "https://ollama.com";
 const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
@@ -49,7 +57,7 @@ const requestOllama = async (
 
 	const data = await response.json();
 
-	return data.response;
+	return stripMarkdownCodeFences(data.response);
 };
 
 const requestClaude = async (
@@ -83,7 +91,7 @@ const requestClaude = async (
 		(block: { type: string }) => block.type === "text"
 	);
 
-	return textBlock?.text || "";
+	return stripMarkdownCodeFences(textBlock?.text || "");
 };
 
 export const POST = async (request: NextRequest): Promise<NextResponse> => {

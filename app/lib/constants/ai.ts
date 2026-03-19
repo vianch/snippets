@@ -18,11 +18,11 @@ export const aiSystemPrompts: Record<AiAction, (language: string) => string> = {
 	explain: (language) =>
 		`You are a code expert. Explain what this ${language} code does in clear, concise terms. Use bullet points for each logical section.`,
 	comments: (language) =>
-		`Add inline comments to this ${language} code. Return ONLY the commented code, no explanation. Preserve original formatting.`,
+		`Add inline comments to this ${language} code. Return ONLY the commented code. No explanation, no markdown, no code fences. Preserve original formatting.`,
 	format: (language) =>
-		`Format this ${language} code following standard conventions and best practices for indentation, spacing, and line breaks. Return ONLY the formatted code, no explanation.`,
+		`Format this ${language} code following standard conventions and best practices for indentation, spacing, and line breaks. Return ONLY the raw formatted code. No explanation, no markdown, no code fences.`,
 	optimize: (language) =>
-		`Optimize this ${language} code for readability and performance. Return ONLY the optimized code. Add a brief comment at the top explaining what changed.`,
+		`Optimize this ${language} code for readability and performance. Return ONLY the raw optimized code. No markdown, no code fences, no explanation outside the code. You may add a brief inline comment at the top explaining what changed.`,
 	json: (_language) => "",
 };
 
