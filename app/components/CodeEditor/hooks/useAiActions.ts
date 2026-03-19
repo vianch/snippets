@@ -44,19 +44,51 @@ const useAiActions = ({
 	const [aiError, setAiError] = useState("");
 	const [aiAction, setAiAction] = useState<AiAction | null>(null);
 
-	const handleLocalAction = (action: AiAction): void => {
+	const handleJsonAction = async (): Promise<void> => {
 		try {
-			if (action === "json") {
-				setAiResult(parseJson(currentSnippet.snippet));
+			setAiResult(parseJson(currentSnippet.snippet));
+			setAiLoading(false);
+		} catch (parseError) {
+			const errorDetail =
+				parseError instanceof Error ? parseError.message : "Invalid JSON";
+
+			// JSON is broken — ask AI to fix it
+			try {
+				const sessionData = await getUserDataFromSession();
+				const userMetadata = sessionData?.user?.user_metadata;
+				const response = await requestAiAction(
+					"json",
+					currentSnippet.snippet,
+					"json",
+					userMetadata?.ai_api_key,
+					userMetadata?.ollama_model,
+					userMetadata?.ollama_url,
+					userMetadata?.ollama_api_key
+				);
+
+				setAiResult(response.result);
+				setAiError(
+					`JSON parse error: ${errorDetail}. AI proposed a fix below.`
+				);
+			} catch (aiError) {
+				const aiMessage =
+					aiError instanceof Error ? aiError.message : "AI request failed";
+
+				setAiError(
+					`JSON parse error: ${errorDetail}. AI fix also failed: ${aiMessage}`
+				);
 			}
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "Invalid JSON";
 
-			setAiError(errorMessage);
+			setAiLoading(false);
 		}
+	};
 
-		setAiLoading(false);
+	const handleLocalAction = async (action: AiAction): Promise<void> => {
+		if (action === "json") {
+			await handleJsonAction();
+		} else {
+			setAiLoading(false);
+		}
 	};
 
 	const handleRemoteAction = async (action: AiAction): Promise<void> => {
@@ -92,7 +124,7 @@ const useAiActions = ({
 		setAiModalOpen(true);
 
 		if (localActions.includes(action)) {
-			handleLocalAction(action);
+			await handleLocalAction(action);
 		} else {
 			await handleRemoteAction(action);
 		}

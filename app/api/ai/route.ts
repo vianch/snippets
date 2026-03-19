@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { aiSystemPrompts } from "@/lib/constants/ai";
 
-const validActions: AiAction[] = ["explain", "comments", "format", "optimize"];
+const validActions: AiAction[] = [
+	"explain",
+	"comments",
+	"format",
+	"optimize",
+	"json",
+];
 
 const stripMarkdownCodeFences = (text: string): string => {
 	const trimmed = text.trim();

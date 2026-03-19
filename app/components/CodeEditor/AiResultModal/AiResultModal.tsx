@@ -62,21 +62,28 @@ const AiResultModal = ({
 						<Loading width={32} height={32} />
 						<span className={styles.loadingText}>Thinking...</span>
 					</div>
-				) : error ? (
+				) : error && !result ? (
 					<div className={styles.errorContainer}>
 						<p className={styles.errorText}>{error}</p>
 					</div>
 				) : isCodeAction ? (
-					<div className={styles.codeContainer}>
-						<CodeMirror
-							value={result}
-							extensions={extension ? [extension] : []}
-							theme={editorTheme}
-							readOnly
-							height="400px"
-							basicSetup={{ lineNumbers: true }}
-						/>
-					</div>
+					<>
+						{error && result && (
+							<div className={styles.warningContainer}>
+								<p className={styles.warningText}>{error}</p>
+							</div>
+						)}
+						<div className={styles.codeContainer}>
+							<CodeMirror
+								value={result}
+								extensions={extension ? [extension] : []}
+								theme={editorTheme}
+								readOnly
+								height="400px"
+								basicSetup={{ lineNumbers: true }}
+							/>
+						</div>
+					</>
 				) : (
 					<div className={styles.explanationContainer}>
 						<pre className={styles.explanationText}>{result}</pre>
@@ -84,7 +91,7 @@ const AiResultModal = ({
 				)}
 
 				<div className={styles.actions}>
-					{isCodeAction && !isLoading && !error && (
+					{isCodeAction && !isLoading && result && (
 						<Button onClick={onApply} className={styles.applyButton}>
 							Apply
 						</Button>
