@@ -6,6 +6,11 @@ interface InitialAccountStateData {
 	confirmPassword?: string;
 	avatar?: string;
 	theme?: string;
+	aiApiKey?: string;
+	ollamaModel?: string;
+	ollamaUrl?: string;
+	ollamaApiKey?: string;
+	autoSave?: boolean;
 }
 interface User {
 	id: string;
@@ -14,6 +19,11 @@ interface User {
 		username?: string;
 		avatar?: string;
 		theme?: string;
+		ai_api_key?: string;
+		ollama_model?: string;
+		ollama_url?: string;
+		ollama_api_key?: string;
+		auto_save?: boolean;
 	};
 	aud: string;
 	confirmation_sent_at?: string;

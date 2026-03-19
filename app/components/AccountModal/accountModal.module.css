@@ -119,6 +119,49 @@
 	margin-bottom: 0.5rem;
 }
 
+.toggleGroup {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.toggleLabel {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}
+
+.toggleCheckbox {
+	width: 1rem;
+	height: 1rem;
+	accent-color: var(--green-color);
+	cursor: pointer;
+}
+
+.toggleText {
+	font-size: var(--small-font-size);
+	color: var(--text-color);
+}
+
+.modelSelect {
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	background: var(--bg-color-dark);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius);
+	color: var(--text-color);
+	font-size: var(--small-font-size);
+	font-family: inherit;
+	cursor: pointer;
+	appearance: auto;
+}
+
+.modelSelect:focus {
+	outline: none;
+	border-color: var(--primary-color);
+}
+
 .alert {
 	margin: 0;
 }

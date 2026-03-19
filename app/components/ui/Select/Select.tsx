@@ -1,8 +1,13 @@
-import { ReactElement, useEffect, useState, useRef } from "react";
+import { ReactElement, useState, useRef, useCallback } from "react";
 
+/* Components */
 import CaretDown from "@/components/ui/icons/CaretDown";
-
 import Check from "@/components/ui/icons/Check";
+
+/* Utils */
+import { useClickOutside } from "@/utils/ui.utils";
+
+/* Styles */
 import styles from "./select.module.css";
 
 type SelectProps = {
@@ -13,33 +18,19 @@ type SelectProps = {
 
 const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
 	const [isOpen, setIsOpen] = useState(false);
-	const selectWindowRef = useRef<HTMLInputElement>(null);
+	const selectWindowRef = useRef<HTMLDivElement>(null);
+
+	const closeDropdown = useCallback(() => setIsOpen(false), []);
+
+	useClickOutside(selectWindowRef, closeDropdown, isOpen);
 
 	const selectItemHandler = (item: string): void => {
 		onSelect(item);
 		setIsOpen(false);
 	};
 
-	// TODO: Move this outside to page level if there are more mouse events to handle
-	const handleClickOutside = (event: MouseEvent) => {
-		if (
-			selectWindowRef.current &&
-			!selectWindowRef.current?.contains(event?.target as Node)
-		) {
-			setIsOpen(false);
-		}
-	};
-
-	useEffect(() => {
-		document.addEventListener("mousedown", handleClickOutside);
-
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, []);
-
 	return (
-		<div className={styles.selectContainer}>
+		<div className={styles.selectContainer} ref={selectWindowRef}>
 			<div
 				className={styles.infoBarContainer}
 				onClick={() => setIsOpen(!isOpen)}
@@ -49,7 +40,6 @@ const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
 
 			<div
 				className={`${styles.selectWindow} ${isOpen ? styles.showList : styles.hideList}`}
-				ref={selectWindowRef}
 			>
 				{items.map((item) => (
 					<div

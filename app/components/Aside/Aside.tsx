@@ -184,6 +184,12 @@ const Aside = ({
 
 				setUserData(userData);
 
+				const savedAutoSave = session?.user?.user_metadata?.auto_save;
+
+				if (savedAutoSave !== undefined) {
+					useUserStore.getState().setAutoSave(savedAutoSave);
+				}
+
 				const savedTheme = session?.user?.user_metadata?.theme;
 
 				if (savedTheme && isValidTheme(savedTheme as string)) {
