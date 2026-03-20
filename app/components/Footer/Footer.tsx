@@ -4,8 +4,8 @@ import styles from "./footer.module.css";
 
 const Footer = (): ReactElement => {
 	return (
-		<footer className={`container ${styles.copyRight}`}>
-			&copy; 2024 snippets.vianch.com
+		<footer className={styles.copyRight}>
+			&copy; 2024 - 2026 snippets.vianch.com
 		</footer>
 	);
 };
