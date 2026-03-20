@@ -23,8 +23,9 @@
 </h4>
 
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/023d3a29-9a3b-4a8b-a7d4-937ac5087ed0" alt="Snippets dashboard" width="1929" height="1005" />
+    <img width="2475" height="1917" alt="Screenshot 2026-03-20 at 14 05 39" src="https://github.com/user-attachments/assets/66b99fbc-f718-42ea-b7fb-0c2887a5fbec" />
 </p>
+
 
 ## Introduction
 
@@ -51,9 +52,14 @@ With Snippets you can:
 </p>
 
 <p align="center">
-    <img width="33%" src="https://github.com/user-attachments/assets/4499bf3b-7d02-4c9e-a401-6e61b1560e25" alt="Mobile view"/>
+    <img width="33%" alt="Screenshot 2026-03-20 at 14 04 02" src="https://github.com/user-attachments/assets/3e88bb40-3e3d-4f26-8a59-4c2858d81640" />
+    <img width="33%" alt="Screenshot 2026-03-20 at 14 04 06" src="https://github.com/user-attachments/assets/f44bfa76-a732-482b-b01c-62f672d0e3eb" />
+    <img width="33%" alt="Screenshot 2026-03-20 at 14 04 14" src="https://github.com/user-attachments/assets/32e6eeed-0213-4a5f-9161-ec31c4538c95" />
 </p>
 
+<p align="center">
+  <img width="33%" alt="Screenshot 2026-03-20 at 14 02 10" src="https://github.com/user-attachments/assets/0bd45a96-cf82-478e-9f09-a69d091f17e2" />
+</p>
 </details>
 
 ## Tech Stack
