@@ -113,6 +113,14 @@ const CodeEditorActions = ({
 						onClose={() => setAiDropdownOpen(false)}
 					/>
 				</div>
+				<button
+					className={styles.actionButton}
+					type="button"
+					onClick={() => setScreenshotModalOpen(true)}
+				>
+					<Camera width={24} height={24} />
+					<span className={styles.tooltip}>Screenshot</span>
+				</button>
 				{hasVersions && (
 					<button
 						className={`${styles.actionButton} ${showHistory ? styles.actionButtonActive : ""}`}
@@ -130,14 +138,6 @@ const CodeEditorActions = ({
 				>
 					<Info width={24} height={24} />
 					<span className={styles.tooltip}>Details</span>
-				</button>
-				<button
-					className={styles.actionButton}
-					type="button"
-					onClick={() => setScreenshotModalOpen(true)}
-				>
-					<Camera width={24} height={24} />
-					<span className={styles.tooltip}>Screenshot</span>
 				</button>
 				<button
 					className={styles.actionButton}
