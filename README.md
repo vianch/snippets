@@ -38,6 +38,7 @@ With Snippets you can:
 - **Share** public snippets with a direct link
 - **Switch themes** between Dracula, GitHub, and more
 - **Support 13+ languages** — JavaScript, TypeScript, Python, Rust, Go, Java, SQL, and more
+- **Capture snippets as screenshots** — Save and share your own or team snippets as images.
 
 <details open>
 <summary>
@@ -59,6 +60,15 @@ With Snippets you can:
 <p align="center">
   <img width="33%" alt="Screenshot 2026-03-20 at 14 02 10" src="https://github.com/user-attachments/assets/0bd45a96-cf82-478e-9f09-a69d091f17e2" />
 </p>
+
+
+<p align="center">
+  <img width="33%" alt="Screenshot 2026-03-23 at 17 42 19" src="https://github.com/user-attachments/assets/45c6c695-b3dd-45f3-8377-db4046d56425" />
+<img width="33%" alt="Screenshot 2026-03-23 at 17 42 29" src="https://github.com/user-attachments/assets/7014d676-2f30-4028-8796-735e065f0f9e" />
+<img width="33%" alt="Screenshot 2026-03-23 at 18 18 05" src="https://github.com/user-attachments/assets/4448b9cc-e612-4b05-bea6-07efeb4f4b91" />
+
+</p>
+
 </details>
 
 ## Tech Stack
