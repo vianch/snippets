@@ -1,6 +1,9 @@
 import { isClient } from "./ui.utils";
 
-function uuidv4(): UUID {
+const escapeHtml = (snippet: string): string =>
+	snippet.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const uuidv4 = (): UUID => {
 	if (isClient() && window?.crypto?.randomUUID) {
 		return window.crypto.randomUUID() as UUID;
 	}
@@ -12,6 +15,8 @@ function uuidv4(): UUID {
 
 		return v.toString(16);
 	}) as UUID;
-}
+};
+
+export { escapeHtml };
 
 export default uuidv4;

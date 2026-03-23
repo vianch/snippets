@@ -16,26 +16,25 @@
 .infoBarContainer {
 	z-index: 2;
 	background: var(--current-line);
-	height: 0.938rem;
 	display: flex;
 	flex-flow: row nowrap;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
-	padding: 0.313rem 0.625rem;
+	padding: 0.25rem 0.625rem;
 	cursor: pointer;
 	border-radius: 0.3125rem;
-	width: 6rem;
+	width: auto;
 	color: var(--orange-color);
 }
 
 .selectWindow {
 	position: absolute;
-	top: 2rem;
+	top: calc(100% + 0.25rem);
 	background: var(--current-line);
 	border-radius: 0.3125rem;
 	z-index: 3;
-	width: 6rem;
-	padding: 0.5rem 0.625rem;
+	width: 100%;
+	padding: 0.25rem 0.625rem;
 	transition:
 		visibility 0s,
 		height 0.5s ease-in-out;

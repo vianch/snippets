@@ -1,0 +1,74 @@
+.modal {
+	width: fit-content;
+	max-width: 90vw;
+}
+
+.layout {
+	display: grid;
+	grid-template-columns: auto 220px;
+	gap: 1.5rem;
+	min-height: 420px;
+}
+
+.previewArea {
+	background: repeating-conic-gradient(
+			var(--current-line) 0%,
+			var(--current-line) 25%,
+			var(--bg-color-dark) 0%,
+			var(--bg-color-dark) 50%
+		)
+		0 0 / 20px 20px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 280px;
+	padding: 1.5rem;
+	overflow: auto;
+}
+
+.sidebar {
+	display: flex;
+	flex-direction: column;
+	border-left: 1px solid var(--border-color);
+	padding-left: 1.5rem;
+}
+
+.downloadButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-top: auto;
+	padding: 0.625rem 1rem;
+	width: 100%;
+}
+
+.downloadButtonWrapper {
+	margin-top: auto;
+	padding-top: 1rem;
+}
+
+/* Mobile */
+@media (width <= 768px) {
+	.modal {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.layout {
+		grid-template-columns: 1fr;
+		grid-template-rows: auto auto;
+	}
+
+	.sidebar {
+		border-left: none;
+		border-top: 1px solid var(--border-color);
+		padding-left: 0;
+		padding-top: 1.25rem;
+	}
+
+	.previewArea {
+		min-height: 260px;
+	}
+}

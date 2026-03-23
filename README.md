@@ -26,7 +26,6 @@
     <img width="2475" height="1917" alt="Screenshot 2026-03-20 at 14 05 39" src="https://github.com/user-attachments/assets/66b99fbc-f718-42ea-b7fb-0c2887a5fbec" />
 </p>
 
-
 ## Introduction
 
 **Snippets** is a web-based code snippet manager that lets you save, organize, tag, and retrieve pieces of code through an in-browser editor. Built for developers who want a fast, personal library for reusable code — without the overhead of a full note-taking app.
