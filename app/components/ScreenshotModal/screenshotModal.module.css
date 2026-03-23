@@ -39,8 +39,13 @@
 	justify-content: center;
 	gap: 0.5rem;
 	margin-top: auto;
-	padding-top: 1rem;
+	padding: 0.625rem 1rem;
 	width: 100%;
+}
+
+.downloadButtonWrapper {
+	margin-top: auto;
+	padding-top: 1rem;
 }
 
 /* Mobile */

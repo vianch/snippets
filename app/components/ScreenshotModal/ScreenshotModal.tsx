@@ -120,15 +120,17 @@ const ScreenshotModal = ({
 				<div className={styles.sidebar}>
 					<SnapshotControls options={options} onOptionsChange={setOptions} />
 
-					<Button
-						className={styles.downloadButton}
-						disabled={isCapturing || !highlightedCode}
-						variant="primary"
-						onClick={handleDownload}
-					>
-						<Camera height={16} width={16} />
-						{isCapturing ? "Capturing..." : "Download PNG"}
-					</Button>
+					<div className={styles.downloadButtonWrapper}>
+						<Button
+							className={styles.downloadButton}
+							disabled={isCapturing || !highlightedCode}
+							variant="primary"
+							onClick={handleDownload}
+						>
+							<Camera height={16} width={16} />
+							{isCapturing ? "Capturing..." : "Download PNG"}
+						</Button>
+					</div>
 				</div>
 			</div>
 		</Modal>
