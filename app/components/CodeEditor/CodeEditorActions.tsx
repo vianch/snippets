@@ -1,6 +1,7 @@
 import { ReactElement, useState } from "react";
 
 /* Components */
+import Camera from "@/components/ui/icons/Camera";
 import Clock from "@/components/ui/icons/Clock";
 import Copy from "@/components/ui/icons/Copy";
 import Globe from "@/components/ui/icons/Globe";
@@ -8,6 +9,7 @@ import Info from "@/components/ui/icons/Info";
 import Share from "@/components/ui/icons/Share";
 import Sparkle from "@/components/ui/icons/Sparkle";
 import AiDropdown from "@/components/CodeEditor/AiDropdown/AiDropdown";
+import ScreenshotModal from "@/components/ScreenshotModal/ScreenshotModal";
 
 /* Lib */
 import useToastStore from "@/lib/store/toast.store";
@@ -41,6 +43,7 @@ const CodeEditorActions = ({
 }: CodeEditorActionsProps): ReactElement => {
 	const { addToast } = useToastStore();
 	const [aiDropdownOpen, setAiDropdownOpen] = useState(false);
+	const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
 
 	const handleCopy = async (): Promise<void> => {
 		try {
@@ -93,67 +96,85 @@ const CodeEditorActions = ({
 	};
 
 	return (
-		<div className={styles.actionsContainer}>
-			<div className={styles.aiButtonWrapper}>
+		<>
+			<div className={styles.actionsContainer}>
+				<div className={styles.aiButtonWrapper}>
+					<button
+						className={`${styles.actionButton} ${aiDropdownOpen ? styles.actionButtonActive : ""}`}
+						onClick={handleAiClick}
+						type="button"
+					>
+						<Sparkle width={24} height={24} />
+						<span className={styles.tooltip}>AI</span>
+					</button>
+					<AiDropdown
+						isOpen={aiDropdownOpen}
+						onAction={handleAiAction}
+						onClose={() => setAiDropdownOpen(false)}
+					/>
+				</div>
+				{hasVersions && (
+					<button
+						className={`${styles.actionButton} ${showHistory ? styles.actionButtonActive : ""}`}
+						onClick={onToggleHistory}
+						type="button"
+					>
+						<Clock width={24} height={24} />
+						<span className={styles.tooltip}>History</span>
+					</button>
+				)}
 				<button
-					className={`${styles.actionButton} ${aiDropdownOpen ? styles.actionButtonActive : ""}`}
-					onClick={handleAiClick}
+					className={`${styles.actionButton} ${showDetails ? styles.actionButtonActive : ""}`}
+					onClick={onToggleDetails}
 					type="button"
 				>
-					<Sparkle width={24} height={24} />
-					<span className={styles.tooltip}>AI</span>
+					<Info width={24} height={24} />
+					<span className={styles.tooltip}>Details</span>
 				</button>
-				<AiDropdown
-					isOpen={aiDropdownOpen}
-					onAction={handleAiAction}
-					onClose={() => setAiDropdownOpen(false)}
-				/>
+				<button
+					className={styles.actionButton}
+					type="button"
+					onClick={() => setScreenshotModalOpen(true)}
+				>
+					<Camera width={24} height={24} />
+					<span className={styles.tooltip}>Screenshot</span>
+				</button>
+				<button
+					className={styles.actionButton}
+					onClick={handleCopy}
+					type="button"
+				>
+					<Copy width={24} height={24} />
+					<span className={styles.tooltip}>Copy code</span>
+				</button>
+				<button
+					className={styles.actionButton}
+					onClick={handleShare}
+					type="button"
+				>
+					<Share width={24} height={24} />
+					<span className={styles.tooltip}>Share</span>
+				</button>
+				<button
+					className={`${styles.actionButton} ${isPublic ? styles.actionButtonActive : ""}`}
+					onClick={onTogglePublic}
+					type="button"
+				>
+					<Globe width={24} height={24} />
+					<span className={styles.tooltip}>
+						{isPublic ? "Make private" : "Make public"}
+					</span>
+				</button>
 			</div>
-			{hasVersions && (
-				<button
-					className={`${styles.actionButton} ${showHistory ? styles.actionButtonActive : ""}`}
-					onClick={onToggleHistory}
-					type="button"
-				>
-					<Clock width={24} height={24} />
-					<span className={styles.tooltip}>History</span>
-				</button>
+
+			{screenshotModalOpen && (
+				<ScreenshotModal
+					isOpen={screenshotModalOpen}
+					snippet={currentSnippet}
+					onClose={() => setScreenshotModalOpen(false)}
+				/>
 			)}
-			<button
-				className={`${styles.actionButton} ${showDetails ? styles.actionButtonActive : ""}`}
-				onClick={onToggleDetails}
-				type="button"
-			>
-				<Info width={24} height={24} />
-				<span className={styles.tooltip}>Details</span>
-			</button>
-			<button
-				className={styles.actionButton}
-				onClick={handleCopy}
-				type="button"
-			>
-				<Copy width={24} height={24} />
-				<span className={styles.tooltip}>Copy code</span>
-			</button>
-			<button
-				className={styles.actionButton}
-				onClick={handleShare}
-				type="button"
-			>
-				<Share width={24} height={24} />
-				<span className={styles.tooltip}>Share</span>
-			</button>
-			<button
-				className={`${styles.actionButton} ${isPublic ? styles.actionButtonActive : ""}`}
-				onClick={onTogglePublic}
-				type="button"
-			>
-				<Globe width={24} height={24} />
-				<span className={styles.tooltip}>
-					{isPublic ? "Make private" : "Make public"}
-				</span>
-			</button>
-		</div>
+		</>
 	);
 };
 
