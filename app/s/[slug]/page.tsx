@@ -7,6 +7,9 @@ import CodeMirror from "@uiw/react-codemirror";
 import NavHeader from "@/components/NavHeader/NavHeader";
 import Footer from "@/components/Footer/Footer";
 import Badge from "@/components/ui/Badge/Badge";
+import Button from "@/components/ui/Button/Button";
+import Camera from "@/components/ui/icons/Camera";
+import ScreenshotModal from "@/components/ScreenshotModal/ScreenshotModal";
 
 /* Lib and Utils */
 import languageExtensions from "@/lib/codeEditor";
@@ -26,6 +29,7 @@ export default function PublicSnippetPage({ params }: PageProps): ReactElement {
 	const [snippet, setSnippet] = useState<Snippet | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
+	const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
 
 	useEffect(() => {
 		const fetchSnippet = async () => {
@@ -86,7 +90,19 @@ export default function PublicSnippetPage({ params }: PageProps): ReactElement {
 			<div className={styles.container}>
 				<div className={styles.header}>
 					<h1 className={styles.title}>{snippet.name}</h1>
-					<span className={styles.language}>{snippet.language}</span>
+
+					<div className={styles.headerActions}>
+						<span className={styles.language}>{snippet.language}</span>
+
+						<Button
+							className={styles.screenshotButton}
+							variant="secondary"
+							onClick={() => setScreenshotModalOpen(true)}
+						>
+							<Camera height={15} width={15} />
+							Screenshot
+						</Button>
+					</div>
 				</div>
 
 				{tagList.length > 0 && (
@@ -121,6 +137,13 @@ export default function PublicSnippetPage({ params }: PageProps): ReactElement {
 					</a>
 				)}
 			</div>
+
+			<ScreenshotModal
+				isOpen={screenshotModalOpen}
+				snippet={snippet}
+				onClose={() => setScreenshotModalOpen(false)}
+			/>
+
 			<Footer />
 		</main>
 	);
