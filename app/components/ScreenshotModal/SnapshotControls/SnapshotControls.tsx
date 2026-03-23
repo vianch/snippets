@@ -105,14 +105,11 @@ const SnapshotControls = ({
 
 			<div className={styles.section}>
 				<span className={styles.sectionLabel}>Font</span>
-
-				<div className={styles.fontSelect}>
-					<Select
-						items={fontLabels}
-						value={selectedFontLabel}
-						onSelect={handleFontChange}
-					/>
-				</div>
+				<Select
+					items={fontLabels}
+					value={selectedFontLabel}
+					onSelect={handleFontChange}
+				/>
 			</div>
 
 			<div className={styles.section}>

@@ -45,24 +45,6 @@
 	box-shadow: 0 0 0 1px var(--foreground-color);
 }
 
-/* Font select — full width, auto height to prevent two-line wrap clipping */
-.fontSelect :global(.selectContainer) {
-	width: 100%;
-}
-
-.fontSelect :global(.infoBarContainer) {
-	width: 100%;
-	height: auto;
-	min-height: 1.75rem;
-	padding: 0.375rem 0.625rem;
-	justify-content: space-between;
-	white-space: nowrap;
-}
-
-.fontSelect :global(.selectWindow) {
-	width: 100%;
-}
-
 /* Padding segmented buttons */
 .paddingGroup {
 	display: flex;
