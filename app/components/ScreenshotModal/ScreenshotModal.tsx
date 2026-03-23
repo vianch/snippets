@@ -23,6 +23,7 @@ import {
 	downloadImage,
 	loadFont,
 } from "@/utils/screenshot.utils";
+import { escapeHtml } from "@/utils/string.utilts";
 
 /* Styles */
 import styles from "./screenshotModal.module.css";
@@ -45,35 +46,6 @@ const ScreenshotModal = ({
 	const [highlightedCode, setHighlightedCode] = useState<string>("");
 	const [isCapturing, setIsCapturing] = useState<boolean>(false);
 
-	useEffect(() => {
-		if (!isOpen || !snippet.snippet) {
-			return;
-		}
-
-		let cancelled = false;
-
-		const escapedSnippet = snippet.snippet
-			.replace(/&/g, "&amp;")
-			.replace(/</g, "&lt;")
-			.replace(/>/g, "&gt;");
-
-		getHighlightedCode(snippet.snippet, snippet.language, options.theme)
-			.then((html) => {
-				if (!cancelled) {
-					setHighlightedCode(html);
-				}
-			})
-			.catch(() => {
-				if (!cancelled) {
-					setHighlightedCode(`<pre><code>${escapedSnippet}</code></pre>`);
-				}
-			});
-
-		return () => {
-			cancelled = true;
-		};
-	}, [isOpen, snippet.snippet, snippet.language, options.theme]);
-
 	const handleDownload = async (): Promise<void> => {
 		if (!cardRef.current || isCapturing) {
 			return;
@@ -95,6 +67,32 @@ const ScreenshotModal = ({
 			setIsCapturing(false);
 		}
 	};
+
+	useEffect(() => {
+		if (!isOpen || !snippet.snippet) {
+			return;
+		}
+
+		let cancelled = false;
+
+		getHighlightedCode(snippet.snippet, snippet.language, options.theme)
+			.then((html) => {
+				if (!cancelled) {
+					setHighlightedCode(html);
+				}
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setHighlightedCode(
+						`<pre><code>${escapeHtml(snippet.snippet)}</code></pre>`
+					);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [isOpen, snippet.snippet, snippet.language, options.theme]);
 
 	return (
 		<Modal

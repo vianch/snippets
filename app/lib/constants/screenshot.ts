@@ -1,4 +1,4 @@
-import { ThemeName, ThemeNames } from "@/lib/config/themes";
+import { themeList, ThemeName, ThemeNames } from "@/lib/config/themes";
 
 export type SnapshotOptions = {
 	background: string;
@@ -103,6 +103,21 @@ export const paddingPresets: Record<SnapshotPadding, string> = {
 	sm: "1.5rem",
 	xl: "5rem",
 };
+
+export const defaultCodeWindowBackground = "#282a36";
+
+export const paddingLabels: Record<SnapshotPadding, string> = {
+	lg: "L",
+	md: "M",
+	sm: "S",
+	xl: "XL",
+};
+
+export const paddingValues: SnapshotPadding[] = ["sm", "md", "lg", "xl"];
+
+export const themeLabels = themeList.map((theme) => theme.label);
+
+export const fontLabels = fontOptions.map((font) => font.label);
 
 export const defaultSnapshotOptions: SnapshotOptions = {
 	background: backgroundPresets[0].value,

@@ -7,8 +7,12 @@ import Select from "@/components/ui/Select/Select";
 import { themeList } from "@/lib/config/themes";
 import {
 	backgroundPresets,
+	fontLabels,
 	fontOptions,
+	paddingLabels,
+	paddingValues,
 	SnapshotOptions,
+	themeLabels,
 } from "@/lib/constants/screenshot";
 
 /* Styles */
@@ -19,25 +23,13 @@ type SnapshotControlsProps = {
 	options: SnapshotOptions;
 };
 
-const paddingLabels: Record<SnapshotPadding, string> = {
-	lg: "L",
-	md: "M",
-	sm: "S",
-	xl: "XL",
-};
-
-const paddingValues: SnapshotPadding[] = ["sm", "md", "lg", "xl"];
-
-const themeLabels = themeList.map((theme) => theme.label);
-const fontLabels = fontOptions.map((font) => font.label);
-
 const SnapshotControls = ({
 	onOptionsChange,
 	options,
 }: SnapshotControlsProps): ReactElement => {
 	const selectedThemeLabel =
 		themeList.find((theme) => theme.name === options.theme)?.label ??
-		themeList[0].label;
+		themeLabels[0];
 
 	const selectedFontLabel =
 		fontOptions.find((font) => font.value === options.fontFamily)?.label ??

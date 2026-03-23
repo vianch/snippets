@@ -2,7 +2,11 @@ import { ReactElement, RefObject } from "react";
 
 /* Lib */
 import { themeList } from "@/lib/config/themes";
-import { paddingPresets, SnapshotOptions } from "@/lib/constants/screenshot";
+import {
+	defaultCodeWindowBackground,
+	paddingPresets,
+	SnapshotOptions,
+} from "@/lib/constants/screenshot";
 
 /* Styles */
 import styles from "./snapshotCard.module.css";
@@ -21,7 +25,8 @@ const SnapshotCard = ({
 	snippetName,
 }: SnapshotCardProps): ReactElement => {
 	const themeConfig = themeList.find((theme) => theme.name === options.theme);
-	const codeWindowBackground = themeConfig?.previewColors.bg ?? "#282a36";
+	const codeWindowBackground =
+		themeConfig?.previewColors.bg ?? defaultCodeWindowBackground;
 
 	return (
 		<div
