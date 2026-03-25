@@ -55,6 +55,13 @@
 	color: var(--current-line);
 }
 
+.suffixIconContainer {
+	padding: 0 0.625rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+}
+
 .input::placeholder {
 	color: var(--gray-color);
 	opacity: 1; /* Firefox */

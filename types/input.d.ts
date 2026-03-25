@@ -9,6 +9,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	required?: boolean;
 	maxLength?: number;
 	Icon?: React.ReactElement | null;
+	SuffixIcon?: React.ReactElement | null;
 	cleanOnBlur?: boolean;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	onBlur?: (inputValue: string) => void;
