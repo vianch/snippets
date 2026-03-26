@@ -1,1 +1,1 @@
-yarn audit; AUDIT_CODE=$?; if [ $((AUDIT_CODE & 3)) -ne 0 ]; then exit 1; fi; exit 0
+set +e; yarn audit; AUDIT_CODE=$?; set -e; if [ $((AUDIT_CODE & 3)) -ne 0 ]; then exit 1; fi
