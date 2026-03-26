@@ -19,13 +19,17 @@ import Button from "@/components/ui/Button/Button";
 import Loading from "@/components/ui/icons/Loading";
 import Envelope from "@/components/ui/icons/Envelope";
 import Lock from "@/components/ui/icons/Lock";
+import EyeOpen from "@/components/ui/icons/EyeOpen";
+import EyeClosed from "@/components/ui/icons/EyeClosed";
+import Alert from "@/components/ui/Alert/Alert";
 
 /* Styles */
-import Alert from "@/components/ui/Alert/Alert";
 import styles from "./authform.module.css";
 
 const AuthForm = (): ReactElement => {
 	const [loading, setLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
+	const [submitted, setSubmitted] = useState(false);
 	const [formData, setFormData] = useState<{
 		email: string;
 		password: string;
@@ -43,6 +47,30 @@ const AuthForm = (): ReactElement => {
 		event: FormEvent<HTMLFormElement>
 	): Promise<void> => {
 		event?.preventDefault();
+		setSubmitted(true);
+
+		const isEmailValid = regexPatterns.email.test(formData.email);
+		const isPasswordValid = regexPatterns.password.test(formData.password);
+
+		if (!isEmailValid) {
+			setFormData({
+				...formData,
+				text: "Invalid email",
+				type: FormMessageTypes.Warning,
+			});
+
+			return;
+		}
+
+		if (!isPasswordValid) {
+			setFormData({
+				...formData,
+				text: "Invalid password",
+				type: FormMessageTypes.Warning,
+			});
+
+			return;
+		}
 
 		setLoading(true);
 		const { error } = await supabase.auth.signInWithPassword({
@@ -72,21 +100,18 @@ const AuthForm = (): ReactElement => {
 		fieldType: "email" | "password" = "email"
 	) => {
 		const value = event.target.value ?? "";
-		const isValid = regexPatterns[fieldType].test(value);
 
 		setFormData({
 			...formData,
 			[fieldType]: value,
-			...(isValid
-				? {
-						text: "",
-						type: FormMessageTypes.Unset,
-					}
-				: {
-						text: `Invalid ${fieldType}`,
-						type: FormMessageTypes.Warning,
-					}),
+			text: "",
+			type: FormMessageTypes.Unset,
 		});
+		setSubmitted(false);
+	};
+
+	const togglePasswordVisibility = () => {
+		setShowPassword((previous) => !previous);
 	};
 
 	useEffect(() => {
@@ -95,9 +120,15 @@ const AuthForm = (): ReactElement => {
 		};
 	}, []);
 
+	const passwordToggleIcon = showPassword ? (
+		<EyeOpen width={20} height={20} onClick={togglePasswordVisibility} />
+	) : (
+		<EyeClosed width={20} height={20} onClick={togglePasswordVisibility} />
+	);
+
 	return (
 		<form className={styles.form} onSubmit={handleLogin}>
-			{formData.type !== FormMessageTypes.Unset && (
+			{submitted && formData.type !== FormMessageTypes.Unset && (
 				<Alert severity={formData.type}>{formData.text}</Alert>
 			)}
 
@@ -117,9 +148,10 @@ const AuthForm = (): ReactElement => {
 				className="inputField"
 				fat
 				dark={false}
-				type="password"
+				type={showPassword ? "text" : "password"}
 				placeholder="Password"
 				Icon={<Lock width={24} height={24} />}
+				SuffixIcon={passwordToggleIcon}
 				value={formData.password}
 				required={true}
 				onChange={(event) => handleInputChange(event, "password")}

@@ -22,6 +22,7 @@ const Input = ({
 	required = false,
 	maxLength = 50,
 	Icon = null,
+	SuffixIcon = null,
 	value,
 	onChange,
 	onKeyDown,
@@ -88,6 +89,10 @@ const Input = ({
 				onChange={onChangeValue}
 				onKeyDown={handlerKeyDown}
 			/>
+
+			{SuffixIcon && (
+				<span className={styles.suffixIconContainer}>{SuffixIcon}</span>
+			)}
 		</div>
 	);
 };
