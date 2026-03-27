@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { aiSystemPrompts } from "@/lib/constants/ai";
 
+export const maxDuration = 60;
+
 const validActions: AiAction[] = [
 	"explain",
 	"comments",
@@ -24,7 +26,7 @@ const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
 const anthropicModel =
 	process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
 
-const ollamaTimeout = 60000;
+const ollamaTimeout = 3000;
 
 const requestOllama = async (
 	prompt: string,
