@@ -1,7 +1,8 @@
 .aiModal {
+	--modal-max-width: 700px;
+	--modal-max-height: 80vh;
+
 	width: 100%;
-	max-width: 700px;
-	max-height: 80vh;
 }
 
 .container {
