@@ -61,7 +61,6 @@ With Snippets you can:
   <img width="33%" alt="Screenshot 2026-03-20 at 14 02 10" src="https://github.com/user-attachments/assets/0bd45a96-cf82-478e-9f09-a69d091f17e2" />
 </p>
 
-
 <p align="center">
   <img width="33%" alt="Screenshot 2026-03-23 at 17 42 19" src="https://github.com/user-attachments/assets/45c6c695-b3dd-45f3-8377-db4046d56425" />
 <img width="33%" alt="Screenshot 2026-03-23 at 17 42 29" src="https://github.com/user-attachments/assets/7014d676-2f30-4028-8796-735e065f0f9e" />
