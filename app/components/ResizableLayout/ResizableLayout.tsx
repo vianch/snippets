@@ -2,6 +2,7 @@
 
 import { ReactElement, useRef, useCallback, useEffect, useState } from "react";
 import useViewPortStore from "@/lib/store/viewPort.store";
+import CaretDown from "@/components/ui/icons/CaretDown";
 import styles from "./resizableLayout.module.css";
 
 type ResizableLayoutProps = {
@@ -22,6 +23,23 @@ const ResizableLayout = ({
 	const [isDragging, setIsDragging] = useState<"aside" | "snippetList" | null>(
 		null
 	);
+	const [isAsideCollapsed, setIsAsideCollapsed] = useState<boolean>(() => {
+		if (typeof window === "undefined") return false;
+
+		return localStorage.getItem("aside-collapsed") === "true";
+	});
+	const [lastAsideWidth, setLastAsideWidth] = useState(250);
+
+	const toggleAside = (): void => {
+		if (isAsideCollapsed) {
+			setIsAsideCollapsed(false);
+			setAsideWidth(lastAsideWidth);
+		} else {
+			setLastAsideWidth(asideWidth);
+			setIsAsideCollapsed(true);
+			setAsideWidth(0);
+		}
+	};
 
 	const handleMouseDown = useCallback((resizer: "aside" | "snippetList") => {
 		setIsDragging(resizer);
@@ -37,7 +55,7 @@ const ResizableLayout = ({
 			const mouseX = e.clientX - containerRect.left;
 
 			if (isDragging === "aside") {
-				const newWidth = Math.max(200, Math.min(400, mouseX));
+				const newWidth = Math.max(0, Math.min(400, mouseX));
 
 				setAsideWidth(newWidth);
 			} else if (isDragging === "snippetList") {
@@ -50,10 +68,24 @@ const ResizableLayout = ({
 	);
 
 	const handleMouseUp = useCallback(() => {
+		if (isDragging === "aside") {
+			if (asideWidth < 50) {
+				setLastAsideWidth(lastAsideWidth > 50 ? lastAsideWidth : 250);
+				setIsAsideCollapsed(true);
+				setAsideWidth(0);
+			} else {
+				setLastAsideWidth(asideWidth);
+			}
+		}
+
 		setIsDragging(null);
 		document.body.style.cursor = "";
 		document.body.style.userSelect = "";
-	}, []);
+	}, [isDragging, asideWidth, lastAsideWidth]);
+
+	useEffect(() => {
+		localStorage.setItem("aside-collapsed", String(isAsideCollapsed));
+	}, [isAsideCollapsed]);
 
 	useEffect(() => {
 		if (isDragging) {
@@ -82,12 +114,31 @@ const ResizableLayout = ({
 
 	return (
 		<div ref={containerRef} className={styles.container}>
-			<div className={styles.panel} style={{ width: `${asideWidth}px` }}>
-				{aside}
+			<div
+				className={`${styles.asideWrapper} ${isDragging !== "aside" ? styles.asideWrapperAnimated : ""}`}
+				style={{ width: `${isAsideCollapsed ? 0 : asideWidth}px` }}
+			>
+				<div className={styles.asideContent}>{aside}</div>
+
+				<button
+					type="button"
+					title={isAsideCollapsed ? "Show sidebar" : "Hide sidebar"}
+					className={styles.asideToggleButton}
+					aria-label={isAsideCollapsed ? "Show sidebar" : "Hide sidebar"}
+					onClick={toggleAside}
+				>
+					<CaretDown
+						className={
+							isAsideCollapsed ? styles.caretExpand : styles.caretCollapse
+						}
+						width={12}
+						height={12}
+					/>
+				</button>
 			</div>
 
 			<div
-				className={styles.resizer}
+				className={`${styles.resizer} ${isAsideCollapsed ? styles.resizerHidden : ""}`}
 				onMouseDown={() => handleMouseDown("aside")}
 			/>
 
