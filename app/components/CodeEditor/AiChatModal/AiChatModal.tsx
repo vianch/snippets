@@ -15,7 +15,16 @@ import CloseSquare from "@/components/ui/icons/CloseSquare";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
 /* Lib */
-import { aiActionLabels, chipActions, codeActions } from "@/lib/constants/ai";
+import {
+	ChatStatus,
+	aiActionLabels,
+	aiActions,
+	chipActions,
+	codeActions,
+	maxStreamChunk,
+	minStreamChunk,
+	streamStepMs,
+} from "@/lib/constants/ai";
 import { ToastType } from "@/lib/constants/toast";
 import useToastStore from "@/lib/store/toast.store";
 import { getUserDataFromSession } from "@/lib/supabase/queries";
@@ -26,18 +35,12 @@ import { requestAiAction } from "@/utils/ai.utils";
 /* Styles */
 import styles from "./aiChatModal.module.css";
 
-type ChatStatus = "empty" | "processing" | "answered" | "stopped" | "error";
-
 type AiChatModalProps = {
 	isOpen: boolean;
 	currentSnippet: CurrentSnippet;
 	onClose: () => void;
 	onApplyCode: (code: string) => void;
 };
-
-const streamStepMs = 18;
-const minStreamChunk = 2;
-const maxStreamChunk = 5;
 
 const AiChatModal = ({
 	isOpen,
@@ -46,7 +49,7 @@ const AiChatModal = ({
 	onApplyCode,
 }: AiChatModalProps): ReactElement | null => {
 	const { addToast } = useToastStore();
-	const [status, setStatus] = useState<ChatStatus>("empty");
+	const [status, setStatus] = useState<ChatStatus>(ChatStatus.Empty);
 	const [userMessage, setUserMessage] = useState<string>("");
 	const [revealedAnswer, setRevealedAnswer] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
@@ -56,9 +59,9 @@ const AiChatModal = ({
 	const streamTimerRef = useRef<number | null>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-	const isProcessing = status === "processing";
+	const isProcessing = status === ChatStatus.Processing;
 	const showApplyButton =
-		status === "answered" &&
+		status === ChatStatus.Answered &&
 		lastAction !== null &&
 		codeActions.includes(lastAction) &&
 		revealedAnswer.length > 0;
@@ -78,7 +81,7 @@ const AiChatModal = ({
 			abortRef.current = null;
 		}
 
-		setStatus("empty");
+		setStatus(ChatStatus.Empty);
 		setUserMessage("");
 		setRevealedAnswer("");
 		setErrorMessage("");
@@ -150,7 +153,7 @@ const AiChatModal = ({
 			if (cursor >= fullText.length) {
 				clearStreamTimer();
 				setRevealedAnswer(fullText);
-				setStatus("answered");
+				setStatus(ChatStatus.Answered);
 
 				return;
 			}
@@ -192,7 +195,7 @@ const AiChatModal = ({
 		setRevealedAnswer("");
 		setErrorMessage("");
 		setLastAction(action);
-		setStatus("processing");
+		setStatus(ChatStatus.Processing);
 		setInputValue("");
 		requestAnimationFrame(autosizeTextarea);
 
@@ -229,7 +232,7 @@ const AiChatModal = ({
 					: "AI request failed";
 
 			setErrorMessage(message);
-			setStatus("error");
+			setStatus(ChatStatus.Error);
 		}
 	};
 
@@ -244,7 +247,7 @@ const AiChatModal = ({
 			return;
 		}
 
-		void runRequest("ask", trimmed, trimmed);
+		void runRequest(aiActions.ask, trimmed, trimmed);
 	};
 
 	const handleStop = (): void => {
@@ -254,7 +257,7 @@ const AiChatModal = ({
 		}
 
 		clearStreamTimer();
-		setStatus("stopped");
+		setStatus(ChatStatus.Stopped);
 	};
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
@@ -289,7 +292,7 @@ const AiChatModal = ({
 		return null;
 	}
 
-	const showEmptyState = status === "empty";
+	const showEmptyState = status === ChatStatus.Empty;
 	const isStreaming = isProcessing && revealedAnswer.length > 0;
 	const showThinking = isProcessing && revealedAnswer.length === 0;
 	const sendDisabled = inputValue.trim().length === 0 || isProcessing;
@@ -373,8 +376,8 @@ const AiChatModal = ({
 								)}
 
 								{(isStreaming ||
-									status === "answered" ||
-									status === "stopped") &&
+									status === ChatStatus.Answered ||
+									status === ChatStatus.Stopped) &&
 									revealedAnswer.length > 0 && (
 										<div className={styles.assistantBody}>
 											{revealedAnswer}
@@ -382,14 +385,14 @@ const AiChatModal = ({
 										</div>
 									)}
 
-								{status === "stopped" && (
+								{status === ChatStatus.Stopped && (
 									<div className={styles.stoppedNote}>
 										<span className={styles.stoppedDot} />
 										<span>Stopped</span>
 									</div>
 								)}
 
-								{status === "error" && errorMessage && (
+								{status === ChatStatus.Error && errorMessage && (
 									<p className={styles.errorMessage}>{errorMessage}</p>
 								)}
 

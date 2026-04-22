@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { aiSystemPrompts } from "@/lib/constants/ai";
+import { aiActions, aiSystemPrompts } from "@/lib/constants/ai";
 
 const validActions: AiAction[] = [
-	"explain",
-	"comments",
-	"format",
-	"optimize",
-	"json",
-	"ask",
+	aiActions.explain,
+	aiActions.comments,
+	aiActions.format,
+	aiActions.optimize,
+	aiActions.json,
+	aiActions.ask,
 ];
 
 const stripMarkdownCodeFences = (text: string): string => {
@@ -130,14 +130,15 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			return NextResponse.json({ error: "Code is required" }, { status: 400 });
 		}
 
-		if (action === "ask" && (!userPrompt || userPrompt.trim().length === 0)) {
+		const isAskAction = action === aiActions.ask;
+
+		if (isAskAction && (!userPrompt || userPrompt.trim().length === 0)) {
 			return NextResponse.json(
 				{ error: "userPrompt is required for the ask action" },
 				{ status: 400 }
 			);
 		}
 
-		const isAskAction = action === "ask";
 		const systemPrompt = isAskAction
 			? buildAskSystemPrompt(language || "unknown", code)
 			: aiSystemPrompts[action](language || "unknown");

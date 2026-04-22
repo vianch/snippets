@@ -47,3 +47,15 @@ export const codeActions: AiAction[] = [
 ];
 
 export const localActions: AiAction[] = ["json"];
+
+export const enum ChatStatus {
+	Empty = "empty",
+	Processing = "processing",
+	Answered = "answered",
+	Stopped = "stopped",
+	Error = "error",
+}
+
+export const streamStepMs = 18;
+export const minStreamChunk = 2;
+export const maxStreamChunk = 5;
