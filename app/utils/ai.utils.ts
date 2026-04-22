@@ -23,15 +23,23 @@ export const fetchOllamaModels = async (
 	}
 };
 
+type RequestAiActionOptions = {
+	apiKey?: string;
+	ollamaModel?: string;
+	ollamaUrl?: string;
+	ollamaApiKey?: string;
+	userPrompt?: string;
+	signal?: AbortSignal;
+};
+
 export const requestAiAction = async (
 	action: AiAction,
 	code: string,
 	language: string,
-	apiKey?: string,
-	ollamaModel?: string,
-	ollamaUrl?: string,
-	ollamaApiKey?: string
+	options: RequestAiActionOptions = {}
 ): Promise<AiResponse> => {
+	const { apiKey, ollamaModel, ollamaUrl, ollamaApiKey, userPrompt, signal } =
+		options;
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 	};
@@ -55,7 +63,8 @@ export const requestAiAction = async (
 	const response = await fetch("/api/ai", {
 		method: "POST",
 		headers,
-		body: JSON.stringify({ action, code, language }),
+		body: JSON.stringify({ action, code, language, userPrompt }),
+		signal,
 	});
 
 	if (!response.ok) {

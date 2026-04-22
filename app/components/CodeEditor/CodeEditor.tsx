@@ -13,7 +13,6 @@ import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
 
 /* Hooks */
 import useCurrentSnippet from "@/components/CodeEditor/hooks/useCurrentSnippet";
-import useAiActions from "@/components/CodeEditor/hooks/useAiActions";
 import useKeyboardSave from "@/components/CodeEditor/hooks/useKeyboardSave";
 import usePreviewResize from "@/components/CodeEditor/hooks/usePreviewResize";
 
@@ -21,7 +20,6 @@ import usePreviewResize from "@/components/CodeEditor/hooks/usePreviewResize";
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
-import AiResultModal from "@/components/CodeEditor/AiResultModal/AiResultModal";
 import SnippetDetails from "@/components/CodeEditor/SnippetDetails/SnippetDetails";
 import History from "@/components/History/History";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
@@ -99,17 +97,6 @@ const CodeEditor = ({
 		onTouched,
 	});
 
-	const {
-		aiModalOpen,
-		aiLoading,
-		aiResult,
-		aiError,
-		aiAction,
-		handleAiAction,
-		handleAiApply,
-		handleAiDiscard,
-	} = useAiActions({ currentSnippet, updateCurrentSnippetValue });
-
 	useKeyboardSave(saveHandler, isTrashActive);
 
 	const { editorWidthPercent, handlePreviewMouseDown } =
@@ -159,7 +146,7 @@ const CodeEditor = ({
 								onToggleHistory={() => setShowHistory(!showHistory)}
 								showHistory={showHistory}
 								hasVersions={versionCount > 0}
-								onAiAction={handleAiAction}
+								onApplyAiCode={updateCurrentSnippetValue}
 							/>
 
 							{isMobile && (
@@ -173,7 +160,7 @@ const CodeEditor = ({
 										onToggleHistory={() => setShowHistory(!showHistory)}
 										showHistory={showHistory}
 										hasVersions={versionCount > 0}
-										onAiAction={handleAiAction}
+										onApplyAiCode={updateCurrentSnippetValue}
 									/>
 								</div>
 							)}
@@ -284,17 +271,6 @@ const CodeEditor = ({
 							onChange={updateCurrentSnippetValue}
 						/>
 					)}
-
-					<AiResultModal
-						isOpen={aiModalOpen}
-						isLoading={aiLoading}
-						action={aiAction}
-						result={aiResult}
-						error={aiError}
-						language={currentSnippet.language}
-						onApply={handleAiApply}
-						onDiscard={handleAiDiscard}
-					/>
 				</>
 			) : (
 				<EmptyState
