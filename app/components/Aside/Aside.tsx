@@ -10,6 +10,8 @@ import { defaultAvatar } from "@/lib/constants/account";
 /* Components */
 import AsideItem from "@/components/AsideItem/AsideItem";
 import SignOut from "@/components/ui/icons/SignOut";
+import Settings from "@/components/ui/icons/Settings";
+import DotsThree from "@/components/ui/icons/DotsThree";
 import Skeleton from "@/components/ui/Skeleton/Skeleton";
 import SkeletonAsideTags from "@/components/ui/Skeleton/SkeletonAsideTags";
 
@@ -78,8 +80,11 @@ const Aside = ({
 	const router = useRouter();
 
 	const asideRef = useRef<HTMLDivElement | null>(null);
+	const userSectionRef = useRef<HTMLDivElement | null>(null);
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
-	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(true);
+	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(false);
+	const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
+	const [isMac, setIsMac] = useState<boolean>(true);
 
 	// User store
 	const mainMenuOpen = useMenuStore((state) => state.mainMenuOpen);
@@ -92,6 +97,7 @@ const Aside = ({
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const userName = useUserStore((state) => state.userName);
 	const userAvatar = useUserStore((state) => state.userAvatar);
+	const email = useUserStore((state) => state.email);
 	const setUserData = useUserStore((state) => state.setUserData);
 	const setLoading = useUserStore((state) => state.setLoading);
 	const setTheme = useUserStore((state) => state.setTheme);
@@ -111,7 +117,6 @@ const Aside = ({
 	};
 
 	const openSnippetListMobile = (): void => {
-		// If on mobile, open the snippet list and close the main menu after selecting a category
 		if (isMobile) {
 			closeMainMenu();
 			openSnippetList();
@@ -171,6 +176,16 @@ const Aside = ({
 		setIsTagsExpanded(!isTagsExpanded);
 	};
 
+	const handleSettingsClick = (): void => {
+		setIsUserMenuOpen(false);
+		onAccountClick();
+	};
+
+	const handleSignOut = async (): Promise<void> => {
+		setIsUserMenuOpen(false);
+		await signOut();
+	};
+
 	useEffect(() => {
 		setLoading(true);
 		getUserDataFromSession().then((session) => {
@@ -206,6 +221,45 @@ const Aside = ({
 		});
 	}, [setUserData, setLoading, setTheme]);
 
+	useEffect(() => {
+		setIsMac(window.navigator.userAgent.includes("Mac"));
+	}, []);
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent): void => {
+			if (event.key === "Escape") {
+				setIsUserMenuOpen(false);
+			}
+
+			if ((event.metaKey || event.ctrlKey) && event.key === ",") {
+				event.preventDefault();
+				setIsUserMenuOpen(false);
+				onAccountClick();
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [onAccountClick]);
+
+	useEffect(() => {
+		if (!isUserMenuOpen) return;
+
+		const handleClickOutside = (event: Event): void => {
+			if (
+				userSectionRef.current &&
+				!userSectionRef.current.contains(event.target as Node)
+			) {
+				setIsUserMenuOpen(false);
+			}
+		};
+
+		document.addEventListener("click", handleClickOutside);
+
+		return () => document.removeEventListener("click", handleClickOutside);
+	}, [isUserMenuOpen]);
+
 	useCloseOutsideCodeEditor(asideRef);
 
 	return (
@@ -215,141 +269,200 @@ const Aside = ({
 				ref={asideRef}
 				className={`${styles.container} ${mainMenuOpen ? styles.containerOpen : styles.containerClosed}`}
 			>
-				<section className={styles.section}>
-					{isLoading ? (
-						<div
-							className={`${styles.settingsItems} ${styles.mail} ${styles.userProfile}`}
+				<div className={styles.scrollableContent}>
+					<section className={styles.section}>
+						<a
+							className={`${styles.linkItem} green-color ${(menuType === MenuItems.All || menuType === MenuItems.None || !menuType || menuType?.length === 0) && styles.linkItemActive}`}
+							onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+								clickMenuHandler(event, "all")
+							}
 						>
+							<Book className={styles.icon} width={18} height={18} />
+							All Snippets
+							<span className={styles.numberOfItems}>({allCount})</span>
+						</a>
+
+						<a
+							className={`${styles.linkItem} cyan-color ${menuType === MenuItems.Uncategorized && styles.linkItemActive}`}
+							onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+								clickMenuHandler(event, "uncategorized")
+							}
+						>
+							<Tray className={styles.icon} width={18} height={18} />
+							Uncategorized
+							<span className={styles.numberOfItems}>
+								({uncategorizedCount})
+							</span>
+						</a>
+
+						{publicCount > 0 && (
+							<a
+								className={`${styles.linkItem} blue-color ${menuType === MenuItems.Public && styles.linkItemActive}`}
+								onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+									clickMenuHandler(event, "public")
+								}
+							>
+								<Globe className={styles.icon} width={18} height={18} />
+								Public
+								<span className={styles.numberOfItems}>({publicCount})</span>
+							</a>
+						)}
+
+						<a
+							className={`${styles.linkItem} yellow-color ${menuType === MenuItems.Favorites && styles.linkItemActive}`}
+							onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+								clickMenuHandler(event, "favorites")
+							}
+						>
+							<Star className={styles.icon} width={18} height={18} />
+							Favorites
+							<span className={styles.numberOfItems}>({favoritesCount})</span>
+						</a>
+
+						<a
+							className={`${styles.linkItem} red-color ${menuType === MenuItems.Trash && styles.linkItemActive}`}
+							onClick={(event: MouseEvent<HTMLAnchorElement>) =>
+								clickMenuHandler(event, "trash")
+							}
+						>
+							<Trash className={styles.icon} height={18} width={18} />
+							Trash
+						</a>
+					</section>
+
+					{isLoading ? (
+						<section className={styles.section}>
+							<h2 className={`${styles.title} purple-color`}>
+								<Bookmark className={styles.icon} width={18} height={18} />
+								Tags
+							</h2>
+							<SkeletonAsideTags />
+						</section>
+					) : (
+						tags?.length > 0 && (
+							<section
+								className={`${styles.section} ${isTagsExpanded && tags.length > 12 ? styles.tagsSection : ""}`}
+							>
+								<h2
+									className={`${styles.title} purple-color ${styles.titleClickable}`}
+									onClick={toggleTagsExpansion}
+								>
+									<Bookmark className={styles.icon} width={18} height={18} />
+									Tags
+									<CaretDown
+										className={`${styles.caretIcon} ${isTagsExpanded ? styles.caretExpanded : styles.caretCollapsed}`}
+										width={12}
+										height={12}
+									/>
+								</h2>
+
+								{isTagsExpanded && (
+									<div
+										className={
+											tags.length > 12 ? styles.tagsListScrollable : undefined
+										}
+									>
+										<AsideItem
+											active={menuType}
+											items={tags}
+											onItemClicked={handlerTagClick}
+										/>
+									</div>
+								)}
+							</section>
+						)
+					)}
+				</div>
+
+				<div className={styles.userSection} ref={userSectionRef}>
+					<div
+						className={`${styles.userMenu} ${isUserMenuOpen ? styles.userMenuOpen : ""}`}
+						role="menu"
+						aria-label="Account"
+					>
+						<div className={styles.userMenuHeader}>
+							<div className={styles.userMenuName}>{userName}</div>
+							{email && <div className={styles.userMenuEmail}>{email}</div>}
+						</div>
+
+						<div className={styles.userMenuSep} />
+
+						<button
+							className={styles.userMenuItem}
+							role="menuitem"
+							onClick={handleSettingsClick}
+						>
+							<Settings className={styles.userMenuIco} width={16} height={16} />
+							<span className={styles.userMenuLabel}>Settings</span>
+							<span className={styles.userMenuShortcut}>
+								{isMac ? "⌘" : "Ctrl"} ,
+							</span>
+						</button>
+
+						<button
+							className={`${styles.userMenuItem} ${styles.userMenuItemDanger}`}
+							role="menuitem"
+							onClick={handleSignOut}
+						>
+							{isLoginOut ? (
+								<Loading
+									className={styles.userMenuIco}
+									width={16}
+									height={16}
+								/>
+							) : (
+								<SignOut
+									className={styles.userMenuIco}
+									width={16}
+									height={16}
+								/>
+							)}
+							<span className={styles.userMenuLabel}>Log out</span>
+						</button>
+					</div>
+
+					{isLoading ? (
+						<div className={styles.userCardSkeleton}>
 							<Skeleton
-								className={styles.icon}
+								className={styles.userCardAvatarSkeleton}
 								width="2rem"
 								height="2rem"
-								borderRadius="50%"
+								borderRadius="0.5rem"
 							/>
-							<Skeleton width="6rem" height="0.75rem" />
+							<div className={styles.userCardSkeletonMeta}>
+								<Skeleton width="6rem" height="0.625rem" />
+								<Skeleton width="4rem" height="0.5rem" />
+							</div>
 						</div>
 					) : (
 						<button
 							type="button"
-							className={`${styles.settingsItems} ${styles.mail} ${!userName && styles.mailLoading} ${styles.userProfile}`}
-							onClick={onAccountClick}
+							className={`${styles.userCard} ${isUserMenuOpen ? styles.userCardOpen : ""}`}
+							aria-haspopup="menu"
+							aria-expanded={isUserMenuOpen}
+							onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
 						>
 							{userName && (
 								<img
-									alt="user mask"
-									className={styles.icon}
+									alt="user avatar"
+									className={styles.userCardAvatar}
 									src={userAvatar}
 									height="32"
+									width="32"
 								/>
 							)}
-							{userName}
+							<div className={styles.userMeta}>
+								<div className={styles.userCardName}>{userName}</div>
+								{email && <div className={styles.userCardEmail}>{email}</div>}
+							</div>
+							<DotsThree
+								className={styles.userChevron}
+								width={16}
+								height={16}
+							/>
 						</button>
 					)}
-				</section>
-
-				<section className={styles.section}>
-					<a
-						className={`${styles.linkItem} green-color ${(menuType === MenuItems.All || menuType === MenuItems.None || !menuType || menuType?.length === 0) && styles.linkItemActive}`}
-						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
-							clickMenuHandler(event, "all")
-						}
-					>
-						<Book className={styles.icon} width={18} height={18} />
-						All Snippets
-						<span className={styles.numberOfItems}>({allCount})</span>
-					</a>
-
-					<a
-						className={`${styles.linkItem} cyan-color ${menuType === MenuItems.Uncategorized && styles.linkItemActive}`}
-						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
-							clickMenuHandler(event, "uncategorized")
-						}
-					>
-						<Tray className={styles.icon} width={18} height={18} />
-						Uncategorized
-						<span className={styles.numberOfItems}>({uncategorizedCount})</span>
-					</a>
-
-					{publicCount > 0 && (
-						<a
-							className={`${styles.linkItem} blue-color ${menuType === MenuItems.Public && styles.linkItemActive}`}
-							onClick={(event: MouseEvent<HTMLAnchorElement>) =>
-								clickMenuHandler(event, "public")
-							}
-						>
-							<Globe className={styles.icon} width={18} height={18} />
-							Public
-							<span className={styles.numberOfItems}>({publicCount})</span>
-						</a>
-					)}
-
-					<a
-						className={`${styles.linkItem} yellow-color ${menuType === MenuItems.Favorites && styles.linkItemActive}`}
-						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
-							clickMenuHandler(event, "favorites")
-						}
-					>
-						<Star className={styles.icon} width={18} height={18} />
-						Favorites
-						<span className={styles.numberOfItems}>({favoritesCount})</span>
-					</a>
-
-					<a
-						className={`${styles.linkItem} red-color ${menuType === MenuItems.Trash && styles.linkItemActive}`}
-						onClick={(event: MouseEvent<HTMLAnchorElement>) =>
-							clickMenuHandler(event, "trash")
-						}
-					>
-						<Trash className={styles.icon} height={18} width={18} />
-						Trash
-					</a>
-				</section>
-
-				{isLoading ? (
-					<section className={styles.section}>
-						<h2 className={`${styles.title} purple-color`}>
-							<Bookmark className={styles.icon} width={18} height={18} />
-							Tags
-						</h2>
-						<SkeletonAsideTags />
-					</section>
-				) : (
-					tags?.length > 0 && (
-						<section className={styles.section}>
-							<h2
-								className={`${styles.title} purple-color ${styles.titleClickable}`}
-								onClick={toggleTagsExpansion}
-							>
-								<Bookmark className={styles.icon} width={18} height={18} />
-								Tags
-								<CaretDown
-									className={`${styles.caretIcon} ${isTagsExpanded ? styles.caretExpanded : styles.caretCollapsed}`}
-									width={12}
-									height={12}
-								/>
-							</h2>
-
-							{isTagsExpanded && (
-								<AsideItem
-									active={menuType}
-									items={tags}
-									onItemClicked={handlerTagClick}
-								/>
-							)}
-						</section>
-					)
-				)}
-
-				<section className={styles.section}>
-					<a className={styles.settingsItems} onClick={signOut}>
-						{isLoginOut ? (
-							<Loading className={styles.signOutIcon} width={24} height={24} />
-						) : (
-							<SignOut className={styles.signOutIcon} width={24} height={24} />
-						)}
-						Log out
-					</a>
-				</section>
+				</div>
 			</aside>
 
 			<aside className={styles.mobileMenuContainer}>

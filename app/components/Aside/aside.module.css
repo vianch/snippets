@@ -4,25 +4,35 @@
 	border-right: 1px solid var(--border-color);
 	height: 100vh;
 	position: relative;
-	overflow: hidden auto;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
-.container::-webkit-scrollbar {
+/* Scrollable nav area */
+.scrollableContent {
+	flex: 1;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.scrollableContent::-webkit-scrollbar {
 	width: 10px;
 }
 
 /* Track */
-.container::-webkit-scrollbar-track {
+.scrollableContent::-webkit-scrollbar-track {
 	background: var(--bg-color);
 }
 
 /* Handle */
-.container::-webkit-scrollbar-thumb {
+.scrollableContent::-webkit-scrollbar-thumb {
 	background: var(--current-line);
 }
 
 /* Handle on hover */
-.container::-webkit-scrollbar-thumb:hover {
+.scrollableContent::-webkit-scrollbar-thumb:hover {
 	background: var(--current-line);
 }
 
@@ -89,45 +99,221 @@
 	align-items: center;
 }
 
-.mail {
-	font-size: var(--small-font-size);
-}
-
-.userProfile {
-	text-decoration: none;
-	transition: background-color 0.2s ease;
-	border-radius: 4px;
-	border: none;
-	background: transparent;
-	width: 100%;
-	text-align: left;
-	font-family: inherit;
-	font-size: inherit;
-	color: inherit;
-}
-
-.userProfile:hover {
-	background-color: var(--current-line);
-}
-
-.mailLoading {
-	background: var(--current-line);
-	animation: fade-in-out 2s infinite;
-	height: 2rem;
-}
-
-.settingsItems:hover {
-	color: var(--foreground-color);
-}
-
 .icon {
 	margin-right: 0.625rem;
 }
 
-.signOutIcon {
-	margin-right: 0.313rem;
+/* Tags section — expands to fill remaining aside height when list is long */
+.tagsSection {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
 }
 
+/* Tags scrollable list (when > 12 tags) */
+.tagsListScrollable {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.tagsListScrollable::-webkit-scrollbar {
+	width: 6px;
+}
+
+.tagsListScrollable::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.tagsListScrollable::-webkit-scrollbar-thumb {
+	background: var(--current-line);
+	border-radius: 3px;
+}
+
+/* ── User section (bottom) ──────────────────────────────── */
+.userSection {
+	position: relative;
+	padding: 0.75rem;
+	border-top: 1px solid var(--border-color);
+	flex-shrink: 0;
+}
+
+/* User card trigger */
+.userCard {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	border: 1px solid transparent;
+	border-radius: 0.625rem;
+	background: transparent;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+	color: inherit;
+	transition:
+		background 0.12s ease,
+		border-color 0.12s ease;
+}
+
+.userCard:hover {
+	background: var(--current-line);
+}
+
+.userCardOpen {
+	background: var(--current-line);
+	border-color: var(--border-color);
+}
+
+.userCardAvatar {
+	width: 2rem;
+	height: 2rem;
+	border-radius: 0.5rem;
+	flex-shrink: 0;
+	object-fit: cover;
+}
+
+.userMeta {
+	flex: 1;
+	min-width: 0;
+}
+
+.userCardName {
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: var(--foreground-color);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.userCardEmail {
+	font-size: 0.6875rem;
+	color: var(--gray-color);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.userChevron {
+	color: var(--gray-color);
+	flex-shrink: 0;
+}
+
+/* User card loading skeleton */
+.userCardSkeleton {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	padding: 0.625rem 0.75rem;
+}
+
+.userCardAvatarSkeleton {
+	flex-shrink: 0;
+}
+
+.userCardSkeletonMeta {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+}
+
+/* User menu popup (opens above the card) */
+.userMenu {
+	position: absolute;
+	left: 0.75rem;
+	right: 0.75rem;
+	bottom: calc(100% + 0.25rem);
+	background: var(--bg-color-dark);
+	border: 1px solid var(--border-color);
+	border-radius: 0.75rem;
+	padding: 0.375rem;
+	z-index: 20;
+	box-shadow:
+		0 18px 48px rgb(0 0 0 / 25%),
+		0 2px 8px rgb(0 0 0 / 12%);
+	opacity: 0;
+	transform: translateY(8px);
+	pointer-events: none;
+	transition:
+		opacity 0.14s ease,
+		transform 0.16s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.userMenuOpen {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.userMenuHeader {
+	padding: 0.625rem 0.75rem 0.5rem;
+}
+
+.userMenuName {
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: var(--foreground-color);
+}
+
+.userMenuEmail {
+	font-size: 0.75rem;
+	color: var(--gray-color);
+	margin-top: 0.0625rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.userMenuSep {
+	height: 1px;
+	background: var(--border-color);
+	margin: 0.25rem 0;
+}
+
+.userMenuItem {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding: 0.5rem 0.75rem;
+	width: 100%;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	font-size: 0.875rem;
+	color: var(--foreground-color);
+	font-family: inherit;
+	text-align: left;
+	border-radius: 0.5rem;
+	transition: background 0.1s ease;
+}
+
+.userMenuItem:hover {
+	background: var(--current-line);
+}
+
+.userMenuItemDanger {
+	color: var(--red-color, #c8372d);
+}
+
+.userMenuIco {
+	flex-shrink: 0;
+}
+
+.userMenuLabel {
+	flex: 1;
+	text-align: left;
+}
+
+.userMenuShortcut {
+	font-size: 0.75rem;
+	color: var(--gray-color);
+}
+
+/* ── Mobile ─────────────────────────────────────────────── */
 .mobileMenuContainer {
 	display: none;
 	justify-content: center;
@@ -185,7 +371,7 @@
 }
 
 @media (width < 420px) {
-	.mail {
+	.userCardEmail {
 		font-size: 0.6rem;
 	}
 }
