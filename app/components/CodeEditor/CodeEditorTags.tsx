@@ -25,7 +25,7 @@ type CodeEditorTagsProps = {
 	onToggleHistory: () => void;
 	showHistory: boolean;
 	hasVersions: boolean;
-	onAiAction?: (action: AiAction) => void;
+	onApplyAiCode?: (code: string) => void;
 };
 
 const CodeEditorTags = ({
@@ -41,7 +41,7 @@ const CodeEditorTags = ({
 	onToggleHistory,
 	showHistory,
 	hasVersions,
-	onAiAction,
+	onApplyAiCode,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
 	const getTagForSnippet = (snippetTag: Tags): string[] =>
@@ -107,7 +107,7 @@ const CodeEditorTags = ({
 					onToggleHistory={onToggleHistory}
 					showHistory={showHistory}
 					hasVersions={hasVersions}
-					onAiAction={onAiAction}
+					onApplyAiCode={onApplyAiCode}
 				/>
 			</div>
 		</section>

@@ -8,7 +8,7 @@ import Globe from "@/components/ui/icons/Globe";
 import Info from "@/components/ui/icons/Info";
 import Share from "@/components/ui/icons/Share";
 import Sparkle from "@/components/ui/icons/Sparkle";
-import AiDropdown from "@/components/CodeEditor/AiDropdown/AiDropdown";
+import AiChatModal from "@/components/CodeEditor/AiChatModal/AiChatModal";
 import ScreenshotModal from "@/components/ScreenshotModal/ScreenshotModal";
 
 /* Lib */
@@ -27,7 +27,7 @@ type CodeEditorActionsProps = {
 	onToggleHistory?: () => void;
 	showHistory?: boolean;
 	hasVersions?: boolean;
-	onAiAction?: (action: AiAction) => void;
+	onApplyAiCode?: (code: string) => void;
 };
 
 const CodeEditorActions = ({
@@ -39,10 +39,10 @@ const CodeEditorActions = ({
 	onToggleHistory,
 	showHistory = false,
 	hasVersions = false,
-	onAiAction,
+	onApplyAiCode,
 }: CodeEditorActionsProps): ReactElement => {
 	const { addToast } = useToastStore();
-	const [aiDropdownOpen, setAiDropdownOpen] = useState(false);
+	const [aiChatOpen, setAiChatOpen] = useState(false);
 	const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
 
 	const handleCopy = async (): Promise<void> => {
@@ -87,12 +87,11 @@ const CodeEditorActions = ({
 			return;
 		}
 
-		setAiDropdownOpen(!aiDropdownOpen);
+		setAiChatOpen(true);
 	};
 
-	const handleAiAction = (action: AiAction): void => {
-		setAiDropdownOpen(false);
-		onAiAction?.(action);
+	const handleApplyAiCode = (code: string): void => {
+		onApplyAiCode?.(code);
 	};
 
 	return (
@@ -100,18 +99,13 @@ const CodeEditorActions = ({
 			<div className={styles.actionsContainer}>
 				<div className={styles.aiButtonWrapper}>
 					<button
-						className={`${styles.actionButton} ${aiDropdownOpen ? styles.actionButtonActive : ""}`}
+						className={`${styles.actionButton} ${aiChatOpen ? styles.actionButtonActive : ""}`}
 						onClick={handleAiClick}
 						type="button"
 					>
 						<Sparkle width={24} height={24} />
 						<span className={styles.tooltip}>AI</span>
 					</button>
-					<AiDropdown
-						isOpen={aiDropdownOpen}
-						onAction={handleAiAction}
-						onClose={() => setAiDropdownOpen(false)}
-					/>
 				</div>
 				<button
 					className={styles.actionButton}
@@ -166,6 +160,13 @@ const CodeEditorActions = ({
 					</span>
 				</button>
 			</div>
+
+			<AiChatModal
+				isOpen={aiChatOpen}
+				currentSnippet={currentSnippet}
+				onClose={() => setAiChatOpen(false)}
+				onApplyCode={handleApplyAiCode}
+			/>
 
 			{screenshotModalOpen && (
 				<ScreenshotModal

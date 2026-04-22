@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { aiSystemPrompts } from "@/lib/constants/ai";
+import { aiActions, aiSystemPrompts } from "@/lib/constants/ai";
 
 const validActions: AiAction[] = [
-	"explain",
-	"comments",
-	"format",
-	"optimize",
-	"json",
+	aiActions.explain,
+	aiActions.comments,
+	aiActions.format,
+	aiActions.optimize,
+	aiActions.json,
+	aiActions.ask,
 ];
 
 const stripMarkdownCodeFences = (text: string): string => {
@@ -31,7 +32,8 @@ const requestOllama = async (
 	systemPrompt: string,
 	model: string,
 	baseUrl: string,
-	apiKey?: string
+	apiKey: string | undefined,
+	stripFences: boolean
 ): Promise<string> => {
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), ollamaTimeout);
@@ -62,14 +64,16 @@ const requestOllama = async (
 	}
 
 	const data = await response.json();
+	const responseText = data.response as string;
 
-	return stripMarkdownCodeFences(data.response);
+	return stripFences ? stripMarkdownCodeFences(responseText) : responseText;
 };
 
 const requestClaude = async (
 	prompt: string,
 	systemPrompt: string,
-	apiKey: string
+	apiKey: string,
+	stripFences: boolean
 ): Promise<string> => {
 	const response = await fetch("https://api.anthropic.com/v1/messages", {
 		method: "POST",
@@ -96,20 +100,27 @@ const requestClaude = async (
 	const textBlock = data.content?.find(
 		(block: { type: string }) => block.type === "text"
 	);
+	const responseText = textBlock?.text || "";
 
-	return stripMarkdownCodeFences(textBlock?.text || "");
+	return stripFences ? stripMarkdownCodeFences(responseText) : responseText;
+};
+
+const buildAskSystemPrompt = (language: string, code: string): string => {
+	const base = aiSystemPrompts.ask(language || "unknown");
+
+	return `${base}\n\nHere is the ${language || "code"} snippet:\n\`\`\`${language || ""}\n${code}\n\`\`\``;
 };
 
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	try {
 		const body = (await request.json()) as AiRequest;
-		const { action, code, language } = body;
+		const { action, code, language, userPrompt } = body;
 
 		if (!action || !validActions.includes(action)) {
 			return NextResponse.json(
 				{
 					error:
-						"Invalid action. Must be one of: explain, comments, format, optimize",
+						"Invalid action. Must be one of: explain, comments, format, optimize, json, ask",
 				},
 				{ status: 400 }
 			);
@@ -119,8 +130,20 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			return NextResponse.json({ error: "Code is required" }, { status: 400 });
 		}
 
-		const systemPrompt = aiSystemPrompts[action](language || "unknown");
-		const prompt = code;
+		const isAskAction = action === aiActions.ask;
+
+		if (isAskAction && (!userPrompt || userPrompt.trim().length === 0)) {
+			return NextResponse.json(
+				{ error: "userPrompt is required for the ask action" },
+				{ status: 400 }
+			);
+		}
+
+		const systemPrompt = isAskAction
+			? buildAskSystemPrompt(language || "unknown", code)
+			: aiSystemPrompts[action](language || "unknown");
+		const prompt = isAskAction ? (userPrompt as string) : code;
+		const stripFences = !isAskAction;
 		const ollamaModel =
 			request.headers.get("x-ollama-model") ||
 			process.env.OLLAMA_MODEL ||
@@ -138,7 +161,8 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				systemPrompt,
 				ollamaModel,
 				ollamaUrl,
-				ollamaApiKey
+				ollamaApiKey,
+				stripFences
 			);
 
 			return NextResponse.json({ result, provider: "ollama" });
@@ -154,7 +178,8 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 					systemPrompt,
 					ollamaModel,
 					ollamaCloudUrl,
-					ollamaApiKey
+					ollamaApiKey,
+					stripFences
 				);
 
 				return NextResponse.json({ result, provider: "ollama-cloud" });
@@ -179,7 +204,12 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			);
 		}
 
-		const result = await requestClaude(prompt, systemPrompt, apiKey);
+		const result = await requestClaude(
+			prompt,
+			systemPrompt,
+			apiKey,
+			stripFences
+		);
 
 		return NextResponse.json({ result, provider: "claude" });
 	} catch (error) {

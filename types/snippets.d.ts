@@ -73,12 +73,19 @@ declare global {
 		onRestoreSnippet: DeleteRestoreFunction;
 	};
 
-	type AiAction = "explain" | "comments" | "format" | "optimize" | "json";
+	type AiAction =
+		| "explain"
+		| "comments"
+		| "format"
+		| "optimize"
+		| "json"
+		| "ask";
 
 	type AiRequest = {
 		action: AiAction;
 		code: string;
 		language: string;
+		userPrompt?: string;
 	};
 
 	type AiResponse = {
