@@ -11,7 +11,7 @@
 
 .modal {
 	background: var(--bg-color-dark);
-	border-radius: 8px;
+	border-radius: var(--border-radius-lg);
 	box-shadow: 0 10px 25px rgb(0 0 0 / 50%);
 	max-width: var(--modal-max-width, 90vw);
 	max-height: var(--modal-max-height, 90vh);
@@ -54,7 +54,7 @@
 	border: none;
 	cursor: pointer;
 	padding: 0.5rem;
-	border-radius: 4px;
+	border-radius: var(--border-radius-md);
 	display: flex;
 	align-items: center;
 	justify-content: center;
