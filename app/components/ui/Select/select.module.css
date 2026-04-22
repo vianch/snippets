@@ -31,7 +31,7 @@
 	position: absolute;
 	top: calc(100% + 0.25rem);
 	background: var(--current-line);
-	border-radius: 0.75rem;
+	border-radius: var(--border-radius-lg);
 	z-index: 3;
 	width: 100%;
 	padding: 0.25rem 0.625rem;
