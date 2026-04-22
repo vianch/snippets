@@ -55,6 +55,7 @@ const AiChatModal = ({
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [lastAction, setLastAction] = useState<AiAction | null>(null);
 	const [inputValue, setInputValue] = useState<string>("");
+	const [selectedModel, setSelectedModel] = useState<string>("");
 	const abortRef = useRef<AbortController | null>(null);
 	const streamTimerRef = useRef<number | null>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -127,7 +128,15 @@ const AiChatModal = ({
 	useEffect(() => {
 		if (!isOpen) {
 			resetConversation();
+
+			return;
 		}
+
+		getUserDataFromSession().then((session) => {
+			const model = session?.user?.user_metadata?.ollama_model;
+
+			setSelectedModel(model ?? "");
+		});
 	}, [isOpen]);
 
 	const autosizeTextarea = (): void => {
@@ -363,7 +372,7 @@ const AiChatModal = ({
 									<span className={styles.assistantHeaderIcon}>
 										<Sparkle width={14} height={14} />
 									</span>
-									<span>AI</span>
+									<span>{selectedModel || "AI"}</span>
 								</div>
 
 								{showThinking && (
