@@ -1,49 +1,29 @@
-.overlay {
+.drawer {
 	position: fixed;
-	inset: 0;
-	background-color: rgb(0 0 0 / 75%);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 1000;
-	padding: 1rem;
-	animation: overlay-fade-in 0.18s ease-out;
-}
-
-@keyframes overlay-fade-in {
-	from {
-		opacity: 0;
-	}
-
-	to {
-		opacity: 1;
-	}
-}
-
-.modal {
-	width: min(640px, calc(100vw - 2rem));
-	max-height: min(640px, calc(100vh - 5rem));
+	top: 0.75rem;
+	right: 0.75rem;
+	bottom: 0.75rem;
+	width: min(440px, calc(100vw - 1.5rem));
 	display: flex;
 	flex-direction: column;
 	background: var(--bg-color-dark);
 	border: 1px solid var(--border-color);
 	border-radius: 0.75rem;
-	box-shadow:
-		0 1.875rem 5rem -1.25rem rgb(0 0 0 / 70%),
-		0 0.625rem 1.875rem -0.625rem rgb(0 0 0 / 50%);
+	box-shadow: -20px 0 60px -15px rgb(0 0 0 / 50%);
 	overflow: hidden;
-	animation: modal-pop-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+	z-index: 1000;
+	animation: drawer-slide-in 280ms cubic-bezier(0.22, 0.9, 0.3, 1);
 }
 
-@keyframes modal-pop-in {
+@keyframes drawer-slide-in {
 	from {
+		transform: translateX(1.25rem);
 		opacity: 0;
-		transform: translateY(0.5rem) scale(0.98);
 	}
 
 	to {
+		transform: translateX(0);
 		opacity: 1;
-		transform: translateY(0) scale(1);
 	}
 }
 
@@ -54,6 +34,7 @@
 	padding: 0.875rem 1rem;
 	border-bottom: 1px solid var(--border-color);
 	background: var(--bg-color);
+	flex-shrink: 0;
 }
 
 .title {
@@ -76,7 +57,7 @@
 	color: var(--gray-color);
 	font-size: 0.75rem;
 	font-weight: 400;
-	max-width: 18rem;
+	max-width: 14rem;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -99,7 +80,7 @@
 	color: var(--gray-color);
 }
 
-.closeButton {
+.iconButton {
 	width: 1.75rem;
 	height: 1.75rem;
 	display: grid;
@@ -110,11 +91,11 @@
 	background: transparent;
 	cursor: pointer;
 	transition:
-		background 0.15s ease,
-		color 0.15s ease;
+		background 0.12s ease,
+		color 0.12s ease;
 }
 
-.closeButton:hover {
+.iconButton:hover {
 	background: var(--bg-color-dark);
 	color: var(--foreground-color);
 }
@@ -397,6 +378,7 @@
 	padding: 0.625rem;
 	border-top: 1px solid var(--border-color);
 	background: var(--bg-color);
+	flex-shrink: 0;
 }
 
 .inputWrap {
@@ -533,14 +515,11 @@
 }
 
 @media (width <= 768px) {
-	.overlay {
-		padding: 0;
-	}
-
-	.modal {
+	.drawer {
+		top: 0;
+		right: 0;
+		bottom: 0;
 		width: 100vw;
-		height: 100vh;
-		max-height: 100vh;
 		border-radius: 0;
 	}
 
