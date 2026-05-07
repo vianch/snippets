@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { openAiExcludedPrefixes } from "@/lib/constants/ai";
+
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
 const ollamaCloudUrl = "https://ollama.com";
+const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
 
-const fetchModels = async (
+const fetchOllamaModels = async (
 	baseUrl: string,
 	apiKey?: string
 ): Promise<string[]> => {
@@ -24,27 +27,112 @@ const fetchModels = async (
 	return (data.models || []).map((model: { name: string }) => model.name);
 };
 
+const fetchClaudeModels = async (apiKey: string): Promise<string[]> => {
+	const response = await fetch("https://api.anthropic.com/v1/models", {
+		headers: {
+			"x-api-key": apiKey,
+			"anthropic-version": anthropicVersion,
+		},
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to fetch Claude models");
+	}
+
+	const data = await response.json();
+
+	return (data.data || []).map((model: { id: string }) => model.id);
+};
+
+const fetchOpenAIModels = async (apiKey: string): Promise<string[]> => {
+	const response = await fetch("https://api.openai.com/v1/models", {
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+		},
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+
+		const rawMessage: string =
+			errorData?.error?.message || `OpenAI API error ${response.status}`;
+		const trimmed = rawMessage
+			.replace(/:\s+sk-\S+/, "")
+			.split(". ")[0]
+			.trim();
+
+		throw new Error(trimmed);
+	}
+
+	const data = await response.json();
+
+	return (data.data || [])
+		.map((model: { id: string }) => model.id)
+		.filter(
+			(id: string) =>
+				!openAiExcludedPrefixes.some((prefix) => id.startsWith(prefix))
+		)
+		.sort();
+};
+
 export const GET = async (request: NextRequest): Promise<NextResponse> => {
+	const provider = request.nextUrl.searchParams.get("provider") || "ollama";
+	const headerApiKey = request.headers.get("x-api-key") || "";
+
+	if (provider === "claude") {
+		const apiKey = headerApiKey || process.env.ANTHROPIC_API_KEY || "";
+
+		if (!apiKey) {
+			return NextResponse.json({ models: [] });
+		}
+
+		try {
+			const models = await fetchClaudeModels(apiKey);
+
+			return NextResponse.json({ models });
+		} catch (fetchError) {
+			const message =
+				fetchError instanceof Error ? fetchError.message : "Unknown error";
+
+			return NextResponse.json({ models: [], error: message });
+		}
+	}
+
+	if (provider === "openai") {
+		const apiKey = headerApiKey || process.env.OPENAI_API_KEY || "";
+
+		if (!apiKey) {
+			return NextResponse.json({ models: [] });
+		}
+
+		try {
+			const models = await fetchOpenAIModels(apiKey);
+
+			return NextResponse.json({ models });
+		} catch (fetchError) {
+			const message =
+				fetchError instanceof Error ? fetchError.message : "Unknown error";
+
+			return NextResponse.json({ models: [], error: message });
+		}
+	}
+
+	// Default: Ollama
 	const ollamaUrl =
 		request.nextUrl.searchParams.get("ollama_url") || defaultOllamaUrl;
-	const ollamaApiKey =
-		request.nextUrl.searchParams.get("ollama_api_key") ||
-		process.env.OLLAMA_API_KEY ||
-		"";
+	const ollamaApiKey = headerApiKey || process.env.OLLAMA_API_KEY || "";
 
-	// Try custom URL first
 	try {
-		const models = await fetchModels(ollamaUrl, ollamaApiKey);
+		const models = await fetchOllamaModels(ollamaUrl, ollamaApiKey);
 
 		return NextResponse.json({ models });
 	} catch (_error) {
 		// Custom URL failed
 	}
 
-	// Try Ollama Cloud as fallback
 	if (ollamaApiKey && ollamaUrl !== ollamaCloudUrl) {
 		try {
-			const models = await fetchModels(ollamaCloudUrl, ollamaApiKey);
+			const models = await fetchOllamaModels(ollamaCloudUrl, ollamaApiKey);
 
 			return NextResponse.json({ models });
 		} catch (_error) {

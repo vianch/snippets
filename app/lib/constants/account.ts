@@ -29,12 +29,18 @@ export const accountInitialStateData: InitialAccountStateData = {
 	confirmPassword: "",
 	avatar: defaultAvatar,
 	theme: ThemeNames.Dracula,
+	aiProvider: "ollama",
 	aiApiKey: "",
-	ollamaModel: "",
-	ollamaUrl: "",
-	ollamaApiKey: "",
+	aiModel: "",
+	aiUrl: "",
 	autoSave: false,
 };
+
+export const aiProviders: { value: AiProvider; label: string }[] = [
+	{ value: "ollama", label: "Ollama" },
+	{ value: "claude", label: "Claude (Anthropic)" },
+	{ value: "openai", label: "OpenAI" },
+];
 
 export const demoAccountData = {
 	email: "demo@vianch.com",

@@ -1,33 +1,61 @@
+type FetchAiModelsOptions = {
+	apiKey?: string;
+	ollamaUrl?: string;
+	ollamaApiKey?: string;
+};
+
+type FetchAiModelsResult = {
+	models: string[];
+	error?: string;
+};
+
+export const fetchAiModels = async (
+	provider: AiProvider,
+	options: FetchAiModelsOptions = {}
+): Promise<FetchAiModelsResult> => {
+	try {
+		const params = new URLSearchParams({ provider });
+		const headers: Record<string, string> = {};
+
+		if (provider === "claude" || provider === "openai") {
+			if (options.apiKey) {
+				headers["x-api-key"] = options.apiKey;
+			}
+		} else {
+			if (options.ollamaUrl) {
+				params.set("ollama_url", options.ollamaUrl);
+			}
+
+			if (options.ollamaApiKey) {
+				headers["x-api-key"] = options.ollamaApiKey;
+			}
+		}
+
+		const response = await fetch(`/api/ai/models?${params.toString()}`, {
+			headers,
+		});
+		const data = await response.json();
+
+		return { models: data.models || [], error: data.error };
+	} catch (_error) {
+		return { models: [] };
+	}
+};
+
 export const fetchOllamaModels = async (
 	ollamaUrl?: string,
 	ollamaApiKey?: string
 ): Promise<string[]> => {
-	try {
-		const params = new URLSearchParams();
+	const result = await fetchAiModels("ollama", { ollamaUrl, ollamaApiKey });
 
-		if (ollamaUrl) {
-			params.set("ollama_url", ollamaUrl);
-		}
-
-		if (ollamaApiKey) {
-			params.set("ollama_api_key", ollamaApiKey);
-		}
-
-		const query = params.toString() ? `?${params.toString()}` : "";
-		const response = await fetch(`/api/ai/models${query}`);
-		const data = await response.json();
-
-		return data.models || [];
-	} catch (_error) {
-		return [];
-	}
+	return result.models;
 };
 
 type RequestAiActionOptions = {
-	apiKey?: string;
-	ollamaModel?: string;
-	ollamaUrl?: string;
-	ollamaApiKey?: string;
+	aiProvider?: AiProvider;
+	aiApiKey?: string;
+	aiModel?: string;
+	aiUrl?: string;
 	userPrompt?: string;
 	signal?: AbortSignal;
 };
@@ -38,26 +66,25 @@ export const requestAiAction = async (
 	language: string,
 	options: RequestAiActionOptions = {}
 ): Promise<AiResponse> => {
-	const { apiKey, ollamaModel, ollamaUrl, ollamaApiKey, userPrompt, signal } =
-		options;
+	const { aiProvider, aiApiKey, aiModel, aiUrl, userPrompt, signal } = options;
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 	};
 
-	if (apiKey) {
-		headers["x-ai-api-key"] = apiKey;
+	if (aiProvider) {
+		headers["x-ai-provider"] = aiProvider;
 	}
 
-	if (ollamaModel) {
-		headers["x-ollama-model"] = ollamaModel;
+	if (aiApiKey) {
+		headers["x-ai-api-key"] = aiApiKey;
 	}
 
-	if (ollamaUrl) {
-		headers["x-ollama-url"] = ollamaUrl;
+	if (aiModel) {
+		headers["x-ai-model"] = aiModel;
 	}
 
-	if (ollamaApiKey) {
-		headers["x-ollama-api-key"] = ollamaApiKey;
+	if (aiUrl) {
+		headers["x-ai-url"] = aiUrl;
 	}
 
 	const response = await fetch("/api/ai", {

@@ -73,6 +73,8 @@ declare global {
 		onRestoreSnippet: DeleteRestoreFunction;
 	};
 
+	type AiProvider = "ollama" | "claude" | "openai";
+
 	type AiAction =
 		| "explain"
 		| "comments"
@@ -90,6 +92,6 @@ declare global {
 
 	type AiResponse = {
 		result: string;
-		provider: "ollama" | "claude";
+		provider: AiProvider;
 	};
 }

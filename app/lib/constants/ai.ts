@@ -59,3 +59,18 @@ export const enum ChatStatus {
 export const streamStepMs = 18;
 export const minStreamChunk = 2;
 export const maxStreamChunk = 5;
+
+export const openAiExcludedPrefixes = [
+	"text-embedding",
+	"text-moderation",
+	"text-search",
+	"text-similarity",
+	"whisper",
+	"tts",
+	"dall-e",
+	"babbage",
+	"davinci",
+	"ada",
+	"curie",
+	"ft:gpt",
+];

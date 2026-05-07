@@ -24,8 +24,9 @@ const stripMarkdownCodeFences = (text: string): string => {
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
 const ollamaCloudUrl = "https://ollama.com";
 const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
-const anthropicModel =
+const defaultAnthropicModel =
 	process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
+const defaultOpenAIModel = process.env.OPENAI_MODEL || "gpt-4o";
 
 const ollamaTimeout = 55000;
 
@@ -75,7 +76,8 @@ const requestClaude = async (
 	prompt: string,
 	systemPrompt: string,
 	apiKey: string,
-	stripFences: boolean
+	stripFences: boolean,
+	model: string = defaultAnthropicModel
 ): Promise<string> => {
 	const response = await fetch("https://api.anthropic.com/v1/messages", {
 		method: "POST",
@@ -85,7 +87,7 @@ const requestClaude = async (
 			"anthropic-version": anthropicVersion,
 		},
 		body: JSON.stringify({
-			model: anthropicModel,
+			model,
 			max_tokens: 4096,
 			system: systemPrompt,
 			messages: [{ role: "user", content: prompt }],
@@ -103,6 +105,41 @@ const requestClaude = async (
 		(block: { type: string }) => block.type === "text"
 	);
 	const responseText = textBlock?.text || "";
+
+	return stripFences ? stripMarkdownCodeFences(responseText) : responseText;
+};
+
+const requestOpenAI = async (
+	prompt: string,
+	systemPrompt: string,
+	apiKey: string,
+	stripFences: boolean,
+	model: string = defaultOpenAIModel
+): Promise<string> => {
+	const response = await fetch("https://api.openai.com/v1/chat/completions", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${apiKey}`,
+		},
+		body: JSON.stringify({
+			model,
+			max_tokens: 4096,
+			messages: [
+				{ role: "system", content: systemPrompt },
+				{ role: "user", content: prompt },
+			],
+		}),
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+
+		throw new Error(errorData?.error?.message || "OpenAI API request failed");
+	}
+
+	const data = await response.json();
+	const responseText = data.choices?.[0]?.message?.content || "";
 
 	return stripFences ? stripMarkdownCodeFences(responseText) : responseText;
 };
@@ -146,15 +183,65 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			: aiSystemPrompts[action](language || "unknown");
 		const prompt = isAskAction ? (userPrompt as string) : code;
 		const stripFences = !isAskAction;
-		const ollamaModel =
-			request.headers.get("x-ollama-model") ||
-			process.env.OLLAMA_MODEL ||
-			"codellama";
-		const ollamaUrl = request.headers.get("x-ollama-url") || defaultOllamaUrl;
-		const ollamaApiKey =
-			request.headers.get("x-ollama-api-key") ||
-			process.env.OLLAMA_API_KEY ||
-			undefined;
+		const aiProvider = request.headers.get("x-ai-provider") || "ollama";
+		const aiApiKey = request.headers.get("x-ai-api-key") || "";
+		const aiModel = request.headers.get("x-ai-model") || "";
+		const aiUrl = request.headers.get("x-ai-url") || "";
+
+		// OpenAI provider
+		if (aiProvider === "openai") {
+			const openaiApiKey = aiApiKey || process.env.OPENAI_API_KEY || "";
+
+			if (!openaiApiKey) {
+				return NextResponse.json(
+					{
+						error:
+							"OpenAI API key not configured. Add your API key in Account Settings > AI tab.",
+					},
+					{ status: 503 }
+				);
+			}
+
+			const result = await requestOpenAI(
+				prompt,
+				systemPrompt,
+				openaiApiKey,
+				stripFences,
+				aiModel || defaultOpenAIModel
+			);
+
+			return NextResponse.json({ result, provider: "openai" });
+		}
+
+		// Claude provider (explicit)
+		if (aiProvider === "claude") {
+			const claudeApiKey = aiApiKey || process.env.ANTHROPIC_API_KEY || "";
+
+			if (!claudeApiKey) {
+				return NextResponse.json(
+					{
+						error:
+							"Claude API key not configured. Add your API key in Account Settings > AI tab.",
+					},
+					{ status: 503 }
+				);
+			}
+
+			const result = await requestClaude(
+				prompt,
+				systemPrompt,
+				claudeApiKey,
+				stripFences,
+				aiModel || defaultAnthropicModel
+			);
+
+			return NextResponse.json({ result, provider: "claude" });
+		}
+
+		// Ollama provider (default) with Claude fallback
+		const ollamaModel = aiModel || process.env.OLLAMA_MODEL || "codellama";
+		const ollamaUrl = aiUrl || defaultOllamaUrl;
+		const ollamaApiKey = aiApiKey || process.env.OLLAMA_API_KEY || undefined;
 
 		// 1. Try custom Ollama URL (tunnel or local)
 		try {
@@ -191,12 +278,9 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		}
 
 		// 3. Fallback to Claude API
-		const apiKey =
-			request.headers.get("x-ai-api-key") ||
-			process.env.ANTHROPIC_API_KEY ||
-			"";
+		const fallbackApiKey = aiApiKey || process.env.ANTHROPIC_API_KEY || "";
 
-		if (!apiKey) {
+		if (!fallbackApiKey) {
 			return NextResponse.json(
 				{
 					error:
@@ -209,7 +293,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		const result = await requestClaude(
 			prompt,
 			systemPrompt,
-			apiKey,
+			fallbackApiKey,
 			stripFences
 		);
 

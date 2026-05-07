@@ -6,10 +6,10 @@ interface InitialAccountStateData {
 	confirmPassword?: string;
 	avatar?: string;
 	theme?: string;
+	aiProvider?: AiProvider;
 	aiApiKey?: string;
-	ollamaModel?: string;
-	ollamaUrl?: string;
-	ollamaApiKey?: string;
+	aiModel?: string;
+	aiUrl?: string;
 	autoSave?: boolean;
 }
 interface User {
@@ -19,10 +19,10 @@ interface User {
 		username?: string;
 		avatar?: string;
 		theme?: string;
+		ai_provider?: AiProvider;
 		ai_api_key?: string;
-		ollama_model?: string;
-		ollama_url?: string;
-		ollama_api_key?: string;
+		ai_model?: string;
+		ai_url?: string;
 		auto_save?: boolean;
 	};
 	aud: string;
