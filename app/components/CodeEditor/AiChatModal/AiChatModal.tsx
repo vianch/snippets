@@ -138,7 +138,7 @@ const AiChatModal = ({
 		}
 
 		getUserDataFromSession().then((session) => {
-			const model = session?.user?.user_metadata?.ollama_model;
+			const model = session?.user?.user_metadata?.ai_model;
 
 			setSelectedModel(model ?? "");
 		});
@@ -239,10 +239,10 @@ const AiChatModal = ({
 				currentSnippet.snippet,
 				currentSnippet.language,
 				{
-					apiKey: metadata?.ai_api_key,
-					ollamaModel: metadata?.ollama_model,
-					ollamaUrl: metadata?.ollama_url,
-					ollamaApiKey: metadata?.ollama_api_key,
+					aiProvider: metadata?.ai_provider,
+					aiApiKey: metadata?.ai_api_key,
+					aiModel: metadata?.ai_model,
+					aiUrl: metadata?.ai_url,
 					userPrompt,
 					signal: controller.signal,
 				}

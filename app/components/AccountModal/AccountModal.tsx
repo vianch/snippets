@@ -20,6 +20,7 @@ import { themeCookieName } from "@/lib/constants/cookies";
 import {
 	avatarImages,
 	accountInitialStateData,
+	aiProviders,
 	modalCloseDelay,
 } from "@/lib/constants/account";
 import { FormMessageTypes } from "@/lib/constants/form";
@@ -37,7 +38,7 @@ import useUserStore from "@/lib/store/user.store";
 
 /* Utils */
 import { isUserEmailDemo } from "@/utils/account.utils";
-import { fetchOllamaModels } from "@/utils/ai.utils";
+import { fetchAiModels } from "@/utils/ai.utils";
 
 /* Icons */
 import Envelope from "@/components/ui/icons/Envelope";
@@ -71,8 +72,9 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	const [originalTheme, setOriginalTheme] = useState<string | undefined>(
 		accountInitialStateData.theme
 	);
-	const [ollamaModels, setOllamaModels] = useState<string[]>([]);
-	const [originalOllamaUrl, setOriginalOllamaUrl] = useState<string>("");
+	const [aiModels, setAiModels] = useState<string[]>([]);
+	const [originalAiUrl, setOriginalAiUrl] = useState<string>("");
+	const [modelsLoading, setModelsLoading] = useState(false);
 
 	const handleInputChange = (
 		event: ChangeEvent<HTMLInputElement>,
@@ -112,6 +114,37 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		}
 	}, [userData.theme]);
 
+	const refreshModels = async (provider?: AiProvider): Promise<void> => {
+		const activeProvider = provider ?? userData.aiProvider ?? "ollama";
+
+		setModelsLoading(true);
+		resetMessages();
+
+		const { models, error } = await fetchAiModels(activeProvider, {
+			apiKey: activeProvider !== "ollama" ? userData.aiApiKey : undefined,
+			ollamaUrl: activeProvider === "ollama" ? userData.aiUrl : undefined,
+			ollamaApiKey: activeProvider === "ollama" ? userData.aiApiKey : undefined,
+		});
+
+		if (error) {
+			setMessage({ text: error, type: FormMessageTypes.Error });
+		}
+
+		setAiModels(models);
+		setModelsLoading(false);
+	};
+
+	const handleProviderChange = async (provider: AiProvider): Promise<void> => {
+		setUserData((prev) => ({ ...prev, aiProvider: provider, aiModel: "" }));
+		setAiModels([]);
+
+		const hasCredentials = provider === "ollama" || !!userData.aiApiKey;
+
+		if (hasCredentials) {
+			await refreshModels(provider);
+		}
+	};
+
 	const checkForUserDataChanges = () => {
 		const hasUserNameChanged = userData.username !== currentUserName;
 		const hasUserAvatarChanged = userData.avatar !== currentUserAvatar;
@@ -120,7 +153,6 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	};
 
 	const updatePassword = async (): Promise<Error | null> => {
-		// Update password if provided
 		if (userData.newPassword) {
 			if (userData.newPassword !== userData.confirmPassword) {
 				setMessage({
@@ -163,10 +195,10 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			avatar: userData.avatar,
 			theme: userData.theme,
 			auto_save: userData.autoSave ?? false,
+			ai_provider: userData.aiProvider ?? "ollama",
 			ai_api_key: userData.aiApiKey ?? "",
-			ollama_model: userData.ollamaModel ?? "",
-			ollama_url: userData.ollamaUrl ?? "",
-			ollama_api_key: userData.ollamaApiKey ?? "",
+			ai_model: userData.aiModel ?? "",
+			ai_url: userData.aiUrl ?? "",
 		};
 
 		const { error: updateError } = await updateUser({
@@ -183,12 +215,10 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	};
 
 	const updateUserStore = (): void => {
-		// Only update the store if username, avatar, or theme has actually changed
 		const { hasUserNameChanged, hasUserAvatarChanged } =
 			checkForUserDataChanges();
 		const hasThemeChanged = userData.theme !== originalTheme;
 
-		// Always sync autoSave to the store
 		useUserStore.getState().setAutoSave(userData.autoSave ?? false);
 
 		if (hasUserNameChanged || hasUserAvatarChanged || hasThemeChanged) {
@@ -206,7 +236,6 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	};
 
 	const resetStateData = (): void => {
-		// Clear password fields
 		setUserData((prev) => ({
 			...prev,
 			currentPassword: "",
@@ -228,9 +257,9 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 
 		try {
 			const updatePasswordError = await updatePassword();
-			const updateAvatarError = await updateUserMetadata();
+			const updateMetadataError = await updateUserMetadata();
 
-			if (!updatePasswordError && !updateAvatarError) {
+			if (!updatePasswordError && !updateMetadataError) {
 				setMessage({
 					text: "Profile updated successfully!",
 					type: FormMessageTypes.Success,
@@ -238,13 +267,14 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 
 				updateUserStore();
 
-				// Refresh models if Ollama URL changed
-				if (userData.ollamaUrl !== originalOllamaUrl) {
-					await refreshModels();
-					setOriginalOllamaUrl(userData.ollamaUrl ?? "");
+				if (
+					userData.aiProvider === "ollama" &&
+					userData.aiUrl !== originalAiUrl
+				) {
+					await refreshModels("ollama");
+					setOriginalAiUrl(userData.aiUrl ?? "");
 				}
 
-				// Close modal after successful update
 				setTimeout(() => {
 					onClose();
 				}, modalCloseDelay);
@@ -273,15 +303,6 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		onClose();
 	};
 
-	const refreshModels = async (): Promise<void> => {
-		const models = await fetchOllamaModels(
-			userData.ollamaUrl,
-			userData.ollamaApiKey
-		);
-
-		setOllamaModels(models);
-	};
-
 	// Load user data when modal opens
 	useEffect(() => {
 		const loadUserData = async () => {
@@ -304,7 +325,6 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					}));
 				}
 
-				// Get user metadata
 				const dataFromSession = await getUserDataFromSession();
 				const userMetadata = dataFromSession?.user?.user_metadata;
 
@@ -331,6 +351,13 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					}));
 				}
 
+				if (userMetadata?.ai_provider) {
+					setUserData((prev) => ({
+						...prev,
+						aiProvider: userMetadata.ai_provider,
+					}));
+				}
+
 				if (userMetadata?.ai_api_key) {
 					setUserData((prev) => ({
 						...prev,
@@ -338,37 +365,34 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					}));
 				}
 
-				if (userMetadata?.ollama_model) {
+				if (userMetadata?.ai_model) {
 					setUserData((prev) => ({
 						...prev,
-						ollamaModel: userMetadata.ollama_model,
+						aiModel: userMetadata.ai_model,
 					}));
 				}
 
-				if (userMetadata?.ollama_url) {
+				if (userMetadata?.ai_url) {
 					setUserData((prev) => ({
 						...prev,
-						ollamaUrl: userMetadata.ollama_url,
+						aiUrl: userMetadata.ai_url,
 					}));
-					setOriginalOllamaUrl(userMetadata.ollama_url);
+					setOriginalAiUrl(userMetadata.ai_url);
 				}
 
-				if (userMetadata?.ollama_api_key) {
-					setUserData((prev) => ({
-						...prev,
-						ollamaApiKey: userMetadata.ollama_api_key,
-					}));
-				}
+				const activeProvider: AiProvider =
+					userMetadata?.ai_provider ?? "ollama";
+				const { models } = await fetchAiModels(activeProvider, {
+					apiKey:
+						activeProvider !== "ollama" ? userMetadata?.ai_api_key : undefined,
+					ollamaUrl:
+						activeProvider === "ollama" ? userMetadata?.ai_url : undefined,
+					ollamaApiKey:
+						activeProvider === "ollama" ? userMetadata?.ai_api_key : undefined,
+				});
 
-				// Fetch available Ollama models
-				const models = await fetchOllamaModels(
-					userMetadata?.ollama_url,
-					userMetadata?.ollama_api_key
-				);
-
-				setOllamaModels(models);
+				setAiModels(models);
 			} catch (_catchError) {
-				// Handle error silently or use a proper error handling mechanism
 				setMessage({
 					text: "Error loading user data",
 					type: FormMessageTypes.Error,
@@ -378,6 +402,54 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 
 		loadUserData();
 	}, [isOpen]);
+
+	const modelDropdown = (): ReactElement => {
+		if (modelsLoading) {
+			return (
+				<div className={styles.modelLoadGroup}>
+					<Loading width={16} height={16} />
+					<small className={styles.helpText}>Loading models...</small>
+				</div>
+			);
+		}
+
+		if (aiModels.length > 0) {
+			return (
+				<select
+					className={styles.modelSelect}
+					value={userData.aiModel ?? ""}
+					onChange={(event) =>
+						setUserData((prev) => ({
+							...prev,
+							aiModel: event.target.value,
+						}))
+					}
+				>
+					<option value="">Use default</option>
+					{aiModels.map((model) => (
+						<option key={model} value={model}>
+							{model}
+						</option>
+					))}
+				</select>
+			);
+		}
+
+		return (
+			<div className={styles.modelLoadGroup}>
+				<small className={styles.helpText}>
+					No models found — enter credentials and click Load Models
+				</small>
+				<button
+					type="button"
+					className={styles.loadModelsButton}
+					onClick={() => refreshModels()}
+				>
+					Load Models
+				</button>
+			</div>
+		);
+	};
 
 	const profileTab = (
 		<>
@@ -529,88 +601,76 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 
 	const aiTab = (
 		<>
-			{/* Ollama URL */}
+			{/* Provider Selection */}
 			<div className={styles.section}>
-				<h3 className={styles.sectionTitle}>Ollama</h3>
+				<h3 className={styles.sectionTitle}>Provider</h3>
 				<div className={styles.inputGroup}>
-					<span className={styles.label}>Ollama URL</span>
-					<Input
-						type="text"
-						name="ollamaUrl"
-						placeholder="https://ollama.yourdomain.com"
-						fat
-						value={userData.ollamaUrl ?? ""}
-						onChange={(event: ChangeEvent<HTMLInputElement>) =>
-							handleInputChange(event, "ollamaUrl")
+					<span className={styles.label}>AI Provider</span>
+					<select
+						className={styles.modelSelect}
+						value={userData.aiProvider ?? "ollama"}
+						onChange={(event) =>
+							handleProviderChange(event.target.value as AiProvider)
 						}
-						disableMargin
-						className={styles.input}
-						maxLength={200}
-					/>
-					<small className={styles.helpText}>
-						Custom Ollama endpoint. Leave empty to use default. Models refresh
-						after saving.
-					</small>
-				</div>
-
-				<div className={styles.inputGroup}>
-					<span className={styles.label}>Ollama API Key</span>
-					<Input
-						type="password"
-						name="ollamaApiKey"
-						placeholder="ollama-api-key..."
-						fat
-						value={userData.ollamaApiKey ?? ""}
-						onChange={(event: ChangeEvent<HTMLInputElement>) =>
-							handleInputChange(event, "ollamaApiKey")
-						}
-						disableMargin
-						Icon={<Lock width={18} height={18} />}
-						className={styles.input}
-						maxLength={120}
-					/>
-					<small className={styles.helpText}>
-						API key from ollama.com/settings/keys for cloud models
-					</small>
-				</div>
-
-				<div className={styles.inputGroup}>
-					<span className={styles.label}>Model</span>
-					{ollamaModels.length > 0 ? (
-						<select
-							className={styles.modelSelect}
-							value={userData.ollamaModel ?? ""}
-							onChange={(event) =>
-								setUserData((prev) => ({
-									...prev,
-									ollamaModel: event.target.value,
-								}))
-							}
-						>
-							<option value="">Use default (env var)</option>
-							{ollamaModels.map((model) => (
-								<option key={model} value={model}>
-									{model}
-								</option>
-							))}
-						</select>
-					) : (
-						<small className={styles.helpText}>
-							No models available — check Ollama URL and save to refresh
-						</small>
-					)}
+					>
+						{aiProviders.map((provider) => (
+							<option key={provider.value} value={provider.value}>
+								{provider.label}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
 
-			{/* Claude API fallback */}
+			{/* Configuration */}
 			<div className={styles.section}>
-				<h3 className={styles.sectionTitle}>Claude API (fallback)</h3>
+				<h3 className={styles.sectionTitle}>
+					{
+						{
+							ollama: "Ollama",
+							claude: "Claude (Anthropic)",
+							openai: "OpenAI",
+						}[userData.aiProvider ?? "ollama"]
+					}
+				</h3>
+
+				{/* Endpoint URL — Ollama only */}
+				{userData.aiProvider === "ollama" && (
+					<div className={styles.inputGroup}>
+						<span className={styles.label}>Endpoint URL</span>
+						<Input
+							type="text"
+							name="aiUrl"
+							placeholder="https://ollama.yourdomain.com"
+							fat
+							value={userData.aiUrl ?? ""}
+							onChange={(event: ChangeEvent<HTMLInputElement>) =>
+								handleInputChange(event, "aiUrl")
+							}
+							disableMargin
+							className={styles.input}
+							maxLength={200}
+						/>
+						<small className={styles.helpText}>
+							Leave empty to use the default local endpoint. Models refresh
+							after saving.
+						</small>
+					</div>
+				)}
+
+				{/* API Key */}
 				<div className={styles.inputGroup}>
-					<span className={styles.label}>Anthropic API Key</span>
+					<span className={styles.label}>API Key</span>
 					<Input
 						type="password"
 						name="aiApiKey"
-						placeholder="sk-ant-..."
+						placeholder={
+							userData.aiProvider === "claude"
+								? "sk-ant-..."
+								: userData.aiProvider === "openai"
+									? "sk-..."
+									: "ollama-api-key..."
+						}
 						fat
 						value={userData.aiApiKey ?? ""}
 						onChange={(event: ChangeEvent<HTMLInputElement>) =>
@@ -619,11 +679,22 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 						disableMargin
 						Icon={<Lock width={18} height={18} />}
 						className={styles.input}
-						maxLength={120}
+						maxLength={255}
 					/>
 					<small className={styles.helpText}>
-						Used as fallback when Ollama is not available
+						{userData.aiProvider === "claude" &&
+							"Get your API key at console.anthropic.com"}
+						{userData.aiProvider === "openai" &&
+							"Get your API key at platform.openai.com/api-keys"}
+						{userData.aiProvider === "ollama" &&
+							"Required only for ollama.com cloud models"}
 					</small>
+				</div>
+
+				{/* Model */}
+				<div className={styles.inputGroup}>
+					<span className={styles.label}>Model</span>
+					{modelDropdown()}
 				</div>
 			</div>
 		</>

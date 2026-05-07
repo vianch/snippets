@@ -48,7 +48,7 @@ const Alert = ({
 				</span>
 			)}
 
-			<div>{children}</div>
+			<div className={styles.content}>{children}</div>
 		</div>
 	);
 };
