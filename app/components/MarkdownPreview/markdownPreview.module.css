@@ -151,6 +151,26 @@
 	height: auto;
 }
 
+.mermaid {
+	display: flex;
+	justify-content: center;
+	margin: 0.75rem 0;
+	padding: 0.75rem;
+	background: var(--bg-color);
+	border-radius: var(--border-radius-md);
+	overflow-x: auto;
+}
+
+.mermaid svg {
+	max-width: 100%;
+	height: auto;
+}
+
+.previewContent :global(.katex-display) {
+	overflow: auto hidden;
+	padding: 0.25rem 0;
+}
+
 /* Scrollbar styles matching code editor */
 .previewContent::-webkit-scrollbar {
 	width: 10px;
