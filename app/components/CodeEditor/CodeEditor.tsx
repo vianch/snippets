@@ -50,6 +50,7 @@ type CodeEditorProps = {
 	onStarred: (currentSnippet: CurrentSnippet) => void;
 	onPublicToggle: (currentSnippet: CurrentSnippet) => void;
 	onTouched: (touched: boolean) => void;
+	onImportMarkdown?: (files: FileList) => void;
 };
 
 const CodeEditor = ({
@@ -61,6 +62,7 @@ const CodeEditor = ({
 	onStarred,
 	onPublicToggle,
 	onTouched,
+	onImportMarkdown,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const theme = useUserStore((state) => state.theme) as ThemeName;
@@ -168,6 +170,7 @@ const CodeEditor = ({
 								showHistory={showHistory}
 								hasVersions={versionCount > 0}
 								onApplyAiCode={updateCurrentSnippetValue}
+								onImportMarkdown={onImportMarkdown}
 							/>
 
 							{isMobile && (
@@ -182,6 +185,7 @@ const CodeEditor = ({
 										showHistory={showHistory}
 										hasVersions={versionCount > 0}
 										onApplyAiCode={updateCurrentSnippetValue}
+										onImportMarkdown={onImportMarkdown}
 									/>
 								</div>
 							)}

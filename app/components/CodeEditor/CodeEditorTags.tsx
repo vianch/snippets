@@ -26,6 +26,7 @@ type CodeEditorTagsProps = {
 	showHistory: boolean;
 	hasVersions: boolean;
 	onApplyAiCode?: (code: string) => void;
+	onImportMarkdown?: (files: FileList) => void;
 };
 
 const CodeEditorTags = ({
@@ -42,6 +43,7 @@ const CodeEditorTags = ({
 	showHistory,
 	hasVersions,
 	onApplyAiCode,
+	onImportMarkdown,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
 	const getTagForSnippet = (snippetTag: Tags): string[] =>
@@ -108,6 +110,7 @@ const CodeEditorTags = ({
 					showHistory={showHistory}
 					hasVersions={hasVersions}
 					onApplyAiCode={onApplyAiCode}
+					onImportMarkdown={onImportMarkdown}
 				/>
 			</div>
 		</section>

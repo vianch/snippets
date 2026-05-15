@@ -16,6 +16,7 @@ import {
 	getSnippetsByState,
 	getSnippetsByTag,
 	getUncategorizedSnippets,
+	getUserIdBySession,
 	saveSnippet,
 	saveSnippetVersion,
 	setNewSnippet,
@@ -26,6 +27,8 @@ import { useDeviceViewPort } from "@/utils/ui.utils";
 import { MenuItems } from "@/lib/constants/core";
 import useToastStore from "@/lib/store/toast.store";
 import { ToastType } from "@/lib/constants/toast";
+import SupportedLanguages from "@/lib/config/languages";
+import SnippetValueObject from "@/lib/models/Snippet";
 
 export default function Page(): ReactElement {
 	// Allow isMobile to be used across all Snippets page components
@@ -472,6 +475,63 @@ export default function Page(): ReactElement {
 		}
 	};
 
+	const importMarkdownFiles = async (files: FileList): Promise<void> => {
+		if (files.length === 0) return;
+
+		const userId = await getUserIdBySession();
+
+		if (!userId) {
+			addToast({
+				type: ToastType.Error,
+				message: "You must be signed in to import files",
+			});
+
+			return;
+		}
+
+		const imported: Snippet[] = [];
+		const failedFiles: string[] = [];
+
+		for (const file of Array.from(files)) {
+			try {
+				const content = await file.text();
+				const nameFromFile = file.name
+					.replace(/\.(md|markdown|txt)$/i, "")
+					.trim();
+				const newSnippet = new SnippetValueObject(userId as UUID);
+
+				newSnippet.name = nameFromFile.length > 0 ? nameFromFile : "Imported";
+				newSnippet.snippet = content;
+				newSnippet.language = SupportedLanguages.Markdown;
+
+				await saveSnippet(newSnippet as CurrentSnippet);
+				imported.push(newSnippet as Snippet);
+			} catch {
+				failedFiles.push(file.name);
+			}
+		}
+
+		if (imported.length > 0) {
+			setSnippets([...imported, ...snippets]);
+			setActiveSnippetId(imported[0].snippet_id);
+			addToast({
+				type: ToastType.Success,
+				message:
+					imported.length === 1
+						? "Imported 1 snippet"
+						: `Imported ${imported.length} snippets`,
+			});
+			updateSnippetTagList().then(() => null);
+		}
+
+		if (failedFiles.length > 0) {
+			addToast({
+				type: ToastType.Error,
+				message: `Failed to import ${failedFiles.length} file${failedFiles.length === 1 ? "" : "s"}`,
+			});
+		}
+	};
+
 	useEffect(() => {
 		getSnippets().then(() => null);
 	}, []);
@@ -537,6 +597,7 @@ export default function Page(): ReactElement {
 						onStarred={onStarredHandler}
 						onPublicToggle={onPublicToggleHandler}
 						onTouched={touchedHandler}
+						onImportMarkdown={importMarkdownFiles}
 					/>
 				}
 			/>

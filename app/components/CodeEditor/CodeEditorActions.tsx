@@ -1,4 +1,4 @@
-import { ReactElement, useState } from "react";
+import { ChangeEvent, ReactElement, useRef, useState } from "react";
 
 /* Components */
 import Camera from "@/components/ui/icons/Camera";
@@ -8,6 +8,7 @@ import Globe from "@/components/ui/icons/Globe";
 import Info from "@/components/ui/icons/Info";
 import Share from "@/components/ui/icons/Share";
 import Sparkle from "@/components/ui/icons/Sparkle";
+import Upload from "@/components/ui/icons/Upload";
 import AiChatModal from "@/components/CodeEditor/AiChatModal/AiChatModal";
 import ScreenshotModal from "@/components/ScreenshotModal/ScreenshotModal";
 
@@ -28,6 +29,7 @@ type CodeEditorActionsProps = {
 	showHistory?: boolean;
 	hasVersions?: boolean;
 	onApplyAiCode?: (code: string) => void;
+	onImportMarkdown?: (files: FileList) => void;
 };
 
 const CodeEditorActions = ({
@@ -40,10 +42,26 @@ const CodeEditorActions = ({
 	showHistory = false,
 	hasVersions = false,
 	onApplyAiCode,
+	onImportMarkdown,
 }: CodeEditorActionsProps): ReactElement => {
 	const { addToast } = useToastStore();
 	const [aiChatOpen, setAiChatOpen] = useState(false);
 	const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
+	const importInputRef = useRef<HTMLInputElement | null>(null);
+
+	const handleImportClick = (): void => {
+		importInputRef.current?.click();
+	};
+
+	const handleImportChange = (event: ChangeEvent<HTMLInputElement>): void => {
+		const files = event.target.files;
+
+		if (files && files.length > 0 && onImportMarkdown) {
+			onImportMarkdown(files);
+		}
+
+		event.target.value = "";
+	};
 
 	const handleCopy = async (): Promise<void> => {
 		try {
@@ -107,6 +125,26 @@ const CodeEditorActions = ({
 						<span className={styles.tooltip}>AI</span>
 					</button>
 				</div>
+				{onImportMarkdown && (
+					<>
+						<button
+							className={styles.actionButton}
+							type="button"
+							onClick={handleImportClick}
+						>
+							<Upload width={24} height={24} />
+							<span className={styles.tooltip}>Import markdown</span>
+						</button>
+						<input
+							ref={importInputRef}
+							type="file"
+							accept=".md,.markdown,text/markdown,text/plain"
+							multiple
+							hidden
+							onChange={handleImportChange}
+						/>
+					</>
+				)}
 				<button
 					className={styles.actionButton}
 					type="button"
