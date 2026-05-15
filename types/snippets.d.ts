@@ -77,7 +77,8 @@ declare global {
 		| "format"
 		| "optimize"
 		| "json"
-		| "ask";
+		| "ask"
+		| "complete";
 
 	type AiRequest = {
 		action: AiAction;

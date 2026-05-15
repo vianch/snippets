@@ -15,6 +15,7 @@ const validActions: AiAction[] = [
 	aiActions.optimize,
 	aiActions.json,
 	aiActions.ask,
+	aiActions.complete,
 ];
 
 const stripMarkdownCodeFences = (text: string): string => {

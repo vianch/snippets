@@ -358,6 +358,14 @@ body {
 	background-color: var(--bg-color-dark);
 }
 
+.cm-ghost-text {
+	color: var(--gray-color);
+	opacity: 0.55;
+	font-style: italic;
+	white-space: pre;
+	pointer-events: none;
+}
+
 .container {
 	width: 100%;
 	max-width: 1200px;
