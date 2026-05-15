@@ -269,6 +269,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		const ollamaModel = aiModel || process.env.OLLAMA_MODEL || "codellama";
 		const ollamaUrl = aiUrl || defaultOllamaUrl;
 		const ollamaApiKey = aiApiKey || process.env.OLLAMA_API_KEY || undefined;
+		const attempts: Array<{ provider: string; error: string }> = [];
 
 		// 1. Try custom Ollama URL (tunnel or local)
 		try {
@@ -282,8 +283,12 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			);
 
 			return NextResponse.json({ result, provider: "ollama" });
-		} catch (_ollamaError) {
-			// Custom Ollama URL failed
+		} catch (ollamaError) {
+			attempts.push({
+				provider: "ollama",
+				error:
+					ollamaError instanceof Error ? ollamaError.message : "Unknown error",
+			});
 		}
 
 		// 2. Try Ollama Cloud directly with API key
@@ -299,8 +304,14 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				);
 
 				return NextResponse.json({ result, provider: "ollama-cloud" });
-			} catch (_ollamaCloudError) {
-				// Ollama Cloud failed
+			} catch (ollamaCloudError) {
+				attempts.push({
+					provider: "ollama-cloud",
+					error:
+						ollamaCloudError instanceof Error
+							? ollamaCloudError.message
+							: "Unknown error",
+				});
 			}
 		}
 
@@ -312,19 +323,38 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				{
 					error:
 						"No AI provider configured. Set up your Ollama URL or API key in Account Settings > AI tab.",
+					code: "no_provider_configured",
+					attempts,
 				},
 				{ status: 503 }
 			);
 		}
 
-		const result = await requestClaude(
-			prompt,
-			systemPrompt,
-			fallbackApiKey,
-			stripFences
-		);
+		try {
+			const result = await requestClaude(
+				prompt,
+				systemPrompt,
+				fallbackApiKey,
+				stripFences
+			);
 
-		return NextResponse.json({ result, provider: "claude" });
+			return NextResponse.json({ result, provider: "claude" });
+		} catch (claudeError) {
+			attempts.push({
+				provider: "claude",
+				error:
+					claudeError instanceof Error ? claudeError.message : "Unknown error",
+			});
+
+			return NextResponse.json(
+				{
+					error: "All AI providers failed",
+					code: "all_providers_failed",
+					attempts,
+				},
+				{ status: 502 }
+			);
+		}
 	} catch (error) {
 		const errorMessage =
 			error instanceof Error ? error.message : "An unexpected error occurred";

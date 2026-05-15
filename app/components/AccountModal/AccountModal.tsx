@@ -163,9 +163,9 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 				return new Error("Passwords do not match");
 			}
 
-			if (userData?.newPassword?.length < 6) {
+			if (userData?.newPassword?.length < 12) {
 				setMessage({
-					text: "Password must be at least 6 characters",
+					text: "Password must be at least 12 characters",
 					type: FormMessageTypes.Error,
 				});
 
@@ -305,6 +305,8 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 
 	// Load user data when modal opens
 	useEffect(() => {
+		let isMounted = true;
+
 		const loadUserData = async () => {
 			if (!isOpen) {
 				return;
@@ -314,6 +316,8 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 				resetMessages();
 				resetStateData();
 				const userEmail = await getUserEmailBySession();
+
+				if (!isMounted) return;
 
 				if (userEmail) {
 					const username = userEmail?.split("@")[0] || "";
@@ -326,6 +330,9 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 				}
 
 				const dataFromSession = await getUserDataFromSession();
+
+				if (!isMounted) return;
+
 				const userMetadata = dataFromSession?.user?.user_metadata;
 
 				if (userMetadata) {
@@ -391,16 +398,24 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 						activeProvider === "ollama" ? userMetadata?.ai_api_key : undefined,
 				});
 
+				if (!isMounted) return;
+
 				setAiModels(models);
 			} catch (_catchError) {
-				setMessage({
-					text: "Error loading user data",
-					type: FormMessageTypes.Error,
-				});
+				if (isMounted) {
+					setMessage({
+						text: "Error loading user data",
+						type: FormMessageTypes.Error,
+					});
+				}
 			}
 		};
 
 		loadUserData();
+
+		return () => {
+			isMounted = false;
+		};
 	}, [isOpen]);
 
 	const modelDropdown = (): ReactElement => {

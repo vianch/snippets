@@ -12,7 +12,7 @@ declare global {
 	type MenuItemType = MenuItems | string;
 
 	type SnippetEditorStates = {
-		activeSnippetIndex: number;
+		activeSnippetId: UUID | null;
 		isSaving: boolean;
 		touched: boolean;
 		menuType: MenuItemType;
@@ -54,11 +54,7 @@ declare global {
 		[key: SupportedLanguages | string]: LanguageSupport;
 	};
 
-	type DeleteRestoreFunction = (
-		snippetId: UUID,
-		index: number,
-		state: SnippetState
-	) => void;
+	type DeleteRestoreFunction = (snippetId: UUID, state: SnippetState) => void;
 
 	type SearchData = {
 		searchQuery: string;
@@ -68,7 +64,7 @@ declare global {
 
 	type SnippetItemProps = {
 		codeEditorStates: SnippetEditorStates;
-		onActiveSnippet: (index: number) => void;
+		onActiveSnippet: (snippetId: UUID) => void;
 		onDeleteSnippet: DeleteRestoreFunction;
 		onRestoreSnippet: DeleteRestoreFunction;
 	};
