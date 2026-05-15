@@ -52,10 +52,6 @@ export const fetchOllamaModels = async (
 };
 
 type RequestAiActionOptions = {
-	aiProvider?: AiProvider;
-	aiApiKey?: string;
-	aiModel?: string;
-	aiUrl?: string;
 	userPrompt?: string;
 	signal?: AbortSignal;
 };
@@ -66,30 +62,13 @@ export const requestAiAction = async (
 	language: string,
 	options: RequestAiActionOptions = {}
 ): Promise<AiResponse> => {
-	const { aiProvider, aiApiKey, aiModel, aiUrl, userPrompt, signal } = options;
-	const headers: Record<string, string> = {
-		"Content-Type": "application/json",
-	};
-
-	if (aiProvider) {
-		headers["x-ai-provider"] = aiProvider;
-	}
-
-	if (aiApiKey) {
-		headers["x-ai-api-key"] = aiApiKey;
-	}
-
-	if (aiModel) {
-		headers["x-ai-model"] = aiModel;
-	}
-
-	if (aiUrl) {
-		headers["x-ai-url"] = aiUrl;
-	}
+	const { userPrompt, signal } = options;
 
 	const response = await fetch("/api/ai", {
 		method: "POST",
-		headers,
+		headers: {
+			"Content-Type": "application/json",
+		},
 		body: JSON.stringify({ action, code, language, userPrompt }),
 		signal,
 	});

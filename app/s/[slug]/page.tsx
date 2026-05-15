@@ -1,162 +1,61 @@
-"use client";
+import { ReactElement } from "react";
+import { Metadata } from "next";
 
-import { ReactElement, useEffect, useState, use } from "react";
-import CodeMirror from "@uiw/react-codemirror";
-
-/* Components */
-import NavHeader from "@/components/NavHeader/NavHeader";
-import Footer from "@/components/Footer/Footer";
-import Badge from "@/components/ui/Badge/Badge";
-import Button from "@/components/ui/Button/Button";
-import Camera from "@/components/ui/icons/Camera";
-import ScreenshotModal from "@/components/ScreenshotModal/ScreenshotModal";
-
-/* Lib and Utils */
-import languageExtensions from "@/lib/codeEditor";
-import { getCodeMirrorTheme, ThemeNames } from "@/lib/config/themes";
-import { getPublicSnippet } from "@/lib/supabase/queries";
-import SupportedLanguages from "@/lib/config/languages";
-
-/* Styles */
-import styles from "./publicSnippet.module.css";
+import { getPublicSnippetBySlug } from "@/lib/supabase/public";
+import PublicSnippetView from "./PublicSnippetView";
 
 type PageProps = {
 	params: Promise<{ slug: string }>;
 };
 
-export default function PublicSnippetPage({ params }: PageProps): ReactElement {
-	const { slug } = use(params);
-	const [snippet, setSnippet] = useState<Snippet | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(false);
-	const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
-
-	useEffect(() => {
-		let isMounted = true;
-
-		const fetchSnippet = async () => {
-			try {
-				const data = await getPublicSnippet(slug);
-
-				if (!isMounted) return;
-
-				if (data) {
-					setSnippet(data);
-				} else {
-					setError(true);
-				}
-			} catch {
-				if (isMounted) {
-					setError(true);
-				}
-			}
-
-			if (isMounted) {
-				setLoading(false);
-			}
-		};
-
-		fetchSnippet();
-
-		return () => {
-			isMounted = false;
-		};
-	}, [slug]);
-
-	const editorTheme = getCodeMirrorTheme(ThemeNames.Dracula);
-	const extension =
-		languageExtensions[snippet?.language ?? SupportedLanguages.Markdown];
-	const tagList =
-		snippet?.tags && snippet.tags.length > 0 ? snippet.tags.split(",") : [];
-
-	if (loading) {
-		return (
-			<main className={styles.main}>
-				<NavHeader />
-				<div className={styles.container}>
-					<p className={styles.loading}>Loading snippet...</p>
-				</div>
-				<Footer />
-			</main>
-		);
+const buildDescription = (snippet: Snippet): string => {
+	if (snippet.notes && snippet.notes.trim().length > 0) {
+		return snippet.notes.slice(0, 160);
 	}
 
-	if (error || !snippet) {
-		return (
-			<main className={styles.main}>
-				<NavHeader />
-				<div className={styles.container}>
-					<h1 className={styles.errorTitle}>Snippet not found</h1>
-					<p className={styles.errorText}>
-						This snippet may have been removed or made private.
-					</p>
-				</div>
-				<Footer />
-			</main>
-		);
+	const firstLine = snippet.snippet.split("\n").find((line) => line.trim());
+
+	return firstLine
+		? firstLine.slice(0, 160)
+		: `A ${snippet.language} snippet shared via Snippets`;
+};
+
+export async function generateMetadata({
+	params,
+}: PageProps): Promise<Metadata> {
+	const { slug } = await params;
+	const snippet = await getPublicSnippetBySlug(slug);
+
+	if (!snippet) {
+		return {
+			title: "Snippet not found",
+			robots: { index: false, follow: false },
+		};
 	}
 
-	return (
-		<main className={styles.main}>
-			<NavHeader />
-			<div className={styles.container}>
-				<div className={styles.header}>
-					<h1 className={styles.title}>{snippet.name}</h1>
+	const description = buildDescription(snippet);
 
-					<div className={styles.headerActions}>
-						<span className={styles.language}>{snippet.language}</span>
+	return {
+		title: `${snippet.name} — Snippets`,
+		description,
+		openGraph: {
+			title: snippet.name,
+			description,
+			type: "article",
+		},
+		twitter: {
+			card: "summary_large_image",
+			title: snippet.name,
+			description,
+		},
+	};
+}
 
-						<Button
-							className={styles.screenshotButton}
-							variant="secondary"
-							onClick={() => setScreenshotModalOpen(true)}
-						>
-							<Camera height={15} width={15} />
-							Screenshot
-						</Button>
-					</div>
-				</div>
+export default async function PublicSnippetPage({
+	params,
+}: PageProps): Promise<ReactElement> {
+	const { slug } = await params;
+	const snippet = await getPublicSnippetBySlug(slug);
 
-				{tagList.length > 0 && (
-					<div className={styles.tags}>
-						{tagList.map((tag, index) => (
-							<Badge key={`${index}-public-tag`}>{tag.trim()}</Badge>
-						))}
-					</div>
-				)}
-
-				{snippet.notes && <p className={styles.notes}>{snippet.notes}</p>}
-
-				<div className={styles.editor}>
-					<CodeMirror
-						value={snippet.snippet}
-						extensions={extension ? [extension] : []}
-						theme={editorTheme}
-						readOnly={true}
-						basicSetup={{ lineNumbers: true, foldGutter: false }}
-						height="auto"
-					/>
-				</div>
-
-				{snippet.url && (
-					<a
-						className={styles.sourceUrl}
-						href={snippet.url}
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Source: {snippet.url}
-					</a>
-				)}
-			</div>
-
-			<ScreenshotModal
-				isOpen={screenshotModalOpen}
-				snippet={snippet}
-				onClose={() => setScreenshotModalOpen(false)}
-			/>
-
-			<Footer />
-		</main>
-	);
+	return <PublicSnippetView snippet={snippet} />;
 }

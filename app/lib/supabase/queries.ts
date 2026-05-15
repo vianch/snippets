@@ -377,24 +377,6 @@ export const toggleSnippetPublic = async (
 	return slug;
 };
 
-export const getPublicSnippet = async (
-	slug: string
-): Promise<Snippet | null> => {
-	if (supabase && slug) {
-		const { data } = await supabase
-			.from("snippet")
-			.select()
-			.eq("public_slug", slug)
-			.eq("is_public", true)
-			.neq("state", "inactive")
-			.single();
-
-		return data as Snippet | null;
-	}
-
-	return null;
-};
-
 export const updateUser = async (
 	attributes: UserAttributes
 ): Promise<UserResponse> => {
