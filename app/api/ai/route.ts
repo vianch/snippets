@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { aiActions, aiSystemPrompts } from "@/lib/constants/ai";
+import createSupabaseServerClient from "@/lib/supabase/server";
+
+const maxCodeLength = 50_000;
+const maxPromptLength = 4_000;
 
 export const maxDuration = 60;
 
@@ -152,6 +156,15 @@ const buildAskSystemPrompt = (language: string, code: string): string => {
 
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	try {
+		const { supabase } = await createSupabaseServerClient(request);
+		const {
+			data: { user },
+		} = await supabase.auth.getUser();
+
+		if (!user) {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		}
+
 		const body = (await request.json()) as AiRequest;
 		const { action, code, language, userPrompt } = body;
 
@@ -169,12 +182,26 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			return NextResponse.json({ error: "Code is required" }, { status: 400 });
 		}
 
+		if (code.length > maxCodeLength) {
+			return NextResponse.json(
+				{ error: `Code exceeds ${maxCodeLength} character limit` },
+				{ status: 413 }
+			);
+		}
+
 		const isAskAction = action === aiActions.ask;
 
 		if (isAskAction && (!userPrompt || userPrompt.trim().length === 0)) {
 			return NextResponse.json(
 				{ error: "userPrompt is required for the ask action" },
 				{ status: 400 }
+			);
+		}
+
+		if (isAskAction && userPrompt && userPrompt.length > maxPromptLength) {
+			return NextResponse.json(
+				{ error: `Prompt exceeds ${maxPromptLength} character limit` },
+				{ status: 413 }
 			);
 		}
 

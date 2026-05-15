@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { openAiExcludedPrefixes } from "@/lib/constants/ai";
+import createSupabaseServerClient from "@/lib/supabase/server";
 
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
 const ollamaCloudUrl = "https://ollama.com";
@@ -76,6 +77,15 @@ const fetchOpenAIModels = async (apiKey: string): Promise<string[]> => {
 };
 
 export const GET = async (request: NextRequest): Promise<NextResponse> => {
+	const { supabase } = await createSupabaseServerClient(request);
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+
+	if (!user) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	}
+
 	const provider = request.nextUrl.searchParams.get("provider") || "ollama";
 	const headerApiKey = request.headers.get("x-api-key") || "";
 

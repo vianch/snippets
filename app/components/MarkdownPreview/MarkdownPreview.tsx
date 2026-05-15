@@ -2,6 +2,7 @@
 
 import { ReactElement, useMemo } from "react";
 import { marked } from "marked";
+import DOMPurify from "isomorphic-dompurify";
 
 /* Styles */
 import styles from "./markdownPreview.module.css";
@@ -18,7 +19,9 @@ const MarkdownPreview = ({
 	const htmlContent = useMemo(() => {
 		if (!content) return "";
 
-		return marked.parse(content, { async: false }) as string;
+		const rawHtml = marked.parse(content, { async: false }) as string;
+
+		return DOMPurify.sanitize(rawHtml);
 	}, [content]);
 
 	return (
