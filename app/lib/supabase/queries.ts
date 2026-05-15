@@ -103,6 +103,27 @@ export const getUncategorizedSnippets = async (): Promise<Snippet[]> => {
 	return [] as Snippet[];
 };
 
+export const getSnippetsByFolder = async (
+	folder: string
+): Promise<Snippet[]> => {
+	if (supabase && folder) {
+		const userId = await getUserIdBySession();
+
+		if (userId) {
+			const { data } = await supabase
+				.from("snippet")
+				.select()
+				.order("updated_at", { ascending: false })
+				.match({ user_id: userId, folder })
+				.neq("state", "inactive");
+
+			return (data ?? []) as Snippet[];
+		}
+	}
+
+	return [] as Snippet[];
+};
+
 export const getSnippetsByTag = async (tag: string): Promise<Snippet[]> => {
 	if (supabase && tag) {
 		const userId = await getUserIdBySession();
@@ -172,6 +193,7 @@ export const saveSnippet = async (
 		tags: currentSnippet?.tags ?? null,
 		url: currentSnippet?.url ?? null,
 		notes: currentSnippet?.notes ?? null,
+		folder: currentSnippet?.folder ?? null,
 	};
 
 	const { data: updated, error: updateError } = await supabase

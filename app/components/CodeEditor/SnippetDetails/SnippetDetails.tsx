@@ -12,6 +12,7 @@ type SnippetDetailsProps = {
 	onClose: () => void;
 	onUrlChange: (event: ChangeEvent<HTMLInputElement>) => void;
 	onNotesChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+	onFolderChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
 const SnippetDetails = ({
@@ -20,6 +21,7 @@ const SnippetDetails = ({
 	onClose,
 	onUrlChange,
 	onNotesChange,
+	onFolderChange,
 }: SnippetDetailsProps): ReactElement => {
 	return (
 		<>
@@ -38,6 +40,17 @@ const SnippetDetails = ({
 					</button>
 				</div>
 				<div className={styles.detailsContainer}>
+					<div className={styles.detailsField}>
+						<label className={styles.detailsLabel}>Folder</label>
+						<Input
+							placeholder="e.g. Recipes, Work, Snippets-2026"
+							value={currentSnippet?.folder ?? ""}
+							onChange={onFolderChange}
+							maxLength={60}
+							disableMargin
+						/>
+					</div>
+
 					<div className={styles.detailsField}>
 						<label className={styles.detailsLabel}>Source URL</label>
 						<Input

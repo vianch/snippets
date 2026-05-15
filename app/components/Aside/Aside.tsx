@@ -33,6 +33,7 @@ import Tray from "@/components/ui/icons/Tray";
 import Trash from "@/components/ui/icons/Trash";
 import Book from "@/components/ui/icons/Book";
 import Bookmark from "@/components/ui/icons/Bookmark";
+import Folder from "@/components/ui/icons/Folder";
 import Star from "@/components/ui/icons/Star";
 import Loading from "@/components/ui/icons/Loading";
 import List from "@/components/ui/icons/List";
@@ -47,6 +48,7 @@ type AsideProps = {
 	isLoading: boolean;
 	codeEditorStates: SnippetEditorStates;
 	tags: TagItem[];
+	folders: TagItem[];
 	publicCount: number;
 	allCount: number;
 	uncategorizedCount: number;
@@ -57,6 +59,7 @@ type AsideProps = {
 	onGetFavorites: () => void;
 	onGetTrash: () => void;
 	onTagClick: (tag: string) => void;
+	onFolderClick: (folder: string) => void;
 	onAccountClick: () => void;
 };
 
@@ -64,6 +67,7 @@ const Aside = ({
 	isLoading,
 	codeEditorStates,
 	tags,
+	folders,
 	publicCount,
 	allCount,
 	uncategorizedCount,
@@ -74,6 +78,7 @@ const Aside = ({
 	onGetPublic,
 	onGetTrash,
 	onTagClick,
+	onFolderClick,
 	onAccountClick,
 }: AsideProps): ReactElement => {
 	const { menuType } = codeEditorStates;
@@ -83,6 +88,7 @@ const Aside = ({
 	const userSectionRef = useRef<HTMLDivElement | null>(null);
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
 	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(false);
+	const [isFoldersExpanded, setIsFoldersExpanded] = useState<boolean>(true);
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
 	const [isMac, setIsMac] = useState<boolean>(true);
 
@@ -172,8 +178,17 @@ const Aside = ({
 		openSnippetListMobile();
 	};
 
+	const handlerFolderClick = (folder: string): void => {
+		onFolderClick(folder);
+		openSnippetListMobile();
+	};
+
 	const toggleTagsExpansion = (): void => {
 		setIsTagsExpanded(!isTagsExpanded);
+	};
+
+	const toggleFoldersExpansion = (): void => {
+		setIsFoldersExpanded(!isFoldersExpanded);
 	};
 
 	const handleSettingsClick = (): void => {
@@ -329,6 +344,39 @@ const Aside = ({
 							Trash
 						</a>
 					</section>
+
+					{!isLoading && folders?.length > 0 && (
+						<section
+							className={`${styles.section} ${isFoldersExpanded && folders.length > 12 ? styles.tagsSection : ""}`}
+						>
+							<h2
+								className={`${styles.title} blue-color ${styles.titleClickable}`}
+								onClick={toggleFoldersExpansion}
+							>
+								<Folder className={styles.icon} width={18} height={18} />
+								Folders
+								<CaretDown
+									className={`${styles.caretIcon} ${isFoldersExpanded ? styles.caretExpanded : styles.caretCollapsed}`}
+									width={12}
+									height={12}
+								/>
+							</h2>
+
+							{isFoldersExpanded && (
+								<div
+									className={
+										folders.length > 12 ? styles.tagsListScrollable : undefined
+									}
+								>
+									<AsideItem
+										active={menuType}
+										items={folders}
+										onItemClicked={handlerFolderClick}
+									/>
+								</div>
+							)}
+						</section>
+					)}
 
 					{isLoading ? (
 						<section className={styles.section}>
