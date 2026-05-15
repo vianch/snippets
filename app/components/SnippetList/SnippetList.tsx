@@ -35,10 +35,12 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 /* Styles */
 import styles from "./snippetlist.module.css";
 
+type SeedSearch = { query: string; nonce: number };
+
 interface SnippetListProps extends SnippetItemProps {
 	isLoading: boolean;
 	snippets?: Snippet[];
-	seedSearchQuery?: string | null;
+	seedSearch?: SeedSearch | null;
 	canSaveSmartGroup?: boolean;
 	onNewSnippet: (newSnippet: Snippet) => void;
 	onEmptyTrash: () => void;
@@ -51,7 +53,7 @@ const SnippetList = ({
 	isLoading,
 	snippets = [],
 	codeEditorStates,
-	seedSearchQuery,
+	seedSearch,
 	canSaveSmartGroup,
 	onNewSnippet,
 	onActiveSnippet,
@@ -135,14 +137,14 @@ const SnippetList = ({
 	}, [snippets]);
 
 	useEffect(() => {
-		if (!seedSearchQuery) return;
+		if (!seedSearch || !seedSearch.query) return;
+
+		const lowerQuery = seedSearch.query.toLowerCase();
 
 		setSearchData((prev) => ({
-			searchQuery: seedSearchQuery,
+			searchQuery: seedSearch.query,
 			originalSnippets: prev.originalSnippets,
 			snippetsFound: prev.originalSnippets.filter((item: Snippet) => {
-				const lowerQuery = seedSearchQuery.toLowerCase();
-
 				return (
 					item.name.toLowerCase().includes(lowerQuery) ||
 					item.snippet.toLowerCase().includes(lowerQuery) ||
@@ -150,7 +152,7 @@ const SnippetList = ({
 				);
 			}),
 		}));
-	}, [seedSearchQuery]);
+	}, [seedSearch?.nonce, seedSearch?.query]);
 
 	const handleStartSaveSmartGroup = (): void => {
 		setSmartGroupName(searchData.searchQuery.slice(0, maxSmartGroupNameLength));

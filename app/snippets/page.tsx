@@ -44,7 +44,10 @@ export default function Page(): ReactElement {
 	const [tags, setTags] = useState<TagItem[]>([]);
 	const [folders, setFolders] = useState<TagItem[]>([]);
 	const [smartGroups, setSmartGroups] = useState<SmartGroup[]>([]);
-	const [seedSearchQuery, setSeedSearchQuery] = useState<string | null>(null);
+	const [seedSearch, setSeedSearch] = useState<{
+		query: string;
+		nonce: number;
+	} | null>(null);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
 	const [publicCount, setPublicCount] = useState<number>(0);
@@ -575,7 +578,7 @@ export default function Page(): ReactElement {
 			...prev,
 			menuType: `smart:${group.name}`,
 		}));
-		setSeedSearchQuery(group.query);
+		setSeedSearch({ query: group.query, nonce: Date.now() });
 	};
 
 	const handleAccountModalClose = (): void => {
@@ -677,7 +680,7 @@ export default function Page(): ReactElement {
 						isLoading={isLoading}
 						snippets={snippets}
 						codeEditorStates={codeEditorStates}
-						seedSearchQuery={seedSearchQuery}
+						seedSearch={seedSearch}
 						canSaveSmartGroup
 						onNewSnippet={newSnippetHandler}
 						onActiveSnippet={setActiveSnippetId}
