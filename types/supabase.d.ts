@@ -24,6 +24,7 @@ interface User {
 		ai_model?: string;
 		ai_url?: string;
 		auto_save?: boolean;
+		smart_groups?: SmartGroup[];
 	};
 	aud: string;
 	confirmation_sent_at?: string;

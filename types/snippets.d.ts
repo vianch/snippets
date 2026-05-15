@@ -72,6 +72,11 @@ declare global {
 
 	type AiProvider = "ollama" | "claude" | "openai";
 
+	interface SmartGroup {
+		name: string;
+		query: string;
+	}
+
 	type AiAction =
 		| "explain"
 		| "comments"

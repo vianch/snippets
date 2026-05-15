@@ -26,6 +26,7 @@ import NewFile from "@/components/ui/icons/NewFile";
 import Alert from "@/components/ui/Alert/Alert";
 import Check from "@/components/ui/icons/Check";
 import CloseSquare from "@/components/ui/icons/CloseSquare";
+import Floppy from "@/components/ui/icons/Floppy";
 import Loading from "@/components/ui/icons/Loading";
 import SkeletonSnippetItem from "@/components/ui/Skeleton/SkeletonSnippetItem";
 import SnippetItem from "@/components/SnippetItem/SnippetItem";
@@ -37,19 +38,27 @@ import styles from "./snippetlist.module.css";
 interface SnippetListProps extends SnippetItemProps {
 	isLoading: boolean;
 	snippets?: Snippet[];
+	seedSearchQuery?: string | null;
+	canSaveSmartGroup?: boolean;
 	onNewSnippet: (newSnippet: Snippet) => void;
 	onEmptyTrash: () => void;
+	onSaveSmartGroup?: (name: string, query: string) => Promise<void> | void;
 }
+
+const maxSmartGroupNameLength = 40;
 
 const SnippetList = ({
 	isLoading,
 	snippets = [],
 	codeEditorStates,
+	seedSearchQuery,
+	canSaveSmartGroup,
 	onNewSnippet,
 	onActiveSnippet,
 	onDeleteSnippet,
 	onRestoreSnippet,
 	onEmptyTrash,
+	onSaveSmartGroup,
 }: SnippetListProps): ReactElement => {
 	const { menuType } = codeEditorStates ?? {};
 	const [searchData, setSearchData] = useState<SearchData>({
@@ -59,6 +68,9 @@ const SnippetList = ({
 	});
 	const [deleteAll, setDeleteAll] = useState<boolean>(false);
 	const [isDeleting, setIsDeleting] = useState<boolean>(false);
+	const [smartGroupFormOpen, setSmartGroupFormOpen] = useState<boolean>(false);
+	const [smartGroupName, setSmartGroupName] = useState<string>("");
+	const [isSavingSmartGroup, setIsSavingSmartGroup] = useState<boolean>(false);
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
 	const isTrashActive = menuType === "trash";
@@ -123,6 +135,51 @@ const SnippetList = ({
 	}, [snippets]);
 
 	useEffect(() => {
+		if (!seedSearchQuery) return;
+
+		setSearchData((prev) => ({
+			searchQuery: seedSearchQuery,
+			originalSnippets: prev.originalSnippets,
+			snippetsFound: prev.originalSnippets.filter((item: Snippet) => {
+				const lowerQuery = seedSearchQuery.toLowerCase();
+
+				return (
+					item.name.toLowerCase().includes(lowerQuery) ||
+					item.snippet.toLowerCase().includes(lowerQuery) ||
+					(item.tags ?? "").toLowerCase().includes(lowerQuery)
+				);
+			}),
+		}));
+	}, [seedSearchQuery]);
+
+	const handleStartSaveSmartGroup = (): void => {
+		setSmartGroupName(searchData.searchQuery.slice(0, maxSmartGroupNameLength));
+		setSmartGroupFormOpen(true);
+	};
+
+	const handleCancelSaveSmartGroup = (): void => {
+		setSmartGroupName("");
+		setSmartGroupFormOpen(false);
+	};
+
+	const handleSubmitSaveSmartGroup = async (): Promise<void> => {
+		const trimmedName = smartGroupName.trim();
+		const trimmedQuery = searchData.searchQuery.trim();
+
+		if (!trimmedName || !trimmedQuery || !onSaveSmartGroup) return;
+
+		setIsSavingSmartGroup(true);
+
+		try {
+			await onSaveSmartGroup(trimmedName, trimmedQuery);
+			setSmartGroupName("");
+			setSmartGroupFormOpen(false);
+		} finally {
+			setIsSavingSmartGroup(false);
+		}
+	};
+
+	useEffect(() => {
 		if (!isTrashActive && deleteAll) {
 			setDeleteAll(false);
 		}
@@ -154,6 +211,19 @@ const SnippetList = ({
 					onChange={handleSearchInputChange}
 				/>
 
+				{canSaveSmartGroup &&
+					searchData.searchQuery.length > 0 &&
+					!isTrashActive && (
+						<button
+							type="button"
+							className={styles.saveSearchButton}
+							title="Save as smart group"
+							onClick={handleStartSaveSmartGroup}
+						>
+							<Floppy width={20} height={20} />
+						</button>
+					)}
+
 				{isTrashActive ? (
 					<Trash
 						className={styles.addButton}
@@ -170,6 +240,42 @@ const SnippetList = ({
 					/>
 				)}
 			</div>
+
+			{smartGroupFormOpen && (
+				<div className={styles.smartGroupForm}>
+					<input
+						type="text"
+						className={styles.smartGroupInput}
+						placeholder="Smart group name"
+						value={smartGroupName}
+						maxLength={maxSmartGroupNameLength}
+						autoFocus
+						onChange={(event) => setSmartGroupName(event.target.value)}
+						onKeyDown={(event) => {
+							if (event.key === "Enter") {
+								void handleSubmitSaveSmartGroup();
+							} else if (event.key === "Escape") {
+								handleCancelSaveSmartGroup();
+							}
+						}}
+					/>
+					<button
+						type="button"
+						className={styles.smartGroupSaveButton}
+						disabled={isSavingSmartGroup || smartGroupName.trim().length === 0}
+						onClick={handleSubmitSaveSmartGroup}
+					>
+						Save
+					</button>
+					<button
+						type="button"
+						className={styles.smartGroupCancelButton}
+						onClick={handleCancelSaveSmartGroup}
+					>
+						Cancel
+					</button>
+				</div>
+			)}
 
 			{isLoading ? (
 				<ul className={styles.snippetsList}>

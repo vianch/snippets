@@ -399,6 +399,35 @@ export const toggleSnippetPublic = async (
 	return slug;
 };
 
+export const getSmartGroups = async (): Promise<SmartGroup[]> => {
+	const session = await getUserDataFromSession();
+	const stored = session?.user?.user_metadata?.smart_groups;
+
+	if (!Array.isArray(stored)) {
+		return [];
+	}
+
+	return stored.filter(
+		(item): item is SmartGroup =>
+			Boolean(item) &&
+			typeof item === "object" &&
+			typeof (item as SmartGroup).name === "string" &&
+			typeof (item as SmartGroup).query === "string"
+	);
+};
+
+export const saveSmartGroups = async (groups: SmartGroup[]): Promise<void> => {
+	if (!supabase) return;
+
+	const { error } = await supabase.auth.updateUser({
+		data: { smart_groups: groups },
+	});
+
+	if (error) {
+		throw new Error("Error saving smart groups");
+	}
+};
+
 export const updateUser = async (
 	attributes: UserAttributes
 ): Promise<UserResponse> => {
