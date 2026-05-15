@@ -32,9 +32,13 @@ export default function PublicSnippetPage({ params }: PageProps): ReactElement {
 	const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		const fetchSnippet = async () => {
 			try {
 				const data = await getPublicSnippet(slug);
+
+				if (!isMounted) return;
 
 				if (data) {
 					setSnippet(data);
@@ -42,13 +46,21 @@ export default function PublicSnippetPage({ params }: PageProps): ReactElement {
 					setError(true);
 				}
 			} catch {
-				setError(true);
+				if (isMounted) {
+					setError(true);
+				}
 			}
 
-			setLoading(false);
+			if (isMounted) {
+				setLoading(false);
+			}
 		};
 
 		fetchSnippet();
+
+		return () => {
+			isMounted = false;
+		};
 	}, [slug]);
 
 	const editorTheme = getCodeMirrorTheme(ThemeNames.Dracula);

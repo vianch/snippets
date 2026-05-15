@@ -233,9 +233,11 @@ const useCurrentSnippet = ({
 	useEffect(() => {
 		if (!snippet) return;
 
-		const isSnippetSwitch =
-			previousSnippetIdRef.current !== null &&
-			previousSnippetIdRef.current !== snippet.snippet_id;
+		if (previousSnippetIdRef.current === snippet.snippet_id) {
+			return;
+		}
+
+		const isSnippetSwitch = previousSnippetIdRef.current !== null;
 
 		if (isSnippetSwitch && autoSave && touched && !isTrashActive) {
 			onSave(currentSnippet, false);
@@ -251,7 +253,7 @@ const useCurrentSnippet = ({
 
 		onTouched(false);
 		setPreRestoreSnapshot(null);
-	}, [snippet?.snippet_id]);
+	}, [snippet?.snippet_id, autoSave, touched, isTrashActive]);
 
 	// Refresh version count when snippet changes
 	useEffect(() => {

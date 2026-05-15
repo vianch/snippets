@@ -63,9 +63,12 @@ const SnippetList = ({
 	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
 	const isTrashActive = menuType === "trash";
 	const formattedDates = useMemo(
-		(): string[] =>
-			snippets?.map((snippet: Snippet) =>
-				formatDateToDDMMYYYY(snippet.updated_at ?? "")
+		(): Map<UUID, string> =>
+			new Map(
+				snippets?.map((snippet: Snippet) => [
+					snippet.snippet_id,
+					formatDateToDDMMYYYY(snippet.updated_at ?? ""),
+				]) ?? []
 			),
 		[snippets]
 	);
@@ -100,11 +103,6 @@ const SnippetList = ({
 					: searchData.originalSnippets,
 		});
 	};
-
-	const getSnippetIndex = (snippetId: UUID): number =>
-		searchData?.originalSnippets.findIndex(
-			(snippet: Snippet): boolean => snippet.snippet_id === snippetId
-		);
 
 	const handleDeleteAll = async (): Promise<void> => {
 		if (deleteAll) {
@@ -211,23 +209,18 @@ const SnippetList = ({
 						</Alert>
 					</li>
 
-					{searchData.snippetsFound.map((snippet: Snippet) => {
-						const originalIndex = getSnippetIndex(snippet.snippet_id);
-
-						return (
-							<SnippetItem
-								key={snippet.snippet_id}
-								snippet={snippet}
-								dateFormatted={formattedDates[originalIndex]}
-								isTrashActive={isTrashActive}
-								originalIndex={originalIndex}
-								codeEditorStates={codeEditorStates}
-								onActiveSnippet={onActiveSnippet}
-								onDeleteSnippet={onDeleteSnippet}
-								onRestoreSnippet={onRestoreSnippet}
-							/>
-						);
-					})}
+					{searchData.snippetsFound.map((snippet: Snippet) => (
+						<SnippetItem
+							key={snippet.snippet_id}
+							snippet={snippet}
+							dateFormatted={formattedDates.get(snippet.snippet_id) ?? ""}
+							isTrashActive={isTrashActive}
+							codeEditorStates={codeEditorStates}
+							onActiveSnippet={onActiveSnippet}
+							onDeleteSnippet={onDeleteSnippet}
+							onRestoreSnippet={onRestoreSnippet}
+						/>
+					))}
 				</ul>
 			) : (
 				<div className={styles.noSnippetContainer}>

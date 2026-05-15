@@ -14,16 +14,14 @@ import styles from "@/components/SnippetList/snippetlist.module.css";
 interface SnippetItemPropsComponent extends SnippetItemProps {
 	dateFormatted: string;
 	snippet: Snippet | null | undefined;
-	originalIndex: number;
 	isTrashActive: boolean;
 }
 
 const SnippetItem: FC<SnippetItemPropsComponent> = ({
 	snippet,
 	dateFormatted,
-	codeEditorStates: { activeSnippetIndex, touched },
+	codeEditorStates: { activeSnippetId, touched },
 	isTrashActive,
-	originalIndex,
 	onActiveSnippet,
 	onDeleteSnippet,
 	onRestoreSnippet,
@@ -32,28 +30,22 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
 
 	if (snippet) {
-		const snippetClickHandler = (
-			event: MouseEvent<HTMLLIElement>,
-			index: number
-		): void => {
+		const snippetClickHandler = (event: MouseEvent<HTMLLIElement>): void => {
 			event.preventDefault();
-			onActiveSnippet(index);
+			onActiveSnippet(snippet.snippet_id);
 
-			// Close the snippet list on mobile when a snippet is selected
 			if (isMobile) {
 				closeSnippetList();
 			}
 		};
 
-		const isSnippetActive = activeSnippetIndex === originalIndex;
+		const isSnippetActive = activeSnippetId === snippet.snippet_id;
 
 		return (
 			<li
 				className={`${styles.snippetItem} ${isSnippetActive ? styles.active : ""}`}
 				key={snippet.snippet_id}
-				onClick={(event: MouseEvent<HTMLLIElement>) =>
-					snippetClickHandler(event, originalIndex)
-				}
+				onClick={snippetClickHandler}
 			>
 				<div className={styles.itemLeftSide}>
 					{!isTrashActive && (
@@ -61,9 +53,7 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 							className={styles.trashIcon}
 							width="18"
 							height="18"
-							onClick={() =>
-								onDeleteSnippet(snippet?.snippet_id, originalIndex, "inactive")
-							}
+							onClick={() => onDeleteSnippet(snippet?.snippet_id, "inactive")}
 						/>
 					)}
 
@@ -72,9 +62,7 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 							className={styles.restoreIcon}
 							width="18"
 							height="18"
-							onClick={() =>
-								onRestoreSnippet(snippet?.snippet_id, originalIndex, "active")
-							}
+							onClick={() => onRestoreSnippet(snippet?.snippet_id, "active")}
 						/>
 					)}
 					{touched && isSnippetActive && "* "}
