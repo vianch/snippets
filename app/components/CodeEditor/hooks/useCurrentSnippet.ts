@@ -40,6 +40,7 @@ type UseCurrentSnippetReturn = {
 	updateCurrentSnippetName: (event: ChangeEvent<HTMLInputElement>) => void;
 	updateCurrentSnippetUrl: (event: ChangeEvent<HTMLInputElement>) => void;
 	updateCurrentSnippetNotes: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+	updateCurrentSnippetFolder: (event: ChangeEvent<HTMLInputElement>) => void;
 	setLanguageHandler: (selectedLanguage: string) => void;
 	starringHandler: () => void;
 	newTagHandler: (newTagValue: string) => void;
@@ -125,6 +126,18 @@ const useCurrentSnippet = ({
 		event: ChangeEvent<HTMLTextAreaElement>
 	): void => {
 		setCurrentSnippet({ ...currentSnippet, notes: event.target.value });
+		onTouched(true);
+	};
+
+	const updateCurrentSnippetFolder = (
+		event: ChangeEvent<HTMLInputElement>
+	): void => {
+		const value = event.target.value;
+
+		setCurrentSnippet({
+			...currentSnippet,
+			folder: value.trim().length > 0 ? value : null,
+		});
 		onTouched(true);
 	};
 
@@ -269,6 +282,7 @@ const useCurrentSnippet = ({
 		updateCurrentSnippetName,
 		updateCurrentSnippetUrl,
 		updateCurrentSnippetNotes,
+		updateCurrentSnippetFolder,
 		setLanguageHandler,
 		starringHandler,
 		newTagHandler,

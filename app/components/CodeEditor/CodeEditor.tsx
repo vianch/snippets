@@ -83,6 +83,7 @@ const CodeEditor = ({
 		updateCurrentSnippetName,
 		updateCurrentSnippetUrl,
 		updateCurrentSnippetNotes,
+		updateCurrentSnippetFolder,
 		setLanguageHandler,
 		starringHandler,
 		newTagHandler,
@@ -233,6 +234,7 @@ const CodeEditor = ({
 									onClose={() => setShowDetails(false)}
 									onUrlChange={updateCurrentSnippetUrl}
 									onNotesChange={updateCurrentSnippetNotes}
+									onFolderChange={updateCurrentSnippetFolder}
 								/>
 							)}
 						</>

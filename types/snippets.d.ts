@@ -32,6 +32,7 @@ declare global {
 		tags?: Tags;
 		is_public: boolean;
 		public_slug: string | null;
+		folder?: string | null;
 	}
 
 	interface SnippetVersion {

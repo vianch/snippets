@@ -13,6 +13,7 @@ import CommandPalette from "@/components/CommandPalette/CommandPalette";
 /* Lib and Utils */
 import {
 	getAllSnippets,
+	getSnippetsByFolder,
 	getSnippetsByState,
 	getSnippetsByTag,
 	getUncategorizedSnippets,
@@ -39,6 +40,7 @@ export default function Page(): ReactElement {
 	};
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
 	const [tags, setTags] = useState<TagItem[]>([]);
+	const [folders, setFolders] = useState<TagItem[]>([]);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
 	const [publicCount, setPublicCount] = useState<number>(0);
@@ -88,6 +90,24 @@ export default function Page(): ReactElement {
 			...codeEditorStates,
 			touched,
 		});
+	};
+
+	const getFolders = (snippetsLoaded: Snippet[]): void => {
+		const folderCounts: Record<string, number> = {};
+
+		snippetsLoaded?.forEach((snippet: Snippet) => {
+			const folderName = snippet?.folder?.trim();
+
+			if (folderName) {
+				folderCounts[folderName] = (folderCounts[folderName] ?? 0) + 1;
+			}
+		});
+
+		const nextFolders = Object.keys(folderCounts)
+			.sort()
+			.map((folder) => ({ name: folder, total: folderCounts[folder] }));
+
+		setFolders(nextFolders);
 	};
 
 	const getTags = (snippetsLoaded: Snippet[]): void => {
@@ -150,6 +170,7 @@ export default function Page(): ReactElement {
 
 		if (isActive) {
 			getTags(data);
+			getFolders(data);
 			updateMenuCounts(data);
 		}
 
@@ -198,9 +219,14 @@ export default function Page(): ReactElement {
 
 	const updateSnippetTagList = async (
 		updatedSnippet: Snippet | null = null,
-		previousTags: Tags = null
+		previousTags: Tags = null,
+		previousFolder: string | null = null
 	) => {
-		if (updatedSnippet && updatedSnippet.tags === previousTags) {
+		if (
+			updatedSnippet &&
+			updatedSnippet.tags === previousTags &&
+			(updatedSnippet.folder ?? null) === previousFolder
+		) {
 			return;
 		}
 
@@ -214,6 +240,7 @@ export default function Page(): ReactElement {
 			: allSnippets;
 
 		getTags(updatedSnippetList);
+		getFolders(updatedSnippetList);
 		updateMenuCounts(updatedSnippetList);
 	};
 
@@ -238,6 +265,7 @@ export default function Page(): ReactElement {
 			});
 
 			const previousTags = activeSnippet.tags ?? null;
+			const previousFolder = activeSnippet.folder ?? null;
 			const updatedSnippet = {
 				...currentSnippet,
 				updated_at: new Date().toISOString(),
@@ -254,7 +282,9 @@ export default function Page(): ReactElement {
 				).catch(() => null);
 			}
 
-			updateSnippetTagList(updatedSnippet, previousTags).then(() => null);
+			updateSnippetTagList(updatedSnippet, previousTags, previousFolder).then(
+				() => null
+			);
 
 			if (fromButton && codeEditorStates.touched) {
 				addToast({
@@ -398,6 +428,22 @@ export default function Page(): ReactElement {
 		}
 	};
 
+	const getSnippetsByFolderHandler = async (folder: string): Promise<void> => {
+		if (folder.length === 0) {
+			return;
+		}
+
+		const data = await getSnippetsByFolder(folder);
+
+		setCodedEditorStates({
+			...defaultCodeEditorStates,
+			menuType: folder,
+			activeSnippetId: data?.[0]?.snippet_id ?? null,
+		});
+
+		setSnippets(data);
+	};
+
 	const getSnippetsByTagHandler = async (tag: string): Promise<void> => {
 		if (tag.length === 0) {
 			return;
@@ -496,6 +542,7 @@ export default function Page(): ReactElement {
 						isLoading={isLoading}
 						codeEditorStates={codeEditorStates}
 						tags={tags}
+						folders={folders}
 						publicCount={publicCount}
 						allCount={allCount}
 						uncategorizedCount={uncategorizedCount}
@@ -506,6 +553,7 @@ export default function Page(): ReactElement {
 						onGetFavorites={getFavoritesHandler}
 						onGetTrash={getTrashHandler}
 						onTagClick={getSnippetsByTagHandler}
+						onFolderClick={getSnippetsByFolderHandler}
 						onAccountClick={handleAccountClick}
 					/>
 				}

@@ -26,6 +26,8 @@ export default class SnippetValueObject implements Snippet {
 
 	public public_slug: string | null;
 
+	public folder: string | null;
+
 	language: SupportedLanguages;
 
 	constructor(user_id: UUID) {
@@ -42,5 +44,6 @@ export default class SnippetValueObject implements Snippet {
 		this.tags = null;
 		this.is_public = false;
 		this.public_slug = null;
+		this.folder = null;
 	}
 }
