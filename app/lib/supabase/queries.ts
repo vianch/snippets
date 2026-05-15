@@ -301,14 +301,7 @@ export const getSnippetVersion = async (
 /* ─── Public Snippets ─── */
 
 const generateSlug = (): string => {
-	const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-	let slug = "";
-
-	for (let i = 0; i < 10; i++) {
-		slug += chars.charAt(Math.floor(Math.random() * chars.length));
-	}
-
-	return slug;
+	return crypto.randomUUID().replace(/-/g, "").slice(0, 22);
 };
 
 export const toggleSnippetPublic = async (
