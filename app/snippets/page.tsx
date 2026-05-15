@@ -8,6 +8,7 @@ import SnippetList from "@/components/SnippetList/SnippetList";
 import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
 import AccountModal from "@/components/AccountModal/AccountModal";
+import CommandPalette from "@/components/CommandPalette/CommandPalette";
 
 /* Lib and Utils */
 import {
@@ -17,6 +18,7 @@ import {
 	getUncategorizedSnippets,
 	saveSnippet,
 	saveSnippetVersion,
+	setNewSnippet,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
@@ -462,6 +464,14 @@ export default function Page(): ReactElement {
 		setIsAccountModalOpen(false);
 	};
 
+	const createSnippetFromPalette = async (): Promise<void> => {
+		const newSnippet = await setNewSnippet();
+
+		if (newSnippet) {
+			newSnippetHandler(newSnippet);
+		}
+	};
+
 	useEffect(() => {
 		getSnippets().then(() => null);
 	}, []);
@@ -533,6 +543,19 @@ export default function Page(): ReactElement {
 			<AccountModal
 				isOpen={isAccountModalOpen}
 				onClose={handleAccountModalClose}
+			/>
+			<CommandPalette
+				snippets={snippets}
+				tags={tags}
+				onActiveSnippet={setActiveSnippetId}
+				onNewSnippet={createSnippetFromPalette}
+				onGetAll={getSnippetsHandler}
+				onGetUncategorized={getUncategorizedHandler}
+				onGetPublic={getPublicHandler}
+				onGetFavorites={getFavoritesHandler}
+				onGetTrash={getTrashHandler}
+				onTagClick={getSnippetsByTagHandler}
+				onAccountClick={handleAccountClick}
 			/>
 		</>
 	);
