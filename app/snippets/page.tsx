@@ -13,10 +13,12 @@ import CommandPalette from "@/components/CommandPalette/CommandPalette";
 /* Lib and Utils */
 import {
 	getAllSnippets,
+	getSmartGroups,
 	getSnippetsByFolder,
 	getSnippetsByState,
 	getSnippetsByTag,
 	getUncategorizedSnippets,
+	saveSmartGroups,
 	saveSnippet,
 	saveSnippetVersion,
 	setNewSnippet,
@@ -41,6 +43,11 @@ export default function Page(): ReactElement {
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
 	const [tags, setTags] = useState<TagItem[]>([]);
 	const [folders, setFolders] = useState<TagItem[]>([]);
+	const [smartGroups, setSmartGroups] = useState<SmartGroup[]>([]);
+	const [seedSearch, setSeedSearch] = useState<{
+		query: string;
+		nonce: number;
+	} | null>(null);
 	const [codeEditorStates, setCodedEditorStates] =
 		useState<SnippetEditorStates>(defaultCodeEditorStates);
 	const [publicCount, setPublicCount] = useState<number>(0);
@@ -506,6 +513,74 @@ export default function Page(): ReactElement {
 		setIsAccountModalOpen(true);
 	};
 
+	const loadSmartGroups = async (): Promise<void> => {
+		try {
+			const groups = await getSmartGroups();
+
+			setSmartGroups(groups);
+		} catch {
+			setSmartGroups([]);
+		}
+	};
+
+	const handleSaveSmartGroup = async (
+		name: string,
+		query: string
+	): Promise<void> => {
+		const trimmedName = name.trim();
+		const trimmedQuery = query.trim();
+
+		if (!trimmedName || !trimmedQuery) return;
+
+		const filtered = smartGroups.filter(
+			(group) => group.name.toLowerCase() !== trimmedName.toLowerCase()
+		);
+		const next = [...filtered, { name: trimmedName, query: trimmedQuery }];
+
+		setSmartGroups(next);
+
+		try {
+			await saveSmartGroups(next);
+			addToast({
+				type: ToastType.Success,
+				message: `Saved smart group "${trimmedName}"`,
+			});
+		} catch {
+			setSmartGroups(smartGroups);
+			addToast({
+				type: ToastType.Error,
+				message: "Failed to save smart group",
+			});
+		}
+	};
+
+	const handleRemoveSmartGroup = async (name: string): Promise<void> => {
+		const next = smartGroups.filter((group) => group.name !== name);
+		const previous = smartGroups;
+
+		setSmartGroups(next);
+
+		try {
+			await saveSmartGroups(next);
+		} catch {
+			setSmartGroups(previous);
+			addToast({
+				type: ToastType.Error,
+				message: "Failed to remove smart group",
+			});
+		}
+	};
+
+	const handleSmartGroupClick = async (group: SmartGroup): Promise<void> => {
+		await getSnippets();
+
+		setCodedEditorStates((prev) => ({
+			...prev,
+			menuType: `smart:${group.name}`,
+		}));
+		setSeedSearch({ query: group.query, nonce: Date.now() });
+	};
+
 	const handleAccountModalClose = (): void => {
 		setIsAccountModalOpen(false);
 	};
@@ -559,6 +634,7 @@ export default function Page(): ReactElement {
 
 	useEffect(() => {
 		getSnippets().then(() => null);
+		loadSmartGroups().then(() => null);
 	}, []);
 
 	useEffect(() => {
@@ -582,6 +658,7 @@ export default function Page(): ReactElement {
 						codeEditorStates={codeEditorStates}
 						tags={tags}
 						folders={folders}
+						smartGroups={smartGroups}
 						publicCount={publicCount}
 						allCount={allCount}
 						uncategorizedCount={uncategorizedCount}
@@ -593,6 +670,8 @@ export default function Page(): ReactElement {
 						onGetTrash={getTrashHandler}
 						onTagClick={getSnippetsByTagHandler}
 						onFolderClick={getSnippetsByFolderHandler}
+						onSmartGroupClick={handleSmartGroupClick}
+						onSmartGroupRemove={handleRemoveSmartGroup}
 						onAccountClick={handleAccountClick}
 					/>
 				}
@@ -601,11 +680,14 @@ export default function Page(): ReactElement {
 						isLoading={isLoading}
 						snippets={snippets}
 						codeEditorStates={codeEditorStates}
+						seedSearch={seedSearch}
+						canSaveSmartGroup
 						onNewSnippet={newSnippetHandler}
 						onActiveSnippet={setActiveSnippetId}
 						onDeleteSnippet={trashRestoreSnippetHandler}
 						onRestoreSnippet={trashRestoreSnippetHandler}
 						onEmptyTrash={emptyTrashHandler}
+						onSaveSmartGroup={handleSaveSmartGroup}
 					/>
 				}
 				codeEditor={

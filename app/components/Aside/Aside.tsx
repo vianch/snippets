@@ -34,6 +34,8 @@ import Trash from "@/components/ui/icons/Trash";
 import Book from "@/components/ui/icons/Book";
 import Bookmark from "@/components/ui/icons/Bookmark";
 import Folder from "@/components/ui/icons/Folder";
+import Floppy from "@/components/ui/icons/Floppy";
+import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
 import Star from "@/components/ui/icons/Star";
 import Loading from "@/components/ui/icons/Loading";
 import List from "@/components/ui/icons/List";
@@ -49,6 +51,7 @@ type AsideProps = {
 	codeEditorStates: SnippetEditorStates;
 	tags: TagItem[];
 	folders: TagItem[];
+	smartGroups: SmartGroup[];
 	publicCount: number;
 	allCount: number;
 	uncategorizedCount: number;
@@ -60,6 +63,8 @@ type AsideProps = {
 	onGetTrash: () => void;
 	onTagClick: (tag: string) => void;
 	onFolderClick: (folder: string) => void;
+	onSmartGroupClick: (group: SmartGroup) => void;
+	onSmartGroupRemove: (name: string) => void;
 	onAccountClick: () => void;
 };
 
@@ -68,6 +73,7 @@ const Aside = ({
 	codeEditorStates,
 	tags,
 	folders,
+	smartGroups,
 	publicCount,
 	allCount,
 	uncategorizedCount,
@@ -79,6 +85,8 @@ const Aside = ({
 	onGetTrash,
 	onTagClick,
 	onFolderClick,
+	onSmartGroupClick,
+	onSmartGroupRemove,
 	onAccountClick,
 }: AsideProps): ReactElement => {
 	const { menuType } = codeEditorStates;
@@ -344,6 +352,42 @@ const Aside = ({
 							Trash
 						</a>
 					</section>
+
+					{!isLoading && smartGroups?.length > 0 && (
+						<section className={styles.section}>
+							<h2 className={`${styles.title} cyan-color`}>
+								<MagnifyingGlass
+									className={styles.icon}
+									width={18}
+									height={18}
+								/>
+								Smart Groups
+							</h2>
+							<ul>
+								{smartGroups.map((group) => (
+									<li
+										key={`smart-group-${group.name}`}
+										className={`${styles.smartGroupItem} ${menuType === `smart:${group.name}` ? styles.linkItemActive : ""}`}
+										onClick={() => onSmartGroupClick(group)}
+									>
+										<Floppy className={styles.icon} width={14} height={14} />
+										<span className={styles.smartGroupName}>{group.name}</span>
+										<button
+											type="button"
+											className={styles.smartGroupRemove}
+											aria-label={`Remove smart group ${group.name}`}
+											onClick={(event) => {
+												event.stopPropagation();
+												onSmartGroupRemove(group.name);
+											}}
+										>
+											×
+										</button>
+									</li>
+								))}
+							</ul>
+						</section>
+					)}
 
 					{!isLoading && folders?.length > 0 && (
 						<section
