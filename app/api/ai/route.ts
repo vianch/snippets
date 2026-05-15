@@ -210,10 +210,11 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			: aiSystemPrompts[action](language || "unknown");
 		const prompt = isAskAction ? (userPrompt as string) : code;
 		const stripFences = !isAskAction;
-		const aiProvider = request.headers.get("x-ai-provider") || "ollama";
-		const aiApiKey = request.headers.get("x-ai-api-key") || "";
-		const aiModel = request.headers.get("x-ai-model") || "";
-		const aiUrl = request.headers.get("x-ai-url") || "";
+		const metadata = user.user_metadata ?? {};
+		const aiProvider = (metadata.ai_provider as string) || "ollama";
+		const aiApiKey = (metadata.ai_api_key as string) || "";
+		const aiModel = (metadata.ai_model as string) || "";
+		const aiUrl = (metadata.ai_url as string) || "";
 
 		// OpenAI provider
 		if (aiProvider === "openai") {

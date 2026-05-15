@@ -232,17 +232,11 @@ const AiChatModal = ({
 		requestAnimationFrame(autosizeTextarea);
 
 		try {
-			const session = await getUserDataFromSession();
-			const metadata = session?.user?.user_metadata;
 			const response = await requestAiAction(
 				action,
 				currentSnippet.snippet,
 				currentSnippet.language,
 				{
-					aiProvider: metadata?.ai_provider,
-					aiApiKey: metadata?.ai_api_key,
-					aiModel: metadata?.ai_model,
-					aiUrl: metadata?.ai_url,
 					userPrompt,
 					signal: controller.signal,
 				}
