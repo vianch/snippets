@@ -464,6 +464,45 @@ export default function Page(): ReactElement {
 		setIsAccountModalOpen(false);
 	};
 
+	const handleWikiNavigate = async (target: string): Promise<void> => {
+		const trimmed = target.trim();
+
+		if (!trimmed) return;
+
+		const inCurrentView = snippets.find(
+			(item: Snippet): boolean =>
+				item.name.toLowerCase() === trimmed.toLowerCase()
+		);
+
+		if (inCurrentView) {
+			setActiveSnippetId(inCurrentView.snippet_id);
+
+			return;
+		}
+
+		const allActive = await getAllSnippets();
+		const found = allActive.find(
+			(item: Snippet): boolean =>
+				item.name.toLowerCase() === trimmed.toLowerCase()
+		);
+
+		if (!found) {
+			addToast({
+				type: ToastType.Warning,
+				message: `No snippet found matching "${trimmed}"`,
+			});
+
+			return;
+		}
+
+		setSnippets(allActive);
+		setCodedEditorStates({
+			...defaultCodeEditorStates,
+			menuType: MenuItems.All,
+			activeSnippetId: found.snippet_id,
+		});
+	};
+
 	const createSnippetFromPalette = async (): Promise<void> => {
 		const newSnippet = await setNewSnippet();
 
@@ -533,10 +572,12 @@ export default function Page(): ReactElement {
 								: null
 						}
 						codeEditorStates={codeEditorStates}
+						allSnippets={snippets}
 						onSave={saveSnippetHandler}
 						onStarred={onStarredHandler}
 						onPublicToggle={onPublicToggleHandler}
 						onTouched={touchedHandler}
+						onWikiNavigate={handleWikiNavigate}
 					/>
 				}
 			/>

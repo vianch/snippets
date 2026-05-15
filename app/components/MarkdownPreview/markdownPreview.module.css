@@ -151,6 +151,35 @@
 	height: auto;
 }
 
+.previewContent :global(.wiki-link) {
+	display: inline;
+	background: none;
+	border: none;
+	padding: 0;
+	color: var(--purple-color);
+	font: inherit;
+	cursor: pointer;
+	text-decoration: none;
+	border-bottom: 1px dashed var(--purple-color);
+}
+
+.previewContent :global(.wiki-link::before) {
+	content: "[[";
+	color: var(--gray-color);
+	margin-right: 1px;
+}
+
+.previewContent :global(.wiki-link::after) {
+	content: "]]";
+	color: var(--gray-color);
+	margin-left: 1px;
+}
+
+.previewContent :global(.wiki-link:hover) {
+	color: var(--cyan-color);
+	border-bottom-color: var(--cyan-color);
+}
+
 /* Scrollbar styles matching code editor */
 .previewContent::-webkit-scrollbar {
 	width: 10px;

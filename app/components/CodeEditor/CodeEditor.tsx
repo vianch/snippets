@@ -7,6 +7,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import inlineCompletion from "@/lib/inlineCompletion";
+import wikiLinkAutocomplete from "@/lib/wikiLinkAutocomplete";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
@@ -43,6 +44,7 @@ type CodeEditorProps = {
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
 	codeEditorStates: SnippetEditorStates;
+	allSnippets: Snippet[];
 	onSave: (
 		currentSnippet: CurrentSnippet,
 		fromButton: boolean | "favorite"
@@ -50,6 +52,7 @@ type CodeEditorProps = {
 	onStarred: (currentSnippet: CurrentSnippet) => void;
 	onPublicToggle: (currentSnippet: CurrentSnippet) => void;
 	onTouched: (touched: boolean) => void;
+	onWikiNavigate?: (target: string) => void;
 };
 
 const CodeEditor = ({
@@ -57,10 +60,12 @@ const CodeEditor = ({
 	snippet,
 	codeEditorStates,
 	defaultLanguage = SupportedLanguages.Markdown,
+	allSnippets,
 	onSave,
 	onStarred,
 	onPublicToggle,
 	onTouched,
+	onWikiNavigate,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const theme = useUserStore((state) => state.theme) as ThemeName;
@@ -118,6 +123,11 @@ const CodeEditor = ({
 				},
 			}),
 		[isTrashActive, currentSnippet.language]
+	);
+
+	const wikiAutocompleteExtension = useMemo(
+		() => wikiLinkAutocomplete(allSnippets),
+		[allSnippets]
 	);
 
 	const { editorWidthPercent, handlePreviewMouseDown } =
@@ -259,6 +269,7 @@ const CodeEditor = ({
 									extensions={[
 										currentSnippet.extension,
 										inlineCompletionExtension,
+										wikiAutocompleteExtension,
 									]}
 									theme={editorTheme}
 									height={editorHeight}
@@ -275,6 +286,7 @@ const CodeEditor = ({
 							<MarkdownPreview
 								content={currentSnippet.snippet}
 								height={previewHeight}
+								onWikiNavigate={onWikiNavigate}
 							/>
 						</div>
 					) : (
@@ -287,7 +299,7 @@ const CodeEditor = ({
 							placeholder={"Write your snipped here"}
 							className={styles.codeMirrorContainer}
 							value={currentSnippet?.snippet ?? ""}
-							extensions={[currentSnippet.extension]}
+							extensions={[currentSnippet.extension, wikiAutocompleteExtension]}
 							theme={editorTheme}
 							height={editorHeight}
 							width="100%"
