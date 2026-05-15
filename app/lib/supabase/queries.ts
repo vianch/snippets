@@ -154,22 +154,46 @@ export const searchSnippets = async (query: string): Promise<Snippet[]> => {
 export const saveSnippet = async (
 	currentSnippet: CurrentSnippet
 ): Promise<void> => {
-	if (supabase) {
-		const { error } = await supabase.from("snippet").upsert({
-			snippet_id: currentSnippet.snippet_id,
-			snippet: currentSnippet.snippet,
-			language: currentSnippet.language,
-			name: currentSnippet?.name,
-			updated_at: currentSnippet?.updated_at,
-			state: currentSnippet?.state,
-			tags: currentSnippet?.tags ?? null,
-			url: currentSnippet?.url ?? null,
-			notes: currentSnippet?.notes ?? null,
-		});
+	if (!supabase) return;
 
-		if (error) {
-			throw new Error("Error saving snippet");
-		}
+	const userId = await getUserIdBySession();
+
+	if (!userId) {
+		throw new Error("Not authenticated");
+	}
+
+	const payload = {
+		snippet_id: currentSnippet.snippet_id,
+		snippet: currentSnippet.snippet,
+		language: currentSnippet.language,
+		name: currentSnippet?.name,
+		updated_at: currentSnippet?.updated_at,
+		state: currentSnippet?.state,
+		tags: currentSnippet?.tags ?? null,
+		url: currentSnippet?.url ?? null,
+		notes: currentSnippet?.notes ?? null,
+	};
+
+	const { data: updated, error: updateError } = await supabase
+		.from("snippet")
+		.update(payload)
+		.match({ snippet_id: currentSnippet.snippet_id, user_id: userId })
+		.select("snippet_id");
+
+	if (updateError) {
+		throw new Error("Error saving snippet");
+	}
+
+	if (updated && updated.length > 0) {
+		return;
+	}
+
+	const { error: insertError } = await supabase
+		.from("snippet")
+		.insert({ ...payload, user_id: userId });
+
+	if (insertError) {
+		throw new Error("Error saving snippet");
 	}
 };
 
@@ -177,15 +201,21 @@ export const trashRestoreSnippet = async (
 	snippetId: UUID,
 	state: SnippetState = "inactive"
 ): Promise<void> => {
-	if (supabase) {
-		const { error } = await supabase
-			.from("snippet")
-			.update({ state })
-			.match({ snippet_id: snippetId });
+	if (!supabase) return;
 
-		if (error) {
-			throw new Error("Error trashing snippet");
-		}
+	const userId = await getUserIdBySession();
+
+	if (!userId) {
+		throw new Error("Not authenticated");
+	}
+
+	const { error } = await supabase
+		.from("snippet")
+		.update({ state })
+		.match({ snippet_id: snippetId, user_id: userId });
+
+	if (error) {
+		throw new Error("Error trashing snippet");
 	}
 };
 
@@ -225,6 +255,22 @@ export const saveSnippetVersion = async (
 	currentSnippet: CurrentSnippet
 ): Promise<void> => {
 	if (supabase) {
+		const userId = await getUserIdBySession();
+
+		if (!userId) {
+			throw new Error("Not authenticated");
+		}
+
+		const { data: parent } = await supabase
+			.from("snippet")
+			.select("snippet_id")
+			.match({ snippet_id: snippetId, user_id: userId })
+			.maybeSingle();
+
+		if (!parent) {
+			throw new Error("Snippet not found");
+		}
+
 		const { data: latestVersion } = await supabase
 			.from("snippet_version")
 			.select("version_number")
@@ -309,22 +355,26 @@ export const toggleSnippetPublic = async (
 	isPublic: boolean,
 	existingSlug: string | null = null
 ): Promise<string | null> => {
-	if (supabase) {
-		const slug = isPublic ? (existingSlug ?? generateSlug()) : existingSlug;
+	if (!supabase) return null;
 
-		const { error } = await supabase
-			.from("snippet")
-			.update({ is_public: isPublic, public_slug: slug })
-			.match({ snippet_id: snippetId });
+	const userId = await getUserIdBySession();
 
-		if (error) {
-			throw new Error("Error toggling snippet visibility");
-		}
-
-		return slug;
+	if (!userId) {
+		throw new Error("Not authenticated");
 	}
 
-	return null;
+	const slug = isPublic ? (existingSlug ?? generateSlug()) : existingSlug;
+
+	const { error } = await supabase
+		.from("snippet")
+		.update({ is_public: isPublic, public_slug: slug })
+		.match({ snippet_id: snippetId, user_id: userId });
+
+	if (error) {
+		throw new Error("Error toggling snippet visibility");
+	}
+
+	return slug;
 };
 
 export const getPublicSnippet = async (
