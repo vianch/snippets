@@ -91,6 +91,16 @@
 	margin-left: 0.313rem;
 }
 
+.shortcutHint {
+	margin-left: auto;
+	font-size: var(--tiny-font-size);
+	color: var(--comment-color);
+	background: var(--bg-color);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius);
+	padding: 0.125rem 0.375rem;
+}
+
 .settingsItems {
 	color: var(--gray-color);
 	cursor: pointer;

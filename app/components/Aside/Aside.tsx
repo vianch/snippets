@@ -40,6 +40,8 @@ import List from "@/components/ui/icons/List";
 import Rows from "@/components/ui/icons/Rows";
 import CaretDown from "@/components/ui/icons/CaretDown";
 import Globe from "@/components/ui/icons/Globe";
+import Keyboard from "@/components/ui/icons/Keyboard";
+import ShortcutsModal from "@/components/ShortcutsModal/ShortcutsModal";
 
 /* Styles */
 import styles from "./aside.module.css";
@@ -90,6 +92,7 @@ const Aside = ({
 	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(false);
 	const [isFoldersExpanded, setIsFoldersExpanded] = useState<boolean>(true);
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
+	const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
 	const [isMac, setIsMac] = useState<boolean>(true);
 
 	// User store
@@ -251,6 +254,11 @@ const Aside = ({
 				setIsUserMenuOpen(false);
 				onAccountClick();
 			}
+
+			if ((event.metaKey || event.ctrlKey) && event.key === "/") {
+				event.preventDefault();
+				setIsShortcutsOpen((current) => !current);
+			}
 		};
 
 		document.addEventListener("keydown", handleKeyDown);
@@ -342,6 +350,20 @@ const Aside = ({
 						>
 							<Trash className={styles.icon} height={18} width={18} />
 							Trash
+						</a>
+
+						<a
+							className={`${styles.linkItem} gray-color`}
+							onClick={(event: MouseEvent<HTMLAnchorElement>) => {
+								event?.preventDefault();
+								setIsShortcutsOpen(true);
+							}}
+						>
+							<Keyboard className={styles.icon} height={18} width={18} />
+							Shortcuts
+							<span className={styles.shortcutHint}>
+								{isMac ? "⌘" : "Ctrl"} /
+							</span>
 						</a>
 					</section>
 
@@ -523,6 +545,11 @@ const Aside = ({
 					</li>
 				</ul>
 			</aside>
+
+			<ShortcutsModal
+				isOpen={isShortcutsOpen}
+				onClose={() => setIsShortcutsOpen(false)}
+			/>
 		</>
 	);
 };
