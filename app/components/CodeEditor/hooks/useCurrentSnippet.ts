@@ -222,13 +222,6 @@ const useCurrentSnippet = ({
 		onSave(currentSnippet, true);
 	};
 
-	// Sync language extension when snippet language changes
-	useEffect(() => {
-		if (snippet?.language) {
-			setLanguageExtension(snippet.language);
-		}
-	}, [snippet?.language]);
-
 	// Load new snippet when switching
 	useEffect(() => {
 		if (!snippet) return;

@@ -195,8 +195,13 @@ export default function Page(): ReactElement {
 	};
 
 	const updateSnippetTagList = async (
-		updatedSnippet: Snippet | null = null
+		updatedSnippet: Snippet | null = null,
+		previousTags: Tags = null
 	) => {
+		if (updatedSnippet && updatedSnippet.tags === previousTags) {
+			return;
+		}
+
 		const allSnippets = await getAllSnippets();
 		const updatedSnippetList = updatedSnippet
 			? allSnippets.map((snippet) =>
@@ -230,6 +235,7 @@ export default function Page(): ReactElement {
 				isSaving: true,
 			});
 
+			const previousTags = activeSnippet.tags ?? null;
 			const updatedSnippet = {
 				...currentSnippet,
 				updated_at: new Date().toISOString(),
@@ -246,7 +252,7 @@ export default function Page(): ReactElement {
 				).catch(() => null);
 			}
 
-			updateSnippetTagList(updatedSnippet).then(() => null);
+			updateSnippetTagList(updatedSnippet, previousTags).then(() => null);
 
 			if (fromButton && codeEditorStates.touched) {
 				addToast({
