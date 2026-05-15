@@ -5,6 +5,7 @@ export const aiActions = {
 	optimize: "optimize",
 	json: "json",
 	ask: "ask",
+	complete: "complete",
 } as const;
 
 export const aiActionLabels: Record<AiAction, string> = {
@@ -14,6 +15,7 @@ export const aiActionLabels: Record<AiAction, string> = {
 	optimize: "Optimize",
 	json: "JSON parse & format",
 	ask: "Ask about this code",
+	complete: "Inline completion",
 };
 
 export const chipActions: AiAction[] = [
@@ -37,6 +39,8 @@ export const aiSystemPrompts: Record<AiAction, (language: string) => string> = {
 		"Fix this invalid JSON. Correct syntax errors like missing commas, brackets, quotes, or trailing commas. Return ONLY the valid, formatted JSON. No explanation, no markdown, no code fences.",
 	ask: (language) =>
 		`You are a coding assistant. The user will ask a question about a ${language} code snippet provided to you in the same system message. Answer clearly and concisely. If you include code, wrap it in fenced code blocks with the language tag.`,
+	complete: (language) =>
+		`You are an inline ${language} code completion assistant. The user's message is a partial code prefix; return ONLY the next 1 to 3 lines that should follow the cursor. Output raw text, no explanation, no markdown, no code fences. Preserve the existing indentation and style. If the prefix already looks complete, return an empty response.`,
 };
 
 export const codeActions: AiAction[] = [

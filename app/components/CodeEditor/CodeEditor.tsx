@@ -6,10 +6,13 @@ import CodeMirror from "@uiw/react-codemirror";
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
+import inlineCompletion from "@/lib/inlineCompletion";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
+import { aiActions } from "@/lib/constants/ai";
+import { requestAiAction } from "@/utils/ai.utils";
 
 /* Hooks */
 import useCurrentSnippet from "@/components/CodeEditor/hooks/useCurrentSnippet";
@@ -98,6 +101,24 @@ const CodeEditor = ({
 	});
 
 	useKeyboardSave(saveHandler, isTrashActive);
+
+	const inlineCompletionExtension = useMemo(
+		() =>
+			inlineCompletion({
+				enabled: !isTrashActive,
+				language: currentSnippet.language,
+				fetchCompletion: async (prefix, language) => {
+					const response = await requestAiAction(
+						aiActions.complete,
+						prefix,
+						language
+					);
+
+					return response.result;
+				},
+			}),
+		[isTrashActive, currentSnippet.language]
+	);
 
 	const { editorWidthPercent, handlePreviewMouseDown } =
 		usePreviewResize(editorContentRef);
@@ -235,7 +256,10 @@ const CodeEditor = ({
 									placeholder={"Write your snipped here"}
 									className={styles.codeMirrorContainer}
 									value={currentSnippet?.snippet ?? ""}
-									extensions={[currentSnippet.extension]}
+									extensions={[
+										currentSnippet.extension,
+										inlineCompletionExtension,
+									]}
 									theme={editorTheme}
 									height={editorHeight}
 									width="100%"
