@@ -1,0 +1,39 @@
+type ShortcutGroup = {
+	heading: string;
+	items: { keys: string[]; description: string }[];
+};
+
+const shortcutGroups: ShortcutGroup[] = [
+	{
+		heading: "Navigation",
+		items: [
+			{ keys: ["Mod", "K"], description: "Open command palette" },
+			{ keys: ["Mod", "/"], description: "Open shortcuts modal" },
+			{ keys: ["Mod", ","], description: "Open settings" },
+			{ keys: ["Esc"], description: "Close any open modal or drawer" },
+		],
+	},
+	{
+		heading: "Editor",
+		items: [
+			{ keys: ["Mod", "S"], description: "Save current snippet" },
+			{ keys: ["Mod", "I"], description: "Request AI inline completion" },
+			{ keys: ["Tab"], description: "Accept AI completion / indent" },
+			{ keys: ["Esc"], description: "Dismiss AI completion" },
+			{
+				keys: ["["],
+				description: "Type [[ in any snippet to link to another snippet",
+			},
+		],
+	},
+	{
+		heading: "Command palette (Mod+K)",
+		items: [
+			{ keys: ["↑", "↓"], description: "Navigate results" },
+			{ keys: ["↵"], description: "Select highlighted item" },
+			{ keys: ["Esc"], description: "Close the palette" },
+		],
+	},
+];
+
+export default shortcutGroups;

@@ -42,6 +42,8 @@ import List from "@/components/ui/icons/List";
 import Rows from "@/components/ui/icons/Rows";
 import CaretDown from "@/components/ui/icons/CaretDown";
 import Globe from "@/components/ui/icons/Globe";
+import Keyboard from "@/components/ui/icons/Keyboard";
+import ShortcutsModal from "@/components/ShortcutsModal/ShortcutsModal";
 
 /* Styles */
 import styles from "./aside.module.css";
@@ -98,6 +100,7 @@ const Aside = ({
 	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(false);
 	const [isFoldersExpanded, setIsFoldersExpanded] = useState<boolean>(true);
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
+	const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
 	const [isMac, setIsMac] = useState<boolean>(true);
 
 	// User store
@@ -258,6 +261,11 @@ const Aside = ({
 				event.preventDefault();
 				setIsUserMenuOpen(false);
 				onAccountClick();
+			}
+
+			if ((event.metaKey || event.ctrlKey) && event.key === "/") {
+				event.preventDefault();
+				setIsShortcutsOpen((current) => !current);
 			}
 		};
 
@@ -492,6 +500,21 @@ const Aside = ({
 						</button>
 
 						<button
+							className={styles.userMenuItem}
+							role="menuitem"
+							onClick={() => {
+								setIsUserMenuOpen(false);
+								setIsShortcutsOpen(true);
+							}}
+						>
+							<Keyboard className={styles.userMenuIco} width={16} height={16} />
+							<span className={styles.userMenuLabel}>Shortcuts</span>
+							<span className={styles.userMenuShortcut}>
+								{isMac ? "⌘" : "Ctrl"} /
+							</span>
+						</button>
+
+						<button
 							className={`${styles.userMenuItem} ${styles.userMenuItemDanger}`}
 							role="menuitem"
 							onClick={handleSignOut}
@@ -567,6 +590,11 @@ const Aside = ({
 					</li>
 				</ul>
 			</aside>
+
+			<ShortcutsModal
+				isOpen={isShortcutsOpen}
+				onClose={() => setIsShortcutsOpen(false)}
+			/>
 		</>
 	);
 };
