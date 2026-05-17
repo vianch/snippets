@@ -351,20 +351,6 @@ const Aside = ({
 							<Trash className={styles.icon} height={18} width={18} />
 							Trash
 						</a>
-
-						<a
-							className={`${styles.linkItem} gray-color`}
-							onClick={(event: MouseEvent<HTMLAnchorElement>) => {
-								event?.preventDefault();
-								setIsShortcutsOpen(true);
-							}}
-						>
-							<Keyboard className={styles.icon} height={18} width={18} />
-							Shortcuts
-							<span className={styles.shortcutHint}>
-								{isMac ? "⌘" : "Ctrl"} /
-							</span>
-						</a>
 					</section>
 
 					{!isLoading && folders?.length > 0 && (
@@ -466,6 +452,21 @@ const Aside = ({
 							<span className={styles.userMenuLabel}>Settings</span>
 							<span className={styles.userMenuShortcut}>
 								{isMac ? "⌘" : "Ctrl"} ,
+							</span>
+						</button>
+
+						<button
+							className={styles.userMenuItem}
+							role="menuitem"
+							onClick={() => {
+								setIsUserMenuOpen(false);
+								setIsShortcutsOpen(true);
+							}}
+						>
+							<Keyboard className={styles.userMenuIco} width={16} height={16} />
+							<span className={styles.userMenuLabel}>Shortcuts</span>
+							<span className={styles.userMenuShortcut}>
+								{isMac ? "⌘" : "Ctrl"} /
 							</span>
 						</button>
 
