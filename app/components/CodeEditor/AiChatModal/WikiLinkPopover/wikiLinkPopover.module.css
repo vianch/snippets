@@ -1,0 +1,46 @@
+.popover {
+	position: absolute;
+	bottom: calc(100% + 0.375rem);
+	left: 0;
+	right: 0;
+	margin: 0;
+	padding: 0.25rem;
+	list-style: none;
+	background: var(--bg-color-dark);
+	border: 1px solid var(--border-color);
+	border-radius: 0.5rem;
+	box-shadow: 0 8px 24px -8px rgb(0 0 0 / 35%);
+	max-height: 14rem;
+	overflow-y: auto;
+	z-index: 20;
+}
+
+.option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.4375rem 0.625rem;
+	border-radius: 0.375rem;
+	font-size: 0.8125rem;
+	color: var(--foreground-color);
+	cursor: pointer;
+}
+
+.optionActive {
+	background: var(--bg-color);
+}
+
+.optionName {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	flex: 1;
+}
+
+.optionLang {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.6875rem;
+	color: var(--gray-color);
+	flex-shrink: 0;
+}

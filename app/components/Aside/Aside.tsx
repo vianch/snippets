@@ -1,7 +1,7 @@
 "use client";
 
 import { MouseEvent, ReactElement, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 /* Constants */
 import { MenuItems } from "@/lib/constants/core";
@@ -43,6 +43,7 @@ import Rows from "@/components/ui/icons/Rows";
 import CaretDown from "@/components/ui/icons/CaretDown";
 import Globe from "@/components/ui/icons/Globe";
 import Keyboard from "@/components/ui/icons/Keyboard";
+import Sparkle from "@/components/ui/icons/Sparkle";
 import ShortcutsModal from "@/components/ShortcutsModal/ShortcutsModal";
 
 /* Styles */
@@ -93,6 +94,8 @@ const Aside = ({
 }: AsideProps): ReactElement => {
 	const { menuType } = codeEditorStates;
 	const router = useRouter();
+	const pathname = usePathname();
+	const isOnAiAssistant = pathname?.startsWith("/ai-assistant") ?? false;
 
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const userSectionRef = useRef<HTMLDivElement | null>(null);
@@ -487,17 +490,37 @@ const Aside = ({
 
 						<div className={styles.userMenuSep} />
 
-						<button
-							className={styles.userMenuItem}
-							role="menuitem"
-							onClick={handleSettingsClick}
-						>
-							<Settings className={styles.userMenuIco} width={16} height={16} />
-							<span className={styles.userMenuLabel}>Settings</span>
-							<span className={styles.userMenuShortcut}>
-								{isMac ? "⌘" : "Ctrl"} ,
-							</span>
-						</button>
+						{isOnAiAssistant ? (
+							<button
+								className={styles.userMenuItem}
+								role="menuitem"
+								onClick={() => {
+									setIsUserMenuOpen(false);
+									closeMainMenu();
+									router.push("/snippets");
+								}}
+							>
+								<Book className={styles.userMenuIco} width={16} height={16} />
+								<span className={styles.userMenuLabel}>Snippets mode</span>
+							</button>
+						) : (
+							<button
+								className={styles.userMenuItem}
+								role="menuitem"
+								onClick={() => {
+									setIsUserMenuOpen(false);
+									closeMainMenu();
+									router.push("/ai-assistant");
+								}}
+							>
+								<Sparkle
+									className={styles.userMenuIco}
+									width={16}
+									height={16}
+								/>
+								<span className={styles.userMenuLabel}>AI mode</span>
+							</button>
+						)}
 
 						<button
 							className={styles.userMenuItem}
@@ -511,6 +534,18 @@ const Aside = ({
 							<span className={styles.userMenuLabel}>Shortcuts</span>
 							<span className={styles.userMenuShortcut}>
 								{isMac ? "⌘" : "Ctrl"} /
+							</span>
+						</button>
+
+						<button
+							className={styles.userMenuItem}
+							role="menuitem"
+							onClick={handleSettingsClick}
+						>
+							<Settings className={styles.userMenuIco} width={16} height={16} />
+							<span className={styles.userMenuLabel}>Settings</span>
+							<span className={styles.userMenuShortcut}>
+								{isMac ? "⌘" : "Ctrl"} ,
 							</span>
 						</button>
 

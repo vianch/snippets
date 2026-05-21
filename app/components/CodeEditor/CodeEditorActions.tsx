@@ -20,26 +20,34 @@ import styles from "./codeEditorActions.module.css";
 
 type CodeEditorActionsProps = {
 	currentSnippet: CurrentSnippet;
+	allSnippets?: Snippet[];
 	isPublic: boolean;
 	showDetails: boolean;
+	hideAiButton?: boolean;
 	onToggleDetails: () => void;
 	onTogglePublic: () => void;
 	onToggleHistory?: () => void;
 	showHistory?: boolean;
 	hasVersions?: boolean;
 	onApplyAiCode?: (code: string) => void;
+	onCopyToSnippet?: (content: string) => void;
+	onReplaceSnippet?: (content: string) => void;
 };
 
 const CodeEditorActions = ({
 	currentSnippet,
+	allSnippets,
 	isPublic,
 	showDetails,
+	hideAiButton = false,
 	onToggleDetails,
 	onTogglePublic,
 	onToggleHistory,
 	showHistory = false,
 	hasVersions = false,
 	onApplyAiCode,
+	onCopyToSnippet,
+	onReplaceSnippet,
 }: CodeEditorActionsProps): ReactElement => {
 	const { addToast } = useToastStore();
 	const [aiChatOpen, setAiChatOpen] = useState(false);
@@ -97,16 +105,18 @@ const CodeEditorActions = ({
 	return (
 		<>
 			<div className={styles.actionsContainer}>
-				<div className={styles.aiButtonWrapper}>
-					<button
-						className={`${styles.actionButton} ${aiChatOpen ? styles.actionButtonActive : ""}`}
-						onClick={handleAiClick}
-						type="button"
-					>
-						<Sparkle width={24} height={24} />
-						<span className={styles.tooltip}>AI</span>
-					</button>
-				</div>
+				{!hideAiButton && (
+					<div className={styles.aiButtonWrapper}>
+						<button
+							className={`${styles.actionButton} ${aiChatOpen ? styles.actionButtonActive : ""}`}
+							onClick={handleAiClick}
+							type="button"
+						>
+							<Sparkle width={24} height={24} />
+							<span className={styles.tooltip}>AI</span>
+						</button>
+					</div>
+				)}
 				<button
 					className={styles.actionButton}
 					type="button"
@@ -161,12 +171,17 @@ const CodeEditorActions = ({
 				</button>
 			</div>
 
-			<AiChatModal
-				isOpen={aiChatOpen}
-				currentSnippet={currentSnippet}
-				onClose={() => setAiChatOpen(false)}
-				onApplyCode={handleApplyAiCode}
-			/>
+			{!hideAiButton && (
+				<AiChatModal
+					isOpen={aiChatOpen}
+					currentSnippet={currentSnippet}
+					allSnippets={allSnippets}
+					onClose={() => setAiChatOpen(false)}
+					onApplyCode={handleApplyAiCode}
+					onCopyToSnippet={onCopyToSnippet}
+					onReplaceSnippet={onReplaceSnippet}
+				/>
+			)}
 
 			{screenshotModalOpen && (
 				<ScreenshotModal

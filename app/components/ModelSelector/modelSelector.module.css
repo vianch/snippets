@@ -1,0 +1,45 @@
+.select {
+	font-family: inherit;
+	font-size: 0.8125rem;
+	padding: 0.375rem 0.5rem;
+	background: var(--bg-color-dark);
+	color: var(--foreground-color);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius-md);
+	cursor: pointer;
+}
+
+.compactSelect {
+	font-family: inherit;
+	font-size: 0.6875rem;
+	padding: 0.0625rem 0.25rem;
+	background: transparent;
+	color: var(--gray-color);
+	border: 1px solid transparent;
+	border-radius: 0.25rem;
+	cursor: pointer;
+	max-width: 9rem;
+	text-overflow: ellipsis;
+	transition:
+		border-color 0.15s ease,
+		color 0.15s ease,
+		background 0.15s ease;
+}
+
+.compactSelect:focus {
+	color: var(--foreground-color);
+	border-color: var(--border-color);
+	background: var(--bg-color-dark);
+	outline: none;
+}
+
+.compactSelect:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.compactSelect:hover:not(:disabled) {
+	color: var(--foreground-color);
+	border-color: var(--border-color);
+	background: var(--bg-color-dark);
+}

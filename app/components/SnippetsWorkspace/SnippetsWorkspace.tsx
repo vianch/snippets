@@ -1,0 +1,738 @@
+"use client";
+
+import { ReactElement, useEffect, useState } from "react";
+
+/* Components */
+import Aside from "@/components/Aside/Aside";
+import SnippetList from "@/components/SnippetList/SnippetList";
+import CodeEditor from "@/components/CodeEditor/CodeEditor";
+import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
+import AccountModal from "@/components/AccountModal/AccountModal";
+import CommandPalette from "@/components/CommandPalette/CommandPalette";
+
+/* Lib */
+import {
+	getAllSnippets,
+	getSmartGroups,
+	getSnippetsByFolder,
+	getSnippetsByState,
+	getSnippetsByTag,
+	getUncategorizedSnippets,
+	saveSmartGroups,
+	saveSnippet,
+	saveSnippetVersion,
+	setNewSnippet,
+	trashRestoreSnippet,
+} from "@/lib/supabase/queries";
+import { MenuItems } from "@/lib/constants/core";
+import { ToastType } from "@/lib/constants/toast";
+import useToastStore from "@/lib/store/toast.store";
+import { findSnippetByName } from "@/lib/wikiLinkResolver";
+
+/* Utils */
+import sortSnippetsByUpdatedAt from "@/utils/array.utils";
+import { useDeviceViewPort } from "@/utils/ui.utils";
+
+type SnippetsWorkspaceProps = {
+	rightPane?: "preview" | "chat";
+};
+
+const SnippetsWorkspace = ({
+	rightPane = "preview",
+}: SnippetsWorkspaceProps): ReactElement => {
+	useDeviceViewPort();
+
+	const defaultCodeEditorStates: SnippetEditorStates = {
+		activeSnippetId: null,
+		isSaving: false,
+		touched: false,
+		menuType: "none",
+	};
+	const [snippets, setSnippets] = useState<Snippet[]>([]);
+	const [tags, setTags] = useState<TagItem[]>([]);
+	const [folders, setFolders] = useState<TagItem[]>([]);
+	const [smartGroups, setSmartGroups] = useState<SmartGroup[]>([]);
+	const [seedSearch, setSeedSearch] = useState<{
+		query: string;
+		nonce: number;
+	} | null>(null);
+	const [codeEditorStates, setCodedEditorStates] =
+		useState<SnippetEditorStates>(defaultCodeEditorStates);
+	const [publicCount, setPublicCount] = useState<number>(0);
+	const [allCount, setAllCount] = useState<number>(0);
+	const [uncategorizedCount, setUncategorizedCount] = useState<number>(0);
+	const [favoritesCount, setFavoritesCount] = useState<number>(0);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+	const { addToast } = useToastStore();
+
+	const findIndexForCurrentSnippet = (currentSnippet: CurrentSnippet): number =>
+		snippets.findIndex(
+			(snippet: Snippet): boolean =>
+				snippet.snippet_id === currentSnippet.snippet_id
+		);
+
+	const setActiveSnippetId = (snippetId: UUID | null): void => {
+		setCodedEditorStates({
+			...codeEditorStates,
+			activeSnippetId: snippetId,
+			isSaving: codeEditorStates.touched,
+		});
+	};
+
+	const findSnippetIndexById = (snippetId: UUID | null): number =>
+		snippetId
+			? snippets.findIndex(
+					(snippet: Snippet): boolean => snippet.snippet_id === snippetId
+				)
+			: -1;
+
+	const pickNextActiveId = (
+		removedIndex: number,
+		remainingSnippets: Snippet[]
+	): UUID | null => {
+		if (remainingSnippets.length === 0) {
+			return null;
+		}
+
+		const nextIndex = Math.min(removedIndex, remainingSnippets.length - 1);
+
+		return remainingSnippets[nextIndex].snippet_id;
+	};
+
+	const touchedHandler = (touched: boolean): void => {
+		setCodedEditorStates({
+			...codeEditorStates,
+			touched,
+		});
+	};
+
+	const getFolders = (snippetsLoaded: Snippet[]): void => {
+		const folderCounts: Record<string, number> = {};
+
+		snippetsLoaded?.forEach((snippet: Snippet) => {
+			const folderName = snippet?.folder?.trim();
+
+			if (folderName) {
+				folderCounts[folderName] = (folderCounts[folderName] ?? 0) + 1;
+			}
+		});
+
+		const nextFolders = Object.keys(folderCounts)
+			.sort()
+			.map((folder) => ({ name: folder, total: folderCounts[folder] }));
+
+		setFolders(nextFolders);
+	};
+
+	const getTags = (snippetsLoaded: Snippet[]): void => {
+		const tagCounts = {} as { [key: string]: number };
+
+		if (!snippetsLoaded) return;
+
+		snippetsLoaded?.forEach((snippet: Snippet) => {
+			const snippetTags =
+				snippet?.tags && snippet.tags?.length > 0
+					? snippet.tags.split(",")
+					: [];
+
+			snippetTags.forEach((snippetTag: string) => {
+				const tagName = snippetTag.trim();
+
+				if (tagName in tagCounts) {
+					tagCounts[tagName] += 1;
+				} else {
+					tagCounts[tagName] = 1;
+				}
+			});
+		});
+
+		const newTags = Object.keys(tagCounts)
+			.sort()
+			.map((tag) => ({
+				name: tag,
+				total: tagCounts[tag],
+			}));
+
+		setTags(newTags);
+	};
+
+	const updateMenuCounts = (snippetList: Snippet[]): void => {
+		setAllCount(snippetList.length);
+		setUncategorizedCount(
+			snippetList.filter(
+				(snippetItem: Snippet) =>
+					!snippetItem.tags || snippetItem.tags.length === 0
+			).length
+		);
+		setFavoritesCount(
+			snippetList.filter(
+				(snippetItem: Snippet) => snippetItem.state === "favorite"
+			).length
+		);
+		setPublicCount(
+			snippetList.filter((snippetItem: Snippet) => snippetItem.is_public).length
+		);
+	};
+
+	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
+		const isActive = state === "active";
+		const data = isActive
+			? await getAllSnippets()
+			: await getSnippetsByState(state);
+
+		setSnippets(data);
+
+		if (isActive) {
+			getTags(data);
+			getFolders(data);
+			updateMenuCounts(data);
+		}
+
+		setCodedEditorStates({
+			...defaultCodeEditorStates,
+			activeSnippetId: data?.[0]?.snippet_id ?? null,
+		});
+		setIsLoading(false);
+	};
+
+	const updateSnippet = (
+		currentSnippet: CurrentSnippet | null = null,
+		fromButton: boolean | "favorite" = false
+	): void => {
+		if (!currentSnippet) {
+			return;
+		}
+
+		const exists = snippets.some(
+			(snippet: Snippet): boolean =>
+				snippet.snippet_id === currentSnippet.snippet_id
+		);
+
+		if (!exists) {
+			return;
+		}
+
+		if (fromButton !== "favorite") {
+			const updatedSnippets = snippets.map((snippet) =>
+				snippet.snippet_id === currentSnippet.snippet_id
+					? { ...snippet, ...currentSnippet }
+					: snippet
+			);
+
+			const snippetsSorted = sortSnippetsByUpdatedAt(updatedSnippets);
+
+			setSnippets(snippetsSorted);
+		}
+
+		setCodedEditorStates({
+			...codeEditorStates,
+			isSaving: false,
+			touched: false,
+		});
+	};
+
+	const updateSnippetTagList = async (
+		updatedSnippet: Snippet | null = null,
+		previousTags: Tags = null,
+		previousFolder: string | null = null
+	) => {
+		if (
+			updatedSnippet &&
+			updatedSnippet.tags === previousTags &&
+			(updatedSnippet.folder ?? null) === previousFolder
+		) {
+			return;
+		}
+
+		const allSnippets = await getAllSnippets();
+		const updatedSnippetList = updatedSnippet
+			? allSnippets.map((snippet) =>
+					snippet.snippet_id === updatedSnippet.snippet_id
+						? updatedSnippet
+						: snippet
+				)
+			: allSnippets;
+
+		getTags(updatedSnippetList);
+		getFolders(updatedSnippetList);
+		updateMenuCounts(updatedSnippetList);
+	};
+
+	const saveSnippetHandler = async (
+		currentSnippet: CurrentSnippet,
+		fromButton: boolean | "favorite" = false
+	): Promise<void> => {
+		const activeSnippet = snippets.find(
+			(snippet: Snippet): boolean =>
+				snippet.snippet_id === codeEditorStates.activeSnippetId
+		);
+
+		if (
+			activeSnippet?.snippet_id &&
+			currentSnippet?.name &&
+			currentSnippet?.name?.length > 0 &&
+			currentSnippet?.snippet
+		) {
+			setCodedEditorStates({
+				...codeEditorStates,
+				isSaving: true,
+			});
+
+			const previousTags = activeSnippet.tags ?? null;
+			const previousFolder = activeSnippet.folder ?? null;
+			const updatedSnippet = {
+				...currentSnippet,
+				updated_at: new Date().toISOString(),
+			};
+
+			updateSnippet(updatedSnippet, fromButton);
+
+			await saveSnippet(updatedSnippet);
+
+			if (fromButton === true) {
+				saveSnippetVersion(
+					updatedSnippet.snippet_id,
+					updatedSnippet as CurrentSnippet
+				).catch(() => null);
+			}
+
+			updateSnippetTagList(updatedSnippet, previousTags, previousFolder).then(
+				() => null
+			);
+
+			if (fromButton && codeEditorStates.touched) {
+				addToast({
+					type: ToastType.Success,
+					message: "Snippet saved successfully",
+				});
+			}
+		} else {
+			if (codeEditorStates.touched) {
+				addToast({
+					type: ToastType.Warning,
+					message: "Cannot save snippet without a name or content",
+				});
+			}
+
+			setTimeout(() => {
+				setCodedEditorStates({
+					...codeEditorStates,
+					isSaving: false,
+				});
+			}, 400);
+		}
+	};
+
+	const onStarredHandler = (currentSnippet: CurrentSnippet): void => {
+		const currentIndex = findIndexForCurrentSnippet(currentSnippet);
+
+		if (currentIndex === -1) {
+			return;
+		}
+
+		const cloneSnippets = [...snippets];
+
+		cloneSnippets.splice(currentIndex, 1);
+		setSnippets(cloneSnippets);
+
+		setActiveSnippetId(pickNextActiveId(currentIndex, cloneSnippets));
+	};
+
+	const onPublicToggleHandler = (currentSnippet: CurrentSnippet): void => {
+		const newCount = currentSnippet.is_public
+			? publicCount + 1
+			: publicCount - 1;
+
+		setPublicCount(newCount);
+
+		if (
+			!currentSnippet.is_public &&
+			codeEditorStates.menuType === MenuItems.Public
+		) {
+			if (newCount <= 0) {
+				getSnippets();
+
+				return;
+			}
+
+			const currentIndex = findIndexForCurrentSnippet(currentSnippet);
+
+			if (currentIndex === -1) {
+				return;
+			}
+
+			const cloneSnippets = [...snippets];
+
+			cloneSnippets.splice(currentIndex, 1);
+			setSnippets(cloneSnippets);
+
+			setActiveSnippetId(pickNextActiveId(currentIndex, cloneSnippets));
+		}
+	};
+
+	const newSnippetHandler = (newSnippet: Snippet): void => {
+		if (newSnippet) {
+			setSnippets([newSnippet, ...snippets]);
+
+			setActiveSnippetId(newSnippet.snippet_id);
+		}
+	};
+
+	const getTrashHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== MenuItems.Trash) {
+			await getSnippets("inactive");
+
+			setCodedEditorStates((prev) => ({
+				...prev,
+				menuType: MenuItems.Trash,
+			}));
+		}
+	};
+
+	const getSnippetsHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== MenuItems.All) {
+			await getSnippets();
+
+			setCodedEditorStates((prev) => ({
+				...prev,
+				menuType: MenuItems.All,
+			}));
+		}
+	};
+
+	const getUncategorizedHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== MenuItems.Uncategorized) {
+			const data = await getUncategorizedSnippets();
+
+			setSnippets(data);
+
+			setCodedEditorStates({
+				...defaultCodeEditorStates,
+				menuType: MenuItems.Uncategorized,
+				activeSnippetId: data?.[0]?.snippet_id ?? null,
+			});
+		}
+	};
+
+	const getPublicHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== MenuItems.Public) {
+			const allSnippets = await getAllSnippets();
+			const publicSnippets = allSnippets.filter(
+				(snippet: Snippet) => snippet.is_public
+			);
+
+			setSnippets(publicSnippets);
+
+			setCodedEditorStates({
+				...defaultCodeEditorStates,
+				menuType: MenuItems.Public,
+				activeSnippetId: publicSnippets?.[0]?.snippet_id ?? null,
+			});
+		}
+	};
+
+	const getFavoritesHandler = async (): Promise<void> => {
+		if (codeEditorStates.menuType !== MenuItems.Favorites) {
+			await getSnippets("favorite");
+
+			setCodedEditorStates((prev) => ({
+				...prev,
+				menuType: MenuItems.Favorites,
+			}));
+		}
+	};
+
+	const getSnippetsByFolderHandler = async (folder: string): Promise<void> => {
+		if (folder.length === 0) {
+			return;
+		}
+
+		const data = await getSnippetsByFolder(folder);
+
+		setCodedEditorStates({
+			...defaultCodeEditorStates,
+			menuType: folder,
+			activeSnippetId: data?.[0]?.snippet_id ?? null,
+		});
+
+		setSnippets(data);
+	};
+
+	const getSnippetsByTagHandler = async (tag: string): Promise<void> => {
+		if (tag.length === 0) {
+			return;
+		}
+
+		const data = await getSnippetsByTag(tag);
+
+		setCodedEditorStates({
+			...defaultCodeEditorStates,
+			menuType: tag,
+			activeSnippetId: data?.[0]?.snippet_id ?? null,
+		});
+
+		setSnippets(data);
+	};
+
+	const trashRestoreSnippetHandler = async (
+		snippetId: UUID,
+		state: SnippetState = "inactive"
+	): Promise<void> => {
+		if (!snippetId) return;
+
+		const foundIndex = findSnippetIndexById(snippetId);
+
+		if (foundIndex === -1) return;
+
+		const cloneSnippets = [...snippets];
+
+		cloneSnippets.splice(foundIndex, 1);
+		setSnippets(cloneSnippets);
+
+		setCodedEditorStates((prevStates) => ({
+			...prevStates,
+			isSaving: true,
+			touched: true,
+			activeSnippetId: pickNextActiveId(foundIndex, cloneSnippets),
+		}));
+
+		await trashRestoreSnippet(snippetId, state);
+
+		if (cloneSnippets.length > 0) {
+			await updateSnippetTagList();
+		} else {
+			await getSnippets();
+		}
+
+		setCodedEditorStates((prevStates) => ({
+			...prevStates,
+			isSaving: false,
+			touched: false,
+		}));
+	};
+
+	const emptyTrashHandler = (): void => {
+		setSnippets([]);
+		setActiveSnippetId(null);
+	};
+
+	const handleAccountClick = (): void => {
+		setIsAccountModalOpen(true);
+	};
+
+	const loadSmartGroups = async (): Promise<void> => {
+		try {
+			const groups = await getSmartGroups();
+
+			setSmartGroups(groups);
+		} catch {
+			setSmartGroups([]);
+		}
+	};
+
+	const handleSaveSmartGroup = async (
+		name: string,
+		query: string
+	): Promise<void> => {
+		const trimmedName = name.trim();
+		const trimmedQuery = query.trim();
+
+		if (!trimmedName || !trimmedQuery) return;
+
+		const filtered = smartGroups.filter(
+			(group) => group.name.toLowerCase() !== trimmedName.toLowerCase()
+		);
+		const next = [...filtered, { name: trimmedName, query: trimmedQuery }];
+
+		setSmartGroups(next);
+
+		try {
+			await saveSmartGroups(next);
+			addToast({
+				type: ToastType.Success,
+				message: `Saved smart group "${trimmedName}"`,
+			});
+		} catch {
+			setSmartGroups(smartGroups);
+			addToast({
+				type: ToastType.Error,
+				message: "Failed to save smart group",
+			});
+		}
+	};
+
+	const handleRemoveSmartGroup = async (name: string): Promise<void> => {
+		const next = smartGroups.filter((group) => group.name !== name);
+		const previous = smartGroups;
+
+		setSmartGroups(next);
+
+		try {
+			await saveSmartGroups(next);
+		} catch {
+			setSmartGroups(previous);
+			addToast({
+				type: ToastType.Error,
+				message: "Failed to remove smart group",
+			});
+		}
+	};
+
+	const handleSmartGroupClick = async (group: SmartGroup): Promise<void> => {
+		await getSnippets();
+
+		setCodedEditorStates((prev) => ({
+			...prev,
+			menuType: `smart:${group.name}`,
+		}));
+		setSeedSearch({ query: group.query, nonce: Date.now() });
+	};
+
+	const handleAccountModalClose = (): void => {
+		setIsAccountModalOpen(false);
+	};
+
+	const handleWikiNavigate = async (target: string): Promise<void> => {
+		const trimmed = target.trim();
+
+		if (!trimmed) return;
+
+		const inCurrentView = findSnippetByName(snippets, trimmed);
+
+		if (inCurrentView) {
+			setActiveSnippetId(inCurrentView.snippet_id);
+
+			return;
+		}
+
+		const allActive = await getAllSnippets();
+		const found = findSnippetByName(allActive, trimmed);
+
+		if (!found) {
+			addToast({
+				type: ToastType.Warning,
+				message: `No snippet found matching "${trimmed}"`,
+			});
+
+			return;
+		}
+
+		setSnippets(allActive);
+		setCodedEditorStates({
+			...defaultCodeEditorStates,
+			menuType: MenuItems.All,
+			activeSnippetId: found.snippet_id,
+		});
+	};
+
+	const createSnippetFromPalette = async (): Promise<void> => {
+		const newSnippet = await setNewSnippet();
+
+		if (newSnippet) {
+			newSnippetHandler(newSnippet);
+		}
+	};
+
+	useEffect(() => {
+		getSnippets().then(() => null);
+		loadSmartGroups().then(() => null);
+	}, []);
+
+	useEffect(() => {
+		if (codeEditorStates.touched) {
+			window.onbeforeunload = () => "You have unsaved changes.";
+		} else {
+			window.onbeforeunload = null;
+		}
+
+		return () => {
+			window.onbeforeunload = null;
+		};
+	}, [codeEditorStates.touched]);
+
+	return (
+		<>
+			<ResizableLayout
+				aside={
+					<Aside
+						isLoading={isLoading}
+						codeEditorStates={codeEditorStates}
+						tags={tags}
+						folders={folders}
+						smartGroups={smartGroups}
+						publicCount={publicCount}
+						allCount={allCount}
+						uncategorizedCount={uncategorizedCount}
+						favoritesCount={favoritesCount}
+						onGetAll={getSnippetsHandler}
+						onGetUncategorized={getUncategorizedHandler}
+						onGetPublic={getPublicHandler}
+						onGetFavorites={getFavoritesHandler}
+						onGetTrash={getTrashHandler}
+						onTagClick={getSnippetsByTagHandler}
+						onFolderClick={getSnippetsByFolderHandler}
+						onSmartGroupClick={handleSmartGroupClick}
+						onSmartGroupRemove={handleRemoveSmartGroup}
+						onAccountClick={handleAccountClick}
+					/>
+				}
+				snippetList={
+					<SnippetList
+						isLoading={isLoading}
+						snippets={snippets}
+						codeEditorStates={codeEditorStates}
+						seedSearch={seedSearch}
+						canSaveSmartGroup
+						onNewSnippet={newSnippetHandler}
+						onActiveSnippet={setActiveSnippetId}
+						onDeleteSnippet={trashRestoreSnippetHandler}
+						onRestoreSnippet={trashRestoreSnippetHandler}
+						onEmptyTrash={emptyTrashHandler}
+						onSaveSmartGroup={handleSaveSmartGroup}
+					/>
+				}
+				codeEditor={
+					<CodeEditor
+						isLoading={isLoading}
+						snippet={
+							snippets?.length > 0
+								? (snippets.find(
+										(snippet: Snippet): boolean =>
+											snippet.snippet_id === codeEditorStates.activeSnippetId
+									) ?? snippets[0])
+								: null
+						}
+						codeEditorStates={codeEditorStates}
+						allSnippets={snippets}
+						rightPane={rightPane}
+						onSave={saveSnippetHandler}
+						onStarred={onStarredHandler}
+						onPublicToggle={onPublicToggleHandler}
+						onTouched={touchedHandler}
+						onWikiNavigate={handleWikiNavigate}
+					/>
+				}
+			/>
+			<AccountModal
+				isOpen={isAccountModalOpen}
+				onClose={handleAccountModalClose}
+			/>
+			<CommandPalette
+				snippets={snippets}
+				tags={tags}
+				onActiveSnippet={setActiveSnippetId}
+				onNewSnippet={createSnippetFromPalette}
+				onGetAll={getSnippetsHandler}
+				onGetUncategorized={getUncategorizedHandler}
+				onGetPublic={getPublicHandler}
+				onGetFavorites={getFavoritesHandler}
+				onGetTrash={getTrashHandler}
+				onTagClick={getSnippetsByTagHandler}
+				onAccountClick={handleAccountClick}
+			/>
+		</>
+	);
+};
+
+export default SnippetsWorkspace;
