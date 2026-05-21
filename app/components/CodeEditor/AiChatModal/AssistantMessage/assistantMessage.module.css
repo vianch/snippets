@@ -1,0 +1,83 @@
+.assistantTurn {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.assistantHeader {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.75rem;
+	color: var(--gray-color);
+	font-weight: 500;
+}
+
+.assistantHeaderIcon {
+	color: var(--purple-color);
+	display: inline-flex;
+}
+
+.assistantBody {
+	font-size: 0.875rem;
+	line-height: 1.6;
+	color: var(--foreground-color);
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.assistantBody code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.8125rem;
+	padding: 0.0625rem 0.3125rem;
+	border-radius: 0.25rem;
+	background: var(--bg-color);
+	border: 1px solid var(--border-color);
+	color: var(--foreground-color);
+}
+
+.actions {
+	display: flex;
+	gap: 0.375rem;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	margin-top: 0.125rem;
+}
+
+.actionButton {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.3125rem 0.625rem;
+	font-size: 0.75rem;
+	font-weight: 500;
+	font-family: inherit;
+	color: var(--foreground-color);
+	background: var(--bg-color);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius-md);
+	cursor: pointer;
+	transition:
+		background 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease,
+		filter 0.15s ease;
+}
+
+.actionButton:hover {
+	background: var(--bg-color-dark);
+	border-color: var(--current-line);
+}
+
+.actionButtonSuccess {
+	background: var(--green-color);
+	border-color: var(--green-color);
+	color: var(--bg-color-dark);
+}
+
+.actionButtonSuccess:hover {
+	background: var(--green-color);
+	border-color: var(--green-color);
+	color: var(--bg-color-dark);
+	filter: brightness(1.08);
+}

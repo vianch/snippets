@@ -27,6 +27,7 @@ import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
 import SnippetDetails from "@/components/CodeEditor/SnippetDetails/SnippetDetails";
 import History from "@/components/History/History";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
+import AiAssistantPanel from "@/components/AiAssistantPanel/AiAssistantPanel";
 import SkeletonCodeEditor from "@/components/ui/Skeleton/SkeletonCodeEditor";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
 
@@ -39,12 +40,15 @@ import {
 /* Styles */
 import styles from "./codeEditor.module.css";
 
+type RightPaneMode = "preview" | "chat";
+
 type CodeEditorProps = {
 	isLoading: boolean;
 	snippet: Snippet | null;
 	defaultLanguage?: SupportedLanguages;
 	codeEditorStates: SnippetEditorStates;
 	allSnippets: Snippet[];
+	rightPane?: RightPaneMode;
 	onSave: (
 		currentSnippet: CurrentSnippet,
 		fromButton: boolean | "favorite"
@@ -61,6 +65,7 @@ const CodeEditor = ({
 	codeEditorStates,
 	defaultLanguage = SupportedLanguages.Markdown,
 	allSnippets,
+	rightPane = "preview",
 	onSave,
 	onStarred,
 	onPublicToggle,
@@ -131,17 +136,27 @@ const CodeEditor = ({
 		[allSnippets]
 	);
 
+	const handleCopyToSnippet = (content: string): void => {
+		const existing = currentSnippet?.snippet ?? "";
+		const next = existing.length > 0 ? `${existing}\n${content}` : content;
+
+		updateCurrentSnippetValue(next);
+	};
+
 	const { editorWidthPercent, handlePreviewMouseDown } =
 		usePreviewResize(editorContentRef);
 
 	const isMarkdownLanguage =
 		currentSnippet?.language === SupportedLanguages.Markdown;
-	const showPreview = isMarkdownLanguage && !isTrashActive;
+	const isChatMode = rightPane === "chat";
+	const showPreview = !isChatMode && isMarkdownLanguage && !isTrashActive;
+	const showChatPane = isChatMode && !isTrashActive;
+	const hasRightPane = showPreview || showChatPane;
 
 	const editorHeight = calculateEditorHeight({
 		isMobile,
 		isTrashActive,
-		isMarkdownLanguage,
+		hasRightPane,
 	});
 	const previewHeight = calculatePreviewHeight(isMobile);
 
@@ -168,8 +183,10 @@ const CodeEditor = ({
 							<CodeEditorTags
 								activeTag={codeEditorStates?.menuType ?? ""}
 								currentSnippet={currentSnippet}
+								allSnippets={allSnippets}
 								isPublic={currentSnippet.is_public ?? false}
 								showDetails={showDetails}
+								hideAiButton={isChatMode}
 								onNewTag={newTagHandler}
 								onChange={() => onTouched(true)}
 								onRemoveTag={removeTagHandler}
@@ -179,20 +196,26 @@ const CodeEditor = ({
 								showHistory={showHistory}
 								hasVersions={versionCount > 0}
 								onApplyAiCode={updateCurrentSnippetValue}
+								onCopyToSnippet={handleCopyToSnippet}
+								onReplaceSnippet={updateCurrentSnippetValue}
 							/>
 
 							{isMobile && (
 								<div className={styles.mobileActions}>
 									<CodeEditorActions
 										currentSnippet={currentSnippet}
+										allSnippets={allSnippets}
 										isPublic={currentSnippet.is_public ?? false}
 										showDetails={showDetails}
+										hideAiButton={isChatMode}
 										onToggleDetails={() => setShowDetails(!showDetails)}
 										onTogglePublic={togglePublicHandler}
 										onToggleHistory={() => setShowHistory(!showHistory)}
 										showHistory={showHistory}
 										hasVersions={versionCount > 0}
 										onApplyAiCode={updateCurrentSnippetValue}
+										onCopyToSnippet={handleCopyToSnippet}
+										onReplaceSnippet={updateCurrentSnippetValue}
 									/>
 								</div>
 							)}
@@ -250,7 +273,7 @@ const CodeEditor = ({
 						</>
 					)}
 
-					{showPreview ? (
+					{hasRightPane ? (
 						<div
 							ref={editorContentRef}
 							className={isMobile ? styles.splitViewMobile : styles.splitView}
@@ -285,11 +308,21 @@ const CodeEditor = ({
 									onMouseDown={handlePreviewMouseDown}
 								/>
 							)}
-							<MarkdownPreview
-								content={currentSnippet.snippet}
-								height={previewHeight}
-								onWikiNavigate={onWikiNavigate}
-							/>
+							{showChatPane ? (
+								<AiAssistantPanel
+									currentSnippet={currentSnippet}
+									allSnippets={allSnippets}
+									height={previewHeight}
+									onCopyToSnippet={handleCopyToSnippet}
+									onReplaceSnippet={updateCurrentSnippetValue}
+								/>
+							) : (
+								<MarkdownPreview
+									content={currentSnippet.snippet}
+									height={previewHeight}
+									onWikiNavigate={onWikiNavigate}
+								/>
+							)}
 						</div>
 					) : (
 						<CodeMirror

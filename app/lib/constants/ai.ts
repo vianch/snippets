@@ -78,3 +78,23 @@ export const openAiExcludedPrefixes = [
 	"curie",
 	"ft:gpt",
 ];
+
+export const replaceIntentKeywords = [
+	"refactor",
+	"rewrite",
+	"replace",
+	"update",
+	"change",
+	"fix",
+	"modify",
+];
+
+export const replaceIntentPattern = new RegExp(
+	`\\b(${replaceIntentKeywords.join("|")})\\b`,
+	"i"
+);
+
+export const fencedCodeBlockPattern = /```([a-zA-Z0-9_+-]*)\n([\s\S]*?)```/g;
+
+export const aiChatModalMinWidthPx = 440;
+export const aiChatModalWidthStorageKey = "aiChatModal.width";

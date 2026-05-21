@@ -15,8 +15,10 @@ import styles from "./codeEditor.module.css";
 type CodeEditorTagsProps = {
 	activeTag: MenuItems | string;
 	currentSnippet: CurrentSnippet;
+	allSnippets?: Snippet[];
 	isPublic: boolean;
 	showDetails: boolean;
+	hideAiButton?: boolean;
 	onNewTag: (tag: string) => void;
 	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 	onRemoveTag: (tag: string) => void;
@@ -26,13 +28,17 @@ type CodeEditorTagsProps = {
 	showHistory: boolean;
 	hasVersions: boolean;
 	onApplyAiCode?: (code: string) => void;
+	onCopyToSnippet?: (content: string) => void;
+	onReplaceSnippet?: (content: string) => void;
 };
 
 const CodeEditorTags = ({
 	activeTag,
 	currentSnippet,
+	allSnippets,
 	isPublic,
 	showDetails,
+	hideAiButton,
 	onNewTag,
 	onChange,
 	onRemoveTag,
@@ -42,6 +48,8 @@ const CodeEditorTags = ({
 	showHistory,
 	hasVersions,
 	onApplyAiCode,
+	onCopyToSnippet,
+	onReplaceSnippet,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
 	const getTagForSnippet = (snippetTag: Tags): string[] =>
@@ -100,14 +108,18 @@ const CodeEditorTags = ({
 			<div className={styles.tagsRight}>
 				<CodeEditorActions
 					currentSnippet={currentSnippet}
+					allSnippets={allSnippets}
 					isPublic={isPublic}
 					showDetails={showDetails}
+					hideAiButton={hideAiButton}
 					onToggleDetails={onToggleDetails}
 					onTogglePublic={onTogglePublic}
 					onToggleHistory={onToggleHistory}
 					showHistory={showHistory}
 					hasVersions={hasVersions}
 					onApplyAiCode={onApplyAiCode}
+					onCopyToSnippet={onCopyToSnippet}
+					onReplaceSnippet={onReplaceSnippet}
 				/>
 			</div>
 		</section>

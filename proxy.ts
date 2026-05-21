@@ -16,7 +16,11 @@ export async function proxy(
 		return NextResponse.redirect(new URL("/snippets", request.url));
 	}
 
-	if (!user && request.nextUrl.pathname === "/snippets") {
+	if (
+		!user &&
+		(request.nextUrl.pathname === "/snippets" ||
+			request.nextUrl.pathname.startsWith("/ai-assistant"))
+	) {
 		return NextResponse.redirect(new URL("/login", request.url));
 	}
 
@@ -25,5 +29,5 @@ export async function proxy(
 
 // See "Matching Paths" below to learn more
 export const config = {
-	matcher: ["/", "/snippets", "/login"],
+	matcher: ["/", "/snippets", "/ai-assistant/:path*", "/login"],
 };

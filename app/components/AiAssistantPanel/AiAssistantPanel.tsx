@@ -2,25 +2,21 @@
 
 import {
 	ChangeEvent,
-	CSSProperties,
 	KeyboardEvent,
-	PointerEvent,
 	ReactElement,
 	useEffect,
 	useRef,
 	useState,
 } from "react";
-import { createPortal } from "react-dom";
 
 /* Components */
 import AssistantMessage from "@/components/CodeEditor/AiChatModal/AssistantMessage/AssistantMessage";
 import WikiLinkPopover from "@/components/CodeEditor/AiChatModal/WikiLinkPopover/WikiLinkPopover";
+import ModelSelector from "@/components/ModelSelector/ModelSelector";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
 /* Lib */
 import {
-	aiChatModalMinWidthPx,
-	aiChatModalWidthStorageKey,
 	aiActionLabels,
 	aiActions,
 	chipActions,
@@ -33,8 +29,6 @@ import {
 import { ToastType } from "@/lib/constants/toast";
 import useChatStore from "@/lib/store/chat.store";
 import useToastStore from "@/lib/store/toast.store";
-import useViewPortStore from "@/lib/store/viewPort.store";
-import { getUserDataFromSession } from "@/lib/supabase/queries";
 import { resolveWikiLinks } from "@/lib/wikiLinkResolver";
 
 /* Utils */
@@ -46,31 +40,25 @@ import {
 } from "@/utils/chat.utils";
 
 /* Styles */
-import styles from "./aiChatModal.module.css";
+import styles from "./aiAssistantPanel.module.css";
 
-type AiChatModalProps = {
-	isOpen: boolean;
-	currentSnippet: CurrentSnippet;
-	allSnippets?: Snippet[];
-	onClose: () => void;
-	onApplyCode: (code: string) => void;
+type AiAssistantPanelProps = {
+	currentSnippet: CurrentSnippet | null;
+	allSnippets: Snippet[];
+	height?: string | number;
 	onCopyToSnippet?: (content: string) => void;
 	onReplaceSnippet?: (content: string) => void;
 };
 
-const AiChatModal = ({
-	isOpen,
+const AiAssistantPanel = ({
 	currentSnippet,
-	allSnippets = [],
-	onClose,
-	onApplyCode,
+	allSnippets,
+	height,
 	onCopyToSnippet,
 	onReplaceSnippet,
-}: AiChatModalProps): ReactElement | null => {
+}: AiAssistantPanelProps): ReactElement => {
 	const { addToast } = useToastStore();
-	const isMobile = useViewPortStore((state) => state.isMobile);
 	const selectedModel = useChatStore((state) => state.selectedModel);
-	const setSelectedModel = useChatStore((state) => state.setSelectedModel);
 	const history = useChatStore((state) => state.history);
 	const appendMessage = useChatStore((state) => state.appendMessage);
 	const clearHistory = useChatStore((state) => state.clearHistory);
@@ -86,8 +74,6 @@ const AiChatModal = ({
 		[]
 	);
 	const [wikiContext, setWikiContext] = useState<WikiLinkContext | null>(null);
-	const [drawerWidth, setDrawerWidth] = useState<number>(aiChatModalMinWidthPx);
-	const [isResizing, setIsResizing] = useState<boolean>(false);
 
 	const abortRef = useRef<AbortController | null>(null);
 	const streamTimerRef = useRef<number | null>(null);
@@ -95,11 +81,7 @@ const AiChatModal = ({
 	const chatRef = useRef<HTMLDivElement>(null);
 
 	const isProcessing = status === ChatStatus.Processing;
-	const showApplyButton =
-		status === ChatStatus.Answered &&
-		lastAction !== null &&
-		codeActions.includes(lastAction) &&
-		revealedAnswer.length > 0;
+	const snippetLanguage = currentSnippet?.language ?? "";
 
 	const clearStreamTimer = (): void => {
 		if (streamTimerRef.current !== null) {
@@ -108,17 +90,14 @@ const AiChatModal = ({
 		}
 	};
 
-	const abortInFlight = (): void => {
+	const resetTurnState = (): void => {
 		clearStreamTimer();
 
 		if (abortRef.current) {
 			abortRef.current.abort();
 			abortRef.current = null;
 		}
-	};
 
-	const resetTurnState = (): void => {
-		abortInFlight();
 		setStatus(ChatStatus.Empty);
 		setCurrentUserMessage("");
 		setCurrentUserPrompt("");
@@ -136,88 +115,32 @@ const AiChatModal = ({
 	};
 
 	useEffect(() => {
-		if (!isOpen) {
-			abortInFlight();
-
-			return;
-		}
-
-		const handleEscape = (event: globalThis.KeyboardEvent): void => {
-			if (event.key === "Escape") {
-				onClose();
-			}
-		};
-
-		document.addEventListener("keydown", handleEscape);
-
-		return () => {
-			document.removeEventListener("keydown", handleEscape);
-		};
-	}, [isOpen, onClose]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		textareaRef.current?.focus();
-	}, [isOpen]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			resetTurnState();
-
-			return;
-		}
-
-		if (selectedModel.length === 0) {
-			getUserDataFromSession().then((session) => {
-				const model = session?.user?.user_metadata?.ai_model;
-
-				if (model) {
-					setSelectedModel(model);
-				}
-			});
-		}
-	}, [isOpen, selectedModel, setSelectedModel]);
-
-	useEffect(() => {
-		if (typeof window === "undefined") {
-			return;
-		}
-
-		const stored = window.localStorage.getItem(aiChatModalWidthStorageKey);
-
-		if (stored) {
-			const parsed = Number.parseInt(stored, 10);
-
-			if (Number.isFinite(parsed) && parsed >= aiChatModalMinWidthPx) {
-				setDrawerWidth(Math.min(parsed, window.innerWidth));
-			}
-		}
-	}, []);
-
-	useEffect(() => {
 		if (chatRef.current) {
 			chatRef.current.scrollTop = chatRef.current.scrollHeight;
 		}
 	}, [history, revealedAnswer]);
 
+	useEffect(() => {
+		return () => {
+			clearStreamTimer();
+
+			if (abortRef.current) {
+				abortRef.current.abort();
+			}
+		};
+	}, []);
+
 	const autosizeTextarea = (): void => {
 		const textarea = textareaRef.current;
 
-		if (!textarea) {
-			return;
-		}
+		if (!textarea) return;
 
 		textarea.style.height = "auto";
 		textarea.style.height = `${Math.min(140, textarea.scrollHeight)}px`;
 	};
 
 	const updateWikiContext = (text: string, caret: number): void => {
-		const next = findWikiLinkContext(text, caret);
-
-		setWikiContext(next);
+		setWikiContext(findWikiLinkContext(text, caret));
 	};
 
 	const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
@@ -231,9 +154,7 @@ const AiChatModal = ({
 	const handleInputSelect = (): void => {
 		const textarea = textareaRef.current;
 
-		if (!textarea) {
-			return;
-		}
+		if (!textarea) return;
 
 		updateWikiContext(textarea.value, textarea.selectionStart ?? 0);
 	};
@@ -241,9 +162,7 @@ const AiChatModal = ({
 	const handleWikiSelect = (name: string): void => {
 		const textarea = textareaRef.current;
 
-		if (!textarea || !wikiContext) {
-			return;
-		}
+		if (!textarea || !wikiContext) return;
 
 		const caret =
 			textarea.selectionStart ??
@@ -304,7 +223,7 @@ const AiChatModal = ({
 			const isReplaceCandidate = detectReplaceCandidate(
 				currentUserPrompt,
 				revealedAnswer,
-				currentSnippet?.language ?? ""
+				snippetLanguage
 			);
 
 			appendMessage({
@@ -324,7 +243,7 @@ const AiChatModal = ({
 		if (!currentSnippet?.snippet?.trim()) {
 			addToast({
 				type: ToastType.Error,
-				message: "No code to analyze",
+				message: "Select a snippet first",
 			});
 
 			return;
@@ -408,9 +327,7 @@ const AiChatModal = ({
 	const handleSend = (): void => {
 		const trimmed = inputValue.trim();
 
-		if (!trimmed || isProcessing) {
-			return;
-		}
+		if (!trimmed || isProcessing) return;
 
 		void runRequest(aiActions.ask, trimmed, trimmed);
 	};
@@ -426,27 +343,12 @@ const AiChatModal = ({
 	};
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-		if (wikiContext) {
-			return;
-		}
+		if (wikiContext) return;
 
 		if (event.key === "Enter" && !event.shiftKey) {
 			event.preventDefault();
 			handleSend();
 		}
-	};
-
-	const handleApply = (): void => {
-		if (!revealedAnswer) {
-			return;
-		}
-
-		onApplyCode(revealedAnswer);
-		addToast({
-			type: ToastType.Success,
-			message: "AI result applied",
-		});
-		onClose();
 	};
 
 	const handleCopyToSnippet = (content: string): void => {
@@ -465,154 +367,67 @@ const AiChatModal = ({
 	const handleReplaceSnippet = (content: string): void => {
 		const body = extractCodeBlockBody(content) ?? content;
 
-		if (onReplaceSnippet) {
-			onReplaceSnippet(body);
-		} else {
-			onApplyCode(body);
-		}
-
+		onReplaceSnippet?.(body);
 		addToast({ type: ToastType.Success, message: "Snippet replaced" });
 	};
 
-	const handleResizePointerDown = (
-		event: PointerEvent<HTMLDivElement>
-	): void => {
-		if (isMobile) {
-			return;
-		}
+	const handleApply = (): void => {
+		if (!revealedAnswer) return;
 
-		event.preventDefault();
-		event.currentTarget.setPointerCapture(event.pointerId);
-		document.body.style.cursor = "ew-resize";
-		document.body.style.userSelect = "none";
-		setIsResizing(true);
+		onReplaceSnippet?.(revealedAnswer);
+		addToast({ type: ToastType.Success, message: "AI result applied" });
 	};
-
-	const handleResizePointerMove = (
-		event: PointerEvent<HTMLDivElement>
-	): void => {
-		if (!isResizing) {
-			return;
-		}
-
-		const viewportWidth = window.innerWidth;
-		const computed = viewportWidth - event.clientX;
-		const clamped = Math.min(
-			viewportWidth,
-			Math.max(aiChatModalMinWidthPx, computed)
-		);
-
-		setDrawerWidth(clamped);
-	};
-
-	const finishResize = (event: PointerEvent<HTMLDivElement>): void => {
-		if (!isResizing) {
-			return;
-		}
-
-		if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-			event.currentTarget.releasePointerCapture(event.pointerId);
-		}
-
-		document.body.style.cursor = "";
-		document.body.style.userSelect = "";
-		setIsResizing(false);
-		window.localStorage.setItem(
-			aiChatModalWidthStorageKey,
-			String(Math.round(drawerWidth))
-		);
-	};
-
-	if (!isOpen || typeof document === "undefined") {
-		return null;
-	}
 
 	const showEmptyState = status === ChatStatus.Empty && history.length === 0;
 	const isStreaming = isProcessing && revealedAnswer.length > 0;
 	const showThinking = isProcessing && revealedAnswer.length === 0;
 	const sendDisabled = inputValue.trim().length === 0 || isProcessing;
-	const snippetDisplayName = currentSnippet?.name?.trim() || "Untitled snippet";
 	const hasCurrentTurn =
 		status !== ChatStatus.Empty || currentUserMessage !== "";
-	const inputPlaceholder =
-		history.length > 0 || currentUserMessage
+	const inputPlaceholder = currentSnippet
+		? history.length > 0 || currentUserMessage
 			? "Ask a follow-up… ([[ to link a snippet)"
-			: "Ask something… ([[ to link a snippet)";
+			: "Ask something… ([[ to link a snippet)"
+		: "Select a snippet to start a chat";
+	const showApplyButton =
+		status === ChatStatus.Answered &&
+		lastAction !== null &&
+		codeActions.includes(lastAction) &&
+		revealedAnswer.length > 0;
 	const currentTurnReplaceCandidate =
 		status === ChatStatus.Answered &&
-		detectReplaceCandidate(
-			currentUserPrompt,
-			revealedAnswer,
-			currentSnippet?.language ?? ""
-		);
-	const drawerStyle: CSSProperties | undefined = isMobile
-		? undefined
-		: { width: `${drawerWidth}px` };
+		detectReplaceCandidate(currentUserPrompt, revealedAnswer, snippetLanguage);
 
-	const drawerContent = (
-		<aside
-			className={`${styles.drawer} ${isResizing ? styles.drawerResizing : ""}`}
-			style={drawerStyle}
-			role="complementary"
-			aria-label="Ask AI"
+	return (
+		<section
+			className={styles.panel}
+			style={height ? { height } : undefined}
+			aria-label="AI Assistant"
 		>
-			<div
-				className={`${styles.resizeHandle} ${isResizing ? styles.resizeHandleActive : ""}`}
-				role="separator"
-				aria-orientation="vertical"
-				aria-label="Resize chat panel"
-				onPointerDown={handleResizePointerDown}
-				onPointerMove={handleResizePointerMove}
-				onPointerUp={finishResize}
-				onPointerCancel={finishResize}
-			/>
-
 			<div className={styles.header}>
 				<h2 className={styles.title}>
 					<span className={styles.titleIcon}>
 						<Sparkle width={16} height={16} />
 					</span>
-					<span>Ask AI</span>
-					<span className={styles.subtitle}>· {snippetDisplayName}</span>
+					<span>AI Assistant</span>
 				</h2>
-
-				<div className={styles.headerActions}>
-					<button
-						type="button"
-						className={styles.iconButton}
-						onClick={handleNewChat}
-						title="New chat"
-						aria-label="New chat"
-					>
-						<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-							<path
-								d="M9 2 L12 5 L7.5 9.5 L4.5 9.5 L4.5 6.5 Z"
-								stroke="currentColor"
-								strokeWidth="1.3"
-								strokeLinejoin="round"
-								fill="none"
-							/>
-						</svg>
-					</button>
-
-					<span className={styles.kbdHint}>Esc</span>
-
-					<button
-						type="button"
-						className={styles.iconButton}
-						onClick={onClose}
-						aria-label="Close"
-					>
-						<svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-							<path
-								d="M3 3 L11 11 M11 3 L3 11"
-								stroke="currentColor"
-								strokeWidth="1.5"
-								strokeLinecap="round"
-							/>
-						</svg>
-					</button>
-				</div>
+				<button
+					type="button"
+					className={styles.iconButton}
+					onClick={handleNewChat}
+					title="New chat"
+					aria-label="New chat"
+				>
+					<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+						<path
+							d="M9 2 L12 5 L7.5 9.5 L4.5 9.5 L4.5 6.5 Z"
+							stroke="currentColor"
+							strokeWidth="1.3"
+							strokeLinejoin="round"
+							fill="none"
+						/>
+					</svg>
+				</button>
 			</div>
 
 			<div className={styles.chat} ref={chatRef}>
@@ -760,7 +575,7 @@ const AiChatModal = ({
 							placeholder={inputPlaceholder}
 							rows={1}
 							value={inputValue}
-							disabled={isProcessing}
+							disabled={isProcessing || !currentSnippet}
 							onChange={handleInputChange}
 							onKeyDown={handleKeyDown}
 							onSelect={handleInputSelect}
@@ -807,6 +622,7 @@ const AiChatModal = ({
 						</div>
 					)}
 					<div className={styles.dockHint}>
+						<ModelSelector compact />
 						<span>
 							<span className={styles.kbdInline}>↵</span> send ·{" "}
 							<span className={styles.kbdInline}>⇧↵</span> newline ·{" "}
@@ -815,10 +631,8 @@ const AiChatModal = ({
 					</div>
 				</div>
 			</div>
-		</aside>
+		</section>
 	);
-
-	return createPortal(drawerContent, document.body);
 };
 
-export default AiChatModal;
+export default AiAssistantPanel;
