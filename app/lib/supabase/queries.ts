@@ -315,21 +315,6 @@ export const saveSnippetVersion = async (
 		if (error) {
 			throw new Error("Error saving snippet version");
 		}
-
-		const { data: allVersions } = await supabase
-			.from("snippet_version")
-			.select("version_id")
-			.eq("snippet_id", snippetId)
-			.order("version_number", { ascending: false });
-
-		if (allVersions && allVersions.length > 5) {
-			const excessIds = allVersions.slice(5).map((v) => v.version_id);
-
-			await supabase
-				.from("snippet_version")
-				.delete()
-				.in("version_id", excessIds);
-		}
 	}
 };
 
