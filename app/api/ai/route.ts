@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { aiActions, aiSystemPrompts } from "@/lib/constants/ai";
 import createSupabaseServerClient from "@/lib/supabase/server";
+import { sanitizeHistory } from "@/utils/chat.utils";
 
 const maxCodeLength = 50_000;
 const maxPromptLength = 4_000;
@@ -35,14 +36,67 @@ const defaultOpenAIModel = process.env.OPENAI_MODEL || "gpt-4o";
 
 const ollamaTimeout = 55000;
 
+const ollamaContextWindowCache = new Map<string, number>();
+
+const fetchOllamaContextWindow = async (
+	baseUrl: string,
+	model: string,
+	apiKey: string | undefined
+): Promise<number> => {
+	const cacheKey = `${baseUrl}::${model}`;
+	const cached = ollamaContextWindowCache.get(cacheKey);
+
+	if (typeof cached === "number") {
+		return cached;
+	}
+
+	try {
+		const headers: Record<string, string> = {
+			"Content-Type": "application/json",
+		};
+
+		if (apiKey) {
+			headers["Authorization"] = `Bearer ${apiKey}`;
+		}
+
+		const response = await fetch(`${baseUrl}/api/show`, {
+			method: "POST",
+			headers,
+			body: JSON.stringify({ name: model }),
+		});
+
+		if (!response.ok) {
+			ollamaContextWindowCache.set(cacheKey, 0);
+
+			return 0;
+		}
+
+		const data = await response.json();
+		const modelInfo = (data.model_info as Record<string, unknown>) ?? {};
+		const contextEntry = Object.entries(modelInfo).find(([key]) =>
+			key.endsWith(".context_length")
+		);
+		const contextLength =
+			typeof contextEntry?.[1] === "number" ? (contextEntry[1] as number) : 0;
+
+		ollamaContextWindowCache.set(cacheKey, contextLength);
+
+		return contextLength;
+	} catch {
+		ollamaContextWindowCache.set(cacheKey, 0);
+
+		return 0;
+	}
+};
+
 const requestOllama = async (
-	prompt: string,
+	messages: AiHistoryMessage[],
 	systemPrompt: string,
 	model: string,
 	baseUrl: string,
 	apiKey: string | undefined,
 	stripFences: boolean
-): Promise<string> => {
+): Promise<OllamaResult> => {
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), ollamaTimeout);
 	const headers: Record<string, string> = {
@@ -53,13 +107,12 @@ const requestOllama = async (
 		headers["Authorization"] = `Bearer ${apiKey}`;
 	}
 
-	const response = await fetch(`${baseUrl}/api/generate`, {
+	const response = await fetch(`${baseUrl}/api/chat`, {
 		method: "POST",
 		headers,
 		body: JSON.stringify({
 			model,
-			prompt,
-			system: systemPrompt,
+			messages: [{ role: "system", content: systemPrompt }, ...messages],
 			stream: false,
 		}),
 		signal: controller.signal,
@@ -72,13 +125,18 @@ const requestOllama = async (
 	}
 
 	const data = await response.json();
-	const responseText = data.response as string;
+	const responseText = (data.message?.content as string) || "";
 
-	return stripFences ? stripMarkdownCodeFences(responseText) : responseText;
+	return {
+		text: stripFences ? stripMarkdownCodeFences(responseText) : responseText,
+		inputTokens:
+			typeof data.prompt_eval_count === "number" ? data.prompt_eval_count : 0,
+		outputTokens: typeof data.eval_count === "number" ? data.eval_count : 0,
+	};
 };
 
 const requestClaude = async (
-	prompt: string,
+	messages: AiHistoryMessage[],
 	systemPrompt: string,
 	apiKey: string,
 	stripFences: boolean,
@@ -95,7 +153,7 @@ const requestClaude = async (
 			model,
 			max_tokens: 4096,
 			system: systemPrompt,
-			messages: [{ role: "user", content: prompt }],
+			messages,
 		}),
 	});
 
@@ -115,7 +173,7 @@ const requestClaude = async (
 };
 
 const requestOpenAI = async (
-	prompt: string,
+	messages: AiHistoryMessage[],
 	systemPrompt: string,
 	apiKey: string,
 	stripFences: boolean,
@@ -130,10 +188,7 @@ const requestOpenAI = async (
 		body: JSON.stringify({
 			model,
 			max_tokens: 4096,
-			messages: [
-				{ role: "system", content: systemPrompt },
-				{ role: "user", content: prompt },
-			],
+			messages: [{ role: "system", content: systemPrompt }, ...messages],
 		}),
 	});
 
@@ -167,7 +222,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		}
 
 		const body = (await request.json()) as AiRequest;
-		const { action, code, language, userPrompt } = body;
+		const { action, code, language, userPrompt, history } = body;
 
 		if (!action || !validActions.includes(action)) {
 			return NextResponse.json(
@@ -211,6 +266,11 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			: aiSystemPrompts[action](language || "unknown");
 		const prompt = isAskAction ? (userPrompt as string) : code;
 		const stripFences = !isAskAction;
+		const priorMessages = isAskAction ? sanitizeHistory(history) : [];
+		const messages: AiHistoryMessage[] = [
+			...priorMessages,
+			{ role: "user", content: prompt },
+		];
 		const metadata = user.user_metadata ?? {};
 		const aiProvider = (metadata.ai_provider as string) || "ollama";
 		const aiApiKey = (metadata.ai_api_key as string) || "";
@@ -233,7 +293,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
 			const openaiModel = aiModel || defaultOpenAIModel;
 			const result = await requestOpenAI(
-				prompt,
+				messages,
 				systemPrompt,
 				openaiApiKey,
 				stripFences,
@@ -263,7 +323,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
 			const claudeModel = aiModel || defaultAnthropicModel;
 			const result = await requestClaude(
-				prompt,
+				messages,
 				systemPrompt,
 				claudeApiKey,
 				stripFences,
@@ -285,19 +345,29 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
 		// 1. Try custom Ollama URL (tunnel or local)
 		try {
-			const result = await requestOllama(
-				prompt,
+			const ollamaResult = await requestOllama(
+				messages,
 				systemPrompt,
 				ollamaModel,
 				ollamaUrl,
 				ollamaApiKey,
 				stripFences
 			);
+			const contextWindow = await fetchOllamaContextWindow(
+				ollamaUrl,
+				ollamaModel,
+				ollamaApiKey
+			);
 
 			return NextResponse.json({
-				result,
+				result: ollamaResult.text,
 				provider: "ollama",
 				model: ollamaModel,
+				usage: {
+					inputTokens: ollamaResult.inputTokens,
+					outputTokens: ollamaResult.outputTokens,
+					contextWindow,
+				},
 			});
 		} catch (ollamaError) {
 			attempts.push({
@@ -310,19 +380,29 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		// 2. Try Ollama Cloud directly with API key
 		if (ollamaApiKey && ollamaUrl !== ollamaCloudUrl) {
 			try {
-				const result = await requestOllama(
-					prompt,
+				const ollamaCloudResult = await requestOllama(
+					messages,
 					systemPrompt,
 					ollamaModel,
 					ollamaCloudUrl,
 					ollamaApiKey,
 					stripFences
 				);
+				const contextWindow = await fetchOllamaContextWindow(
+					ollamaCloudUrl,
+					ollamaModel,
+					ollamaApiKey
+				);
 
 				return NextResponse.json({
-					result,
+					result: ollamaCloudResult.text,
 					provider: "ollama-cloud",
 					model: ollamaModel,
+					usage: {
+						inputTokens: ollamaCloudResult.inputTokens,
+						outputTokens: ollamaCloudResult.outputTokens,
+						contextWindow,
+					},
 				});
 			} catch (ollamaCloudError) {
 				attempts.push({
@@ -352,7 +432,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
 		try {
 			const result = await requestClaude(
-				prompt,
+				messages,
 				systemPrompt,
 				fallbackApiKey,
 				stripFences

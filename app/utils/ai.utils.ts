@@ -42,6 +42,14 @@ export const fetchAiModels = async (
 	}
 };
 
+export const formatTokens = (count: number): string => {
+	if (count >= 1000) {
+		return `${(count / 1000).toFixed(count >= 10_000 ? 0 : 1)}k`;
+	}
+
+	return count.toString();
+};
+
 export const fetchOllamaModels = async (
 	ollamaUrl?: string,
 	ollamaApiKey?: string
@@ -54,6 +62,7 @@ export const fetchOllamaModels = async (
 type RequestAiActionOptions = {
 	userPrompt?: string;
 	signal?: AbortSignal;
+	history?: AiHistoryMessage[];
 };
 
 export const requestAiAction = async (
@@ -62,14 +71,14 @@ export const requestAiAction = async (
 	language: string,
 	options: RequestAiActionOptions = {}
 ): Promise<AiResponse> => {
-	const { userPrompt, signal } = options;
+	const { userPrompt, signal, history } = options;
 
 	const response = await fetch("/api/ai", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ action, code, language, userPrompt }),
+		body: JSON.stringify({ action, code, language, userPrompt, history }),
 		signal,
 	});
 

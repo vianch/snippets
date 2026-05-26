@@ -15,6 +15,7 @@ import { createPortal } from "react-dom";
 /* Components */
 import AssistantMessage from "@/components/CodeEditor/AiChatModal/AssistantMessage/AssistantMessage";
 import WikiLinkPopover from "@/components/CodeEditor/AiChatModal/WikiLinkPopover/WikiLinkPopover";
+import ContextUsage from "@/components/ContextUsage/ContextUsage";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
 /* Lib */
@@ -72,8 +73,10 @@ const AiChatModal = ({
 	const selectedModel = useChatStore((state) => state.selectedModel);
 	const setSelectedModel = useChatStore((state) => state.setSelectedModel);
 	const history = useChatStore((state) => state.history);
+	const lastUsage = useChatStore((state) => state.lastUsage);
 	const appendMessage = useChatStore((state) => state.appendMessage);
 	const clearHistory = useChatStore((state) => state.clearHistory);
+	const setLastUsage = useChatStore((state) => state.setLastUsage);
 
 	const [status, setStatus] = useState<ChatStatus>(ChatStatus.Empty);
 	const [currentUserMessage, setCurrentUserMessage] = useState<string>("");
@@ -370,6 +373,14 @@ const AiChatModal = ({
 		setWikiContext(null);
 		requestAnimationFrame(autosizeTextarea);
 
+		const historyForRequest: AiHistoryMessage[] =
+			action === aiActions.ask
+				? history.map((entry) => ({
+						role: entry.role,
+						content: entry.content,
+					}))
+				: [];
+
 		try {
 			const response = await requestAiAction(
 				action,
@@ -378,6 +389,7 @@ const AiChatModal = ({
 				{
 					userPrompt: effectivePrompt,
 					signal: controller.signal,
+					history: historyForRequest,
 				}
 			);
 
@@ -385,6 +397,7 @@ const AiChatModal = ({
 				return;
 			}
 
+			setLastUsage(response.usage ?? null);
 			streamAnswer(response.result);
 		} catch (requestError) {
 			if (controller.signal.aborted) {
@@ -807,6 +820,7 @@ const AiChatModal = ({
 						</div>
 					)}
 					<div className={styles.dockHint}>
+						<ContextUsage usage={lastUsage} />
 						<span>
 							<span className={styles.kbdInline}>↵</span> send ·{" "}
 							<span className={styles.kbdInline}>⇧↵</span> newline ·{" "}

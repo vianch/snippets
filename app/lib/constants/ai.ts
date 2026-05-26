@@ -98,3 +98,5 @@ export const fencedCodeBlockPattern = /```([a-zA-Z0-9_+-]*)\n([\s\S]*?)```/g;
 
 export const aiChatModalMinWidthPx = 440;
 export const aiChatModalWidthStorageKey = "aiChatModal.width";
+
+export const maxHistoryMessages = 20;

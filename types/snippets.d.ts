@@ -86,16 +86,35 @@ declare global {
 		| "ask"
 		| "complete";
 
+	type AiHistoryMessage = {
+		role: "user" | "assistant";
+		content: string;
+	};
+
 	type AiRequest = {
 		action: AiAction;
 		code: string;
 		language: string;
 		userPrompt?: string;
+		history?: AiHistoryMessage[];
+	};
+
+	type AiUsage = {
+		inputTokens: number;
+		outputTokens: number;
+		contextWindow: number;
+	};
+
+	type OllamaResult = {
+		text: string;
+		inputTokens: number;
+		outputTokens: number;
 	};
 
 	type AiResponse = {
 		result: string;
 		provider: AiProvider;
 		model: string;
+		usage?: AiUsage;
 	};
 }

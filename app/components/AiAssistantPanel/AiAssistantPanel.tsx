@@ -12,6 +12,7 @@ import {
 /* Components */
 import AssistantMessage from "@/components/CodeEditor/AiChatModal/AssistantMessage/AssistantMessage";
 import WikiLinkPopover from "@/components/CodeEditor/AiChatModal/WikiLinkPopover/WikiLinkPopover";
+import ContextUsage from "@/components/ContextUsage/ContextUsage";
 import ModelSelector from "@/components/ModelSelector/ModelSelector";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
@@ -60,8 +61,10 @@ const AiAssistantPanel = ({
 	const { addToast } = useToastStore();
 	const selectedModel = useChatStore((state) => state.selectedModel);
 	const history = useChatStore((state) => state.history);
+	const lastUsage = useChatStore((state) => state.lastUsage);
 	const appendMessage = useChatStore((state) => state.appendMessage);
 	const clearHistory = useChatStore((state) => state.clearHistory);
+	const setLastUsage = useChatStore((state) => state.setLastUsage);
 
 	const [status, setStatus] = useState<ChatStatus>(ChatStatus.Empty);
 	const [currentUserMessage, setCurrentUserMessage] = useState<string>("");
@@ -289,6 +292,14 @@ const AiAssistantPanel = ({
 		setWikiContext(null);
 		requestAnimationFrame(autosizeTextarea);
 
+		const historyForRequest: AiHistoryMessage[] =
+			action === aiActions.ask
+				? history.map((entry) => ({
+						role: entry.role,
+						content: entry.content,
+					}))
+				: [];
+
 		try {
 			const response = await requestAiAction(
 				action,
@@ -297,6 +308,7 @@ const AiAssistantPanel = ({
 				{
 					userPrompt: effectivePrompt,
 					signal: controller.signal,
+					history: historyForRequest,
 				}
 			);
 
@@ -304,6 +316,7 @@ const AiAssistantPanel = ({
 				return;
 			}
 
+			setLastUsage(response.usage ?? null);
 			streamAnswer(response.result);
 		} catch (requestError) {
 			if (controller.signal.aborted) {
@@ -622,7 +635,10 @@ const AiAssistantPanel = ({
 						</div>
 					)}
 					<div className={styles.dockHint}>
-						<ModelSelector compact />
+						<div className={styles.dockHintLeft}>
+							<ModelSelector compact />
+							<ContextUsage usage={lastUsage} />
+						</div>
 						<span>
 							<span className={styles.kbdInline}>↵</span> send ·{" "}
 							<span className={styles.kbdInline}>⇧↵</span> newline ·{" "}
