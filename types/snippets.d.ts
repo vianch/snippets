@@ -96,5 +96,6 @@ declare global {
 	type AiResponse = {
 		result: string;
 		provider: AiProvider;
+		model: string;
 	};
 }

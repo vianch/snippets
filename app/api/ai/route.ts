@@ -231,15 +231,20 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				);
 			}
 
+			const openaiModel = aiModel || defaultOpenAIModel;
 			const result = await requestOpenAI(
 				prompt,
 				systemPrompt,
 				openaiApiKey,
 				stripFences,
-				aiModel || defaultOpenAIModel
+				openaiModel
 			);
 
-			return NextResponse.json({ result, provider: "openai" });
+			return NextResponse.json({
+				result,
+				provider: "openai",
+				model: openaiModel,
+			});
 		}
 
 		// Claude provider (explicit)
@@ -256,15 +261,20 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				);
 			}
 
+			const claudeModel = aiModel || defaultAnthropicModel;
 			const result = await requestClaude(
 				prompt,
 				systemPrompt,
 				claudeApiKey,
 				stripFences,
-				aiModel || defaultAnthropicModel
+				claudeModel
 			);
 
-			return NextResponse.json({ result, provider: "claude" });
+			return NextResponse.json({
+				result,
+				provider: "claude",
+				model: claudeModel,
+			});
 		}
 
 		// Ollama provider (default) with Claude fallback
@@ -284,7 +294,11 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				stripFences
 			);
 
-			return NextResponse.json({ result, provider: "ollama" });
+			return NextResponse.json({
+				result,
+				provider: "ollama",
+				model: ollamaModel,
+			});
 		} catch (ollamaError) {
 			attempts.push({
 				provider: "ollama",
@@ -305,7 +319,11 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 					stripFences
 				);
 
-				return NextResponse.json({ result, provider: "ollama-cloud" });
+				return NextResponse.json({
+					result,
+					provider: "ollama-cloud",
+					model: ollamaModel,
+				});
 			} catch (ollamaCloudError) {
 				attempts.push({
 					provider: "ollama-cloud",
@@ -340,7 +358,11 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				stripFences
 			);
 
-			return NextResponse.json({ result, provider: "claude" });
+			return NextResponse.json({
+				result,
+				provider: "claude",
+				model: defaultAnthropicModel,
+			});
 		} catch (claudeError) {
 			attempts.push({
 				provider: "claude",

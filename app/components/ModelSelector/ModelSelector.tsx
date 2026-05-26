@@ -3,8 +3,10 @@
 import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 
 /* Lib */
+import { ToastType } from "@/lib/constants/toast";
 import useChatStore from "@/lib/store/chat.store";
-import { getUserDataFromSession } from "@/lib/supabase/queries";
+import useToastStore from "@/lib/store/toast.store";
+import { getUserDataFromSession, updateUser } from "@/lib/supabase/queries";
 
 /* Utils */
 import { fetchAiModels } from "@/utils/ai.utils";
@@ -21,9 +23,11 @@ const ModelSelector = ({
 }: ModelSelectorProps): ReactElement => {
 	const selectedModel = useChatStore((state) => state.selectedModel);
 	const setSelectedModel = useChatStore((state) => state.setSelectedModel);
+	const addToast = useToastStore((state) => state.addToast);
 
 	const [models, setModels] = useState<string[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [isSaving, setIsSaving] = useState<boolean>(false);
 
 	useEffect(() => {
 		let cancelled = false;
@@ -69,8 +73,26 @@ const ModelSelector = ({
 		};
 	}, []);
 
-	const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-		setSelectedModel(event.target.value);
+	const handleChange = async (
+		event: ChangeEvent<HTMLSelectElement>
+	): Promise<void> => {
+		const nextModel = event.target.value;
+		const previousModel = selectedModel;
+
+		setSelectedModel(nextModel);
+		setIsSaving(true);
+
+		const { error } = await updateUser({ data: { ai_model: nextModel } });
+
+		setIsSaving(false);
+
+		if (error) {
+			setSelectedModel(previousModel);
+			addToast({
+				type: ToastType.Error,
+				message: "Failed to save model selection",
+			});
+		}
 	};
 
 	const placeholder = isLoading ? "…" : "default";
@@ -80,7 +102,7 @@ const ModelSelector = ({
 			className={compact ? styles.compactSelect : styles.select}
 			value={selectedModel}
 			onChange={handleChange}
-			disabled={isLoading || models.length === 0}
+			disabled={isLoading || isSaving || models.length === 0}
 			aria-label="AI model"
 			title={selectedModel || "AI model"}
 		>
