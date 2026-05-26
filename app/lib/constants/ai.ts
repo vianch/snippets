@@ -60,6 +60,12 @@ export const enum ChatStatus {
 	Error = "error",
 }
 
+export const enum UserRole {
+	User = "user",
+	Assistant = "assistant",
+	System = "system",
+}
+
 export const streamStepMs = 18;
 export const minStreamChunk = 2;
 export const maxStreamChunk = 5;
@@ -98,3 +104,5 @@ export const fencedCodeBlockPattern = /```([a-zA-Z0-9_+-]*)\n([\s\S]*?)```/g;
 
 export const aiChatModalMinWidthPx = 440;
 export const aiChatModalWidthStorageKey = "aiChatModal.width";
+
+export const maxHistoryMessages = 20;

@@ -12,6 +12,7 @@ import {
 /* Components */
 import AssistantMessage from "@/components/CodeEditor/AiChatModal/AssistantMessage/AssistantMessage";
 import WikiLinkPopover from "@/components/CodeEditor/AiChatModal/WikiLinkPopover/WikiLinkPopover";
+import ContextUsage from "@/components/ContextUsage/ContextUsage";
 import ModelSelector from "@/components/ModelSelector/ModelSelector";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
@@ -25,6 +26,7 @@ import {
 	maxStreamChunk,
 	minStreamChunk,
 	streamStepMs,
+	UserRole,
 } from "@/lib/constants/ai";
 import { ToastType } from "@/lib/constants/toast";
 import useChatStore from "@/lib/store/chat.store";
@@ -60,8 +62,10 @@ const AiAssistantPanel = ({
 	const { addToast } = useToastStore();
 	const selectedModel = useChatStore((state) => state.selectedModel);
 	const history = useChatStore((state) => state.history);
+	const lastUsage = useChatStore((state) => state.lastUsage);
 	const appendMessage = useChatStore((state) => state.appendMessage);
 	const clearHistory = useChatStore((state) => state.clearHistory);
+	const setLastUsage = useChatStore((state) => state.setLastUsage);
 
 	const [status, setStatus] = useState<ChatStatus>(ChatStatus.Empty);
 	const [currentUserMessage, setCurrentUserMessage] = useState<string>("");
@@ -218,7 +222,7 @@ const AiAssistantPanel = ({
 			revealedAnswer &&
 			status === ChatStatus.Answered
 		) {
-			appendMessage({ role: "user", content: currentUserMessage });
+			appendMessage({ role: UserRole.User, content: currentUserMessage });
 
 			const isReplaceCandidate = detectReplaceCandidate(
 				currentUserPrompt,
@@ -227,7 +231,7 @@ const AiAssistantPanel = ({
 			);
 
 			appendMessage({
-				role: "assistant",
+				role: UserRole.Assistant,
 				content: revealedAnswer,
 				userPrompt: currentUserPrompt || undefined,
 				isReplaceCandidate,
@@ -289,6 +293,14 @@ const AiAssistantPanel = ({
 		setWikiContext(null);
 		requestAnimationFrame(autosizeTextarea);
 
+		const historyForRequest: AiHistoryMessage[] =
+			action === aiActions.ask
+				? useChatStore.getState().history.map((entry) => ({
+						role: entry.role,
+						content: entry.content,
+					}))
+				: [];
+
 		try {
 			const response = await requestAiAction(
 				action,
@@ -297,6 +309,7 @@ const AiAssistantPanel = ({
 				{
 					userPrompt: effectivePrompt,
 					signal: controller.signal,
+					history: historyForRequest,
 				}
 			);
 
@@ -304,6 +317,7 @@ const AiAssistantPanel = ({
 				return;
 			}
 
+			setLastUsage(response.usage ?? null);
 			streamAnswer(response.result);
 		} catch (requestError) {
 			if (controller.signal.aborted) {
@@ -463,7 +477,7 @@ const AiAssistantPanel = ({
 				)}
 
 				{history.map((entry, index) =>
-					entry.role === "user" ? (
+					entry.role === UserRole.User ? (
 						<div key={index} className={styles.userTurn}>
 							{entry.content}
 						</div>
@@ -622,7 +636,10 @@ const AiAssistantPanel = ({
 						</div>
 					)}
 					<div className={styles.dockHint}>
-						<ModelSelector compact />
+						<div className={styles.dockHintLeft}>
+							<ModelSelector compact />
+							<ContextUsage usage={lastUsage} />
+						</div>
 						<span>
 							<span className={styles.kbdInline}>↵</span> send ·{" "}
 							<span className={styles.kbdInline}>⇧↵</span> newline ·{" "}

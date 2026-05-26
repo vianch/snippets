@@ -1,6 +1,8 @@
 import {
 	fencedCodeBlockPattern,
+	maxHistoryMessages,
 	replaceIntentPattern,
+	UserRole,
 } from "@/lib/constants/ai";
 
 const findWikiLinkContext = (
@@ -70,9 +72,31 @@ const extractCodeBlockBody = (text: string): string | null => {
 	return blocks.length === 1 ? blocks[0].body : null;
 };
 
+const sanitizeHistory = (
+	history: AiHistoryMessage[] | undefined
+): AiHistoryMessage[] => {
+	if (!Array.isArray(history)) {
+		return [];
+	}
+
+	const cleaned = history
+		.filter(
+			(entry): entry is AiHistoryMessage =>
+				Boolean(entry) &&
+				typeof entry === "object" &&
+				(entry.role === UserRole.User || entry.role === UserRole.Assistant) &&
+				typeof entry.content === "string" &&
+				entry.content.trim().length > 0
+		)
+		.map((entry) => ({ role: entry.role, content: entry.content }));
+
+	return cleaned.slice(-maxHistoryMessages);
+};
+
 export {
 	detectReplaceCandidate,
 	extractCodeBlockBody,
 	extractFencedBlocks,
 	findWikiLinkContext,
+	sanitizeHistory,
 };

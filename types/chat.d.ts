@@ -1,13 +1,17 @@
-type ChatRole = "user" | "assistant";
+import { UserRole } from "@/lib/constants/ai";
 
-type ChatEntry = {
-	role: ChatRole;
-	content: string;
-	userPrompt?: string;
-	isReplaceCandidate?: boolean;
-};
+declare global {
+	type ChatRole = UserRole.User | UserRole.Assistant;
 
-type WikiLinkContext = {
-	start: number;
-	query: string;
-};
+	type ChatEntry = {
+		role: ChatRole;
+		content: string;
+		userPrompt?: string;
+		isReplaceCandidate?: boolean;
+	};
+
+	type WikiLinkContext = {
+		start: number;
+		query: string;
+	};
+}

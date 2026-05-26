@@ -612,8 +612,10 @@
 
 .dockHint {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: space-between;
+	gap: 0.375rem 0.5rem;
 	padding: 0 0.5rem 0.5rem;
 	font-size: 0.6875rem;
 	color: var(--gray-color);
