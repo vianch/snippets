@@ -3,11 +3,15 @@ import { FC, ReactElement, MouseEvent } from "react";
 /* Components */
 import Trash from "@/components/ui/icons/Trash";
 import Restore from "@/components/ui/icons/Restore";
+import StarFilled from "@/components/ui/icons/StarFilled";
 import LanguageBadge from "@/components/ui/LanguageBadge/LanguageBadge";
 
 /* Stores */
 import useMenuStore from "@/lib/store/menu.store";
 import useViewPortStore from "@/lib/store/viewPort.store";
+
+/* Lib */
+import { SnippetState } from "@/lib/constants/core";
 
 import styles from "@/components/SnippetList/snippetlist.module.css";
 
@@ -25,6 +29,7 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 	onActiveSnippet,
 	onDeleteSnippet,
 	onRestoreSnippet,
+	onToggleFavorite,
 }: SnippetItemPropsComponent): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
@@ -39,6 +44,11 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 			}
 		};
 
+		const favoriteClickHandler = (event: MouseEvent<HTMLSpanElement>): void => {
+			event.stopPropagation();
+			onToggleFavorite(snippet);
+		};
+
 		const isSnippetActive = activeSnippetId === snippet.snippet_id;
 
 		return (
@@ -48,21 +58,38 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 				onClick={snippetClickHandler}
 			>
 				<div className={styles.itemLeftSide}>
-					{!isTrashActive && (
-						<Trash
-							className={styles.trashIcon}
-							width="18"
-							height="18"
-							onClick={() => onDeleteSnippet(snippet?.snippet_id, "inactive")}
-						/>
-					)}
+					{!isTrashActive &&
+						(snippet.state === SnippetState.Favorite ? (
+							<span
+								className={styles.favoriteIconWrapper}
+								onClick={favoriteClickHandler}
+							>
+								<StarFilled
+									className={styles.favoriteIcon}
+									width="18"
+									height="18"
+									fill="#f1fa8c"
+								/>
+							</span>
+						) : (
+							<Trash
+								className={styles.trashIcon}
+								width="18"
+								height="18"
+								onClick={() =>
+									onDeleteSnippet(snippet?.snippet_id, SnippetState.Inactive)
+								}
+							/>
+						))}
 
-					{snippet?.state === "inactive" && (
+					{snippet?.state === SnippetState.Inactive && (
 						<Restore
 							className={styles.restoreIcon}
 							width="18"
 							height="18"
-							onClick={() => onRestoreSnippet(snippet?.snippet_id, "active")}
+							onClick={() =>
+								onRestoreSnippet(snippet?.snippet_id, SnippetState.Active)
+							}
 						/>
 					)}
 					{touched && isSnippetActive && "* "}

@@ -7,6 +7,7 @@ import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import useUserStore from "@/lib/store/user.store";
 import useToastStore from "@/lib/store/toast.store";
+import { SnippetState } from "@/lib/constants/core";
 import { ToastType } from "@/lib/constants/toast";
 import {
 	toggleSnippetPublic,
@@ -19,7 +20,7 @@ type UseCurrentSnippetProps = {
 	codeEditorStates: SnippetEditorStates;
 	onSave: (
 		currentSnippet: CurrentSnippet,
-		fromButton: boolean | "favorite"
+		fromButton: boolean | SnippetState.Favorite
 	) => void;
 	onStarred: (currentSnippet: CurrentSnippet) => void;
 	onPublicToggle: (currentSnippet: CurrentSnippet) => void;
@@ -144,10 +145,13 @@ const useCurrentSnippet = ({
 	const starringHandler = (): void => {
 		const newCurrentSnippet = {
 			...currentSnippet,
-			state: currentSnippet?.state === "favorite" ? "active" : "favorite",
+			state:
+				currentSnippet?.state === SnippetState.Favorite
+					? SnippetState.Active
+					: SnippetState.Favorite,
 		} as CurrentSnippet;
 		const isFavoriteMenu = codeEditorStates?.menuType === "favorites";
-		const fromButton = isFavoriteMenu ? "favorite" : true;
+		const fromButton = isFavoriteMenu ? SnippetState.Favorite : true;
 
 		setCurrentSnippet(newCurrentSnippet);
 		onSave(newCurrentSnippet, fromButton);
@@ -267,6 +271,23 @@ const useCurrentSnippet = ({
 			refreshVersionCount(currentSnippet.snippet_id);
 		}
 	}, [currentSnippet?.snippet_id]);
+
+	// Re-sync favorite/active/inactive state when toggled externally (e.g., from SnippetList)
+	useEffect(() => {
+		if (!snippet) {
+			return;
+		}
+
+		if (snippet.snippet_id !== currentSnippet.snippet_id) {
+			return;
+		}
+
+		if (snippet.state === currentSnippet.state) {
+			return;
+		}
+
+		setCurrentSnippet({ ...currentSnippet, state: snippet.state });
+	}, [snippet?.state]);
 
 	return {
 		currentSnippet,

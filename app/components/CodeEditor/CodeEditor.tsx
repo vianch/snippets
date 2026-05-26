@@ -11,6 +11,7 @@ import wikiLinkAutocomplete from "@/lib/wikiLinkAutocomplete";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
+import { SnippetState } from "@/lib/constants/core";
 import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
 import { aiActions } from "@/lib/constants/ai";
 import { requestAiAction } from "@/utils/ai.utils";
@@ -51,7 +52,7 @@ type CodeEditorProps = {
 	rightPane?: RightPaneMode;
 	onSave: (
 		currentSnippet: CurrentSnippet,
-		fromButton: boolean | "favorite"
+		fromButton: boolean | SnippetState.Favorite
 	) => void;
 	onStarred: (currentSnippet: CurrentSnippet) => void;
 	onPublicToggle: (currentSnippet: CurrentSnippet) => void;

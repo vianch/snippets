@@ -93,6 +93,9 @@ export const replaceIntentKeywords = [
 	"change",
 	"fix",
 	"modify",
+	"set",
+	"substitute",
+	"swap",
 ];
 
 export const replaceIntentPattern = new RegExp(

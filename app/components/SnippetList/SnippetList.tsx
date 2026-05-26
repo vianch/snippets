@@ -15,6 +15,7 @@ import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
 /* Utils */
 import { emptyTrash, setNewSnippet } from "@/lib/supabase/queries";
 import formatDateToDDMMYYYY from "@/utils/date.utils";
+import { pinFavoritesFirst } from "@/utils/array.utils";
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
 
 /* Lib */
@@ -59,6 +60,7 @@ const SnippetList = ({
 	onActiveSnippet,
 	onDeleteSnippet,
 	onRestoreSnippet,
+	onToggleFavorite,
 	onEmptyTrash,
 	onSaveSmartGroup,
 }: SnippetListProps): ReactElement => {
@@ -85,6 +87,14 @@ const SnippetList = ({
 				]) ?? []
 			),
 		[snippets]
+	);
+
+	const orderedSnippets = useMemo(
+		(): Snippet[] =>
+			isTrashActive
+				? searchData.snippetsFound
+				: pinFavoritesFirst(searchData.snippetsFound),
+		[searchData.snippetsFound, isTrashActive]
 	);
 
 	const newSnippetHandler = async (): Promise<void> => {
@@ -317,7 +327,7 @@ const SnippetList = ({
 						</Alert>
 					</li>
 
-					{searchData.snippetsFound.map((snippet: Snippet) => (
+					{orderedSnippets.map((snippet: Snippet) => (
 						<SnippetItem
 							key={snippet.snippet_id}
 							snippet={snippet}
@@ -327,6 +337,7 @@ const SnippetList = ({
 							onActiveSnippet={onActiveSnippet}
 							onDeleteSnippet={onDeleteSnippet}
 							onRestoreSnippet={onRestoreSnippet}
+							onToggleFavorite={onToggleFavorite}
 						/>
 					))}
 				</ul>

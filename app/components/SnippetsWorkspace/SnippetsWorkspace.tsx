@@ -22,9 +22,10 @@ import {
 	saveSnippet,
 	saveSnippetVersion,
 	setNewSnippet,
+	setSnippetState,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
-import { MenuItems } from "@/lib/constants/core";
+import { MenuItems, SnippetState } from "@/lib/constants/core";
 import { ToastType } from "@/lib/constants/toast";
 import useToastStore from "@/lib/store/toast.store";
 import { findSnippetByName } from "@/lib/wikiLinkResolver";
@@ -167,7 +168,7 @@ const SnippetsWorkspace = ({
 		);
 		setFavoritesCount(
 			snippetList.filter(
-				(snippetItem: Snippet) => snippetItem.state === "favorite"
+				(snippetItem: Snippet) => snippetItem.state === SnippetState.Favorite
 			).length
 		);
 		setPublicCount(
@@ -175,8 +176,10 @@ const SnippetsWorkspace = ({
 		);
 	};
 
-	const getSnippets = async (state: SnippetState = "active"): Promise<void> => {
-		const isActive = state === "active";
+	const getSnippets = async (
+		state: SnippetState = SnippetState.Active
+	): Promise<void> => {
+		const isActive = state === SnippetState.Active;
 		const data = isActive
 			? await getAllSnippets()
 			: await getSnippetsByState(state);
@@ -198,7 +201,7 @@ const SnippetsWorkspace = ({
 
 	const updateSnippet = (
 		currentSnippet: CurrentSnippet | null = null,
-		fromButton: boolean | "favorite" = false
+		fromButton: boolean | SnippetState.Favorite = false
 	): void => {
 		if (!currentSnippet) {
 			return;
@@ -213,7 +216,7 @@ const SnippetsWorkspace = ({
 			return;
 		}
 
-		if (fromButton !== "favorite") {
+		if (fromButton !== SnippetState.Favorite) {
 			const updatedSnippets = snippets.map((snippet) =>
 				snippet.snippet_id === currentSnippet.snippet_id
 					? { ...snippet, ...currentSnippet }
@@ -261,7 +264,7 @@ const SnippetsWorkspace = ({
 
 	const saveSnippetHandler = async (
 		currentSnippet: CurrentSnippet,
-		fromButton: boolean | "favorite" = false
+		fromButton: boolean | SnippetState.Favorite = false
 	): Promise<void> => {
 		const activeSnippet = snippets.find(
 			(snippet: Snippet): boolean =>
@@ -339,6 +342,50 @@ const SnippetsWorkspace = ({
 		setActiveSnippetId(pickNextActiveId(currentIndex, cloneSnippets));
 	};
 
+	const toggleFavoriteFromListHandler = async (
+		snippet: Snippet
+	): Promise<void> => {
+		const toggledState =
+			snippet.state === SnippetState.Favorite
+				? SnippetState.Active
+				: SnippetState.Favorite;
+		const isFavoriteMenu = codeEditorStates.menuType === MenuItems.Favorites;
+		const shouldRemoveFromList =
+			isFavoriteMenu && toggledState !== SnippetState.Favorite;
+
+		if (shouldRemoveFromList) {
+			const removedIndex = findSnippetIndexById(snippet.snippet_id);
+
+			if (removedIndex === -1) {
+				return;
+			}
+
+			const remaining = snippets.filter(
+				(item: Snippet): boolean => item.snippet_id !== snippet.snippet_id
+			);
+
+			setSnippets(remaining);
+			setActiveSnippetId(pickNextActiveId(removedIndex, remaining));
+		} else {
+			setSnippets(
+				snippets.map(
+					(item: Snippet): Snippet =>
+						item.snippet_id === snippet.snippet_id
+							? { ...item, state: toggledState }
+							: item
+				)
+			);
+		}
+
+		setFavoritesCount(
+			toggledState === SnippetState.Favorite
+				? favoritesCount + 1
+				: favoritesCount - 1
+		);
+
+		await setSnippetState(snippet.snippet_id, toggledState);
+	};
+
 	const onPublicToggleHandler = (currentSnippet: CurrentSnippet): void => {
 		const newCount = currentSnippet.is_public
 			? publicCount + 1
@@ -381,7 +428,7 @@ const SnippetsWorkspace = ({
 
 	const getTrashHandler = async (): Promise<void> => {
 		if (codeEditorStates.menuType !== MenuItems.Trash) {
-			await getSnippets("inactive");
+			await getSnippets(SnippetState.Inactive);
 
 			setCodedEditorStates((prev) => ({
 				...prev,
@@ -434,7 +481,7 @@ const SnippetsWorkspace = ({
 
 	const getFavoritesHandler = async (): Promise<void> => {
 		if (codeEditorStates.menuType !== MenuItems.Favorites) {
-			await getSnippets("favorite");
+			await getSnippets(SnippetState.Favorite);
 
 			setCodedEditorStates((prev) => ({
 				...prev,
@@ -477,7 +524,7 @@ const SnippetsWorkspace = ({
 
 	const trashRestoreSnippetHandler = async (
 		snippetId: UUID,
-		state: SnippetState = "inactive"
+		state: SnippetState = SnippetState.Inactive
 	): Promise<void> => {
 		if (!snippetId) return;
 
@@ -688,6 +735,7 @@ const SnippetsWorkspace = ({
 						onActiveSnippet={setActiveSnippetId}
 						onDeleteSnippet={trashRestoreSnippetHandler}
 						onRestoreSnippet={trashRestoreSnippetHandler}
+						onToggleFavorite={toggleFavoriteFromListHandler}
 						onEmptyTrash={emptyTrashHandler}
 						onSaveSmartGroup={handleSaveSmartGroup}
 					/>
