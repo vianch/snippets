@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { aiActions, aiSystemPrompts } from "@/lib/constants/ai";
+import { aiActions, aiSystemPrompts, UserRole } from "@/lib/constants/ai";
 import createSupabaseServerClient from "@/lib/supabase/server";
 import { sanitizeHistory } from "@/utils/chat.utils";
 
@@ -112,7 +112,7 @@ const requestOllama = async (
 		headers,
 		body: JSON.stringify({
 			model,
-			messages: [{ role: "system", content: systemPrompt }, ...messages],
+			messages: [{ role: UserRole.System, content: systemPrompt }, ...messages],
 			stream: false,
 		}),
 		signal: controller.signal,
@@ -188,7 +188,7 @@ const requestOpenAI = async (
 		body: JSON.stringify({
 			model,
 			max_tokens: 4096,
-			messages: [{ role: "system", content: systemPrompt }, ...messages],
+			messages: [{ role: UserRole.System, content: systemPrompt }, ...messages],
 		}),
 	});
 
@@ -269,7 +269,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		const priorMessages = isAskAction ? sanitizeHistory(history) : [];
 		const messages: AiHistoryMessage[] = [
 			...priorMessages,
-			{ role: "user", content: prompt },
+			{ role: UserRole.User, content: prompt },
 		];
 		const metadata = user.user_metadata ?? {};
 		const aiProvider = (metadata.ai_provider as string) || "ollama";

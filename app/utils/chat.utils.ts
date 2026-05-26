@@ -2,6 +2,7 @@ import {
 	fencedCodeBlockPattern,
 	maxHistoryMessages,
 	replaceIntentPattern,
+	UserRole,
 } from "@/lib/constants/ai";
 
 const findWikiLinkContext = (
@@ -83,7 +84,7 @@ const sanitizeHistory = (
 			(entry): entry is AiHistoryMessage =>
 				Boolean(entry) &&
 				typeof entry === "object" &&
-				(entry.role === "user" || entry.role === "assistant") &&
+				(entry.role === UserRole.User || entry.role === UserRole.Assistant) &&
 				typeof entry.content === "string" &&
 				entry.content.trim().length > 0
 		)

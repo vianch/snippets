@@ -30,6 +30,7 @@ import {
 	maxStreamChunk,
 	minStreamChunk,
 	streamStepMs,
+	UserRole,
 } from "@/lib/constants/ai";
 import { ToastType } from "@/lib/constants/toast";
 import useChatStore from "@/lib/store/chat.store";
@@ -302,7 +303,7 @@ const AiChatModal = ({
 			revealedAnswer &&
 			status === ChatStatus.Answered
 		) {
-			appendMessage({ role: "user", content: currentUserMessage });
+			appendMessage({ role: UserRole.User, content: currentUserMessage });
 
 			const isReplaceCandidate = detectReplaceCandidate(
 				currentUserPrompt,
@@ -311,7 +312,7 @@ const AiChatModal = ({
 			);
 
 			appendMessage({
-				role: "assistant",
+				role: UserRole.Assistant,
 				content: revealedAnswer,
 				userPrompt: currentUserPrompt || undefined,
 				isReplaceCandidate,
@@ -375,7 +376,7 @@ const AiChatModal = ({
 
 		const historyForRequest: AiHistoryMessage[] =
 			action === aiActions.ask
-				? history.map((entry) => ({
+				? useChatStore.getState().history.map((entry) => ({
 						role: entry.role,
 						content: entry.content,
 					}))
@@ -661,7 +662,7 @@ const AiChatModal = ({
 				)}
 
 				{history.map((entry, index) =>
-					entry.role === "user" ? (
+					entry.role === UserRole.User ? (
 						<div key={index} className={styles.userTurn}>
 							{entry.content}
 						</div>

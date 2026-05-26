@@ -87,7 +87,7 @@ declare global {
 		| "complete";
 
 	type AiHistoryMessage = {
-		role: "user" | "assistant";
+		role: ChatRole;
 		content: string;
 	};
 
