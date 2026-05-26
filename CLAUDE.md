@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+Project-wide rules for AI coding agents. Detailed guidance lives in `.claude/rules/`.
+All code Claude produces must conform to **every** rule below.
+
+| Topic                        | Rule file                                                                    |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| File naming                  | [.claude/rules/file-naming.md](.claude/rules/file-naming.md)                 |
+| TypeScript                   | [.claude/rules/typescript.md](.claude/rules/typescript.md)                   |
+| Naming (no abbreviations)    | [.claude/rules/naming.md](.claude/rules/naming.md)                           |
+| Code style (braces, helpers) | [.claude/rules/code-style.md](.claude/rules/code-style.md)                   |
+| Enums and constants          | [.claude/rules/enums-and-constants.md](.claude/rules/enums-and-constants.md) |
+| Types location               | [.claude/rules/types-location.md](.claude/rules/types-location.md)           |
+| Components                   | [.claude/rules/components.md](.claude/rules/components.md)                   |
+| Supabase                     | [.claude/rules/supabase.md](.claude/rules/supabase.md)                       |
+| Internationalization         | [.claude/rules/i18n.md](.claude/rules/i18n.md)                               |
+| Imports                      | [.claude/rules/imports.md](.claude/rules/imports.md)                         |
+| Utilities                    | [.claude/rules/utilities.md](.claude/rules/utilities.md)                     |
+| Verification                 | [.claude/rules/verification.md](.claude/rules/verification.md)               |
+
 ## What Is This
 
 Snippets — a personal code snippet manager. Users authenticate, then create/edit/tag/favorite/trash code snippets via an in-browser CodeMirror editor. Live at snippets.vianch.com.
@@ -114,3 +132,17 @@ Loaded automatically when Claude works with matching file paths:
 | `components.md` | `app/components/**/*.tsx`                                                        |
 | `supabase.md`   | `app/lib/supabase/**/*.ts`, `proxy.ts`                                           |
 | `utilities.md`  | `app/utils/**`, `app/lib/constants/**`, `app/lib/config/**`, `app/lib/models/**` |
+
+## Quick reference (the rules that get violated most often)
+
+- **All shared constants live in `lib/constants/`** — grouped by responsibility (one file per topic). See [enums-and-constants.md](.claude/rules/enums-and-constants.md).
+- **All types live in `types/**/\*.d.ts`** — never inline `export type ...` in a util, hook, store, or worker file. See [types-location.md](.claude/rules/types-location.md).
+- **No hardcoded string/number literals in conditionals or switch cases** — compare against a `const enum` member or `as const` value from `lib/constants/`. See [enums-and-constants.md](.claude/rules/enums-and-constants.md).
+- **No re-implementing UI primitives** — import from `components/ui/<Primitive>/<Primitive>.tsx`. Add missing variants there. See [components.md](.claude/rules/components.md).
+- **One exported component per file** — no sibling subview declarations (e.g. `const EmptyView = ...` inside `Workspace.tsx`). Split into its own file in the same feature folder.
+- **All user-facing copy goes through `t(...)`** — `react-i18next` namespaces, locale JSON in `public/locales/{language}/{namespace}.json`. No `Copy` const objects, no hardcoded user-visible strings. See [i18n.md](.claude/rules/i18n.md).
+- **No single-letter or abbreviated identifiers** — `store` not `s`, `event` not `e`, `error` not `err`. See [naming.md](.claude/rules/naming.md).
+- **No `let`, no in-place mutation.** Enforced by ESLint (`prefer-const`, `no-var`, `no-param-reassign`).
+- **No `any`.** Enforced by `@typescript-eslint/no-explicit-any`.
+- **One named export per file** (with the single exception of `types/index.d.ts`).
+- **Branded IDs** (`SequenceId`, `FrameIndex`) — never raw `string`/`number` outside their factories in `lib/ids.ts`.

@@ -1,4 +1,5 @@
 import SupportedLanguages from "@/lib/config/languages";
+import { SnippetState } from "@/lib/constants/core";
 import uuidv4 from "../../utils/string.utilts";
 
 export default class SnippetValueObject implements Snippet {
@@ -40,7 +41,7 @@ export default class SnippetValueObject implements Snippet {
 		this.notes = null;
 		this.snippet = "";
 		this.language = SupportedLanguages.Markdown;
-		this.state = "active";
+		this.state = SnippetState.Active;
 		this.tags = null;
 		this.is_public = false;
 		this.public_slug = null;

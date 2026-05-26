@@ -1,4 +1,5 @@
 import SupportedLanguages from "@/lib/config/languages";
+import { SnippetState } from "@/lib/constants/core";
 
 const snippetListFixture: Snippet[] = [
 	{
@@ -11,7 +12,7 @@ const snippetListFixture: Snippet[] = [
 		notes: "This is a sample code snippet.",
 		language: SupportedLanguages.JavaScript,
 		snippet: "console.log('Hello, World!');",
-		state: "active" as SnippetState,
+		state: SnippetState.Active,
 		tags: "JavaScript",
 		is_public: false,
 		public_slug: null,

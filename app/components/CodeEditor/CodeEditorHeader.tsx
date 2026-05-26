@@ -2,6 +2,7 @@ import { ChangeEvent, ReactElement } from "react";
 
 /* Lib */
 import languageExtensions from "@/lib/codeEditor";
+import { SnippetState } from "@/lib/constants/core";
 
 /* Components */
 import StarFilled from "@/components/ui/icons/StarFilled";
@@ -39,7 +40,7 @@ const CodeEditorHeader = ({
 	return (
 		<div className={styles.header}>
 			<div className={styles.headerLeftSide}>
-				{currentSnippet?.state === "favorite" ? (
+				{currentSnippet?.state === SnippetState.Favorite ? (
 					<StarFilled
 						className={styles.starIcon}
 						height={18}

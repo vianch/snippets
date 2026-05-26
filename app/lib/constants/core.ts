@@ -7,4 +7,10 @@ export enum MenuItems {
 	None = "none",
 }
 
+export enum SnippetState {
+	Active = "active",
+	Inactive = "inactive",
+	Favorite = "favorite",
+}
+
 export const tags = "tags";

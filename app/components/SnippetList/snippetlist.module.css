@@ -233,6 +233,16 @@
 	margin-right: 0.313rem;
 }
 
+.favoriteIcon {
+	margin-right: 0.313rem;
+}
+
+.favoriteIconWrapper {
+	display: inline-flex;
+	align-items: center;
+	cursor: pointer;
+}
+
 .trashIcon:hover {
 	color: var(--red-color);
 }

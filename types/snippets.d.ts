@@ -1,13 +1,16 @@
 import { LanguageSupport } from "@codemirror/language";
 
 import SupportedLanguages from "@/lib/config/languages";
-import { MenuItems } from "@/lib/constants/core";
+import {
+	MenuItems,
+	SnippetState as SnippetStateEnum,
+} from "@/lib/constants/core";
 
 declare global {
 	type Tags = string | null;
 	type UUID = string & { __uuid: undefined };
 
-	type SnippetState = "active" | "inactive" | "favorite";
+	type SnippetState = SnippetStateEnum;
 
 	type MenuItemType = MenuItems | string;
 
@@ -68,6 +71,7 @@ declare global {
 		onActiveSnippet: (snippetId: UUID) => void;
 		onDeleteSnippet: DeleteRestoreFunction;
 		onRestoreSnippet: DeleteRestoreFunction;
+		onToggleFavorite: (snippet: Snippet) => void;
 	};
 
 	type AiProvider = "ollama" | "claude" | "openai";

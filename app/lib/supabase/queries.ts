@@ -1,5 +1,6 @@
 import supabase from "@/lib/supabase/client";
 import SnippetValueObject from "@/lib/models/Snippet";
+import { SnippetState } from "@/lib/constants/core";
 import { AuthError, UserAttributes, UserResponse } from "@supabase/supabase-js";
 
 export const getUserDataFromServer = async (): Promise<User> => {
@@ -54,7 +55,7 @@ export const getAllSnippets = async (): Promise<Snippet[]> => {
 				.select()
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
-				.neq("state", "inactive");
+				.neq("state", SnippetState.Inactive);
 
 			return data as Snippet[];
 		}
@@ -93,7 +94,7 @@ export const getUncategorizedSnippets = async (): Promise<Snippet[]> => {
 				.select()
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
-				.neq("state", "inactive")
+				.neq("state", SnippetState.Inactive)
 				.or("tags.is.null,tags.eq.");
 
 			return data as Snippet[];
@@ -115,7 +116,7 @@ export const getSnippetsByFolder = async (
 				.select()
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId, folder })
-				.neq("state", "inactive");
+				.neq("state", SnippetState.Inactive);
 
 			return (data ?? []) as Snippet[];
 		}
@@ -134,7 +135,7 @@ export const getSnippetsByTag = async (tag: string): Promise<Snippet[]> => {
 				.select()
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
-				.neq("state", "inactive")
+				.neq("state", SnippetState.Inactive)
 				.like("tags", `%${tag}%`);
 
 			return data as Snippet[];
@@ -162,7 +163,7 @@ export const searchSnippets = async (query: string): Promise<Snippet[]> => {
 				.select()
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
-				.neq("state", "inactive")
+				.neq("state", SnippetState.Inactive)
 				.textSearch("fts", tsQuery);
 
 			return (data ?? []) as Snippet[];
@@ -221,7 +222,7 @@ export const saveSnippet = async (
 
 export const trashRestoreSnippet = async (
 	snippetId: UUID,
-	state: SnippetState = "inactive"
+	state: SnippetState = SnippetState.Inactive
 ): Promise<void> => {
 	if (!supabase) return;
 
@@ -241,6 +242,28 @@ export const trashRestoreSnippet = async (
 	}
 };
 
+export const setSnippetState = async (
+	snippetId: UUID,
+	state: SnippetState
+): Promise<void> => {
+	if (!supabase) return;
+
+	const userId = await getUserIdBySession();
+
+	if (!userId) {
+		throw new Error("Not authenticated");
+	}
+
+	const { error } = await supabase
+		.from("snippet")
+		.update({ state })
+		.match({ snippet_id: snippetId, user_id: userId });
+
+	if (error) {
+		throw new Error("Error updating snippet state");
+	}
+};
+
 export const emptyTrash = async (): Promise<void> => {
 	if (supabase) {
 		const userId = await getUserIdBySession();
@@ -249,7 +272,7 @@ export const emptyTrash = async (): Promise<void> => {
 			const { error } = await supabase
 				.from("snippet")
 				.delete()
-				.match({ user_id: userId, state: "inactive" });
+				.match({ user_id: userId, state: SnippetState.Inactive });
 
 			if (error) {
 				throw new Error("Error emptying trash");
