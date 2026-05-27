@@ -32,7 +32,6 @@ import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
 import Tabs from "@/components/ui/Tabs/Tabs";
 import ThemePreview from "@/components/AccountModal/ThemePreview";
-import TwoFactorSettings from "@/components/TwoFactorSettings/TwoFactorSettings";
 
 /* Store */
 import useUserStore from "@/lib/store/user.store";
@@ -573,9 +572,6 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					Leave empty to keep current password
 				</small>
 			</div>
-
-			{/* Two-Factor Authentication */}
-			<TwoFactorSettings disabled={isUserEmailDemo(userData?.email ?? "")} />
 		</>
 	);
 
