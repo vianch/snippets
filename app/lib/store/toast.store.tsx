@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { ToastPositions, ToastTimeOut } from "@/lib/constants/toast";
 
 /* Utils */
-import uuidv4 from "@/utils/string.utilts";
+import uuidv4 from "@/utils/string.utils";
 
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 

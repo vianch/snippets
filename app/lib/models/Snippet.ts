@@ -1,6 +1,6 @@
 import SupportedLanguages from "@/lib/config/languages";
 import { SnippetState } from "@/lib/constants/core";
-import uuidv4 from "../../utils/string.utilts";
+import uuidv4 from "../../utils/string.utils";
 
 export default class SnippetValueObject implements Snippet {
 	public snippet_id: UUID;

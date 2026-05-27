@@ -12,6 +12,7 @@ All code Claude produces must conform to **every** rule below.
 | Naming (no abbreviations)    | [.claude/rules/naming.md](.claude/rules/naming.md)                           |
 | Code style (braces, helpers) | [.claude/rules/code-style.md](.claude/rules/code-style.md)                   |
 | Enums and constants          | [.claude/rules/enums-and-constants.md](.claude/rules/enums-and-constants.md) |
+| HTTP status codes            | [.claude/rules/http-status.md](.claude/rules/http-status.md)                 |
 | Types location               | [.claude/rules/types-location.md](.claude/rules/types-location.md)           |
 | Components                   | [.claude/rules/components.md](.claude/rules/components.md)                   |
 | Supabase                     | [.claude/rules/supabase.md](.claude/rules/supabase.md)                       |
@@ -138,6 +139,7 @@ Loaded automatically when Claude works with matching file paths:
 - **All shared constants live in `lib/constants/`** — grouped by responsibility (one file per topic). See [enums-and-constants.md](.claude/rules/enums-and-constants.md).
 - **All types live in `types/**/\*.d.ts`** — never inline `export type ...` in a util, hook, store, or worker file. See [types-location.md](.claude/rules/types-location.md).
 - **No hardcoded string/number literals in conditionals or switch cases** — compare against a `const enum` member or `as const` value from `lib/constants/`. See [enums-and-constants.md](.claude/rules/enums-and-constants.md).
+- **No raw HTTP status numbers** — use `HttpStatusCode` from `lib/constants/ui.constants` (e.g. `HttpStatusCode.Unauthorized`, never `401`) in API routes, pages, and status comparisons. See [http-status.md](.claude/rules/http-status.md).
 - **No re-implementing UI primitives** — import from `components/ui/<Primitive>/<Primitive>.tsx`. Add missing variants there. See [components.md](.claude/rules/components.md).
 - **One exported component per file** — no sibling subview declarations (e.g. `const EmptyView = ...` inside `Workspace.tsx`). Split into its own file in the same feature folder.
 - **All user-facing copy goes through `t(...)`** — `react-i18next` namespaces, locale JSON in `public/locales/{language}/{namespace}.json`. No `Copy` const objects, no hardcoded user-visible strings. See [i18n.md](.claude/rules/i18n.md).

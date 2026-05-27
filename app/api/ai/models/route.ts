@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { openAiExcludedPrefixes } from "@/lib/constants/ai";
+import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import createSupabaseServerClient from "@/lib/supabase/server";
 
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
@@ -83,7 +84,10 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 	} = await supabase.auth.getUser();
 
 	if (!user) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		return NextResponse.json(
+			{ error: "Unauthorized" },
+			{ status: HttpStatusCode.Unauthorized }
+		);
 	}
 
 	const provider = request.nextUrl.searchParams.get("provider") || "ollama";

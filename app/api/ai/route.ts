@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { aiActions, aiSystemPrompts, UserRole } from "@/lib/constants/ai";
+import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import createSupabaseServerClient from "@/lib/supabase/server";
 import { sanitizeHistory } from "@/utils/chat.utils";
 
@@ -218,7 +219,10 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		} = await supabase.auth.getUser();
 
 		if (!user) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+			return NextResponse.json(
+				{ error: "Unauthorized" },
+				{ status: HttpStatusCode.Unauthorized }
+			);
 		}
 
 		const body = (await request.json()) as AiRequest;
@@ -230,18 +234,21 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 					error:
 						"Invalid action. Must be one of: explain, comments, format, optimize, json, ask",
 				},
-				{ status: 400 }
+				{ status: HttpStatusCode.BadRequest }
 			);
 		}
 
 		if (!code || code.trim().length === 0) {
-			return NextResponse.json({ error: "Code is required" }, { status: 400 });
+			return NextResponse.json(
+				{ error: "Code is required" },
+				{ status: HttpStatusCode.BadRequest }
+			);
 		}
 
 		if (code.length > maxCodeLength) {
 			return NextResponse.json(
 				{ error: `Code exceeds ${maxCodeLength} character limit` },
-				{ status: 413 }
+				{ status: HttpStatusCode.PayloadTooLarge }
 			);
 		}
 
@@ -250,14 +257,14 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 		if (isAskAction && (!userPrompt || userPrompt.trim().length === 0)) {
 			return NextResponse.json(
 				{ error: "userPrompt is required for the ask action" },
-				{ status: 400 }
+				{ status: HttpStatusCode.BadRequest }
 			);
 		}
 
 		if (isAskAction && userPrompt && userPrompt.length > maxPromptLength) {
 			return NextResponse.json(
 				{ error: `Prompt exceeds ${maxPromptLength} character limit` },
-				{ status: 413 }
+				{ status: HttpStatusCode.PayloadTooLarge }
 			);
 		}
 
@@ -287,7 +294,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 						error:
 							"OpenAI API key not configured. Add your API key in Account Settings > AI tab.",
 					},
-					{ status: 503 }
+					{ status: HttpStatusCode.ServiceUnavailable }
 				);
 			}
 
@@ -317,7 +324,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 						error:
 							"Claude API key not configured. Add your API key in Account Settings > AI tab.",
 					},
-					{ status: 503 }
+					{ status: HttpStatusCode.ServiceUnavailable }
 				);
 			}
 
@@ -426,7 +433,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 					code: "no_provider_configured",
 					attempts,
 				},
-				{ status: 503 }
+				{ status: HttpStatusCode.ServiceUnavailable }
 			);
 		}
 
@@ -456,13 +463,16 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 					code: "all_providers_failed",
 					attempts,
 				},
-				{ status: 502 }
+				{ status: HttpStatusCode.BadGateway }
 			);
 		}
 	} catch (error) {
 		const errorMessage =
 			error instanceof Error ? error.message : "An unexpected error occurred";
 
-		return NextResponse.json({ error: errorMessage }, { status: 500 });
+		return NextResponse.json(
+			{ error: errorMessage },
+			{ status: HttpStatusCode.InternalServerError }
+		);
 	}
 };

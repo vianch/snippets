@@ -1,10 +1,16 @@
-import { isClient } from "./ui.utils";
-
 const escapeHtml = (snippet: string): string =>
 	snippet.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+const normalizeRecoveryCode = (value: unknown): string => {
+	if (typeof value !== "string") {
+		return "";
+	}
+
+	return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+};
+
 const uuidv4 = (): UUID => {
-	if (isClient() && window?.crypto?.randomUUID) {
+	if (typeof window !== "undefined" && window?.crypto?.randomUUID) {
 		return window.crypto.randomUUID() as UUID;
 	}
 
@@ -17,6 +23,6 @@ const uuidv4 = (): UUID => {
 	}) as UUID;
 };
 
-export { escapeHtml };
+export { escapeHtml, normalizeRecoveryCode };
 
 export default uuidv4;

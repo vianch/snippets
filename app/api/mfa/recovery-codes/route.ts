@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { MfaAssuranceLevel } from "@/lib/constants/mfa";
+import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { isAdminClientConfigured } from "@/lib/supabase/admin";
 import createSupabaseServerClient from "@/lib/supabase/server";
 import {
@@ -12,7 +13,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	if (!isAdminClientConfigured()) {
 		return NextResponse.json(
 			{ error: "Recovery codes are not configured on the server" },
-			{ status: 503 }
+			{ status: HttpStatusCode.ServiceUnavailable }
 		);
 	}
 
@@ -22,7 +23,10 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	} = await supabase.auth.getUser();
 
 	if (!user) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		return NextResponse.json(
+			{ error: "Unauthorized" },
+			{ status: HttpStatusCode.Unauthorized }
+		);
 	}
 
 	const { data: assuranceLevel } =
@@ -34,7 +38,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	) {
 		return NextResponse.json(
 			{ error: "Two-factor verification required" },
-			{ status: 403 }
+			{ status: HttpStatusCode.Forbidden }
 		);
 	}
 
@@ -44,7 +48,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	if (error) {
 		return NextResponse.json(
 			{ error: "Could not store recovery codes" },
-			{ status: 500 }
+			{ status: HttpStatusCode.InternalServerError }
 		);
 	}
 
