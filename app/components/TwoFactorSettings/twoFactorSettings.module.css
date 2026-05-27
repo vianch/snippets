@@ -1,0 +1,129 @@
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.sectionTitle {
+	font-size: var(--normal-font-size);
+	font-weight: 600;
+	color: var(--purple-color);
+	margin: 0;
+	padding-bottom: 0.5rem;
+	border-bottom: 1px solid var(--border-color);
+}
+
+.toggleGroup {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.toggleLabel {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}
+
+.toggleCheckbox {
+	width: 1rem;
+	height: 1rem;
+	accent-color: var(--green-color);
+	cursor: pointer;
+}
+
+.toggleText {
+	font-size: var(--small-font-size);
+	color: var(--text-color);
+}
+
+.helpText {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+	margin: 0;
+	padding-left: 0.15rem;
+}
+
+.enrollment {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	padding: 1rem;
+	background: var(--bg-color-dark);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius);
+}
+
+.steps {
+	margin: 0;
+	padding-left: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	font-size: var(--small-font-size);
+	color: var(--text-color);
+}
+
+.qrContainer {
+	display: flex;
+	justify-content: center;
+}
+
+.qrImage {
+	width: 180px;
+	height: 180px;
+	background: #fff;
+	padding: 0.5rem;
+	border-radius: var(--border-radius);
+}
+
+.secretGroup {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.label {
+	font-size: var(--small-font-size);
+	color: var(--green-color);
+}
+
+.secret {
+	font-family: var(--font-mono, monospace);
+	font-size: var(--small-font-size);
+	letter-spacing: 0.05em;
+	color: var(--yellow-color);
+	word-break: break-all;
+	user-select: all;
+}
+
+.input {
+	color: var(--gray-color);
+}
+
+.actions {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.recoveryCodes {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 0.5rem;
+}
+
+.recoveryCode {
+	font-family: var(--font-mono, monospace);
+	font-size: var(--small-font-size);
+	letter-spacing: 0.05em;
+	color: var(--yellow-color);
+	background: var(--bg-color);
+	padding: 0.4rem 0.5rem;
+	border-radius: var(--border-radius);
+	text-align: center;
+	user-select: all;
+}
