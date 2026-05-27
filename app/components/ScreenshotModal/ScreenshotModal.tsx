@@ -23,7 +23,7 @@ import {
 	downloadImage,
 	loadFont,
 } from "@/utils/screenshot.utils";
-import { escapeHtml } from "@/utils/string.utilts";
+import { escapeHtml } from "@/utils/string.utils";
 
 /* Styles */
 import styles from "./screenshotModal.module.css";

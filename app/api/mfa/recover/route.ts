@@ -1,25 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { isAdminClientConfigured } from "@/lib/supabase/admin";
 import createSupabaseServerClient from "@/lib/supabase/server";
 import {
 	consumeRecoveryCode,
 	deleteUserMfaFactors,
 } from "@/lib/supabase/mfaAdmin";
-
-const normalizeRecoveryCode = (value: unknown): string => {
-	if (typeof value !== "string") {
-		return "";
-	}
-
-	return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-};
+import { normalizeRecoveryCode } from "@/utils/string.utils";
 
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	if (!isAdminClientConfigured()) {
 		return NextResponse.json(
 			{ error: "Recovery is not configured on the server" },
-			{ status: 503 }
+			{ status: HttpStatusCode.ServiceUnavailable }
 		);
 	}
 
@@ -29,7 +23,10 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	} = await supabase.auth.getUser();
 
 	if (!user) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		return NextResponse.json(
+			{ error: "Unauthorized" },
+			{ status: HttpStatusCode.Unauthorized }
+		);
 	}
 
 	const body = await request.json().catch(() => null);
@@ -38,7 +35,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	if (!code) {
 		return NextResponse.json(
 			{ error: "Recovery code required" },
-			{ status: 400 }
+			{ status: HttpStatusCode.BadRequest }
 		);
 	}
 
@@ -47,7 +44,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	if (!isValid) {
 		return NextResponse.json(
 			{ error: "Invalid recovery code" },
-			{ status: 400 }
+			{ status: HttpStatusCode.BadRequest }
 		);
 	}
 
@@ -56,7 +53,7 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	if (error) {
 		return NextResponse.json(
 			{ error: "Could not remove two-factor authentication" },
-			{ status: 500 }
+			{ status: HttpStatusCode.InternalServerError }
 		);
 	}
 

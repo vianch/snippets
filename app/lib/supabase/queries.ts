@@ -7,6 +7,7 @@ import {
 	MfaFactorType,
 	MfaFriendlyName,
 } from "@/lib/constants/mfa";
+import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { AuthError, UserAttributes, UserResponse } from "@supabase/supabase-js";
 
 export const getUserDataFromServer = async (): Promise<User> => {
@@ -450,7 +451,11 @@ export const updateUser = async (
 	}
 
 	return {
-		error: new AuthError("Supabase client not initialized", 503, undefined),
+		error: new AuthError(
+			"Supabase client not initialized",
+			HttpStatusCode.ServiceUnavailable,
+			undefined
+		),
 		data: { user: null },
 	};
 };

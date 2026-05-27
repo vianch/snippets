@@ -1,7 +1,5 @@
 import { RecoveryCodeLength } from "@/lib/constants/mfa";
-
-export const normalizeRecoveryCode = (value: string): string =>
-	value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+import { normalizeRecoveryCode } from "@/utils/string.utils";
 
 export const formatRecoveryCode = (code: string): string => {
 	const half = Math.floor(RecoveryCodeLength / 2);
