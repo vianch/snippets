@@ -40,6 +40,7 @@ export const aiProviders: { value: AiProvider; label: string }[] = [
 	{ value: "ollama", label: "Ollama" },
 	{ value: "claude", label: "Claude (Anthropic)" },
 	{ value: "openai", label: "OpenAI" },
+	{ value: "nvidia", label: "NVIDIA" },
 ];
 
 export const demoAccountData = {

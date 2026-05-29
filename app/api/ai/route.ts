@@ -34,6 +34,10 @@ const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
 const defaultAnthropicModel =
 	process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
 const defaultOpenAIModel = process.env.OPENAI_MODEL || "gpt-4o";
+const defaultNvidiaModel =
+	process.env.NVIDIA_MODEL || "meta/llama-3.1-70b-instruct";
+const openAiBaseUrl = "https://api.openai.com/v1";
+const nvidiaBaseUrl = "https://integrate.api.nvidia.com/v1";
 
 const ollamaTimeout = 55000;
 
@@ -173,14 +177,16 @@ const requestClaude = async (
 	return stripFences ? stripMarkdownCodeFences(responseText) : responseText;
 };
 
-const requestOpenAI = async (
+const requestOpenAiCompatible = async (
+	baseUrl: string,
+	providerLabel: string,
 	messages: AiHistoryMessage[],
 	systemPrompt: string,
 	apiKey: string,
 	stripFences: boolean,
-	model: string = defaultOpenAIModel
+	model: string
 ): Promise<string> => {
-	const response = await fetch("https://api.openai.com/v1/chat/completions", {
+	const response = await fetch(`${baseUrl}/chat/completions`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -196,7 +202,9 @@ const requestOpenAI = async (
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}));
 
-		throw new Error(errorData?.error?.message || "OpenAI API request failed");
+		throw new Error(
+			errorData?.error?.message || `${providerLabel} API request failed`
+		);
 	}
 
 	const data = await response.json();
@@ -299,7 +307,9 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 			}
 
 			const openaiModel = aiModel || defaultOpenAIModel;
-			const result = await requestOpenAI(
+			const result = await requestOpenAiCompatible(
+				openAiBaseUrl,
+				"OpenAI",
 				messages,
 				systemPrompt,
 				openaiApiKey,
@@ -311,6 +321,38 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 				result,
 				provider: "openai",
 				model: openaiModel,
+			});
+		}
+
+		// NVIDIA provider (OpenAI-compatible)
+		if (aiProvider === "nvidia") {
+			const nvidiaApiKey = aiApiKey || process.env.NVIDIA_API_KEY || "";
+
+			if (!nvidiaApiKey) {
+				return NextResponse.json(
+					{
+						error:
+							"NVIDIA API key not configured. Add your API key in Account Settings > AI tab.",
+					},
+					{ status: HttpStatusCode.ServiceUnavailable }
+				);
+			}
+
+			const nvidiaModel = aiModel || defaultNvidiaModel;
+			const result = await requestOpenAiCompatible(
+				nvidiaBaseUrl,
+				"NVIDIA",
+				messages,
+				systemPrompt,
+				nvidiaApiKey,
+				stripFences,
+				nvidiaModel
+			);
+
+			return NextResponse.json({
+				result,
+				provider: "nvidia",
+				model: nvidiaModel,
 			});
 		}
 
