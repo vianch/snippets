@@ -139,7 +139,8 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		setUserData((prev) => ({ ...prev, aiProvider: provider, aiModel: "" }));
 		setAiModels([]);
 
-		const hasCredentials = provider === "ollama" || !!userData.aiApiKey;
+		const hasCredentials =
+			provider === "ollama" || provider === "nvidia" || !!userData.aiApiKey;
 
 		if (hasCredentials) {
 			await refreshModels(provider);
@@ -429,6 +430,16 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			);
 		}
 
+		if (userData.aiProvider === "nvidia") {
+			return (
+				<div className={styles.modelLoadGroup}>
+					<small className={styles.helpText}>
+						{aiModels[0] ?? "meta/llama-3.1-70b-instruct"}
+					</small>
+				</div>
+			);
+		}
+
 		if (aiModels.length > 0) {
 			return (
 				<select
@@ -649,6 +660,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 							ollama: "Ollama",
 							claude: "Claude (Anthropic)",
 							openai: "OpenAI",
+							nvidia: "NVIDIA",
 						}[userData.aiProvider ?? "ollama"]
 					}
 				</h3>
@@ -688,7 +700,9 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 								? "sk-ant-..."
 								: userData.aiProvider === "openai"
 									? "sk-..."
-									: "ollama-api-key..."
+									: userData.aiProvider === "nvidia"
+										? "nvapi-..."
+										: "ollama-api-key..."
 						}
 						fat
 						value={userData.aiApiKey ?? ""}
@@ -705,6 +719,8 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 							"Get your API key at console.anthropic.com"}
 						{userData.aiProvider === "openai" &&
 							"Get your API key at platform.openai.com/api-keys"}
+						{userData.aiProvider === "nvidia" &&
+							"Get your API key at build.nvidia.com"}
 						{userData.aiProvider === "ollama" &&
 							"Required only for ollama.com cloud models"}
 					</small>

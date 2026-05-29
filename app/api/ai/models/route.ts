@@ -7,6 +7,7 @@ import createSupabaseServerClient from "@/lib/supabase/server";
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
 const ollamaCloudUrl = "https://ollama.com";
 const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
+const openAiBaseUrl = "https://api.openai.com/v1";
 
 const fetchOllamaModels = async (
 	baseUrl: string,
@@ -46,8 +47,13 @@ const fetchClaudeModels = async (apiKey: string): Promise<string[]> => {
 	return (data.data || []).map((model: { id: string }) => model.id);
 };
 
-const fetchOpenAIModels = async (apiKey: string): Promise<string[]> => {
-	const response = await fetch("https://api.openai.com/v1/models", {
+const fetchOpenAiCompatibleModels = async (
+	baseUrl: string,
+	providerLabel: string,
+	apiKey: string,
+	excludedPrefixes: readonly string[] = []
+): Promise<string[]> => {
+	const response = await fetch(`${baseUrl}/models`, {
 		headers: {
 			Authorization: `Bearer ${apiKey}`,
 		},
@@ -57,9 +63,11 @@ const fetchOpenAIModels = async (apiKey: string): Promise<string[]> => {
 		const errorData = await response.json().catch(() => ({}));
 
 		const rawMessage: string =
-			errorData?.error?.message || `OpenAI API error ${response.status}`;
+			errorData?.error?.message ||
+			`${providerLabel} API error ${response.status}`;
 		const trimmed = rawMessage
 			.replace(/:\s+sk-\S+/, "")
+			.replace(/:\s+nvapi-\S+/, "")
 			.split(". ")[0]
 			.trim();
 
@@ -71,8 +79,7 @@ const fetchOpenAIModels = async (apiKey: string): Promise<string[]> => {
 	return (data.data || [])
 		.map((model: { id: string }) => model.id)
 		.filter(
-			(id: string) =>
-				!openAiExcludedPrefixes.some((prefix) => id.startsWith(prefix))
+			(id: string) => !excludedPrefixes.some((prefix) => id.startsWith(prefix))
 		)
 		.sort();
 };
@@ -120,7 +127,12 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 		}
 
 		try {
-			const models = await fetchOpenAIModels(apiKey);
+			const models = await fetchOpenAiCompatibleModels(
+				openAiBaseUrl,
+				"OpenAI",
+				apiKey,
+				openAiExcludedPrefixes
+			);
 
 			return NextResponse.json({ models });
 		} catch (fetchError) {
@@ -129,6 +141,13 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 
 			return NextResponse.json({ models: [], error: message });
 		}
+	}
+
+	if (provider === "nvidia") {
+		const nvidiaModel =
+			process.env.NVIDIA_MODEL || "meta/llama-3.1-70b-instruct";
+
+		return NextResponse.json({ models: [nvidiaModel] });
 	}
 
 	// Default: Ollama

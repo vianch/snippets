@@ -74,7 +74,7 @@ declare global {
 		onToggleFavorite: (snippet: Snippet) => void;
 	};
 
-	type AiProvider = "ollama" | "claude" | "openai";
+	type AiProvider = "ollama" | "claude" | "openai" | "nvidia";
 
 	interface SmartGroup {
 		name: string;
