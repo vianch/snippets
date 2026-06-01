@@ -1,0 +1,394 @@
+"use client";
+
+import {
+	PointerEvent as ReactPointerEvent,
+	ReactElement,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+
+/* Constants */
+import {
+	PetAfraidFrame,
+	PetAfraidLiftThresholdPx,
+	PetClickMovementThresholdPx,
+	PetDesktopMinWidthPx,
+	PetEdgePaddingPx,
+	PetExcitedFrame,
+	PetFacings,
+	PetGrabbedFrame,
+	PetGridHeight,
+	PetGridWidth,
+	PetGroundOffsetPx,
+	PetHappyFrame,
+	PetIdleFrame,
+	PetIdlePauseMs,
+	PetLegFrameIntervalMs,
+	PetMaxWalkBeforeIdleMs,
+	PetMessages,
+	PetMinWalkBeforeIdleMs,
+	PetModes,
+	PetPixelSizePx,
+	PetReactionDurationMs,
+	PetScaredMessages,
+	PetWalkFrames,
+	PetWalkSpeedPxPerSecond,
+} from "@/lib/constants/snipPet";
+
+/* Utils */
+import { frameToCells } from "@/utils/snipPet.utils";
+
+/* Types */
+import type { PetFacing, PetMode } from "@/lib/constants/snipPet";
+
+/* Styles */
+import styles from "./snipPet.module.css";
+
+const SnipPet = (): ReactElement => {
+	const [isDesktop, setIsDesktop] = useState<boolean>(false);
+	const [mode, setMode] = useState<PetMode>(PetModes.Walking);
+	const [legFrameIndex, setLegFrameIndex] = useState<number>(0);
+	const [message, setMessage] = useState<string | null>(null);
+
+	const containerRef = useRef<HTMLDivElement>(null);
+	const positionRef = useRef<number>(PetEdgePaddingPx);
+	const facingRef = useRef<PetFacing>(PetFacings.Right);
+	const liftRef = useRef<number>(0);
+	const modeRef = useRef<PetMode>(PetModes.Walking);
+	const legAccumulatorRef = useRef<number>(0);
+	const walkUntilRef = useRef<number>(0);
+	const idleUntilRef = useRef<number>(0);
+	const lastTimestampRef = useRef<number | null>(null);
+	const animationFrameRef = useRef<number>(0);
+	const isAnimatingRef = useRef<boolean>(false);
+	const reactionCountRef = useRef<number>(0);
+	const reactionExcitedRef = useRef<boolean>(false);
+	const scaredCountRef = useRef<number>(0);
+	const reactionTimeoutRef = useRef<number>(0);
+	const grabOffsetXRef = useRef<number>(0);
+	const dragStartRef = useRef<{ moved: boolean; x: number; y: number } | null>(
+		null
+	);
+
+	const petWidthPx = PetGridWidth * PetPixelSizePx;
+	const petHeightPx = PetGridHeight * PetPixelSizePx;
+
+	const activeFrame = useMemo<PetFrame>(() => {
+		if (mode === PetModes.Afraid) {
+			return PetAfraidFrame;
+		}
+
+		if (mode === PetModes.Grabbed) {
+			return PetGrabbedFrame;
+		}
+
+		if (mode === PetModes.Excited) {
+			return PetExcitedFrame;
+		}
+
+		if (mode === PetModes.Celebrating) {
+			return PetHappyFrame;
+		}
+
+		if (mode === PetModes.Walking) {
+			return PetWalkFrames[legFrameIndex] ?? PetIdleFrame;
+		}
+
+		return PetIdleFrame;
+	}, [legFrameIndex, mode]);
+
+	const cells = useMemo<PetCell[]>(
+		() => frameToCells(activeFrame),
+		[activeFrame]
+	);
+
+	const updateMode = (nextMode: PetMode): void => {
+		modeRef.current = nextMode;
+		setMode(nextMode);
+	};
+
+	const renderPetTransform = (): void => {
+		const container = containerRef.current;
+
+		if (!container) {
+			return;
+		}
+
+		container.style.setProperty("--pet-facing", String(facingRef.current));
+		container.style.transform = `translate3d(${Math.round(
+			positionRef.current
+		)}px, ${-Math.round(liftRef.current)}px, 0)`;
+	};
+
+	const triggerClickReaction = (): void => {
+		const index = reactionCountRef.current % PetMessages.length;
+
+		reactionExcitedRef.current = !reactionExcitedRef.current;
+		reactionCountRef.current += 1;
+		liftRef.current = 0;
+		setMessage(PetMessages[index] ?? null);
+		updateMode(
+			reactionExcitedRef.current ? PetModes.Excited : PetModes.Celebrating
+		);
+		window.clearTimeout(reactionTimeoutRef.current);
+
+		reactionTimeoutRef.current = window.setTimeout(() => {
+			setMessage(null);
+			walkUntilRef.current = 0;
+			updateMode(PetModes.Walking);
+		}, PetReactionDurationMs);
+	};
+
+	const handlePointerDown = (
+		event: ReactPointerEvent<HTMLDivElement>
+	): void => {
+		event.preventDefault();
+		window.clearTimeout(reactionTimeoutRef.current);
+		setMessage(null);
+		dragStartRef.current = { moved: false, x: event.clientX, y: event.clientY };
+		grabOffsetXRef.current = event.clientX - positionRef.current;
+		updateMode(PetModes.Grabbed);
+
+		const handleMove = (moveEvent: PointerEvent): void => {
+			const maxX = window.innerWidth - petWidthPx - PetEdgePaddingPx;
+			const nextX = moveEvent.clientX - grabOffsetXRef.current;
+			const nextLift =
+				window.innerHeight -
+				PetGroundOffsetPx -
+				petHeightPx -
+				moveEvent.clientY;
+
+			positionRef.current = Math.max(
+				PetEdgePaddingPx,
+				Math.min(nextX, Math.max(PetEdgePaddingPx, maxX))
+			);
+			liftRef.current = Math.max(0, nextLift);
+
+			if (dragStartRef.current) {
+				const distance = Math.hypot(
+					moveEvent.clientX - dragStartRef.current.x,
+					moveEvent.clientY - dragStartRef.current.y
+				);
+
+				if (distance > PetClickMovementThresholdPx) {
+					dragStartRef.current.moved = true;
+				}
+			}
+
+			const isHeld =
+				modeRef.current === PetModes.Grabbed ||
+				modeRef.current === PetModes.Afraid;
+
+			if (isHeld) {
+				if (liftRef.current > PetAfraidLiftThresholdPx) {
+					if (modeRef.current !== PetModes.Afraid) {
+						const scaredIndex =
+							scaredCountRef.current % PetScaredMessages.length;
+
+						scaredCountRef.current += 1;
+						setMessage(PetScaredMessages[scaredIndex] ?? null);
+						updateMode(PetModes.Afraid);
+					}
+				} else if (modeRef.current !== PetModes.Grabbed) {
+					setMessage(null);
+					updateMode(PetModes.Grabbed);
+				}
+			}
+
+			renderPetTransform();
+		};
+
+		const handleUp = (): void => {
+			window.removeEventListener("pointermove", handleMove);
+			window.removeEventListener("pointerup", handleUp);
+
+			const wasClick = dragStartRef.current
+				? !dragStartRef.current.moved
+				: true;
+
+			dragStartRef.current = null;
+
+			if (wasClick) {
+				triggerClickReaction();
+
+				return;
+			}
+
+			setMessage(null);
+			walkUntilRef.current = 0;
+			updateMode(PetModes.Walking);
+
+			if (!isAnimatingRef.current) {
+				liftRef.current = 0;
+				renderPetTransform();
+			}
+		};
+
+		window.addEventListener("pointermove", handleMove);
+		window.addEventListener("pointerup", handleUp);
+	};
+
+	const handlePointerEnter = (): void => {
+		if (modeRef.current === PetModes.Walking) {
+			idleUntilRef.current = 0;
+			walkUntilRef.current = 0;
+			updateMode(PetModes.Idle);
+		}
+	};
+
+	const handlePointerLeave = (): void => {
+		if (modeRef.current === PetModes.Idle && idleUntilRef.current === 0) {
+			walkUntilRef.current = 0;
+			updateMode(PetModes.Walking);
+		}
+	};
+
+	useEffect(() => {
+		const query = window.matchMedia(
+			`(min-width: ${PetDesktopMinWidthPx}px) and (pointer: fine)`
+		);
+
+		const sync = (): void => setIsDesktop(query.matches);
+
+		sync();
+		query.addEventListener("change", sync);
+
+		return () => query.removeEventListener("change", sync);
+	}, []);
+
+	useEffect(() => {
+		if (!isDesktop) {
+			return;
+		}
+
+		renderPetTransform();
+
+		const prefersReducedMotion = window.matchMedia(
+			"(prefers-reduced-motion: reduce)"
+		).matches;
+
+		if (prefersReducedMotion) {
+			updateMode(PetModes.Idle);
+
+			return;
+		}
+
+		isAnimatingRef.current = true;
+
+		const step = (timestamp: number): void => {
+			const previous = lastTimestampRef.current ?? timestamp;
+			const deltaMs = Math.min(timestamp - previous, 48);
+			const maxX = window.innerWidth - petWidthPx - PetEdgePaddingPx;
+
+			lastTimestampRef.current = timestamp;
+
+			if (modeRef.current === PetModes.Walking) {
+				if (walkUntilRef.current === 0) {
+					const walkSpan = PetMaxWalkBeforeIdleMs - PetMinWalkBeforeIdleMs;
+
+					walkUntilRef.current =
+						timestamp +
+						PetMinWalkBeforeIdleMs +
+						(Math.floor(timestamp) % walkSpan);
+				}
+
+				positionRef.current +=
+					(PetWalkSpeedPxPerSecond * facingRef.current * deltaMs) / 1000;
+
+				if (positionRef.current <= PetEdgePaddingPx) {
+					positionRef.current = PetEdgePaddingPx;
+					facingRef.current = PetFacings.Right;
+				} else if (positionRef.current >= maxX) {
+					positionRef.current = Math.max(PetEdgePaddingPx, maxX);
+					facingRef.current = PetFacings.Left;
+				}
+
+				legAccumulatorRef.current += deltaMs;
+
+				if (legAccumulatorRef.current >= PetLegFrameIntervalMs) {
+					legAccumulatorRef.current = 0;
+					setLegFrameIndex((previousIndex) => (previousIndex === 0 ? 1 : 0));
+				}
+
+				if (timestamp >= walkUntilRef.current) {
+					walkUntilRef.current = 0;
+					idleUntilRef.current = timestamp + PetIdlePauseMs;
+					updateMode(PetModes.Idle);
+				}
+			} else if (modeRef.current === PetModes.Idle) {
+				if (idleUntilRef.current !== 0 && timestamp >= idleUntilRef.current) {
+					idleUntilRef.current = 0;
+					walkUntilRef.current = 0;
+					updateMode(PetModes.Walking);
+				}
+			}
+
+			const isHeld =
+				modeRef.current === PetModes.Grabbed ||
+				modeRef.current === PetModes.Afraid;
+
+			if (!isHeld && liftRef.current !== 0) {
+				liftRef.current =
+					Math.abs(liftRef.current) < 0.5 ? 0 : liftRef.current * 0.8;
+			}
+
+			renderPetTransform();
+			animationFrameRef.current = requestAnimationFrame(step);
+		};
+
+		animationFrameRef.current = requestAnimationFrame(step);
+
+		return () => {
+			isAnimatingRef.current = false;
+			lastTimestampRef.current = null;
+			cancelAnimationFrame(animationFrameRef.current);
+			window.clearTimeout(reactionTimeoutRef.current);
+		};
+	}, [isDesktop]);
+
+	if (!isDesktop) {
+		return <></>;
+	}
+
+	return (
+		<div
+			ref={containerRef}
+			aria-hidden="true"
+			className={styles.pet}
+			data-mode={mode}
+			onPointerDown={handlePointerDown}
+			onPointerEnter={handlePointerEnter}
+			onPointerLeave={handlePointerLeave}
+			style={{
+				height: `${petHeightPx}px`,
+				transform: `translate3d(${PetEdgePaddingPx}px, 0, 0)`,
+				width: `${petWidthPx}px`,
+			}}
+		>
+			{message ? <span className={styles.bubble}>{message}</span> : null}
+
+			<span className={styles.facing}>
+				<span className={styles.motion}>
+					<svg
+						className={styles.sprite}
+						viewBox={`0 0 ${PetGridWidth} ${PetGridHeight}`}
+					>
+						{cells.map((cell) => (
+							<rect
+								height={1}
+								key={`${cell.x}-${cell.y}`}
+								width={1}
+								x={cell.x}
+								y={cell.y}
+							/>
+						))}
+					</svg>
+				</span>
+			</span>
+		</div>
+	);
+};
+
+export default SnipPet;

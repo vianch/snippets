@@ -192,6 +192,10 @@ table {
 	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 40%);
 	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 52%);
 	--grid-line: rgb(165 153 233 / 8%);
+
+	/* Desktop pixel pet (body uses the active palette's darkest token) */
+	--pet-glow: rgb(165 153 233 / 55%);
+	--pet-ground-offset: 10px;
 }
 
 [data-theme="shades-of-purple"] {
@@ -224,6 +228,8 @@ table {
 	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 40%);
 	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 52%);
 	--grid-line: rgb(165 153 233 / 8%);
+	--pet-glow: rgb(165 153 233 / 55%);
+	--pet-ground-offset: 10px;
 }
 
 [data-theme="catppuccin-latte"] {

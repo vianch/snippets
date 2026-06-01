@@ -20,6 +20,7 @@ import PageStars from "@/components/landing/PageStars/PageStars";
 import Reveal from "@/components/landing/Reveal/Reveal";
 import SectionHeading from "@/components/landing/SectionHeading/SectionHeading";
 import ShortcutsShowcase from "@/components/landing/ShortcutsShowcase/ShortcutsShowcase";
+import SnipPet from "@/components/landing/SnipPet/SnipPet";
 import StatsBar from "@/components/landing/StatsBar/StatsBar";
 import ThemeShowcase from "@/components/landing/ThemeShowcase/ThemeShowcase";
 
@@ -76,6 +77,8 @@ const Home = (): ReactElement => {
 			</section>
 
 			<Footer />
+
+			<SnipPet />
 		</main>
 	);
 };
