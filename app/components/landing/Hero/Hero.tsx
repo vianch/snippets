@@ -16,6 +16,7 @@ import {
 } from "@/lib/constants/landing";
 import { ThemeNames, themeList } from "@/lib/config/themes";
 
+import Starfield from "@/components/landing/Starfield/Starfield";
 import Button from "@/components/ui/Button/Button";
 
 import type { ThemeName } from "@/lib/config/themes";
@@ -42,6 +43,8 @@ const Hero = (): ReactElement => {
 
 	return (
 		<section className={styles.hero}>
+			<Starfield />
+
 			<div className={`container ${styles.inner}`}>
 				<div className={styles.copy}>
 					<span className={styles.eyebrow}>{HeroEyebrow}</span>

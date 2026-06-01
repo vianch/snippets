@@ -4,6 +4,7 @@
 	display: flex;
 	justify-content: center;
 	overflow: hidden;
+	isolation: isolate;
 	padding: 5.5rem 0 4rem;
 }
 
@@ -39,6 +40,8 @@
 }
 
 .inner {
+	position: relative;
+	z-index: 1;
 	display: grid;
 	grid-template-columns: 1.05fr 1fr;
 	gap: 3rem;

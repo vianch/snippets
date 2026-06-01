@@ -16,6 +16,7 @@ import NavHeader from "@/components/NavHeader/NavHeader";
 import FeatureBento from "@/components/landing/FeatureBento/FeatureBento";
 import Hero from "@/components/landing/Hero/Hero";
 import LanguageMarquee from "@/components/landing/LanguageMarquee/LanguageMarquee";
+import PageStars from "@/components/landing/PageStars/PageStars";
 import Reveal from "@/components/landing/Reveal/Reveal";
 import SectionHeading from "@/components/landing/SectionHeading/SectionHeading";
 import ShortcutsShowcase from "@/components/landing/ShortcutsShowcase/ShortcutsShowcase";
@@ -28,6 +29,8 @@ import styles from "./page.module.css";
 const Home = (): ReactElement => {
 	return (
 		<main className={styles.main}>
+			<PageStars />
+
 			<NavHeader />
 
 			<Hero />
