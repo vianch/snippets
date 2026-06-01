@@ -23,7 +23,8 @@ const Button = ({
 			  ${styles.button} 
 			  ${variant === "primary" && styles.primary} 
 			  ${variant === "secondary" && styles.secondary} 
-			  ${variant === "tertiary" && styles.tertiary} 
+			  ${variant === "tertiary" && styles.tertiary}
+			  ${variant === "cta" && styles.cta}
 			  ${className}`}
 			{...props}
 			onClick={onClick}

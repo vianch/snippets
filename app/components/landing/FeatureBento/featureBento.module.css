@@ -1,0 +1,27 @@
+.grid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 1rem;
+}
+
+.grid > article[data-size="large"],
+.grid > article[data-size="medium"] {
+	grid-column: span 2;
+}
+
+@media (width <= 768px) {
+	.grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (width <= 520px) {
+	.grid {
+		grid-template-columns: 1fr;
+	}
+
+	.grid > article[data-size="large"],
+	.grid > article[data-size="medium"] {
+		grid-column: span 1;
+	}
+}

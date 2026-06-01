@@ -137,28 +137,29 @@ table {
 }
 
 :root {
-	/* Colors */
-	--bg-color-dark: #282a36;
-	--bg-color: #363945;
-	--border-color: var(--current-line);
-	--current-line: #44475a;
-	--comment-color: #6272a4;
-	--cyan-color: #8be9fd;
-	--blue-color: #4693d2;
-	--green-color: #50fa7b;
-	--dark-green-color: #284423;
-	--gray-color: #9c9cab;
-	--purple-color: #bd93f9;
-	--yellow-color: #f1fa8c;
-	--orange-color: #ffb86c;
-	--dark-orange-color: #e38137;
-	--red-color: #f55;
-	--dark-red-color: #ca5347;
-	--foreground-color: #f8f8f2;
+	/* Colors (default palette: Shades of Purple) */
+	--bg-color-dark: #1e1e3f;
+	--bg-color: #2d2b55;
+	--border-color: #3b2d6b;
+	--current-line: #3b2d6b;
+	--comment-color: #b362ff;
+	--cyan-color: #9effff;
+	--blue-color: #6943d8;
+	--green-color: #a5ff90;
+	--dark-green-color: #2e5a1e;
+	--gray-color: #9a95b8;
+	--purple-color: #a599e9;
+	--yellow-color: #fad000;
+	--orange-color: #ff9d00;
+	--dark-orange-color: #ff7200;
+	--red-color: #ff628c;
+	--dark-red-color: #ec3a37;
+	--foreground-color: #a599e9;
 	--success-color: #eff7ee;
 	--error-color: #fbeeed;
 	--warning-color: #fef4e6;
 	--info-color: #e8f6fd;
+	--skeleton-shimmer: #4b3a8a;
 
 	/* Font sizes */
 	--large-font-size: 1.875rem;
@@ -166,6 +167,10 @@ table {
 	--normal-font-size: 1rem;
 	--small-font-size: 0.875rem;
 	--tiny-font-size: 0.75rem;
+
+	/* Marketing display sizes (theme-independent) */
+	--hero-font-size: clamp(2.25rem, 5.5vw, 4rem);
+	--display-font-size: clamp(1.75rem, 3.5vw, 2.75rem);
 
 	/* Breakpoints */
 	--phone: 576px;
@@ -178,8 +183,15 @@ table {
 	--border-radius-lg: 0.75rem;
 
 	/* Component-specific */
-	--button-bg: var(--current-line);
-	--input-bg: transparent;
+	--button-bg: #1e1e3f;
+	--input-bg: #1e1e3f;
+
+	/* Landing surfaces (dark) */
+	--glass-bg: rgb(255 255 255 / 5%);
+	--glass-border: rgb(165 153 233 / 18%);
+	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 40%);
+	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 52%);
+	--grid-line: rgb(165 153 233 / 8%);
 }
 
 [data-theme="shades-of-purple"] {
@@ -207,6 +219,11 @@ table {
 	--skeleton-shimmer: #4b3a8a;
 	--button-bg: #1e1e3f;
 	--input-bg: #1e1e3f;
+	--glass-bg: rgb(255 255 255 / 5%);
+	--glass-border: rgb(165 153 233 / 18%);
+	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 40%);
+	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 52%);
+	--grid-line: rgb(165 153 233 / 8%);
 }
 
 [data-theme="catppuccin-latte"] {
@@ -232,6 +249,11 @@ table {
 	--warning-color: #f5ead0;
 	--info-color: #d0e8f5;
 	--input-bg: #fff;
+	--glass-bg: rgb(255 255 255 / 70%);
+	--glass-border: rgb(76 79 105 / 12%);
+	--card-shadow: 0 0.5rem 1.5rem rgb(76 79 105 / 10%);
+	--card-shadow-hover: 0 1rem 2.25rem rgb(76 79 105 / 16%);
+	--grid-line: rgb(76 79 105 / 6%);
 }
 
 [data-theme="ayu-light"] {
@@ -257,6 +279,11 @@ table {
 	--warning-color: #f5ede0;
 	--info-color: #deeaf5;
 	--input-bg: #fff;
+	--glass-bg: rgb(255 255 255 / 72%);
+	--glass-border: rgb(87 95 102 / 12%);
+	--card-shadow: 0 0.5rem 1.5rem rgb(87 95 102 / 10%);
+	--card-shadow-hover: 0 1rem 2.25rem rgb(87 95 102 / 16%);
+	--grid-line: rgb(87 95 102 / 6%);
 }
 
 [data-theme="github-dark"] {
@@ -281,6 +308,11 @@ table {
 	--error-color: #fbeeed;
 	--warning-color: #fef4e6;
 	--info-color: #e8f6fd;
+	--glass-bg: rgb(255 255 255 / 4%);
+	--glass-border: rgb(255 255 255 / 10%);
+	--card-shadow: 0 0.75rem 2rem rgb(1 4 9 / 55%);
+	--card-shadow-hover: 0 1.25rem 2.5rem rgb(1 4 9 / 68%);
+	--grid-line: rgb(255 255 255 / 5%);
 }
 
 [data-theme="github-light"] {
@@ -306,6 +338,38 @@ table {
 	--warning-color: #fff8c5;
 	--info-color: #ddf4ff;
 	--input-bg: #fff;
+	--glass-bg: rgb(255 255 255 / 75%);
+	--glass-border: rgb(31 35 40 / 12%);
+	--card-shadow: 0 0.5rem 1.5rem rgb(31 35 40 / 10%);
+	--card-shadow-hover: 0 1rem 2.25rem rgb(31 35 40 / 15%);
+	--grid-line: rgb(31 35 40 / 6%);
+}
+
+[data-theme="dracula"] {
+	--bg-color-dark: #282a36;
+	--bg-color: #363945;
+	--border-color: #44475a;
+	--current-line: #44475a;
+	--comment-color: #6272a4;
+	--cyan-color: #8be9fd;
+	--blue-color: #4693d2;
+	--green-color: #50fa7b;
+	--dark-green-color: #284423;
+	--gray-color: #9c9cab;
+	--purple-color: #bd93f9;
+	--yellow-color: #f1fa8c;
+	--orange-color: #ffb86c;
+	--dark-orange-color: #e38137;
+	--red-color: #f55;
+	--dark-red-color: #ca5347;
+	--foreground-color: #f8f8f2;
+	--button-bg: #44475a;
+	--input-bg: transparent;
+	--glass-bg: rgb(255 255 255 / 4%);
+	--glass-border: rgb(255 255 255 / 9%);
+	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 35%);
+	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 48%);
+	--grid-line: rgb(255 255 255 / 4%);
 }
 
 html,
@@ -372,10 +436,8 @@ body {
 	margin: 0 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-	html:not([data-theme]) {
-		color-scheme: dark;
-	}
+html:not([data-theme]) {
+	color-scheme: dark;
 }
 
 html[data-theme="dracula"],

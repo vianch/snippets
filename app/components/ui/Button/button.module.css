@@ -23,7 +23,30 @@
 	color: var(--foreground-color);
 }
 
+.cta {
+	background-image: linear-gradient(
+		135deg,
+		var(--purple-color),
+		var(--cyan-color)
+	);
+	background-size: 160% 160%;
+	border-color: transparent;
+	color: var(--bg-color-dark);
+	font-weight: 700;
+	letter-spacing: 0.02rem;
+	transition:
+		background-position 0.4s ease,
+		transform 0.2s ease;
+}
+
 .button:hover {
 	background-color: var(--gray-color);
 	color: var(--bg-color-dark);
+}
+
+.cta:hover {
+	background-color: transparent;
+	background-position: 100% 100%;
+	color: var(--bg-color-dark);
+	transform: translateY(-1px);
 }

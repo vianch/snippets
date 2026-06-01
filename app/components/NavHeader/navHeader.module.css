@@ -4,7 +4,6 @@
 	height: 3.5rem;
 	background-color: var(--current-line);
 	border-bottom: 1px solid var(--border-color);
-	box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 30%);
 	padding: 0.313rem 0;
 	align-items: center;
 	justify-content: center;
@@ -29,6 +28,32 @@
 
 .logoImage {
 	margin-right: 0.625rem;
+}
+
+.nav {
+	display: flex;
+	align-items: center;
+}
+
+.githubLink {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.313rem 1rem;
+	border: 1px solid color-mix(in srgb, var(--gray-color) 45%, transparent);
+	border-radius: var(--border-radius);
+	background: transparent;
+	color: var(--foreground-color);
+	font-size: var(--small-font-size);
+	text-decoration: none;
+	transition:
+		border-color 0.2s ease,
+		color 0.2s ease;
+}
+
+.githubLink:hover {
+	border-color: var(--purple-color);
+	color: var(--purple-color);
 }
 
 .button {
