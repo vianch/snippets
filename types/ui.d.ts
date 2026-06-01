@@ -5,5 +5,11 @@ declare global {
 
 	type Severity = "error" | "warning" | "info" | "success";
 	type SnapshotPadding = "lg" | "md" | "sm" | "xl";
-	type Variants = "primary" | "secondary" | "tertiary" | Severity | "empty";
+	type Variants =
+		| "primary"
+		| "secondary"
+		| "tertiary"
+		| "cta"
+		| Severity
+		| "empty";
 }

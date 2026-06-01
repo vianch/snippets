@@ -237,8 +237,8 @@ const Aside = ({
 					document.documentElement.dataset.theme = savedTheme as ThemeName;
 					setCookie(themeCookieName, savedTheme as ThemeName);
 				} else {
-					document.documentElement.dataset.theme = ThemeNames.Dracula;
-					setCookie(themeCookieName, ThemeNames.Dracula);
+					document.documentElement.dataset.theme = ThemeNames.ShadesOfPurple;
+					setCookie(themeCookieName, ThemeNames.ShadesOfPurple);
 				}
 			}
 

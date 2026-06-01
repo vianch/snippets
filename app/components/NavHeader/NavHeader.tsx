@@ -1,9 +1,12 @@
+"use client";
+
 import { ReactElement, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 /* components */
 import Button from "@/components/ui/Button/Button";
+import Github from "@/components/ui/icons/Github";
 import SignIn from "@/components/ui/icons/SignIn";
 
 /* styles */
@@ -40,7 +43,17 @@ const NavHeader = (): ReactElement => {
 					Snippets
 				</Link>
 
-				<nav>
+				<nav className={styles.nav}>
+					<a
+						className={styles.githubLink}
+						href="https://github.com/vianch/snippets"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<Github width={16} height={16} />
+						GitHub
+					</a>
+
 					<Button
 						className={styles.button}
 						onClick={loginButtonHandler}

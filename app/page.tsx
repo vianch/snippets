@@ -1,67 +1,80 @@
-"use client";
-
 import { ReactElement } from "react";
 
+/* Constants */
+import {
+	FeaturesHeading,
+	FeaturesSubheading,
+	ShortcutsHeading,
+	ShortcutsSubheading,
+	ThemesHeading,
+	ThemesSubheading,
+} from "@/lib/constants/landing";
+
 /* Components */
-import Quotes from "@/components/ui/Quotes/Quotes";
-import NavHeader from "@/components/NavHeader/NavHeader";
 import Footer from "@/components/Footer/Footer";
+import NavHeader from "@/components/NavHeader/NavHeader";
+import FeatureBento from "@/components/landing/FeatureBento/FeatureBento";
+import Hero from "@/components/landing/Hero/Hero";
+import LanguageMarquee from "@/components/landing/LanguageMarquee/LanguageMarquee";
+import Reveal from "@/components/landing/Reveal/Reveal";
+import SectionHeading from "@/components/landing/SectionHeading/SectionHeading";
+import ShortcutsShowcase from "@/components/landing/ShortcutsShowcase/ShortcutsShowcase";
+import StatsBar from "@/components/landing/StatsBar/StatsBar";
+import ThemeShowcase from "@/components/landing/ThemeShowcase/ThemeShowcase";
 
 /* Styles */
 import styles from "./page.module.css";
 
-export default function Home(): ReactElement {
+const Home = (): ReactElement => {
 	return (
-		<main className={` ${styles.main}`}>
+		<main className={styles.main}>
 			<NavHeader />
 
-			<section className={styles.topSection}>
-				<div className={`container ${styles.top}`}>
-					<h1 className={styles.title}>
-						Your Snippets, Anytime, Everywhere You Go!
-					</h1>
+			<Hero />
 
-					<p className={styles.description}>
-						Your sanctuary for organized code brilliance. Easily manage,
-						retrieve, and thrive in coding.
-					</p>
+			<StatsBar />
 
-					<img
-						className={styles.image}
-						src="/assets/images/jpg/ss.jpg"
-						alt="screenshot"
-						width={1140}
+			<section className={`container ${styles.section}`} id="features">
+				<Reveal>
+					<SectionHeading
+						subtitle={FeaturesSubheading}
+						title={FeaturesHeading}
 					/>
-				</div>
+				</Reveal>
+
+				<Reveal delay={80}>
+					<FeatureBento />
+				</Reveal>
 			</section>
 
-			<section className={`container ${styles.info}`}>
-				<Quotes>
-					<p>
-						This is a personal project designed for personal use. If you find
-						the DEMO useful, please feel free to contact me at{" "}
-						<a className={styles.email} href="mailto:info@vianch.com">
-							info@vianch.com
-						</a>
-						.
-					</p>
+			<LanguageMarquee />
 
-					<p>
-						Don&apos;t forget to read the{" "}
-						<a
-							className={styles.terms}
-							href="/terms"
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							Terms and Conditions
-						</a>{" "}
-						before using the platform. Thank you!
-					</p>
-				</Quotes>
+			<section className={`container ${styles.section}`}>
+				<Reveal>
+					<SectionHeading subtitle={ThemesSubheading} title={ThemesHeading} />
+				</Reveal>
+
+				<Reveal delay={80}>
+					<ThemeShowcase />
+				</Reveal>
+			</section>
+
+			<section className={`container ${styles.section}`}>
+				<Reveal>
+					<SectionHeading
+						subtitle={ShortcutsSubheading}
+						title={ShortcutsHeading}
+					/>
+				</Reveal>
+
+				<Reveal delay={80}>
+					<ShortcutsShowcase />
+				</Reveal>
 			</section>
 
 			<Footer />
 		</main>
 	);
-}
+};
+
+export default Home;

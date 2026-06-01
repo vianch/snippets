@@ -11,7 +11,7 @@ const IconContainer = ({
 	viewBox = "0 0 254 254",
 	width = "32",
 	height = "32",
-	onClick = () => {},
+	onClick,
 }: IconProps): ReactElement => {
 	return (
 		<svg
@@ -22,7 +22,7 @@ const IconContainer = ({
 			height={height}
 			fill={fill}
 			viewBox={viewBox}
-			onClick={onClick}
+			{...(onClick ? { onClick } : {})}
 		>
 			{children}
 		</svg>

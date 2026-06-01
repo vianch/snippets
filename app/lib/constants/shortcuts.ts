@@ -36,4 +36,7 @@ const shortcutGroups: ShortcutGroup[] = [
 	},
 ];
 
+export const ModKey = "Mod";
+export const ModKeyLabel = "⌘";
+
 export default shortcutGroups;

@@ -250,7 +250,7 @@ const codeMirrorThemes: Record<ThemeName, Extension> = {
 };
 
 export const getCodeMirrorTheme = (themeName: ThemeName): Extension =>
-	codeMirrorThemes[themeName] ?? codeMirrorThemes[ThemeNames.Dracula];
+	codeMirrorThemes[themeName] ?? codeMirrorThemes[ThemeNames.ShadesOfPurple];
 
 export const isValidTheme = (theme: string): theme is ThemeName =>
 	themeList.some((t) => t.name === theme);
