@@ -39,4 +39,11 @@ declare global {
 		suffix: string;
 		value: number;
 	}
+
+	interface PageStar {
+		delay: number;
+		left: number;
+		size: number;
+		top: number;
+	}
 }

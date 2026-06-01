@@ -1,0 +1,72 @@
+.starfield {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	overflow: hidden;
+	opacity: 0.85;
+	pointer-events: none;
+}
+
+.layer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: transparent;
+	will-change: transform;
+}
+
+.layer::after {
+	content: "";
+	position: absolute;
+	left: 0;
+
+	/* Must match StarFieldHeight in lib/constants/starfield.ts */
+	top: 2000px;
+	background: transparent;
+}
+
+.small,
+.small::after {
+	width: 1px;
+	height: 1px;
+	box-shadow: var(--stars-small);
+}
+
+.medium,
+.medium::after {
+	width: 2px;
+	height: 2px;
+	box-shadow: var(--stars-medium);
+}
+
+.big,
+.big::after {
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	box-shadow: var(--stars-big);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.small {
+		animation: starfield-scroll 50s linear infinite;
+	}
+
+	.medium {
+		animation: starfield-scroll 100s linear infinite;
+	}
+
+	.big {
+		animation: starfield-scroll 150s linear infinite;
+	}
+}
+
+@keyframes starfield-scroll {
+	from {
+		transform: translateY(-2000px);
+	}
+
+	to {
+		transform: translateY(0);
+	}
+}
