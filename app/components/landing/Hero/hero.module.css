@@ -52,6 +52,7 @@
 	display: flex;
 	flex-flow: column nowrap;
 	align-items: flex-start;
+	min-width: 0;
 }
 
 .eyebrow {
@@ -74,6 +75,7 @@
 	letter-spacing: -0.02rem;
 	margin-bottom: 1.5rem;
 	color: var(--foreground-color);
+	overflow-wrap: break-word;
 }
 
 .subhead {
@@ -100,6 +102,7 @@
 	display: flex;
 	flex-flow: column nowrap;
 	gap: 1rem;
+	min-width: 0;
 }
 
 .editor {
@@ -107,6 +110,7 @@
 	border-radius: var(--border-radius-lg);
 	background: var(--bg-color-dark);
 	overflow: hidden;
+	max-width: 100%;
 }
 
 .editorBar {
@@ -289,5 +293,16 @@
 
 	.actions {
 		justify-content: center;
+	}
+}
+
+@media (width <= 768px) {
+	.hero::before {
+		background: var(--bg-color);
+		animation: none;
+	}
+
+	.title {
+		font-size: 2rem;
 	}
 }

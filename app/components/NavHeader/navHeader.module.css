@@ -67,3 +67,15 @@
 .signInIcon {
 	margin-right: 0.313rem;
 }
+
+/* Full-bleed bar on mobile: cancel the page's horizontal padding, keep an inner gutter */
+@media (width <= 768px) {
+	.header {
+		box-sizing: border-box;
+		width: calc(100% + 30px);
+		margin-left: -15px;
+		margin-right: -15px;
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+}
