@@ -23,6 +23,27 @@ export const PetReactionDurationMs = 1400;
 /* Lifted higher than this off the floor while held, the pet panics and shakes. */
 export const PetAfraidLiftThresholdPx = 48;
 
+/* Drop physics: released above this height, the pet free-falls and splats. */
+export const PetDropMinHeightPx = 16;
+export const PetGravityPxPerSecondSquared = 2600;
+export const PetMaxImpactSpeedPxPerSecond = 1200;
+export const PetLandingDurationMs = 440;
+
+/* Impact ratio (0-1) above which the landing pops a cartoon "Thump!" bubble. */
+export const PetHardImpactRatio = 0.45;
+
+/*
+ * Shake detection while held: each rapid horizontal direction reversal (of at
+ * least PetShakeMinDeltaPx) adds energy, which bleeds off at PetShakeDecayPerSecond.
+ * Crossing the trigger makes the pet dizzy; it stays dizzy until energy falls
+ * below the (lower) release threshold — hysteresis so it doesn't flicker.
+ */
+export const PetShakeMinDeltaPx = 5;
+export const PetShakeTriggerEnergy = 3;
+export const PetShakeReleaseEnergy = 1;
+export const PetShakeMaxEnergy = 6;
+export const PetShakeDecayPerSecond = 4;
+
 /* A pointer-up within this travel distance counts as a click, not a drag. */
 export const PetClickMovementThresholdPx = 6;
 
@@ -32,9 +53,12 @@ export const PetDesktopMinWidthPx = 1024;
 export const PetModes = {
 	Afraid: "afraid",
 	Celebrating: "celebrating",
+	Dizzy: "dizzy",
 	Excited: "excited",
+	Falling: "falling",
 	Grabbed: "grabbed",
 	Idle: "idle",
+	Landing: "landing",
 	Walking: "walking",
 } as const;
 
@@ -105,6 +129,19 @@ const PetBodyAfraid: PetFrame = [
 	".##########.",
 ];
 
+const PetBodyDizzy: PetFrame = [
+	"..########..",
+	".##########.",
+	"############",
+	"############",
+	"###..##..###",
+	"############",
+	"############",
+	"###..##..###",
+	"############",
+	".##########.",
+];
+
 /* Leg rows: walking alternates these two, idle plants both, dangle splays them. */
 const PetIdleLegs = ["..##....##..", "............"];
 const PetDangleLegs = [".##......##.", ".#........#."];
@@ -124,6 +161,12 @@ export const PetExcitedFrame: PetFrame = [...PetBodyExcited, ...PetIdleLegs];
 
 export const PetAfraidFrame: PetFrame = [...PetBodyAfraid, ...PetDangleLegs];
 
+/* Woozy face while being shaken; legs dangle since it is held. */
+export const PetDizzyFrame: PetFrame = [...PetBodyDizzy, ...PetDangleLegs];
+
+/* Just landed: the worried face but feet planted, ready for the squash. */
+export const PetDazedFrame: PetFrame = [...PetBodyAfraid, ...PetIdleLegs];
+
 export const PetMessages = [
 	"Hi there!",
 	"I'm SnipPet!",
@@ -140,4 +183,14 @@ export const PetScaredMessages = [
 	"Put me down!",
 	"Too high!",
 	"Wobble...",
+] as const;
+
+export const PetLandingMessages = ["Thump!", "Oof!", "Ow!", "Splat!"] as const;
+
+export const PetDizzyMessages = [
+	"Whoa!",
+	"Stop it!",
+	"@_@",
+	"So dizzy!",
+	"Wheee!",
 ] as const;

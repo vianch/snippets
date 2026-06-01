@@ -14,18 +14,27 @@ import {
 	PetAfraidFrame,
 	PetAfraidLiftThresholdPx,
 	PetClickMovementThresholdPx,
+	PetDazedFrame,
 	PetDesktopMinWidthPx,
+	PetDizzyFrame,
+	PetDizzyMessages,
+	PetDropMinHeightPx,
 	PetEdgePaddingPx,
 	PetExcitedFrame,
 	PetFacings,
 	PetGrabbedFrame,
+	PetGravityPxPerSecondSquared,
 	PetGridHeight,
 	PetGridWidth,
 	PetGroundOffsetPx,
 	PetHappyFrame,
+	PetHardImpactRatio,
 	PetIdleFrame,
 	PetIdlePauseMs,
+	PetLandingDurationMs,
+	PetLandingMessages,
 	PetLegFrameIntervalMs,
+	PetMaxImpactSpeedPxPerSecond,
 	PetMaxWalkBeforeIdleMs,
 	PetMessages,
 	PetMinWalkBeforeIdleMs,
@@ -33,6 +42,11 @@ import {
 	PetPixelSizePx,
 	PetReactionDurationMs,
 	PetScaredMessages,
+	PetShakeDecayPerSecond,
+	PetShakeMaxEnergy,
+	PetShakeMinDeltaPx,
+	PetShakeReleaseEnergy,
+	PetShakeTriggerEnergy,
 	PetWalkFrames,
 	PetWalkSpeedPxPerSecond,
 } from "@/lib/constants/snipPet";
@@ -66,7 +80,15 @@ const SnipPet = (): ReactElement => {
 	const reactionCountRef = useRef<number>(0);
 	const reactionExcitedRef = useRef<boolean>(false);
 	const scaredCountRef = useRef<number>(0);
+	const landingCountRef = useRef<number>(0);
+	const dizzyCountRef = useRef<number>(0);
 	const reactionTimeoutRef = useRef<number>(0);
+	const fallVelocityRef = useRef<number>(0);
+	const impactRef = useRef<number>(0);
+	const landingUntilRef = useRef<number>(0);
+	const shakeEnergyRef = useRef<number>(0);
+	const shakeDirectionRef = useRef<number>(0);
+	const lastPointerXRef = useRef<number>(0);
 	const grabOffsetXRef = useRef<number>(0);
 	const dragStartRef = useRef<{ moved: boolean; x: number; y: number } | null>(
 		null
@@ -84,12 +106,24 @@ const SnipPet = (): ReactElement => {
 			return PetGrabbedFrame;
 		}
 
+		if (mode === PetModes.Dizzy) {
+			return PetDizzyFrame;
+		}
+
 		if (mode === PetModes.Excited) {
 			return PetExcitedFrame;
 		}
 
 		if (mode === PetModes.Celebrating) {
 			return PetHappyFrame;
+		}
+
+		if (mode === PetModes.Falling) {
+			return PetAfraidFrame;
+		}
+
+		if (mode === PetModes.Landing) {
+			return PetDazedFrame;
 		}
 
 		if (mode === PetModes.Walking) {
@@ -117,6 +151,7 @@ const SnipPet = (): ReactElement => {
 		}
 
 		container.style.setProperty("--pet-facing", String(facingRef.current));
+		container.style.setProperty("--pet-impact", String(impactRef.current));
 		container.style.transform = `translate3d(${Math.round(
 			positionRef.current
 		)}px, ${-Math.round(liftRef.current)}px, 0)`;
@@ -149,6 +184,9 @@ const SnipPet = (): ReactElement => {
 		setMessage(null);
 		dragStartRef.current = { moved: false, x: event.clientX, y: event.clientY };
 		grabOffsetXRef.current = event.clientX - positionRef.current;
+		shakeEnergyRef.current = 0;
+		shakeDirectionRef.current = 0;
+		lastPointerXRef.current = event.clientX;
 		updateMode(PetModes.Grabbed);
 
 		const handleMove = (moveEvent: PointerEvent): void => {
@@ -177,24 +215,25 @@ const SnipPet = (): ReactElement => {
 				}
 			}
 
-			const isHeld =
-				modeRef.current === PetModes.Grabbed ||
-				modeRef.current === PetModes.Afraid;
+			const movementX = moveEvent.clientX - lastPointerXRef.current;
+			const movementDirection = Math.sign(movementX);
 
-			if (isHeld) {
-				if (liftRef.current > PetAfraidLiftThresholdPx) {
-					if (modeRef.current !== PetModes.Afraid) {
-						const scaredIndex =
-							scaredCountRef.current % PetScaredMessages.length;
+			lastPointerXRef.current = moveEvent.clientX;
 
-						scaredCountRef.current += 1;
-						setMessage(PetScaredMessages[scaredIndex] ?? null);
-						updateMode(PetModes.Afraid);
-					}
-				} else if (modeRef.current !== PetModes.Grabbed) {
-					setMessage(null);
-					updateMode(PetModes.Grabbed);
-				}
+			if (
+				Math.abs(movementX) >= PetShakeMinDeltaPx &&
+				movementDirection !== 0 &&
+				shakeDirectionRef.current !== 0 &&
+				movementDirection !== shakeDirectionRef.current
+			) {
+				shakeEnergyRef.current = Math.min(
+					shakeEnergyRef.current + 1,
+					PetShakeMaxEnergy
+				);
+			}
+
+			if (movementDirection !== 0) {
+				shakeDirectionRef.current = movementDirection;
 			}
 
 			renderPetTransform();
@@ -209,6 +248,8 @@ const SnipPet = (): ReactElement => {
 				: true;
 
 			dragStartRef.current = null;
+			shakeEnergyRef.current = 0;
+			shakeDirectionRef.current = 0;
 
 			if (wasClick) {
 				triggerClickReaction();
@@ -217,11 +258,19 @@ const SnipPet = (): ReactElement => {
 			}
 
 			setMessage(null);
+
+			if (isAnimatingRef.current && liftRef.current > PetDropMinHeightPx) {
+				fallVelocityRef.current = 0;
+				updateMode(PetModes.Falling);
+
+				return;
+			}
+
+			liftRef.current = 0;
 			walkUntilRef.current = 0;
 			updateMode(PetModes.Walking);
 
 			if (!isAnimatingRef.current) {
-				liftRef.current = 0;
 				renderPetTransform();
 			}
 		};
@@ -284,6 +333,13 @@ const SnipPet = (): ReactElement => {
 
 			lastTimestampRef.current = timestamp;
 
+			if (shakeEnergyRef.current > 0) {
+				shakeEnergyRef.current = Math.max(
+					0,
+					shakeEnergyRef.current - (PetShakeDecayPerSecond * deltaMs) / 1000
+				);
+			}
+
 			if (modeRef.current === PetModes.Walking) {
 				if (walkUntilRef.current === 0) {
 					const walkSpan = PetMaxWalkBeforeIdleMs - PetMinWalkBeforeIdleMs;
@@ -323,13 +379,80 @@ const SnipPet = (): ReactElement => {
 					walkUntilRef.current = 0;
 					updateMode(PetModes.Walking);
 				}
+			} else if (modeRef.current === PetModes.Falling) {
+				fallVelocityRef.current +=
+					(PetGravityPxPerSecondSquared * deltaMs) / 1000;
+				liftRef.current -= (fallVelocityRef.current * deltaMs) / 1000;
+
+				if (liftRef.current <= 0) {
+					const impact = Math.min(
+						fallVelocityRef.current / PetMaxImpactSpeedPxPerSecond,
+						1
+					);
+
+					liftRef.current = 0;
+					impactRef.current = impact;
+					fallVelocityRef.current = 0;
+					landingUntilRef.current = timestamp + PetLandingDurationMs;
+
+					if (impact >= PetHardImpactRatio) {
+						const landingIndex =
+							landingCountRef.current % PetLandingMessages.length;
+
+						landingCountRef.current += 1;
+						setMessage(PetLandingMessages[landingIndex] ?? null);
+					}
+
+					updateMode(PetModes.Landing);
+				}
+			} else if (modeRef.current === PetModes.Landing) {
+				if (timestamp >= landingUntilRef.current) {
+					landingUntilRef.current = 0;
+					impactRef.current = 0;
+					walkUntilRef.current = 0;
+					setMessage(null);
+					updateMode(PetModes.Walking);
+				}
+			} else if (
+				modeRef.current === PetModes.Grabbed ||
+				modeRef.current === PetModes.Afraid ||
+				modeRef.current === PetModes.Dizzy
+			) {
+				const dizzyThreshold =
+					modeRef.current === PetModes.Dizzy
+						? PetShakeReleaseEnergy
+						: PetShakeTriggerEnergy;
+
+				if (shakeEnergyRef.current >= dizzyThreshold) {
+					if (modeRef.current !== PetModes.Dizzy) {
+						const dizzyIndex = dizzyCountRef.current % PetDizzyMessages.length;
+
+						dizzyCountRef.current += 1;
+						setMessage(PetDizzyMessages[dizzyIndex] ?? null);
+						updateMode(PetModes.Dizzy);
+					}
+				} else if (liftRef.current > PetAfraidLiftThresholdPx) {
+					if (modeRef.current !== PetModes.Afraid) {
+						const scaredIndex =
+							scaredCountRef.current % PetScaredMessages.length;
+
+						scaredCountRef.current += 1;
+						setMessage(PetScaredMessages[scaredIndex] ?? null);
+						updateMode(PetModes.Afraid);
+					}
+				} else if (modeRef.current !== PetModes.Grabbed) {
+					setMessage(null);
+					updateMode(PetModes.Grabbed);
+				}
 			}
 
-			const isHeld =
+			const liftManaged =
 				modeRef.current === PetModes.Grabbed ||
-				modeRef.current === PetModes.Afraid;
+				modeRef.current === PetModes.Afraid ||
+				modeRef.current === PetModes.Dizzy ||
+				modeRef.current === PetModes.Falling;
 
-			if (!isHeld && liftRef.current !== 0) {
+			if (!liftManaged && liftRef.current !== 0) {
 				liftRef.current =
 					Math.abs(liftRef.current) < 0.5 ? 0 : liftRef.current * 0.8;
 			}
