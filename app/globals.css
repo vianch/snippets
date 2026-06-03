@@ -436,6 +436,15 @@ body {
 	pointer-events: none;
 }
 
+/* Editor snippet placeholder — faded, semi-transparent hint text. Inherits the
+   editor's own foreground (set by the active CodeMirror theme) so it always
+   tracks the editor colour instead of the page-level [data-theme], which can
+   desync and fall back to the :root (Shades of Purple) palette. */
+.cm-editor .cm-placeholder {
+	color: inherit;
+	opacity: 0.4;
+}
+
 .container {
 	width: 100%;
 	max-width: 1200px;

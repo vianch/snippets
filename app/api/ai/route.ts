@@ -4,6 +4,7 @@ import { aiActions, aiSystemPrompts, UserRole } from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import createSupabaseServerClient from "@/lib/supabase/server";
 import { sanitizeHistory } from "@/utils/chat.utils";
+import { isSafeRemoteUrl } from "@/utils/url.utils";
 
 const maxCodeLength = 50_000;
 const maxPromptLength = 4_000;
@@ -388,8 +389,20 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 
 		// Ollama provider (default) with Claude fallback
 		const ollamaModel = aiModel || process.env.OLLAMA_MODEL || "codellama";
+
+		if (aiUrl && !isSafeRemoteUrl(aiUrl)) {
+			return NextResponse.json(
+				{ error: "Configured AI URL is not allowed" },
+				{ status: HttpStatusCode.BadRequest }
+			);
+		}
+
 		const ollamaUrl = aiUrl || defaultOllamaUrl;
-		const ollamaApiKey = aiApiKey || process.env.OLLAMA_API_KEY || undefined;
+		// Withhold the server's Ollama key from a user-supplied URL; only forward
+		// a key the caller configured themselves.
+		const ollamaApiKey = aiUrl
+			? aiApiKey || undefined
+			: aiApiKey || process.env.OLLAMA_API_KEY || undefined;
 		const attempts: Array<{ provider: string; error: string }> = [];
 
 		// 1. Try custom Ollama URL (tunnel or local)

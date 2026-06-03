@@ -28,7 +28,7 @@ export const accountInitialStateData: InitialAccountStateData = {
 	newPassword: "",
 	confirmPassword: "",
 	avatar: defaultAvatar,
-	theme: ThemeNames.Dracula,
+	theme: ThemeNames.ShadesOfPurple,
 	aiProvider: "ollama",
 	aiApiKey: "",
 	aiModel: "",
