@@ -14,11 +14,14 @@ export const getPublicSnippetBySlug = async (
 
 	const { data } = await publicClient
 		.from("snippet")
-		.select()
+		.select("name, snippet, language, tags, notes, url")
 		.eq("public_slug", slug)
 		.eq("is_public", true)
 		.neq("state", SnippetState.Inactive)
 		.maybeSingle();
 
+	// Project only the fields the public share surface renders. This keeps
+	// internal columns (user_id, snippet_id, timestamps, folder) out of the
+	// anon-readable response; the cast narrows the row to that public-safe subset.
 	return data as Snippet | null;
 };

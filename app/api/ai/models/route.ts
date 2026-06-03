@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { openAiExcludedPrefixes } from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import createSupabaseServerClient from "@/lib/supabase/server";
+import { isSafeRemoteUrl } from "@/utils/url.utils";
 
 const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
 const ollamaCloudUrl = "https://ollama.com";
@@ -151,9 +152,21 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 	}
 
 	// Default: Ollama
-	const ollamaUrl =
-		request.nextUrl.searchParams.get("ollama_url") || defaultOllamaUrl;
-	const ollamaApiKey = headerApiKey || process.env.OLLAMA_API_KEY || "";
+	const requestedOllamaUrl = request.nextUrl.searchParams.get("ollama_url");
+
+	if (requestedOllamaUrl && !isSafeRemoteUrl(requestedOllamaUrl)) {
+		return NextResponse.json(
+			{ models: [], error: "Invalid ollama_url" },
+			{ status: HttpStatusCode.BadRequest }
+		);
+	}
+
+	const ollamaUrl = requestedOllamaUrl || defaultOllamaUrl;
+	// Only attach the server's Ollama key when targeting the operator-configured
+	// default. A user-supplied URL gets only a key the caller provided.
+	const ollamaApiKey = requestedOllamaUrl
+		? headerApiKey
+		: headerApiKey || process.env.OLLAMA_API_KEY || "";
 
 	try {
 		const models = await fetchOllamaModels(ollamaUrl, ollamaApiKey);
