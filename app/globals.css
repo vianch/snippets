@@ -254,12 +254,15 @@ table {
 	--error-color: #f5d5d8;
 	--warning-color: #f5ead0;
 	--info-color: #d0e8f5;
+	--skeleton-shimmer: #eff1f5;
+	--button-bg: #e6e9ef;
 	--input-bg: #fff;
 	--glass-bg: rgb(255 255 255 / 70%);
 	--glass-border: rgb(76 79 105 / 12%);
 	--card-shadow: 0 0.5rem 1.5rem rgb(76 79 105 / 10%);
 	--card-shadow-hover: 0 1rem 2.25rem rgb(76 79 105 / 16%);
 	--grid-line: rgb(76 79 105 / 6%);
+	--pet-glow: rgb(136 57 239 / 38%);
 }
 
 [data-theme="ayu-light"] {
@@ -284,12 +287,15 @@ table {
 	--error-color: #f5dede;
 	--warning-color: #f5ede0;
 	--info-color: #deeaf5;
+	--skeleton-shimmer: #fafafa;
+	--button-bg: #f0f0f0;
 	--input-bg: #fff;
 	--glass-bg: rgb(255 255 255 / 72%);
 	--glass-border: rgb(87 95 102 / 12%);
 	--card-shadow: 0 0.5rem 1.5rem rgb(87 95 102 / 10%);
 	--card-shadow-hover: 0 1rem 2.25rem rgb(87 95 102 / 16%);
 	--grid-line: rgb(87 95 102 / 6%);
+	--pet-glow: rgb(255 153 64 / 42%);
 }
 
 [data-theme="github-dark"] {
@@ -314,11 +320,15 @@ table {
 	--error-color: #fbeeed;
 	--warning-color: #fef4e6;
 	--info-color: #e8f6fd;
+	--skeleton-shimmer: #30363d;
+	--button-bg: #21262d;
+	--input-bg: #0d1117;
 	--glass-bg: rgb(255 255 255 / 4%);
 	--glass-border: rgb(255 255 255 / 10%);
 	--card-shadow: 0 0.75rem 2rem rgb(1 4 9 / 55%);
 	--card-shadow-hover: 0 1.25rem 2.5rem rgb(1 4 9 / 68%);
 	--grid-line: rgb(255 255 255 / 5%);
+	--pet-glow: rgb(210 168 255 / 50%);
 }
 
 [data-theme="github-light"] {
@@ -343,12 +353,15 @@ table {
 	--error-color: #ffebe9;
 	--warning-color: #fff8c5;
 	--info-color: #ddf4ff;
+	--skeleton-shimmer: #fff;
+	--button-bg: #f6f8fa;
 	--input-bg: #fff;
 	--glass-bg: rgb(255 255 255 / 75%);
 	--glass-border: rgb(31 35 40 / 12%);
 	--card-shadow: 0 0.5rem 1.5rem rgb(31 35 40 / 10%);
 	--card-shadow-hover: 0 1rem 2.25rem rgb(31 35 40 / 15%);
 	--grid-line: rgb(31 35 40 / 6%);
+	--pet-glow: rgb(130 80 223 / 38%);
 }
 
 [data-theme="dracula"] {
@@ -369,6 +382,7 @@ table {
 	--red-color: #f55;
 	--dark-red-color: #ca5347;
 	--foreground-color: #f8f8f2;
+	--skeleton-shimmer: #565872;
 	--button-bg: #44475a;
 	--input-bg: transparent;
 	--glass-bg: rgb(255 255 255 / 4%);
@@ -376,6 +390,7 @@ table {
 	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 35%);
 	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 48%);
 	--grid-line: rgb(255 255 255 / 4%);
+	--pet-glow: rgb(189 147 249 / 55%);
 }
 
 html,
