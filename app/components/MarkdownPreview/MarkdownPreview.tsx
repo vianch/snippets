@@ -1,16 +1,16 @@
 "use client";
 
-import { MouseEvent, ReactElement, useMemo } from "react";
-import { marked } from "marked";
-import DOMPurify from "isomorphic-dompurify";
+import { MouseEvent, ReactElement, useEffect, useState } from "react";
 
 /* Lib */
-import wikiLinkMarked from "@/lib/wikiLinkMarked";
+import { renderMarkdownToHtml } from "@/lib/markdownRenderer";
+import useUserStore from "@/lib/store/user.store";
+
+/* Types */
+import type { ThemeName } from "@/lib/config/themes";
 
 /* Styles */
 import styles from "./markdownPreview.module.css";
-
-marked.use(wikiLinkMarked);
 
 type MarkdownPreviewProps = {
 	content: string;
@@ -23,23 +23,48 @@ const MarkdownPreview = ({
 	height,
 	onWikiNavigate,
 }: MarkdownPreviewProps): ReactElement => {
-	const htmlContent = useMemo(() => {
-		if (!content) return "";
+	// Store theme is a plain string; narrow it to the ThemeName shiki expects
+	const theme = useUserStore((state) => state.theme) as ThemeName;
+	const [htmlContent, setHtmlContent] = useState<string>("");
 
-		const rawHtml = marked.parse(content, { async: false }) as string;
+	useEffect(() => {
+		if (!content) {
+			setHtmlContent("");
 
-		return DOMPurify.sanitize(rawHtml, {
-			ADD_ATTR: ["data-wiki-target"],
-		});
-	}, [content]);
+			return;
+		}
+
+		let cancelled = false;
+
+		renderMarkdownToHtml(content, theme)
+			.then((html) => {
+				if (!cancelled) {
+					setHtmlContent(html);
+				}
+			})
+			.catch(() => {
+				if (!cancelled) {
+					setHtmlContent("");
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [content, theme]);
 
 	const handleClick = (event: MouseEvent<HTMLDivElement>): void => {
-		if (!onWikiNavigate) return;
+		if (!onWikiNavigate) {
+			return;
+		}
 
+		// event.target is the clicked DOM node within the rendered markdown
 		const target = event.target as HTMLElement;
 		const link = target.closest<HTMLElement>(".wiki-link");
 
-		if (!link) return;
+		if (!link) {
+			return;
+		}
 
 		const wikiTarget = link.getAttribute("data-wiki-target");
 

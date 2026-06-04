@@ -26,6 +26,16 @@
 }
 
 .previewContent {
+	/* Code-block surface: the palette's darkest token nudged toward the
+	   foreground colour. On dark palettes the foreground is light (blocks read
+	   slightly raised); on light palettes it is dark (blocks read slightly
+	   inset). Either way the block stays distinct from the pane in every theme. */
+	--code-block-bg: color-mix(
+		in srgb,
+		var(--bg-color-dark) 88%,
+		var(--foreground-color)
+	);
+
 	flex: 1;
 	min-height: 0;
 	overflow-y: auto;
@@ -85,11 +95,21 @@
 }
 
 .previewContent pre {
-	background: var(--bg-color);
+	background: var(--code-block-bg);
 	padding: 0.75rem;
 	border-radius: 4px;
 	overflow-x: auto;
 	margin: 0.75rem 0;
+}
+
+/* Shiki stamps the highlight theme's own background-color inline on the <pre>
+   and tags it with a global "shiki" class. Override it with the derived
+   code-block surface so highlighted blocks stay distinct from the pane and
+   consistent with the active palette. The class must be wrapped in :global
+   (CSS Modules would otherwise hash it and never match), and an inline style
+   can only be beaten with !important. */
+.previewContent :global(pre.shiki) {
+	background-color: var(--code-block-bg) !important;
 }
 
 .previewContent pre code {

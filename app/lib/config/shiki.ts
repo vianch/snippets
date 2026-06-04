@@ -35,6 +35,33 @@ const shikiLanguageMap: Record<string, string> = {
 	yaml: "yaml",
 };
 
+// Maps lowercase markdown fence info-strings (```js, ```ts, ```bash, …) and
+// their common aliases to the shiki grammar id used to highlight the block.
+const markdownFenceLanguageMap: Record<string, string> = {
+	bash: "bash",
+	css: "css",
+	go: "go",
+	golang: "go",
+	javascript: "javascript",
+	js: "javascript",
+	json: "json",
+	jsx: "javascript",
+	py: "python",
+	python: "python",
+	rb: "ruby",
+	rs: "rust",
+	ruby: "ruby",
+	rust: "rust",
+	sh: "bash",
+	shell: "bash",
+	shellscript: "bash",
+	sql: "sql",
+	ts: "typescript",
+	tsx: "typescript",
+	typescript: "typescript",
+	zsh: "bash",
+};
+
 export const getHighlightedCode = async (
 	code: string,
 	language: string,
@@ -47,4 +74,27 @@ export const getHighlightedCode = async (
 		lang: shikiLanguage,
 		theme: shikiTheme,
 	});
+};
+
+export const getHighlightedFenceCode = async (
+	code: string,
+	fenceLanguage: string,
+	theme: ThemeName
+): Promise<string | null> => {
+	const shikiLanguage = markdownFenceLanguageMap[fenceLanguage];
+
+	if (!shikiLanguage) {
+		return null;
+	}
+
+	const shikiTheme = shikiThemeMap[theme] ?? "dracula";
+
+	try {
+		return await codeToHtml(code, {
+			lang: shikiLanguage,
+			theme: shikiTheme,
+		});
+	} catch {
+		return null;
+	}
 };
