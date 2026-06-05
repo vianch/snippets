@@ -17,13 +17,25 @@ const shortcutGroups: ShortcutGroup[] = [
 		heading: "Editor",
 		items: [
 			{ keys: ["Mod", "S"], description: "Save current snippet" },
-			{ keys: ["Mod", "I"], description: "Request AI inline completion" },
+			{
+				keys: ["Mod", "Shift", "I"],
+				description: "Request AI inline completion",
+			},
 			{ keys: ["Tab"], description: "Accept AI completion / indent" },
 			{ keys: ["Esc"], description: "Dismiss AI completion" },
 			{
 				keys: ["["],
 				description: "Type [[ in any snippet to link to another snippet",
 			},
+		],
+	},
+	{
+		heading: "Markdown editor",
+		items: [
+			{ keys: ["Mod", "B"], description: "Bold selected text" },
+			{ keys: ["Mod", "I"], description: "Italic selected text" },
+			{ keys: ["Mod", "E"], description: "Wrap selection in inline code" },
+			{ keys: ["Mod", "D"], description: "Duplicate current line below" },
 		],
 	},
 	{

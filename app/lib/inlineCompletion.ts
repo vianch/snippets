@@ -144,7 +144,7 @@ const inlineCompletion = (options: InlineCompletionOptions): Extension => {
 		keymap.of([
 			{ key: "Tab", run: acceptSuggestion },
 			{ key: "Escape", run: dismissSuggestion },
-			{ key: "Mod-i", run: requestCompletion, preventDefault: true },
+			{ key: "Mod-Shift-i", run: requestCompletion, preventDefault: true },
 		]),
 		EditorView.updateListener.of((update: ViewUpdate) => {
 			if (update.docChanged || update.selectionSet) {

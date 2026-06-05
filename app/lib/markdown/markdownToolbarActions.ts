@@ -170,13 +170,13 @@ const buildHeadingPrefix = (level: number): string => {
 const stripHeading = (lineText: string): string =>
 	lineText.replace(headingPattern, "");
 
-const wrapSelectionWithBold = (view: EditorView): void =>
+export const wrapSelectionWithBold = (view: EditorView): void =>
 	applyInlineWrap(view, boldMarker, boldPlaceholder);
 
-const wrapSelectionWithItalic = (view: EditorView): void =>
+export const wrapSelectionWithItalic = (view: EditorView): void =>
 	applyInlineWrap(view, italicMarker, italicPlaceholder);
 
-const wrapSelectionWithInlineCode = (view: EditorView): void =>
+export const wrapSelectionWithInlineCode = (view: EditorView): void =>
 	applyInlineWrap(view, inlineCodeMarker, inlineCodePlaceholder);
 
 const wrapSelectionWithCodeBlock = (view: EditorView): void => {
