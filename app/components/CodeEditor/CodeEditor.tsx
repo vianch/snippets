@@ -3,6 +3,8 @@
 import { ReactElement, useMemo, useRef } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 
+import type { EditorView } from "@codemirror/view";
+
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
@@ -25,6 +27,7 @@ import usePreviewResize from "@/components/CodeEditor/hooks/usePreviewResize";
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
+import MarkdownToolbar from "@/components/CodeEditor/MarkdownToolbar";
 import SnippetDetails from "@/components/CodeEditor/SnippetDetails/SnippetDetails";
 import History from "@/components/History/History";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
@@ -78,6 +81,7 @@ const CodeEditor = ({
 	const { menuType } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
 	const editorContentRef = useRef<HTMLDivElement>(null);
+	const editorViewRef = useRef<EditorView | null>(null);
 	const editorTheme = useMemo(() => getCodeMirrorTheme(theme), [theme]);
 
 	const {
@@ -153,11 +157,13 @@ const CodeEditor = ({
 	const showPreview = !isChatMode && isMarkdownLanguage && !isTrashActive;
 	const showChatPane = isChatMode && !isTrashActive;
 	const hasRightPane = showPreview || showChatPane;
+	const showMarkdownToolbar = !isMobile && isMarkdownLanguage && !isTrashActive;
 
 	const editorHeight = calculateEditorHeight({
+		hasMarkdownToolbar: showMarkdownToolbar,
+		hasRightPane,
 		isMobile,
 		isTrashActive,
-		hasRightPane,
 	});
 	const previewHeight = calculatePreviewHeight(isMobile);
 
@@ -285,6 +291,11 @@ const CodeEditor = ({
 									!isMobile ? { width: `${editorWidthPercent}%` } : undefined
 								}
 							>
+								{showMarkdownToolbar && (
+									<MarkdownToolbar
+										getEditorView={() => editorViewRef.current}
+									/>
+								)}
 								<CodeMirror
 									autoFocus={false}
 									indentWithTab={true}
@@ -301,6 +312,9 @@ const CodeEditor = ({
 									height={editorHeight}
 									width="100%"
 									onChange={updateCurrentSnippetValue}
+									onCreateEditor={(view) => {
+										editorViewRef.current = view;
+									}}
 								/>
 							</div>
 							{!isMobile && (

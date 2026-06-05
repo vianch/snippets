@@ -43,11 +43,13 @@ const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
 			>
 				{items.map((item) => (
 					<div
-						className={`${item === value && styles.active} ${styles.selectItem}`}
+						className={`${styles.selectItem} ${item === value ? styles.active : ""}`}
 						key={item}
 						onClick={() => selectItemHandler(item)}
 					>
-						{item === value ? <Check width={12} height={12} /> : "- "}
+						<span className={styles.selectMarker}>
+							{item === value ? <Check width={12} height={12} /> : "-"}
+						</span>
 						{item}
 					</div>
 				))}

@@ -1,13 +1,15 @@
 type EditorHeightParams = {
+	hasMarkdownToolbar: boolean;
+	hasRightPane: boolean;
 	isMobile: boolean;
 	isTrashActive: boolean;
-	hasRightPane: boolean;
 };
 
 export const calculateEditorHeight = ({
+	hasMarkdownToolbar,
+	hasRightPane,
 	isMobile,
 	isTrashActive,
-	hasRightPane,
 }: EditorHeightParams): string => {
 	if (isMobile && !isTrashActive) {
 		return hasRightPane ? "calc(50vh - 5rem)" : "calc(100vh - 9.7rem)";
@@ -19,6 +21,10 @@ export const calculateEditorHeight = ({
 
 	if (isTrashActive && isMobile) {
 		return "calc(100vh - 3.2rem)";
+	}
+
+	if (hasMarkdownToolbar) {
+		return "calc(100vh - 8.45rem)";
 	}
 
 	return "calc(100vh - 6.45rem)";
