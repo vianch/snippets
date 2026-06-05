@@ -9,12 +9,14 @@ type ResizableLayoutProps = {
 	aside: ReactElement;
 	snippetList: ReactElement;
 	codeEditor: ReactElement;
+	hideSnippetList?: boolean;
 };
 
 const ResizableLayout = ({
 	aside,
 	snippetList,
 	codeEditor,
+	hideSnippetList = false,
 }: ResizableLayoutProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -23,12 +25,11 @@ const ResizableLayout = ({
 	const [isDragging, setIsDragging] = useState<"aside" | "snippetList" | null>(
 		null
 	);
-	const [isAsideCollapsed, setIsAsideCollapsed] = useState<boolean>(() => {
-		if (typeof window === "undefined") return false;
-
-		return localStorage.getItem("aside-collapsed") === "true";
-	});
+	// Starts false on both server and first client render to avoid a hydration
+	// mismatch; the persisted value is applied after mount in the effect below.
+	const [isAsideCollapsed, setIsAsideCollapsed] = useState<boolean>(false);
 	const [lastAsideWidth, setLastAsideWidth] = useState(250);
+	const isHydratedRef = useRef<boolean>(false);
 
 	const toggleAside = (): void => {
 		if (isAsideCollapsed) {
@@ -84,6 +85,19 @@ const ResizableLayout = ({
 	}, [isDragging, asideWidth, lastAsideWidth]);
 
 	useEffect(() => {
+		isHydratedRef.current = true;
+
+		if (localStorage.getItem("aside-collapsed") === "true") {
+			setIsAsideCollapsed(true);
+			setAsideWidth(0);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (!isHydratedRef.current) {
+			return;
+		}
+
 		localStorage.setItem("aside-collapsed", String(isAsideCollapsed));
 	}, [isAsideCollapsed]);
 
@@ -106,7 +120,7 @@ const ResizableLayout = ({
 		return (
 			<div className={styles.mobileContainer}>
 				{aside}
-				{snippetList}
+				{!hideSnippetList && snippetList}
 				{codeEditor}
 			</div>
 		);
@@ -142,14 +156,21 @@ const ResizableLayout = ({
 				onMouseDown={() => handleMouseDown("aside")}
 			/>
 
-			<div className={styles.panel} style={{ width: `${snippetListWidth}px` }}>
-				{snippetList}
-			</div>
+			{!hideSnippetList && (
+				<>
+					<div
+						className={styles.panel}
+						style={{ width: `${snippetListWidth}px` }}
+					>
+						{snippetList}
+					</div>
 
-			<div
-				className={styles.resizer}
-				onMouseDown={() => handleMouseDown("snippetList")}
-			/>
+					<div
+						className={styles.resizer}
+						onMouseDown={() => handleMouseDown("snippetList")}
+					/>
+				</>
+			)}
 
 			<div className={styles.panel} style={{ flex: 1 }}>
 				{codeEditor}

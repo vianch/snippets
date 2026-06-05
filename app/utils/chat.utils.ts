@@ -38,6 +38,39 @@ const extractFencedBlocks = (
 	return blocks;
 };
 
+// Splits an assistant answer into ordered prose/code segments so the UI can
+// render prose as markdown and fenced code blocks as interactive components.
+// Uses a fresh regex so the shared global pattern's lastIndex is never mutated.
+const parseAssistantSegments = (content: string): AssistantSegment[] => {
+	const segments: AssistantSegment[] = [];
+	const pattern = new RegExp(fencedCodeBlockPattern.source, "g");
+	let lastIndex = 0;
+	let match: RegExpExecArray | null = pattern.exec(content);
+
+	while (match !== null) {
+		if (match.index > lastIndex) {
+			segments.push({
+				type: "prose",
+				content: content.slice(lastIndex, match.index),
+			});
+		}
+
+		segments.push({
+			type: "code",
+			language: match[1] ?? "",
+			body: match[2] ?? "",
+		});
+		lastIndex = match.index + match[0].length;
+		match = pattern.exec(content);
+	}
+
+	if (lastIndex < content.length) {
+		segments.push({ type: "prose", content: content.slice(lastIndex) });
+	}
+
+	return segments;
+};
+
 const detectReplaceCandidate = (
 	userPrompt: string | undefined,
 	assistantResponse: string,
@@ -98,5 +131,6 @@ export {
 	extractCodeBlockBody,
 	extractFencedBlocks,
 	findWikiLinkContext,
+	parseAssistantSegments,
 	sanitizeHistory,
 };

@@ -86,11 +86,36 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	justify-content: space-between;
 	height: 3.2rem;
 	padding: 0 0.625rem;
 	border-bottom: 1px solid var(--border-color);
 	background: var(--bg-color-dark);
 	gap: 0.5rem;
+}
+
+.editorTagsLeft {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.5rem;
+	min-width: 0;
+}
+
+/* Action-icon row loader — mirrors CodeEditorActions; hidden < 1140px to match
+   the real toolbar, which collapses to the mobile bar at that width. */
+.editorActions {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.125rem;
+	flex-shrink: 0;
+}
+
+@media (width < 1140px) {
+	.editorActions {
+		display: none;
+	}
 }
 
 .editorCode {

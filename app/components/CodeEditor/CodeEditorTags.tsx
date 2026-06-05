@@ -73,9 +73,9 @@ const CodeEditorTags = ({
 	return (
 		<section className={styles.tagsContainer}>
 			<div className={styles.tagsLeft}>
-				<label>
-					<Tag width={24} height={24} />{" "}
-				</label>
+				<span className={styles.tagIcon} aria-hidden="true">
+					<Tag width={20} height={20} />
+				</span>
 				{tagList?.length > 0 &&
 					tagList.map(
 						(tag: string, index: number): ReactElement => (
@@ -91,10 +91,14 @@ const CodeEditorTags = ({
 				{tagList?.length < 3 && (
 					<div className={styles.tagInput}>
 						<Input
-							className={`inputField `}
+							ghost
+							disableMargin
+							className={styles.tagInputField}
 							cleanOnBlur
 							type="text"
-							placeholder="New Tag"
+							placeholder={
+								tagList?.length > 0 ? "Add another tag…" : "Add a tag…"
+							}
 							value=""
 							required={true}
 							onKeyDown={onNewTag}

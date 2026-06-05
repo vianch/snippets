@@ -68,7 +68,7 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 									className={styles.favoriteIcon}
 									width="18"
 									height="18"
-									fill="#f1fa8c"
+									fill="currentColor"
 								/>
 							</span>
 						) : (

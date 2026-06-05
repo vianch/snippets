@@ -17,24 +17,27 @@
 	padding: 0.25rem;
 	background: transparent;
 	border: none;
-	border-radius: 0.25rem;
+	border-radius: var(--border-radius);
 	cursor: pointer;
-	color: var(--text-color);
-	transition: all 0.2s ease;
+	color: var(--gray-color);
+	transition:
+		color 0.2s ease,
+		background-color 0.2s ease,
+		transform 0.15s ease;
 }
 
 .toolbarButton:hover {
 	background: var(--bg-color);
-	color: var(--primary-color);
+	color: var(--cyan-color);
 }
 
 .toolbarButton:active {
 	transform: scale(0.95);
 }
 
-.toolbarButton:focus {
+.toolbarButton:focus-visible {
 	outline: none;
-	box-shadow: 0 0 0 2px var(--primary-color);
+	box-shadow: 0 0 0 2px var(--cyan-color);
 }
 
 .divider {

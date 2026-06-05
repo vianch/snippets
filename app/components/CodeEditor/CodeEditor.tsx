@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactElement, useMemo, useRef } from "react";
+import { ReactElement, useMemo, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 
 import type { EditorView } from "@codemirror/view";
@@ -16,7 +16,7 @@ import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 import { SnippetState } from "@/lib/constants/core";
 import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
-import { aiActions } from "@/lib/constants/ai";
+import { aiActions, AiPaneTab } from "@/lib/constants/ai";
 import { requestAiAction } from "@/utils/ai.utils";
 
 /* Hooks */
@@ -40,6 +40,7 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import {
 	calculateEditorHeight,
 	calculatePreviewHeight,
+	chatTabPaneHeight,
 } from "@/components/CodeEditor/editorHeight";
 
 /* Styles */
@@ -62,6 +63,8 @@ type CodeEditorProps = {
 	onPublicToggle: (currentSnippet: CurrentSnippet) => void;
 	onTouched: (touched: boolean) => void;
 	onWikiNavigate?: (target: string) => void;
+	onActiveSnippet?: (snippetId: UUID | null) => void;
+	onNewSnippet?: () => void;
 };
 
 const CodeEditor = ({
@@ -76,11 +79,14 @@ const CodeEditor = ({
 	onPublicToggle,
 	onTouched,
 	onWikiNavigate,
+	onActiveSnippet,
+	onNewSnippet,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const theme = useUserStore((state) => state.theme) as ThemeName;
 	const { menuType } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
+	const [mobileChatTab, setMobileChatTab] = useState<AiPaneTab>(AiPaneTab.Chat);
 	const editorContentRef = useRef<HTMLDivElement>(null);
 	const editorViewRef = useRef<EditorView | null>(null);
 	const editorTheme = useMemo(() => getCodeMirrorTheme(theme), [theme]);
@@ -286,8 +292,35 @@ const CodeEditor = ({
 							ref={editorContentRef}
 							className={isMobile ? styles.splitViewMobile : styles.splitView}
 						>
+							{showChatPane && isMobile && (
+								<div className={styles.chatTabs} role="tablist">
+									<button
+										type="button"
+										role="tab"
+										aria-selected={mobileChatTab === AiPaneTab.Chat}
+										className={`${styles.chatTab} ${mobileChatTab === AiPaneTab.Chat ? styles.chatTabActive : ""}`}
+										onClick={() => setMobileChatTab(AiPaneTab.Chat)}
+									>
+										Chat
+									</button>
+									<button
+										type="button"
+										role="tab"
+										aria-selected={mobileChatTab === AiPaneTab.Code}
+										className={`${styles.chatTab} ${mobileChatTab === AiPaneTab.Code ? styles.chatTabActive : ""}`}
+										onClick={() => setMobileChatTab(AiPaneTab.Code)}
+									>
+										Code
+									</button>
+								</div>
+							)}
+
 							<div
-								className={styles.editorPanel}
+								className={`${styles.editorPanel} ${
+									showChatPane && isMobile && mobileChatTab !== AiPaneTab.Code
+										? styles.paneHidden
+										: ""
+								}`}
 								style={
 									!isMobile ? { width: `${editorWidthPercent}%` } : undefined
 								}
@@ -311,7 +344,9 @@ const CodeEditor = ({
 										...(isMarkdownLanguage ? [markdownKeymap] : []),
 									]}
 									theme={editorTheme}
-									height={editorHeight}
+									height={
+										showChatPane && isMobile ? chatTabPaneHeight : editorHeight
+									}
 									width="100%"
 									onChange={updateCurrentSnippetValue}
 									onCreateEditor={(view) => {
@@ -329,9 +364,16 @@ const CodeEditor = ({
 								<AiAssistantPanel
 									currentSnippet={currentSnippet}
 									allSnippets={allSnippets}
-									height={previewHeight}
+									height={isMobile ? chatTabPaneHeight : previewHeight}
+									className={
+										isMobile && mobileChatTab !== AiPaneTab.Chat
+											? styles.paneHidden
+											: ""
+									}
 									onCopyToSnippet={handleCopyToSnippet}
 									onReplaceSnippet={updateCurrentSnippetValue}
+									onSelectSnippet={onActiveSnippet}
+									onNewSnippet={onNewSnippet}
 								/>
 							) : (
 								<MarkdownPreview

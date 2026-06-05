@@ -59,6 +59,7 @@
 	flex: 1;
 	min-height: 0;
 	overflow-y: auto;
+	scroll-behavior: smooth;
 	padding: 1rem 1rem 0.5rem;
 	display: flex;
 	flex-direction: column;
@@ -92,7 +93,9 @@
 
 .emptyIcon {
 	color: var(--purple-color);
-	filter: drop-shadow(0 0 4px rgb(189 147 249 / 35%));
+	filter: drop-shadow(
+		0 0 4px color-mix(in srgb, var(--purple-color) 35%, transparent)
+	);
 	display: inline-flex;
 }
 
@@ -264,7 +267,9 @@
 
 	50% {
 		filter: drop-shadow(0 0 6px var(--purple-color))
-			drop-shadow(0 0 12px rgb(189 147 249 / 70%));
+			drop-shadow(
+				0 0 12px color-mix(in srgb, var(--purple-color) 70%, transparent)
+			);
 	}
 }
 
@@ -369,6 +374,10 @@
 	font-size: 0.8125rem;
 	color: var(--red-color);
 	margin: 0;
+	padding: 0.5rem 0.75rem;
+	background: color-mix(in srgb, var(--red-color) 12%, transparent);
+	border: 1px solid color-mix(in srgb, var(--red-color) 40%, transparent);
+	border-radius: var(--border-radius-md);
 }
 
 .stoppedNote {
@@ -408,7 +417,7 @@
 
 .inputWrap:focus-within {
 	border-color: var(--purple-color);
-	box-shadow: 0 0 0 3px rgb(189 147 249 / 22%);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--purple-color) 22%, transparent);
 }
 
 .inputRow {

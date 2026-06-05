@@ -14,4 +14,17 @@ declare global {
 		start: number;
 		query: string;
 	};
+
+	type AssistantProseSegment = {
+		content: string;
+		type: "prose";
+	};
+
+	type AssistantCodeSegment = {
+		body: string;
+		language: string;
+		type: "code";
+	};
+
+	type AssistantSegment = AssistantCodeSegment | AssistantProseSegment;
 }

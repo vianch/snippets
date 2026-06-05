@@ -12,8 +12,10 @@ import {
 /* Components */
 import AssistantMessage from "@/components/CodeEditor/AiChatModal/AssistantMessage/AssistantMessage";
 import WikiLinkPopover from "@/components/CodeEditor/AiChatModal/WikiLinkPopover/WikiLinkPopover";
+import SnippetPicker from "@/components/Chat/SnippetPicker/SnippetPicker";
 import ContextUsage from "@/components/ContextUsage/ContextUsage";
 import ModelSelector from "@/components/ModelSelector/ModelSelector";
+import Plus from "@/components/ui/icons/Plus";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
 /* Lib */
@@ -48,16 +50,22 @@ type AiAssistantPanelProps = {
 	currentSnippet: CurrentSnippet | null;
 	allSnippets: Snippet[];
 	height?: string | number;
+	className?: string;
 	onCopyToSnippet?: (content: string) => void;
 	onReplaceSnippet?: (content: string) => void;
+	onSelectSnippet?: (snippetId: UUID | null) => void;
+	onNewSnippet?: () => void;
 };
 
 const AiAssistantPanel = ({
 	currentSnippet,
 	allSnippets,
 	height,
+	className = "",
 	onCopyToSnippet,
 	onReplaceSnippet,
+	onSelectSnippet,
+	onNewSnippet,
 }: AiAssistantPanelProps): ReactElement => {
 	const { addToast } = useToastStore();
 	const selectedModel = useChatStore((state) => state.selectedModel);
@@ -414,17 +422,26 @@ const AiAssistantPanel = ({
 
 	return (
 		<section
-			className={styles.panel}
+			className={`${styles.panel} ${className}`}
 			style={height ? { height } : undefined}
 			aria-label="AI Assistant"
 		>
 			<div className={styles.header}>
-				<h2 className={styles.title}>
-					<span className={styles.titleIcon}>
-						<Sparkle width={16} height={16} />
-					</span>
-					<span>AI Assistant</span>
-				</h2>
+				<span className={styles.titleIcon}>
+					<Sparkle width={16} height={16} />
+				</span>
+
+				{onSelectSnippet ? (
+					<SnippetPicker
+						snippets={allSnippets}
+						activeSnippetId={currentSnippet?.snippet_id ?? null}
+						onSelect={onSelectSnippet}
+						onNew={onNewSnippet}
+					/>
+				) : (
+					<h2 className={styles.title}>AI Assistant</h2>
+				)}
+
 				<button
 					type="button"
 					className={styles.iconButton}
@@ -432,15 +449,7 @@ const AiAssistantPanel = ({
 					title="New chat"
 					aria-label="New chat"
 				>
-					<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-						<path
-							d="M9 2 L12 5 L7.5 9.5 L4.5 9.5 L4.5 6.5 Z"
-							stroke="currentColor"
-							strokeWidth="1.3"
-							strokeLinejoin="round"
-							fill="none"
-						/>
-					</svg>
+					<Plus width={15} height={15} />
 				</button>
 			</div>
 
@@ -486,7 +495,6 @@ const AiAssistantPanel = ({
 							key={index}
 							content={entry.content}
 							modelName={selectedModel}
-							isReplaceCandidate={entry.isReplaceCandidate ?? false}
 							onCopyToSnippet={handleCopyToSnippet}
 							onReplaceSnippet={handleReplaceSnippet}
 						/>
@@ -516,15 +524,23 @@ const AiAssistantPanel = ({
 								</div>
 							)}
 
-							{(isStreaming ||
-								status === ChatStatus.Answered ||
-								status === ChatStatus.Stopped) &&
+							{status === ChatStatus.Answered && revealedAnswer.length > 0 ? (
+								<AssistantMessage
+									content={revealedAnswer}
+									modelName={selectedModel}
+									showHeader={false}
+									showActions={false}
+									onReplaceSnippet={handleReplaceSnippet}
+								/>
+							) : (
+								(isStreaming || status === ChatStatus.Stopped) &&
 								revealedAnswer.length > 0 && (
 									<div className={styles.assistantBody}>
 										{revealedAnswer}
 										{isStreaming && <span className={styles.caret} />}
 									</div>
-								)}
+								)
+							)}
 
 							{status === ChatStatus.Stopped && (
 								<div className={styles.stoppedNote}>
