@@ -9,7 +9,7 @@ import useToastStore from "@/lib/store/toast.store";
 import { getUserDataFromSession, updateUser } from "@/lib/supabase/queries";
 
 /* Utils */
-import { fetchAiModels } from "@/utils/ai.utils";
+import { fetchAiModels, formatModelLabel } from "@/utils/ai.utils";
 
 /* Styles */
 import styles from "./modelSelector.module.css";
@@ -109,7 +109,7 @@ const ModelSelector = ({
 			<option value="">{placeholder}</option>
 			{models.map((model) => (
 				<option key={model} value={model}>
-					{model}
+					{formatModelLabel(model)}
 				</option>
 			))}
 		</select>

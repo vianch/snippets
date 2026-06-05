@@ -8,6 +8,30 @@
 	align-items: center;
 }
 
+/* Borderless "title" variant — reads as editable content, not form chrome.
+   A hairline appears under the field only while it is focused/hovered.
+   Compound selector beats the .inputDark/.inputLight background rules. */
+.inputContainer.ghost {
+	border: none;
+	border-bottom: 0.063rem solid transparent;
+	border-radius: 0;
+	background: transparent;
+	transition: border-color 0.2s ease;
+}
+
+.inputContainer.ghost:hover {
+	border-bottom-color: var(--border-color);
+}
+
+.inputContainer.ghost:focus-within {
+	border-bottom-color: var(--cyan-color);
+}
+
+.inputGhost {
+	background: transparent;
+	color: var(--foreground-color);
+}
+
 .isFat {
 	padding: 0.625rem;
 }

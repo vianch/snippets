@@ -14,10 +14,17 @@ type BadgeProps = {
 const Badge = ({ children, onRemove }: BadgeProps): ReactElement => {
 	return (
 		<div className={styles.badgeWrapper}>
-			<span className={styles.removeBadge} onClick={onRemove}>
-				<CloseSquare width={18} height={18} />
-			</span>
-			{children}
+			<span className={styles.badgeLabel}>{children}</span>
+			{onRemove && (
+				<button
+					type="button"
+					className={styles.removeBadge}
+					aria-label="Remove tag"
+					onClick={onRemove}
+				>
+					<CloseSquare width={16} height={16} />
+				</button>
+			)}
 		</div>
 	);
 };

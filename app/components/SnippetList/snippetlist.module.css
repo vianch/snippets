@@ -125,10 +125,18 @@
 		visibility 0.14s;
 }
 
-/* Add max-width back for mobile compatibility */
-@media (width < 1140px) {
-	.snippetsListContainer {
-		max-width: 23.75rem;
+/* Scrim behind the open list drawer — taps dismiss it. */
+.mobileBackdrop {
+	display: none;
+}
+
+@keyframes list-backdrop-fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
 	}
 }
 
@@ -235,6 +243,7 @@
 
 .favoriteIcon {
 	margin-right: 0.313rem;
+	color: var(--yellow-color);
 }
 
 .favoriteIconWrapper {
@@ -252,37 +261,50 @@
 }
 
 @media (width < 1140px) {
+	/* Snippet list becomes a left slide-in drawer over the editor. */
 	.snippetsListContainer {
-		height: calc(100vh - 3.2rem);
-		position: absolute;
+		position: fixed;
 		top: 0;
 		left: 0;
-		z-index: 3;
+		z-index: 8;
+		height: calc(100vh - 50px);
+		width: min(88vw, 22rem);
+		max-width: none;
+		box-shadow: var(--card-shadow);
+		transform: translateX(-100%);
+		visibility: hidden;
+		transition:
+			transform 0.24s ease,
+			visibility 0.24s ease;
+	}
+
+	.snippetsList {
+		height: calc(100vh - 50px - 3.2rem);
 	}
 
 	.mobileListOpen {
-		max-width: 50%;
+		transform: translateX(0);
 		visibility: visible;
 	}
 
 	.mobileListClosed {
-		max-width: 0;
+		transform: translateX(-100%);
 		visibility: hidden;
 	}
 
-	.mobileListClosed .section {
-		display: none;
-	}
-
-	.mobileListOpen .section {
+	.mobileBackdrop {
 		display: block;
+		position: fixed;
+		inset: 0;
+		z-index: 7;
+		background: rgb(0 0 0 / 50%);
+		border: none;
+		animation: list-backdrop-fade-in 0.2s ease;
 	}
 }
 
 @media (width <= 480px) {
 	.snippetsListContainer {
-		max-width: inherit;
-		height: auto;
-		width: 100%;
+		width: 92vw;
 	}
 }

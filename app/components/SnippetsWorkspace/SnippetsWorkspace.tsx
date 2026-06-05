@@ -701,6 +701,7 @@ const SnippetsWorkspace = ({
 	return (
 		<>
 			<ResizableLayout
+				hideSnippetList={rightPane === "chat"}
 				aside={
 					<Aside
 						isLoading={isLoading}
@@ -759,6 +760,8 @@ const SnippetsWorkspace = ({
 						onPublicToggle={onPublicToggleHandler}
 						onTouched={touchedHandler}
 						onWikiNavigate={handleWikiNavigate}
+						onActiveSnippet={setActiveSnippetId}
+						onNewSnippet={createSnippetFromPalette}
 					/>
 				}
 			/>

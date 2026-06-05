@@ -50,6 +50,24 @@ export const formatTokens = (count: number): string => {
 	return count.toString();
 };
 
+// Turns a raw provider model id into a readable label, e.g.
+// "claude-opus-4-20250514" -> "Claude Opus 4", "gpt-4o-mini" -> "Gpt 4o Mini".
+export const formatModelLabel = (model: string): string => {
+	if (!model) {
+		return "";
+	}
+
+	const withoutDate = model.replace(/[-_]\d{6,8}$/, "");
+	const words = withoutDate
+		.split(/[-_/]/)
+		.filter((part) => part.length > 0)
+		.map((part) =>
+			/^\d/.test(part) ? part : part.charAt(0).toUpperCase() + part.slice(1)
+		);
+
+	return words.join(" ") || model;
+};
+
 export const fetchOllamaModels = async (
 	ollamaUrl?: string,
 	ollamaApiKey?: string

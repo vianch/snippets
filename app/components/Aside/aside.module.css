@@ -363,14 +363,58 @@
 .mobileItemList {
 	display: flex;
 	flex-flow: row nowrap;
-	align-items: center;
+	align-items: stretch;
 	justify-content: center;
 	width: 100%;
+	height: 100%;
+}
+
+.mobileItem {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.125rem;
+	min-height: 44px;
+	height: 100%;
+	cursor: pointer;
+	color: var(--gray-color);
+	transition:
+		color 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.mobileItem:active {
+	background: var(--current-line);
+}
+
+.mobileItemActive {
+	color: var(--cyan-color);
+}
+
+.mobileItemLabel {
+	font-size: var(--tiny-font-size);
+	line-height: 1;
 }
 
 .mobileIcon {
-	cursor: pointer;
-	margin: 0 0.625rem;
+	flex-shrink: 0;
+}
+
+/* Scrim behind an open drawer — taps dismiss it. */
+.mobileBackdrop {
+	display: none;
+}
+
+@keyframes backdrop-fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
 }
 
 @media (width < 1140px) {
@@ -379,7 +423,7 @@
 		position: fixed;
 		display: flex;
 		bottom: 0;
-		z-index: 5;
+		z-index: 9;
 		height: 50px;
 		max-width: 100%;
 		left: 0;
@@ -387,26 +431,41 @@
 		border-top: 1px solid var(--border-color);
 	}
 
+	.mobileBackdrop {
+		display: block;
+		position: fixed;
+		inset: 0;
+		z-index: 7;
+		background: rgb(0 0 0 / 50%);
+		border: none;
+		animation: backdrop-fade-in 0.2s ease;
+	}
+
+	/* Sidebar becomes a left slide-in drawer. */
 	.container {
-		position: absolute;
+		position: fixed;
 		left: 0;
 		top: 0;
-		z-index: 5;
-		height: calc(100vh - 3.2rem);
-		max-width: 15.625rem;
+		z-index: 8;
+		height: calc(100vh - 50px);
+		width: min(82vw, 17rem);
+		max-width: none;
+		box-shadow: var(--card-shadow);
+		transform: translateX(-100%);
+		visibility: hidden;
 		transition:
-			width 0.1s,
-			visibility 0s;
+			transform 0.24s ease,
+			visibility 0.24s ease;
 	}
 
 	.containerOpen {
+		transform: translateX(0);
 		visibility: visible;
-		width: 50%;
 	}
 
 	.containerClosed {
+		transform: translateX(-100%);
 		visibility: hidden;
-		width: 0;
 	}
 }
 

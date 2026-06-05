@@ -1,0 +1,95 @@
+.codeBlock {
+	/* Derived surface so blocks stay distinct from the pane in every theme. */
+	--code-block-bg: color-mix(
+		in srgb,
+		var(--bg-color-dark) 88%,
+		var(--foreground-color)
+	);
+
+	margin: 0.5rem 0;
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius-md);
+	overflow: hidden;
+	background: var(--code-block-bg);
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+	background: var(--bg-color);
+	border-bottom: 1px solid var(--border-color);
+}
+
+.language {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: var(--tiny-font-size);
+	letter-spacing: 0.02em;
+	color: var(--gray-color);
+	text-transform: lowercase;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.action {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.1875rem 0.5rem;
+	font-size: var(--tiny-font-size);
+	font-family: inherit;
+	color: var(--gray-color);
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		background-color 0.15s ease,
+		border-color 0.15s ease;
+}
+
+.action:hover {
+	color: var(--cyan-color);
+	background: var(--bg-color-dark);
+	border-color: var(--border-color);
+}
+
+.body {
+	overflow-x: auto;
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}
+
+.body :global(pre) {
+	margin: 0;
+	padding: 0.75rem;
+	background: var(--code-block-bg) !important;
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.body :global(pre code) {
+	background: none;
+	border: none;
+	padding: 0;
+	font-family: inherit;
+}
+
+.body::-webkit-scrollbar {
+	height: 8px;
+}
+
+.body::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+	background: var(--current-line);
+	border-radius: 8px;
+}

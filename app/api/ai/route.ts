@@ -16,6 +16,7 @@ const validActions: AiAction[] = [
 	aiActions.comments,
 	aiActions.format,
 	aiActions.optimize,
+	aiActions.refactor,
 	aiActions.json,
 	aiActions.ask,
 	aiActions.complete,

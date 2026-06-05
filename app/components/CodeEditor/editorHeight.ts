@@ -37,3 +37,8 @@ export const calculatePreviewHeight = (isMobile: boolean): string => {
 
 	return "calc(100vh - 6.45rem)";
 };
+
+// Full-height single pane used by the mobile AI Code|Chat tab switcher: total
+// viewport minus the header + tags + tab bar (top) and the editor action bar +
+// nav bar (bottom).
+export const chatTabPaneHeight = "calc(100vh - 15.5rem)";

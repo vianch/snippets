@@ -2,6 +2,12 @@
 
 import { ReactElement } from "react";
 
+/* Lib */
+import {
+	ContextUsageDangerThreshold,
+	ContextUsageWarnThreshold,
+} from "@/lib/constants/ai";
+
 /* Utils */
 import { formatTokens } from "@/utils/ai.utils";
 
@@ -12,14 +18,6 @@ type ContextUsageProps = {
 	usage: AiUsage | null;
 };
 
-const getFillClass = (percent: number): string => {
-	if (percent >= 80) return styles.fillDanger;
-
-	if (percent >= 50) return styles.fillWarn;
-
-	return styles.fillOk;
-};
-
 const ContextUsage = ({ usage }: ContextUsageProps): ReactElement | null => {
 	if (!usage || usage.contextWindow <= 0) {
 		return null;
@@ -27,13 +25,18 @@ const ContextUsage = ({ usage }: ContextUsageProps): ReactElement | null => {
 
 	const used = usage.inputTokens + usage.outputTokens;
 	const percent = Math.min(100, (used / usage.contextWindow) * 100);
-	const fillClass = getFillClass(percent);
+	const fillClass =
+		percent >= ContextUsageDangerThreshold
+			? styles.fillDanger
+			: percent >= ContextUsageWarnThreshold
+				? styles.fillWarn
+				: styles.fillOk;
 	const title = `Context used: ${used.toLocaleString()} of ${usage.contextWindow.toLocaleString()} tokens (${percent.toFixed(1)}%) — input ${usage.inputTokens.toLocaleString()}, output ${usage.outputTokens.toLocaleString()}`;
 
 	return (
 		<div className={styles.wrapper} title={title} aria-label={title}>
 			<span className={styles.label}>
-				{formatTokens(used)} / {formatTokens(usage.contextWindow)}
+				{formatTokens(used)} / {formatTokens(usage.contextWindow)} tokens
 			</span>
 			<div className={styles.bar}>
 				<div

@@ -671,7 +671,6 @@ const AiChatModal = ({
 							key={index}
 							content={entry.content}
 							modelName={selectedModel}
-							isReplaceCandidate={entry.isReplaceCandidate ?? false}
 							onCopyToSnippet={handleCopyToSnippet}
 							onReplaceSnippet={handleReplaceSnippet}
 						/>
@@ -701,15 +700,23 @@ const AiChatModal = ({
 								</div>
 							)}
 
-							{(isStreaming ||
-								status === ChatStatus.Answered ||
-								status === ChatStatus.Stopped) &&
+							{status === ChatStatus.Answered && revealedAnswer.length > 0 ? (
+								<AssistantMessage
+									content={revealedAnswer}
+									modelName={selectedModel}
+									showHeader={false}
+									showActions={false}
+									onReplaceSnippet={handleReplaceSnippet}
+								/>
+							) : (
+								(isStreaming || status === ChatStatus.Stopped) &&
 								revealedAnswer.length > 0 && (
 									<div className={styles.assistantBody}>
 										{revealedAnswer}
 										{isStreaming && <span className={styles.caret} />}
 									</div>
-								)}
+								)
+							)}
 
 							{status === ChatStatus.Stopped && (
 								<div className={styles.stoppedNote}>

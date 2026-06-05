@@ -86,6 +86,7 @@ declare global {
 		| "comments"
 		| "format"
 		| "optimize"
+		| "refactor"
 		| "json"
 		| "ask"
 		| "complete";

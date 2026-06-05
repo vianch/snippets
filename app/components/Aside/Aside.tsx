@@ -108,6 +108,7 @@ const Aside = ({
 
 	// User store
 	const mainMenuOpen = useMenuStore((state) => state.mainMenuOpen);
+	const snippetListOpen = useMenuStore((state) => state.snippetListOpen);
 	const toggleSnippetList = useMenuStore((state) => state.toggleSnippetList);
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
 	const closeMainMenu = useMenuStore((state) => state.closeMainMenu);
@@ -294,6 +295,14 @@ const Aside = ({
 
 	return (
 		<>
+			{mainMenuOpen && (
+				<div
+					className={styles.mobileBackdrop}
+					aria-hidden="true"
+					onClick={closeMainMenu}
+				/>
+			)}
+
 			<aside
 				id="aside-menu"
 				ref={asideRef}
@@ -613,12 +622,24 @@ const Aside = ({
 
 			<aside className={styles.mobileMenuContainer}>
 				<ul className={styles.mobileItemList}>
-					<li id="mobile-icon-main-menu" onClick={handlerMobileOpenMainMenu}>
-						<List className={styles.mobileIcon} />
+					<li
+						id="mobile-icon-main-menu"
+						className={`${styles.mobileItem} ${mainMenuOpen ? styles.mobileItemActive : ""}`}
+						onClick={handlerMobileOpenMainMenu}
+					>
+						<List className={styles.mobileIcon} width={22} height={22} />
+						<span className={styles.mobileItemLabel}>Menu</span>
 					</li>
-					<li id="mobile-icon-open-list" onClick={handlerMobileOpenSnippetList}>
-						<Rows className={styles.mobileIcon} />
-					</li>
+					{!isOnAiAssistant && (
+						<li
+							id="mobile-icon-open-list"
+							className={`${styles.mobileItem} ${snippetListOpen ? styles.mobileItemActive : ""}`}
+							onClick={handlerMobileOpenSnippetList}
+						>
+							<Rows className={styles.mobileIcon} width={22} height={22} />
+							<span className={styles.mobileItemLabel}>Snippets</span>
+						</li>
+					)}
 				</ul>
 			</aside>
 

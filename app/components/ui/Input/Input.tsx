@@ -14,6 +14,7 @@ const Input = ({
 	className = "",
 	cleanOnBlur = false,
 	fat = false,
+	ghost = false,
 	dark = true,
 	disabled = false,
 	disableMargin = false,
@@ -71,12 +72,12 @@ const Input = ({
 
 	return (
 		<div
-			className={`${disableMargin ? styles.marginDisabled : styles.marginEnabled} ${styles.inputContainer} ${fat ? styles.isFat : styles.isFit} ${dark ? styles.inputDark : styles.inputLight} `}
+			className={`${disableMargin ? styles.marginDisabled : styles.marginEnabled} ${styles.inputContainer} ${fat ? styles.isFat : styles.isFit} ${dark ? styles.inputDark : styles.inputLight} ${ghost ? styles.ghost : ""} `}
 		>
 			{Icon && <span className={styles.iconContainer}>{Icon}</span>}
 
 			<input
-				className={`${styles.input} ${dark ? styles.inputDark : styles.inputLight} ${className}`}
+				className={`${styles.input} ${ghost ? styles.inputGhost : dark ? styles.inputDark : styles.inputLight} ${className}`}
 				type={type}
 				onBlur={handlerOnBlur}
 				value={updatedValue}

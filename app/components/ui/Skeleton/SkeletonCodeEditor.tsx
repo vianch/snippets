@@ -2,6 +2,7 @@ import { ReactElement } from "react";
 
 /* Components */
 import Skeleton from "./Skeleton";
+import SkeletonActions from "./SkeletonActions";
 
 /* Styles */
 import styles from "./skeleton.module.css";
@@ -21,9 +22,12 @@ const SkeletonCodeEditor = (): ReactElement => {
 			</div>
 
 			<div className={styles.editorTags}>
-				<Skeleton width="5rem" height="1.5rem" borderRadius="12px" />
-				<Skeleton width="4rem" height="1.5rem" borderRadius="12px" />
-				<Skeleton width="6rem" height="1.5rem" borderRadius="12px" />
+				<div className={styles.editorTagsLeft}>
+					<Skeleton width="5rem" height="1.5rem" borderRadius="12px" />
+					<Skeleton width="4rem" height="1.5rem" borderRadius="12px" />
+					<Skeleton width="6rem" height="1.5rem" borderRadius="12px" />
+				</div>
+				<SkeletonActions />
 			</div>
 
 			<div className={styles.editorCode}>

@@ -77,6 +77,7 @@ const SnippetList = ({
 	const [isSavingSmartGroup, setIsSavingSmartGroup] = useState<boolean>(false);
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
+	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
 	const isTrashActive = menuType === "trash";
 	const formattedDates = useMemo(
 		(): Map<UUID, string> =>
@@ -204,177 +205,189 @@ const SnippetList = ({
 	useCloseOutsideCodeEditor(asideRef);
 
 	return (
-		<aside
-			id="snippet-list-aside"
-			ref={asideRef}
-			className={`${styles.snippetsListContainer} ${mobileListOpen ? styles.mobileListOpen : styles.mobileListClosed}`}
-		>
-			<div id="snippet-list-header" className={styles.fields}>
-				<Input
-					placeholder="Search..."
-					value={searchData.searchQuery}
-					Icon={
-						<MagnifyingGlass
-							className={styles.searchIcon}
-							height="18"
-							width="18"
-						/>
-					}
-					onChange={handleSearchInputChange}
+		<>
+			{mobileListOpen && (
+				<div
+					className={styles.mobileBackdrop}
+					aria-hidden="true"
+					onClick={closeSnippetList}
 				/>
-
-				{canSaveSmartGroup &&
-					searchData.searchQuery.length > 0 &&
-					!isTrashActive && (
-						<button
-							type="button"
-							className={styles.saveSearchButton}
-							title="Save as smart group"
-							onClick={handleStartSaveSmartGroup}
-						>
-							<Floppy width={20} height={20} />
-						</button>
-					)}
-
-				{isTrashActive ? (
-					<Trash
-						className={styles.addButton}
-						width={28}
-						height={28}
-						onClick={() => setDeleteAll(true)}
-					/>
-				) : (
-					<NewFile
-						className={styles.addButton}
-						width="32"
-						height="32"
-						onClick={newSnippetHandler}
-					/>
-				)}
-			</div>
-
-			{smartGroupFormOpen && (
-				<div className={styles.smartGroupForm}>
-					<input
-						type="text"
-						className={styles.smartGroupInput}
-						placeholder="Smart group name"
-						value={smartGroupName}
-						maxLength={maxSmartGroupNameLength}
-						autoFocus
-						onChange={(event) => setSmartGroupName(event.target.value)}
-						onKeyDown={(event) => {
-							if (event.key === "Enter") {
-								void handleSubmitSaveSmartGroup();
-							} else if (event.key === "Escape") {
-								handleCancelSaveSmartGroup();
-							}
-						}}
-					/>
-					<button
-						type="button"
-						className={styles.smartGroupSaveButton}
-						disabled={isSavingSmartGroup || smartGroupName.trim().length === 0}
-						onClick={handleSubmitSaveSmartGroup}
-					>
-						Save
-					</button>
-					<button
-						type="button"
-						className={styles.smartGroupCancelButton}
-						onClick={handleCancelSaveSmartGroup}
-					>
-						Cancel
-					</button>
-				</div>
 			)}
 
-			{isLoading ? (
-				<ul className={styles.snippetsList}>
-					{Array.from({ length: 6 }).map((_, index) => (
-						<SkeletonSnippetItem key={index} />
-					))}
-				</ul>
-			) : searchData?.snippetsFound?.length > 0 ? (
-				<ul id="snippet-list-items" className={styles.snippetsList}>
-					<li
-						className={`${styles.deleteAlert} ${deleteAll ? styles.alertShow : styles.alertHide}`}
-					>
-						<Alert severity="warning" iconSize={0}>
-							<div className={styles.alertInfo}>
-								Deleting all items permanently?
-								<span className={styles.alertIcons}>
-									{isDeleting ? (
-										<Loading width={16} height={16} />
-									) : (
-										<>
-											<Check
-												className={styles.alertCheckIcon}
-												width={16}
-												height={16}
-												onClick={handleDeleteAll}
-											/>
-											<CloseSquare
-												className={styles.alertCrossIcon}
-												width={16}
-												height={16}
-												onClick={() => setDeleteAll(false)}
-											/>
-										</>
-									)}
-								</span>
-							</div>
-						</Alert>
-					</li>
+			<aside
+				id="snippet-list-aside"
+				ref={asideRef}
+				className={`${styles.snippetsListContainer} ${mobileListOpen ? styles.mobileListOpen : styles.mobileListClosed}`}
+			>
+				<div id="snippet-list-header" className={styles.fields}>
+					<Input
+						placeholder="Search..."
+						value={searchData.searchQuery}
+						Icon={
+							<MagnifyingGlass
+								className={styles.searchIcon}
+								height="18"
+								width="18"
+							/>
+						}
+						onChange={handleSearchInputChange}
+					/>
 
-					{orderedSnippets.map((snippet: Snippet) => (
-						<SnippetItem
-							key={snippet.snippet_id}
-							snippet={snippet}
-							dateFormatted={formattedDates.get(snippet.snippet_id) ?? ""}
-							isTrashActive={isTrashActive}
-							codeEditorStates={codeEditorStates}
-							onActiveSnippet={onActiveSnippet}
-							onDeleteSnippet={onDeleteSnippet}
-							onRestoreSnippet={onRestoreSnippet}
-							onToggleFavorite={onToggleFavorite}
-						/>
-					))}
-				</ul>
-			) : (
-				<div className={styles.noSnippetContainer}>
-					{searchData.searchQuery ? (
-						<EmptyState
-							title="No matches found"
-							description="Try a different search term"
-							illustration="search"
-							actionLabel="Clear search"
-							onAction={() =>
-								setSearchData({
-									searchQuery: "",
-									originalSnippets: snippets,
-									snippetsFound: snippets,
-								})
-							}
-						/>
-					) : isTrashActive ? (
-						<EmptyState
-							title="Trash is empty"
-							description="Deleted snippets will appear here"
-							illustration="trash"
+					{canSaveSmartGroup &&
+						searchData.searchQuery.length > 0 &&
+						!isTrashActive && (
+							<button
+								type="button"
+								className={styles.saveSearchButton}
+								title="Save as smart group"
+								onClick={handleStartSaveSmartGroup}
+							>
+								<Floppy width={20} height={20} />
+							</button>
+						)}
+
+					{isTrashActive ? (
+						<Trash
+							className={styles.addButton}
+							width={28}
+							height={28}
+							onClick={() => setDeleteAll(true)}
 						/>
 					) : (
-						<EmptyState
-							title="No snippets yet"
-							description="Create your first snippet to get started"
-							illustration="code"
-							actionLabel="Create snippet"
-							onAction={newSnippetHandler}
+						<NewFile
+							className={styles.addButton}
+							width="32"
+							height="32"
+							onClick={newSnippetHandler}
 						/>
 					)}
 				</div>
-			)}
-		</aside>
+
+				{smartGroupFormOpen && (
+					<div className={styles.smartGroupForm}>
+						<input
+							type="text"
+							className={styles.smartGroupInput}
+							placeholder="Smart group name"
+							value={smartGroupName}
+							maxLength={maxSmartGroupNameLength}
+							autoFocus
+							onChange={(event) => setSmartGroupName(event.target.value)}
+							onKeyDown={(event) => {
+								if (event.key === "Enter") {
+									void handleSubmitSaveSmartGroup();
+								} else if (event.key === "Escape") {
+									handleCancelSaveSmartGroup();
+								}
+							}}
+						/>
+						<button
+							type="button"
+							className={styles.smartGroupSaveButton}
+							disabled={
+								isSavingSmartGroup || smartGroupName.trim().length === 0
+							}
+							onClick={handleSubmitSaveSmartGroup}
+						>
+							Save
+						</button>
+						<button
+							type="button"
+							className={styles.smartGroupCancelButton}
+							onClick={handleCancelSaveSmartGroup}
+						>
+							Cancel
+						</button>
+					</div>
+				)}
+
+				{isLoading ? (
+					<ul className={styles.snippetsList}>
+						{Array.from({ length: 6 }).map((_, index) => (
+							<SkeletonSnippetItem key={index} />
+						))}
+					</ul>
+				) : searchData?.snippetsFound?.length > 0 ? (
+					<ul id="snippet-list-items" className={styles.snippetsList}>
+						<li
+							className={`${styles.deleteAlert} ${deleteAll ? styles.alertShow : styles.alertHide}`}
+						>
+							<Alert severity="warning" iconSize={0}>
+								<div className={styles.alertInfo}>
+									Deleting all items permanently?
+									<span className={styles.alertIcons}>
+										{isDeleting ? (
+											<Loading width={16} height={16} />
+										) : (
+											<>
+												<Check
+													className={styles.alertCheckIcon}
+													width={16}
+													height={16}
+													onClick={handleDeleteAll}
+												/>
+												<CloseSquare
+													className={styles.alertCrossIcon}
+													width={16}
+													height={16}
+													onClick={() => setDeleteAll(false)}
+												/>
+											</>
+										)}
+									</span>
+								</div>
+							</Alert>
+						</li>
+
+						{orderedSnippets.map((snippet: Snippet) => (
+							<SnippetItem
+								key={snippet.snippet_id}
+								snippet={snippet}
+								dateFormatted={formattedDates.get(snippet.snippet_id) ?? ""}
+								isTrashActive={isTrashActive}
+								codeEditorStates={codeEditorStates}
+								onActiveSnippet={onActiveSnippet}
+								onDeleteSnippet={onDeleteSnippet}
+								onRestoreSnippet={onRestoreSnippet}
+								onToggleFavorite={onToggleFavorite}
+							/>
+						))}
+					</ul>
+				) : (
+					<div className={styles.noSnippetContainer}>
+						{searchData.searchQuery ? (
+							<EmptyState
+								title="No matches found"
+								description="Try a different search term"
+								illustration="search"
+								actionLabel="Clear search"
+								onAction={() =>
+									setSearchData({
+										searchQuery: "",
+										originalSnippets: snippets,
+										snippetsFound: snippets,
+									})
+								}
+							/>
+						) : isTrashActive ? (
+							<EmptyState
+								title="Trash is empty"
+								description="Deleted snippets will appear here"
+								illustration="trash"
+							/>
+						) : (
+							<EmptyState
+								title="No snippets yet"
+								description="Create your first snippet to get started"
+								illustration="code"
+								actionLabel="Create snippet"
+								onAction={newSnippetHandler}
+							/>
+						)}
+					</div>
+				)}
+			</aside>
+		</>
 	);
 };
 

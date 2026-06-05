@@ -3,6 +3,7 @@ export const aiActions = {
 	comments: "comments",
 	format: "format",
 	optimize: "optimize",
+	refactor: "refactor",
 	json: "json",
 	ask: "ask",
 	complete: "complete",
@@ -13,6 +14,7 @@ export const aiActionLabels: Record<AiAction, string> = {
 	comments: "Add comments",
 	format: "Format this code",
 	optimize: "Optimize",
+	refactor: "Refactor",
 	json: "JSON parse & format",
 	ask: "Ask about this code",
 	complete: "Inline completion",
@@ -23,6 +25,7 @@ export const chipActions: AiAction[] = [
 	"comments",
 	"format",
 	"optimize",
+	"refactor",
 	"json",
 ];
 
@@ -35,6 +38,8 @@ export const aiSystemPrompts: Record<AiAction, (language: string) => string> = {
 		`Format this ${language} code following standard conventions and best practices for indentation, spacing, and line breaks. Return ONLY the raw formatted code. No explanation, no markdown, no code fences.`,
 	optimize: (language) =>
 		`Optimize this ${language} code for readability and performance. Return ONLY the raw optimized code. No markdown, no code fences, no explanation outside the code. You may add a brief inline comment at the top explaining what changed.`,
+	refactor: (language) =>
+		`Refactor this ${language} code to improve its structure, naming, and readability without changing its behavior. Return ONLY the raw refactored code. No markdown, no code fences, no explanation outside the code.`,
 	json: (_language) =>
 		"Fix this invalid JSON. Correct syntax errors like missing commas, brackets, quotes, or trailing commas. Return ONLY the valid, formatted JSON. No explanation, no markdown, no code fences.",
 	ask: (language) =>
@@ -47,10 +52,20 @@ export const codeActions: AiAction[] = [
 	"comments",
 	"format",
 	"optimize",
+	"refactor",
 	"json",
 ];
 
 export const localActions: AiAction[] = ["json"];
+
+export const ContextUsageWarnThreshold = 50;
+export const ContextUsageDangerThreshold = 80;
+export const CodeCopyResetMs = 1500;
+
+export const enum AiPaneTab {
+	Chat = "chat",
+	Code = "code",
+}
 
 export const enum ChatStatus {
 	Empty = "empty",

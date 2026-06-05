@@ -10,6 +10,7 @@ import Star from "@/components/ui/icons/Star";
 import Input from "@/components/ui/Input/Input";
 import Select from "@/components/ui/Select/Select";
 import Button from "@/components/ui/Button/Button";
+import Check from "@/components/ui/icons/Check";
 import Loading from "@/components/ui/icons/Loading";
 import Floppy from "@/components/ui/icons/Floppy";
 
@@ -36,28 +37,32 @@ const CodeEditorHeader = ({
 	onSave,
 }: CodeEditorHeaderTypes): ReactElement => {
 	const { isSaving, touched } = codeEditorStates ?? {};
+	const isFavorite = currentSnippet?.state === SnippetState.Favorite;
 
 	return (
 		<div className={styles.header}>
 			<div className={styles.headerLeftSide}>
-				{currentSnippet?.state === SnippetState.Favorite ? (
-					<StarFilled
-						className={styles.starIcon}
-						height={18}
-						width={18}
-						fill="#f1fa8c"
-						onClick={onStarred}
-					/>
-				) : (
-					<Star
-						className={styles.starIcon}
-						height={18}
-						width={18}
-						onClick={onStarred}
-					/>
-				)}
+				<button
+					type="button"
+					className={`${styles.starButton} ${isFavorite ? styles.starButtonActive : ""}`}
+					aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+					aria-pressed={isFavorite}
+					onClick={onStarred}
+				>
+					{isFavorite ? (
+						<StarFilled height={18} width={18} fill="currentColor" />
+					) : (
+						<Star height={18} width={18} />
+					)}
+					<span className={styles.tooltip}>
+						{isFavorite ? "Favorited" : "Favorite"}
+					</span>
+				</button>
 
 				<Input
+					ghost
+					disableMargin
+					className={styles.titleInput}
 					placeholder="Untitled"
 					value={snippetName}
 					maxLength={34}
@@ -73,17 +78,21 @@ const CodeEditorHeader = ({
 				/>
 
 				<Button
-					className={`${styles.button} ${touched ? styles.touched : ""}`}
-					variant={touched ? "empty" : "secondary"}
+					className={`${styles.saveButton} ${touched ? styles.touched : ""}`}
+					variant="secondary"
 					disabled={isSaving}
+					aria-label="Save snippet"
 					onClick={onSave}
 				>
 					{isSaving ? (
 						<Loading className={styles.icon} width={16} height={16} />
-					) : (
+					) : touched ? (
 						<Floppy className={styles.icon} width={16} height={16} />
-					)}{" "}
-					Save{touched && "*"}
+					) : (
+						<Check className={styles.icon} width={16} height={16} />
+					)}
+					{isSaving ? "Saving" : touched ? "Save" : "Saved"}
+					{touched && <span className={styles.dirtyDot} aria-hidden="true" />}
 				</Button>
 			</div>
 		</div>

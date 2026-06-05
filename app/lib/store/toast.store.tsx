@@ -10,7 +10,7 @@ const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 const useToastStore = create<ToastState & ToastActions>((set) => ({
 	toasts: null,
-	position: ToastPositions.BottomRight,
+	position: ToastPositions.BottomCenter,
 	addToast: (toast: Toast) => {
 		const newToast = {
 			...toast,
