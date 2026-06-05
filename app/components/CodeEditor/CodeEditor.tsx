@@ -9,6 +9,7 @@ import type { EditorView } from "@codemirror/view";
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import inlineCompletion from "@/lib/inlineCompletion";
+import markdownKeymap from "@/lib/markdown/markdownKeymap";
 import wikiLinkAutocomplete from "@/lib/wikiLinkAutocomplete";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
@@ -307,6 +308,7 @@ const CodeEditor = ({
 										currentSnippet.extension,
 										inlineCompletionExtension,
 										wikiAutocompleteExtension,
+										...(isMarkdownLanguage ? [markdownKeymap] : []),
 									]}
 									theme={editorTheme}
 									height={editorHeight}
