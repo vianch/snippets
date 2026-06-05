@@ -77,6 +77,14 @@
 	margin: 0.5rem 0;
 }
 
+.previewContent em {
+	font-style: italic;
+}
+
+.previewContent strong {
+	font-weight: 700;
+}
+
 .previewContent a {
 	color: var(--cyan-color);
 	text-decoration: none;
