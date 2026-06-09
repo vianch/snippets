@@ -20,7 +20,6 @@ import { themeCookieName } from "@/lib/constants/cookies";
 import {
 	avatarImages,
 	accountInitialStateData,
-	aiProviders,
 	modalCloseDelay,
 } from "@/lib/constants/account";
 import { FormMessageTypes } from "@/lib/constants/form";
@@ -31,6 +30,7 @@ import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
 import Tabs from "@/components/ui/Tabs/Tabs";
+import AiSettingsTab from "@/components/AccountModal/AiSettingsTab";
 import ThemePreview from "@/components/AccountModal/ThemePreview";
 import TwoFactorSettings from "@/components/TwoFactorSettings/TwoFactorSettings";
 
@@ -420,64 +420,6 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		};
 	}, [isOpen]);
 
-	const modelDropdown = (): ReactElement => {
-		if (modelsLoading) {
-			return (
-				<div className={styles.modelLoadGroup}>
-					<Loading width={16} height={16} />
-					<small className={styles.helpText}>Loading models...</small>
-				</div>
-			);
-		}
-
-		if (userData.aiProvider === "nvidia") {
-			return (
-				<div className={styles.modelLoadGroup}>
-					<small className={styles.helpText}>
-						{aiModels[0] ?? "meta/llama-3.1-70b-instruct"}
-					</small>
-				</div>
-			);
-		}
-
-		if (aiModels.length > 0) {
-			return (
-				<select
-					className={styles.modelSelect}
-					value={userData.aiModel ?? ""}
-					onChange={(event) =>
-						setUserData((prev) => ({
-							...prev,
-							aiModel: event.target.value,
-						}))
-					}
-				>
-					<option value="">Use default</option>
-					{aiModels.map((model) => (
-						<option key={model} value={model}>
-							{model}
-						</option>
-					))}
-				</select>
-			);
-		}
-
-		return (
-			<div className={styles.modelLoadGroup}>
-				<small className={styles.helpText}>
-					No models found — enter credentials and click Load Models
-				</small>
-				<button
-					type="button"
-					className={styles.loadModelsButton}
-					onClick={() => refreshModels()}
-				>
-					Load Models
-				</button>
-			</div>
-		);
-	};
-
 	const profileTab = (
 		<>
 			{/* Avatar Selection */}
@@ -630,109 +572,17 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	);
 
 	const aiTab = (
-		<>
-			{/* Provider Selection */}
-			<div className={styles.section}>
-				<h3 className={styles.sectionTitle}>Provider</h3>
-				<div className={styles.inputGroup}>
-					<span className={styles.label}>AI Provider</span>
-					<select
-						className={styles.modelSelect}
-						value={userData.aiProvider ?? "ollama"}
-						onChange={(event) =>
-							handleProviderChange(event.target.value as AiProvider)
-						}
-					>
-						{aiProviders.map((provider) => (
-							<option key={provider.value} value={provider.value}>
-								{provider.label}
-							</option>
-						))}
-					</select>
-				</div>
-			</div>
-
-			{/* Configuration */}
-			<div className={styles.section}>
-				<h3 className={styles.sectionTitle}>
-					{
-						{
-							ollama: "Ollama",
-							claude: "Claude (Anthropic)",
-							openai: "OpenAI",
-							nvidia: "NVIDIA",
-						}[userData.aiProvider ?? "ollama"]
-					}
-				</h3>
-
-				{/* Endpoint URL — Ollama only */}
-				{userData.aiProvider === "ollama" && (
-					<div className={styles.inputGroup}>
-						<span className={styles.label}>Endpoint URL</span>
-						<Input
-							type="text"
-							name="aiUrl"
-							placeholder="https://ollama.yourdomain.com"
-							fat
-							value={userData.aiUrl ?? ""}
-							onChange={(event: ChangeEvent<HTMLInputElement>) =>
-								handleInputChange(event, "aiUrl")
-							}
-							disableMargin
-							className={styles.input}
-							maxLength={200}
-						/>
-						<small className={styles.helpText}>
-							Leave empty to use the default local endpoint. Models refresh
-							after saving.
-						</small>
-					</div>
-				)}
-
-				{/* API Key */}
-				<div className={styles.inputGroup}>
-					<span className={styles.label}>API Key</span>
-					<Input
-						type="password"
-						name="aiApiKey"
-						placeholder={
-							userData.aiProvider === "claude"
-								? "sk-ant-..."
-								: userData.aiProvider === "openai"
-									? "sk-..."
-									: userData.aiProvider === "nvidia"
-										? "nvapi-..."
-										: "ollama-api-key..."
-						}
-						fat
-						value={userData.aiApiKey ?? ""}
-						onChange={(event: ChangeEvent<HTMLInputElement>) =>
-							handleInputChange(event, "aiApiKey")
-						}
-						disableMargin
-						Icon={<Lock width={18} height={18} />}
-						className={styles.input}
-						maxLength={255}
-					/>
-					<small className={styles.helpText}>
-						{userData.aiProvider === "claude" &&
-							"Get your API key at console.anthropic.com"}
-						{userData.aiProvider === "openai" &&
-							"Get your API key at platform.openai.com/api-keys"}
-						{userData.aiProvider === "nvidia" &&
-							"Get your API key at build.nvidia.com"}
-						{userData.aiProvider === "ollama" &&
-							"Required only for ollama.com cloud models"}
-					</small>
-				</div>
-
-				{/* Model */}
-				<div className={styles.inputGroup}>
-					<span className={styles.label}>Model</span>
-					{modelDropdown()}
-				</div>
-			</div>
-		</>
+		<AiSettingsTab
+			aiModels={aiModels}
+			modelsLoading={modelsLoading}
+			userData={userData}
+			onInputChange={handleInputChange}
+			onModelChange={(model) =>
+				setUserData((prev) => ({ ...prev, aiModel: model }))
+			}
+			onProviderChange={handleProviderChange}
+			onRefreshModels={refreshModels}
+		/>
 	);
 
 	const tabItems = [

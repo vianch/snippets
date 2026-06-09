@@ -1,0 +1,25 @@
+{
+	"name": "snippets-desktop",
+	"version": "1.0.0",
+	"description": "Desktop wrapper for the Snippets web app (snippets.vianch.com)",
+	"author": "info@vianch.com",
+	"license": "MIT",
+	"private": true,
+	"main": "dist/main.js",
+	"scripts": {
+		"clean": "rm -rf dist release",
+		"compile": "tsc -p tsconfig.json",
+		"start": "yarn compile && electron .",
+		"dev": "yarn compile && SNIPPETS_DESKTOP_URL=http://localhost:3000 electron .",
+		"dist": "yarn compile && electron-builder",
+		"dist:mac": "yarn compile && electron-builder --mac",
+		"dist:win": "yarn compile && electron-builder --win",
+		"dist:linux": "yarn compile && electron-builder --linux"
+	},
+	"devDependencies": {
+		"@types/node": "^22",
+		"electron": "^33.0.0",
+		"electron-builder": "^25.1.8",
+		"typescript": "^5.8.3"
+	}
+}

@@ -1,0 +1,31 @@
+appId: com.vianch.snippets
+productName: Snippets
+copyright: Copyright © vianch
+
+directories:
+  buildResources: resources
+  output: release
+
+files:
+  - dist/**/*
+  - offline.html
+  - package.json
+
+mac:
+  category: public.app-category.developer-tools
+  icon: resources/icon.png
+  target:
+    - dmg
+    - zip
+
+win:
+  icon: resources/icon.png
+  target:
+    - nsis
+
+linux:
+  category: Development
+  icon: resources/icon.png
+  target:
+    - AppImage
+    - deb

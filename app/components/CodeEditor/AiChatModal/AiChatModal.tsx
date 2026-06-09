@@ -4,7 +4,6 @@ import {
 	ChangeEvent,
 	CSSProperties,
 	KeyboardEvent,
-	PointerEvent,
 	ReactElement,
 	useEffect,
 	useRef,
@@ -13,18 +12,16 @@ import {
 import { createPortal } from "react-dom";
 
 /* Components */
-import AssistantMessage from "@/components/CodeEditor/AiChatModal/AssistantMessage/AssistantMessage";
+import ChatMessageList from "@/components/CodeEditor/AiChatModal/ChatMessageList/ChatMessageList";
+import useResizableDrawer from "@/components/CodeEditor/AiChatModal/hooks/useResizableDrawer";
 import WikiLinkPopover from "@/components/CodeEditor/AiChatModal/WikiLinkPopover/WikiLinkPopover";
 import ContextUsage from "@/components/ContextUsage/ContextUsage";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
 /* Lib */
 import {
-	aiChatModalMinWidthPx,
-	aiChatModalWidthStorageKey,
 	aiActionLabels,
 	aiActions,
-	chipActions,
 	ChatStatus,
 	codeActions,
 	maxStreamChunk,
@@ -90,8 +87,13 @@ const AiChatModal = ({
 		[]
 	);
 	const [wikiContext, setWikiContext] = useState<WikiLinkContext | null>(null);
-	const [drawerWidth, setDrawerWidth] = useState<number>(aiChatModalMinWidthPx);
-	const [isResizing, setIsResizing] = useState<boolean>(false);
+	const {
+		drawerWidth,
+		isResizing,
+		handleResizePointerDown,
+		handleResizePointerMove,
+		finishResize,
+	} = useResizableDrawer(isMobile);
 
 	const abortRef = useRef<AbortController | null>(null);
 	const streamTimerRef = useRef<number | null>(null);
@@ -99,11 +101,6 @@ const AiChatModal = ({
 	const chatRef = useRef<HTMLDivElement>(null);
 
 	const isProcessing = status === ChatStatus.Processing;
-	const showApplyButton =
-		status === ChatStatus.Answered &&
-		lastAction !== null &&
-		codeActions.includes(lastAction) &&
-		revealedAnswer.length > 0;
 
 	const clearStreamTimer = (): void => {
 		if (streamTimerRef.current !== null) {
@@ -184,22 +181,6 @@ const AiChatModal = ({
 			});
 		}
 	}, [isOpen, selectedModel, setSelectedModel]);
-
-	useEffect(() => {
-		if (typeof window === "undefined") {
-			return;
-		}
-
-		const stored = window.localStorage.getItem(aiChatModalWidthStorageKey);
-
-		if (stored) {
-			const parsed = Number.parseInt(stored, 10);
-
-			if (Number.isFinite(parsed) && parsed >= aiChatModalMinWidthPx) {
-				setDrawerWidth(Math.min(parsed, window.innerWidth));
-			}
-		}
-	}, []);
 
 	useEffect(() => {
 		if (chatRef.current) {
@@ -488,66 +469,22 @@ const AiChatModal = ({
 		addToast({ type: ToastType.Success, message: "Snippet replaced" });
 	};
 
-	const handleResizePointerDown = (
-		event: PointerEvent<HTMLDivElement>
-	): void => {
-		if (isMobile) {
-			return;
-		}
-
-		event.preventDefault();
-		event.currentTarget.setPointerCapture(event.pointerId);
-		document.body.style.cursor = "ew-resize";
-		document.body.style.userSelect = "none";
-		setIsResizing(true);
-	};
-
-	const handleResizePointerMove = (
-		event: PointerEvent<HTMLDivElement>
-	): void => {
-		if (!isResizing) {
-			return;
-		}
-
-		const viewportWidth = window.innerWidth;
-		const computed = viewportWidth - event.clientX;
-		const clamped = Math.min(
-			viewportWidth,
-			Math.max(aiChatModalMinWidthPx, computed)
-		);
-
-		setDrawerWidth(clamped);
-	};
-
-	const finishResize = (event: PointerEvent<HTMLDivElement>): void => {
-		if (!isResizing) {
-			return;
-		}
-
-		if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-			event.currentTarget.releasePointerCapture(event.pointerId);
-		}
-
-		document.body.style.cursor = "";
-		document.body.style.userSelect = "";
-		setIsResizing(false);
-		window.localStorage.setItem(
-			aiChatModalWidthStorageKey,
-			String(Math.round(drawerWidth))
-		);
-	};
-
 	if (!isOpen || typeof document === "undefined") {
 		return null;
 	}
 
-	const showEmptyState = status === ChatStatus.Empty && history.length === 0;
 	const isStreaming = isProcessing && revealedAnswer.length > 0;
 	const showThinking = isProcessing && revealedAnswer.length === 0;
-	const sendDisabled = inputValue.trim().length === 0 || isProcessing;
-	const snippetDisplayName = currentSnippet?.name?.trim() || "Untitled snippet";
+	const showEmptyState = status === ChatStatus.Empty && history.length === 0;
 	const hasCurrentTurn =
 		status !== ChatStatus.Empty || currentUserMessage !== "";
+	const showApplyButton =
+		status === ChatStatus.Answered &&
+		lastAction !== null &&
+		codeActions.includes(lastAction) &&
+		revealedAnswer.length > 0;
+	const sendDisabled = inputValue.trim().length === 0 || isProcessing;
+	const snippetDisplayName = currentSnippet?.name?.trim() || "Untitled snippet";
 	const inputPlaceholder =
 		history.length > 0 || currentUserMessage
 			? "Ask a follow-up… ([[ to link a snippet)"
@@ -630,139 +567,25 @@ const AiChatModal = ({
 			</div>
 
 			<div className={styles.chat} ref={chatRef}>
-				{showEmptyState && (
-					<div className={styles.empty}>
-						<span className={styles.emptyIcon}>
-							<Sparkle width={36} height={36} />
-						</span>
-						<h3 className={styles.emptyHeading}>What can I help you with?</h3>
-						<p className={styles.emptySubtext}>
-							Ask about the snippet on screen — explain it, refactor it, add
-							comments, or anything else.
-						</p>
-						<p className={styles.emptyModel}>
-							Model:{" "}
-							<span className={styles.emptyModelName}>
-								{selectedModel || "default"}
-							</span>
-						</p>
-						<div className={styles.chips}>
-							{chipActions.map((action) => (
-								<button
-									key={action}
-									type="button"
-									className={styles.chip}
-									onClick={() => handleChipClick(action)}
-								>
-									{aiActionLabels[action]}
-								</button>
-							))}
-						</div>
-					</div>
-				)}
-
-				{history.map((entry, index) =>
-					entry.role === UserRole.User ? (
-						<div key={index} className={styles.userTurn}>
-							{entry.content}
-						</div>
-					) : (
-						<AssistantMessage
-							key={index}
-							content={entry.content}
-							modelName={selectedModel}
-							onCopyToSnippet={handleCopyToSnippet}
-							onReplaceSnippet={handleReplaceSnippet}
-						/>
-					)
-				)}
-
-				{hasCurrentTurn && (
-					<>
-						{currentUserMessage && (
-							<div className={styles.userTurn}>{currentUserMessage}</div>
-						)}
-
-						<div className={styles.assistantTurn}>
-							<div className={styles.assistantHeader}>
-								<span className={styles.assistantHeaderIcon}>
-									<Sparkle width={14} height={14} />
-								</span>
-								<span>{selectedModel || "AI"}</span>
-							</div>
-
-							{showThinking && (
-								<div className={styles.loader}>
-									<span className={styles.loaderSparkle}>
-										<Sparkle width={16} height={16} />
-									</span>
-									<span className={styles.shimmerText}>Thinking…</span>
-								</div>
-							)}
-
-							{status === ChatStatus.Answered && revealedAnswer.length > 0 ? (
-								<AssistantMessage
-									content={revealedAnswer}
-									modelName={selectedModel}
-									showHeader={false}
-									showActions={false}
-									onReplaceSnippet={handleReplaceSnippet}
-								/>
-							) : (
-								(isStreaming || status === ChatStatus.Stopped) &&
-								revealedAnswer.length > 0 && (
-									<div className={styles.assistantBody}>
-										{revealedAnswer}
-										{isStreaming && <span className={styles.caret} />}
-									</div>
-								)
-							)}
-
-							{status === ChatStatus.Stopped && (
-								<div className={styles.stoppedNote}>
-									<span className={styles.stoppedDot} />
-									<span>Stopped</span>
-								</div>
-							)}
-
-							{status === ChatStatus.Error && errorMessage && (
-								<p className={styles.errorMessage}>{errorMessage}</p>
-							)}
-
-							{showApplyButton && (
-								<button
-									type="button"
-									className={styles.applyButton}
-									onClick={handleApply}
-								>
-									Apply to editor
-								</button>
-							)}
-
-							{status === ChatStatus.Answered &&
-								lastAction === aiActions.ask && (
-									<div className={styles.currentTurnActions}>
-										<button
-											type="button"
-											className={styles.actionButton}
-											onClick={() => handleCopyToSnippet(revealedAnswer)}
-										>
-											Copy to snippet
-										</button>
-										{currentTurnReplaceCandidate && (
-											<button
-												type="button"
-												className={`${styles.actionButton} ${styles.actionButtonSuccess}`}
-												onClick={() => handleReplaceSnippet(revealedAnswer)}
-											>
-												Replace snippet
-											</button>
-										)}
-									</div>
-								)}
-						</div>
-					</>
-				)}
+				<ChatMessageList
+					currentTurnReplaceCandidate={currentTurnReplaceCandidate}
+					currentUserMessage={currentUserMessage}
+					errorMessage={errorMessage}
+					hasCurrentTurn={hasCurrentTurn}
+					history={history}
+					isStreaming={isStreaming}
+					lastAction={lastAction}
+					revealedAnswer={revealedAnswer}
+					selectedModel={selectedModel}
+					showApplyButton={showApplyButton}
+					showEmptyState={showEmptyState}
+					showThinking={showThinking}
+					status={status}
+					onApply={handleApply}
+					onChipClick={handleChipClick}
+					onCopyToSnippet={handleCopyToSnippet}
+					onReplaceSnippet={handleReplaceSnippet}
+				/>
 			</div>
 
 			<div className={styles.dock}>

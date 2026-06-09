@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 import nextConfig from "eslint-config-next/core-web-vitals";
 import eslintConfigPrettier from "eslint-config-prettier";
 import prettierPlugin from "eslint-plugin-prettier";
+import globals from "globals";
 
 export default tseslint.config(
 	{
@@ -12,6 +13,7 @@ export default tseslint.config(
 			"dist/",
 			"build/",
 			"storybook-static/",
+			"desktop/",
 		],
 	},
 	eslint.configs.recommended,
@@ -83,6 +85,15 @@ export default tseslint.config(
 				"always",
 				{ exceptAfterSingleLine: true },
 			],
+		},
+	},
+	{
+		files: ["public/**/*.js"],
+		languageOptions: {
+			globals: {
+				...globals.serviceworker,
+				...globals.browser,
+			},
 		},
 	}
 );

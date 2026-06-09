@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Snippets — Offline</title>
+		<style>
+			:root {
+				color-scheme: dark;
+			}
+
+			html,
+			body {
+				height: 100%;
+				margin: 0;
+			}
+
+			body {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 24px;
+				background: #1e1e3f;
+				color: #a599e9;
+				font-family:
+					-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+					Arial, sans-serif;
+				text-align: center;
+			}
+
+			.card {
+				max-width: 420px;
+			}
+
+			h1 {
+				margin: 0 0 12px;
+				color: #fad000;
+				font-size: 22px;
+			}
+
+			p {
+				margin: 0 0 24px;
+				color: #9a95b8;
+				line-height: 1.5;
+			}
+
+			button {
+				padding: 10px 20px;
+				border: 0;
+				border-radius: 8px;
+				background: #6943d8;
+				color: #fff;
+				font-size: 15px;
+				cursor: pointer;
+			}
+
+			button:hover {
+				background: #a599e9;
+			}
+		</style>
+	</head>
+	<body>
+		<main class="card">
+			<h1>You're offline</h1>
+			<p>
+				Snippets needs an internet connection to reach your code. Check your
+				network and try again.
+			</p>
+			<button type="button" onclick="retry()">Try again</button>
+		</main>
+		<script>
+			function retry() {
+				var fallback = "https://snippets.vianch.com";
+				var target =
+					(window.snippetsDesktop && window.snippetsDesktop.appUrl) || fallback;
+
+				window.location.href = target;
+			}
+		</script>
+	</body>
+</html>

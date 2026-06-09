@@ -4,21 +4,20 @@ import { ReactElement, useEffect, useState } from "react";
 
 /* Components */
 import Aside from "@/components/Aside/Aside";
-import SnippetList from "@/components/SnippetList/SnippetList";
-import CodeEditor from "@/components/CodeEditor/CodeEditor";
-import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
 import AccountModal from "@/components/AccountModal/AccountModal";
+import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import CommandPalette from "@/components/CommandPalette/CommandPalette";
+import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
+import SnippetList from "@/components/SnippetList/SnippetList";
+import useSmartGroups from "@/components/SnippetsWorkspace/hooks/useSmartGroups";
 
 /* Lib */
 import {
 	getAllSnippets,
-	getSmartGroups,
 	getSnippetsByFolder,
 	getSnippetsByState,
 	getSnippetsByTag,
 	getUncategorizedSnippets,
-	saveSmartGroups,
 	saveSnippet,
 	saveSnippetVersion,
 	setNewSnippet,
@@ -32,6 +31,7 @@ import { findSnippetByName } from "@/lib/wikiLinkResolver";
 
 /* Utils */
 import sortSnippetsByUpdatedAt from "@/utils/array.utils";
+import { computeFolders, computeTags } from "@/utils/snippets.utils";
 import { useDeviceViewPort } from "@/utils/ui.utils";
 
 type SnippetsWorkspaceProps = {
@@ -52,7 +52,8 @@ const SnippetsWorkspace = ({
 	const [snippets, setSnippets] = useState<Snippet[]>([]);
 	const [tags, setTags] = useState<TagItem[]>([]);
 	const [folders, setFolders] = useState<TagItem[]>([]);
-	const [smartGroups, setSmartGroups] = useState<SmartGroup[]>([]);
+	const { smartGroups, handleSaveSmartGroup, handleRemoveSmartGroup } =
+		useSmartGroups();
 	const [seedSearch, setSeedSearch] = useState<{
 		query: string;
 		nonce: number;
@@ -108,56 +109,6 @@ const SnippetsWorkspace = ({
 		});
 	};
 
-	const getFolders = (snippetsLoaded: Snippet[]): void => {
-		const folderCounts: Record<string, number> = {};
-
-		snippetsLoaded?.forEach((snippet: Snippet) => {
-			const folderName = snippet?.folder?.trim();
-
-			if (folderName) {
-				folderCounts[folderName] = (folderCounts[folderName] ?? 0) + 1;
-			}
-		});
-
-		const nextFolders = Object.keys(folderCounts)
-			.sort()
-			.map((folder) => ({ name: folder, total: folderCounts[folder] }));
-
-		setFolders(nextFolders);
-	};
-
-	const getTags = (snippetsLoaded: Snippet[]): void => {
-		const tagCounts = {} as { [key: string]: number };
-
-		if (!snippetsLoaded) return;
-
-		snippetsLoaded?.forEach((snippet: Snippet) => {
-			const snippetTags =
-				snippet?.tags && snippet.tags?.length > 0
-					? snippet.tags.split(",")
-					: [];
-
-			snippetTags.forEach((snippetTag: string) => {
-				const tagName = snippetTag.trim();
-
-				if (tagName in tagCounts) {
-					tagCounts[tagName] += 1;
-				} else {
-					tagCounts[tagName] = 1;
-				}
-			});
-		});
-
-		const newTags = Object.keys(tagCounts)
-			.sort()
-			.map((tag) => ({
-				name: tag,
-				total: tagCounts[tag],
-			}));
-
-		setTags(newTags);
-	};
-
 	const updateMenuCounts = (snippetList: Snippet[]): void => {
 		setAllCount(snippetList.length);
 		setUncategorizedCount(
@@ -187,8 +138,8 @@ const SnippetsWorkspace = ({
 		setSnippets(data);
 
 		if (isActive) {
-			getTags(data);
-			getFolders(data);
+			setTags(computeTags(data));
+			setFolders(computeFolders(data));
 			updateMenuCounts(data);
 		}
 
@@ -257,8 +208,8 @@ const SnippetsWorkspace = ({
 				)
 			: allSnippets;
 
-		getTags(updatedSnippetList);
-		getFolders(updatedSnippetList);
+		setTags(computeTags(updatedSnippetList));
+		setFolders(computeFolders(updatedSnippetList));
 		updateMenuCounts(updatedSnippetList);
 	};
 
@@ -568,64 +519,6 @@ const SnippetsWorkspace = ({
 		setIsAccountModalOpen(true);
 	};
 
-	const loadSmartGroups = async (): Promise<void> => {
-		try {
-			const groups = await getSmartGroups();
-
-			setSmartGroups(groups);
-		} catch {
-			setSmartGroups([]);
-		}
-	};
-
-	const handleSaveSmartGroup = async (
-		name: string,
-		query: string
-	): Promise<void> => {
-		const trimmedName = name.trim();
-		const trimmedQuery = query.trim();
-
-		if (!trimmedName || !trimmedQuery) return;
-
-		const filtered = smartGroups.filter(
-			(group) => group.name.toLowerCase() !== trimmedName.toLowerCase()
-		);
-		const next = [...filtered, { name: trimmedName, query: trimmedQuery }];
-
-		setSmartGroups(next);
-
-		try {
-			await saveSmartGroups(next);
-			addToast({
-				type: ToastType.Success,
-				message: `Saved smart group "${trimmedName}"`,
-			});
-		} catch {
-			setSmartGroups(smartGroups);
-			addToast({
-				type: ToastType.Error,
-				message: "Failed to save smart group",
-			});
-		}
-	};
-
-	const handleRemoveSmartGroup = async (name: string): Promise<void> => {
-		const next = smartGroups.filter((group) => group.name !== name);
-		const previous = smartGroups;
-
-		setSmartGroups(next);
-
-		try {
-			await saveSmartGroups(next);
-		} catch {
-			setSmartGroups(previous);
-			addToast({
-				type: ToastType.Error,
-				message: "Failed to remove smart group",
-			});
-		}
-	};
-
 	const handleSmartGroupClick = async (group: SmartGroup): Promise<void> => {
 		await getSnippets();
 
@@ -683,7 +576,6 @@ const SnippetsWorkspace = ({
 
 	useEffect(() => {
 		getSnippets().then(() => null);
-		loadSmartGroups().then(() => null);
 	}, []);
 
 	useEffect(() => {

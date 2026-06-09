@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
@@ -13,17 +13,41 @@ import { themeCookieName } from "@/lib/constants/cookies";
 import metaGenerator from "@/utils/meta.utils";
 
 /* Components */
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister/ServiceWorkerRegister";
 import Toasty from "@/components/ui/Toasty/Toasty";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = metaGenerator({
-	description:
-		"Snippets, Your sanctuary for organized code brilliance. Easily manage, retrieve, and thrive in coding.",
-	title: "Snippets",
-	image: "/assets/images/jpg/ss.jpg",
-	canonicalPath: "/",
-});
+export const metadata: Metadata = {
+	...metaGenerator({
+		description:
+			"Snippets, Your sanctuary for organized code brilliance. Easily manage, retrieve, and thrive in coding.",
+		title: "Snippets",
+		image: "/assets/images/jpg/ss.jpg",
+		canonicalPath: "/",
+	}),
+	appleWebApp: {
+		capable: true,
+		statusBarStyle: "black-translucent",
+		title: "Snippets",
+	},
+	icons: {
+		apple: "/apple-touch-icon.png",
+		icon: [
+			{ sizes: "192x192", type: "image/png", url: "/icon-192.png" },
+			{ sizes: "512x512", type: "image/png", url: "/icon-512.png" },
+		],
+	},
+	manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
+	initialScale: 1,
+	maximumScale: 1,
+	themeColor: "#2d2b55",
+	userScalable: false,
+	width: "device-width",
+};
 
 export default async function RootLayout({
 	children,
@@ -35,14 +59,9 @@ export default async function RootLayout({
 
 	return (
 		<html lang="en" {...(theme ? { "data-theme": theme } : {})}>
-			<head>
-				<meta
-					name="viewport"
-					content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
-				/>
-			</head>
 			<body className={inter.className}>
 				{children}
+				<ServiceWorkerRegister />
 				<Analytics />
 				<Toasty />
 			</body>

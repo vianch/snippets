@@ -110,6 +110,9 @@ local.properties
 .vscode/launch.json
 .vscode/settings.json
 
+# Electron desktop wrapper (build output; dist/ and node_modules/ already ignored above)
+desktop/release/
+
 #KEYS
 frontend/website/server.key
 frontend/website/server.cert
