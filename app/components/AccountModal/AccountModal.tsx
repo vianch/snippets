@@ -35,6 +35,7 @@ import ThemePreview from "@/components/AccountModal/ThemePreview";
 import TwoFactorSettings from "@/components/TwoFactorSettings/TwoFactorSettings";
 
 /* Store */
+import useChatStore from "@/lib/store/chat.store";
 import useUserStore from "@/lib/store/user.store";
 
 /* Utils */
@@ -222,6 +223,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		const hasThemeChanged = userData.theme !== originalTheme;
 
 		useUserStore.getState().setAutoSave(userData.autoSave ?? false);
+		useChatStore.getState().setSelectedModel(userData.aiModel ?? "");
 
 		if (hasUserNameChanged || hasUserAvatarChanged || hasThemeChanged) {
 			setStoreUserData({
@@ -658,6 +660,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					{
 						{
 							ollama: "Ollama",
+							"ollama-cloud": "Ollama Cloud",
 							claude: "Claude (Anthropic)",
 							openai: "OpenAI",
 							nvidia: "NVIDIA",

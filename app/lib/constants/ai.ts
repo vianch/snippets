@@ -67,6 +67,13 @@ export const enum AiPaneTab {
 	Code = "code",
 }
 
+export const enum AiStreamEventType {
+	Done = "done",
+	Error = "error",
+	Text = "text",
+	Thinking = "thinking",
+}
+
 export const enum ChatStatus {
 	Empty = "empty",
 	Processing = "processing",
@@ -80,10 +87,6 @@ export const enum UserRole {
 	Assistant = "assistant",
 	System = "system",
 }
-
-export const streamStepMs = 18;
-export const minStreamChunk = 2;
-export const maxStreamChunk = 5;
 
 export const openAiExcludedPrefixes = [
 	"text-embedding",
@@ -124,3 +127,18 @@ export const aiChatModalMinWidthPx = 440;
 export const aiChatModalWidthStorageKey = "aiChatModal.width";
 
 export const maxHistoryMessages = 20;
+
+export const ollamaTimeout = 55000;
+export const maxOutputTokens = 4096;
+export const claudeMaxOutputTokens = 8192;
+export const claudeThinkingBudgetTokens = 2048;
+
+export const ssePrefix = "data:";
+export const sseDoneSentinel = "[DONE]";
+export const claudeContentBlockDeltaEvent = "content_block_delta";
+export const claudeThinkingDeltaType = "thinking_delta";
+export const claudeTextDeltaType = "text_delta";
+
+export const claudeAdaptiveSummarizedPattern = /fable|opus-4-[789]/;
+export const claudeAdaptivePattern = /sonnet-4-[6-9]|opus-4-6/;
+export const claudeExtendedThinkingPattern = /sonnet-4|opus-4|haiku-4/;

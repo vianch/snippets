@@ -1,0 +1,135 @@
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.25rem;
+}
+
+.toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.125rem 0;
+	background: none;
+	border: none;
+	cursor: pointer;
+	color: var(--gray-color);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+}
+
+.toggle:disabled {
+	cursor: default;
+}
+
+.sparkle {
+	display: inline-flex;
+	color: var(--purple-color);
+}
+
+.sparkleActive {
+	animation:
+		thinking-sparkle-spin 3.2s cubic-bezier(0.6, 0.1, 0.4, 0.9) infinite,
+		thinking-sparkle-pulse 1.6s ease-in-out infinite;
+	transform-origin: center;
+}
+
+@keyframes thinking-sparkle-spin {
+	0% {
+		transform: rotate(0deg) scale(1);
+	}
+
+	50% {
+		transform: rotate(180deg) scale(0.92);
+	}
+
+	100% {
+		transform: rotate(360deg) scale(1);
+	}
+}
+
+@keyframes thinking-sparkle-pulse {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 2px var(--purple-color));
+	}
+
+	50% {
+		filter: drop-shadow(0 0 6px var(--purple-color))
+			drop-shadow(
+				0 0 12px color-mix(in srgb, var(--purple-color) 70%, transparent)
+			);
+	}
+}
+
+.label {
+	color: var(--gray-color);
+}
+
+.labelActive {
+	display: inline-block;
+	background: linear-gradient(
+		90deg,
+		var(--gray-color) 0%,
+		var(--foreground-color) 40%,
+		var(--purple-color) 50%,
+		var(--foreground-color) 60%,
+		var(--gray-color) 100%
+	);
+	background-size: 200% 100%;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: thinking-shimmer-pan 2s linear infinite;
+}
+
+@keyframes thinking-shimmer-pan {
+	0% {
+		background-position: 100% 0;
+	}
+
+	100% {
+		background-position: -100% 0;
+	}
+}
+
+.chevron {
+	color: var(--gray-color);
+	opacity: 0.7;
+	transition: transform 0.15s ease;
+}
+
+.chevronOpen {
+	transform: rotate(90deg);
+}
+
+.body {
+	align-self: stretch;
+	color: var(--gray-color);
+	opacity: 0.85;
+	font-size: 0.75rem;
+	line-height: 1.55;
+	white-space: pre-wrap;
+	word-break: break-word;
+	border-left: 2px solid color-mix(in srgb, var(--gray-color) 30%, transparent);
+	padding: 0.25rem 0 0.25rem 0.75rem;
+	margin: 0.125rem 0 0.375rem;
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+/* Scrollbar — same treatment as the snippet list */
+.body::-webkit-scrollbar {
+	width: 10px;
+}
+
+.body::-webkit-scrollbar-track {
+	background: var(--bg-color);
+}
+
+.body::-webkit-scrollbar-thumb {
+	background: var(--current-line);
+}
+
+.body::-webkit-scrollbar-thumb:hover {
+	background: var(--current-line);
+}

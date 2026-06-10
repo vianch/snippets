@@ -74,7 +74,7 @@ declare global {
 		onToggleFavorite: (snippet: Snippet) => void;
 	};
 
-	type AiProvider = "ollama" | "claude" | "openai" | "nvidia";
+	type AiProvider = "ollama" | "ollama-cloud" | "claude" | "openai" | "nvidia";
 
 	interface SmartGroup {
 		name: string;
@@ -116,8 +116,16 @@ declare global {
 		outputTokens: number;
 	};
 
+	type AiStreamOutcome = {
+		text: string;
+		thinking: string;
+		inputTokens: number;
+		outputTokens: number;
+	};
+
 	type AiResponse = {
 		result: string;
+		thinking?: string;
 		provider: AiProvider;
 		model: string;
 		usage?: AiUsage;
