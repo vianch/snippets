@@ -5,6 +5,7 @@ import { ReactElement } from "react";
 /* Components */
 import CodeBlock from "@/components/Chat/CodeBlock/CodeBlock";
 import MarkdownProse from "@/components/Chat/MarkdownProse/MarkdownProse";
+import ThinkingDisclosure from "@/components/Chat/ThinkingDisclosure/ThinkingDisclosure";
 import Copy from "@/components/ui/icons/Copy";
 import Sparkle from "@/components/ui/icons/Sparkle";
 
@@ -17,6 +18,7 @@ import styles from "./assistantMessage.module.css";
 type AssistantMessageProps = {
 	content: string;
 	modelName: string;
+	thinking?: string;
 	showActions?: boolean;
 	showHeader?: boolean;
 	onCopyToSnippet?: (content: string) => void;
@@ -26,6 +28,7 @@ type AssistantMessageProps = {
 const AssistantMessage = ({
 	content,
 	modelName,
+	thinking,
 	showActions = true,
 	showHeader = true,
 	onCopyToSnippet,
@@ -43,6 +46,10 @@ const AssistantMessage = ({
 					</span>
 					<span>{modelName || "AI"}</span>
 				</div>
+			)}
+
+			{thinking && thinking.length > 0 && (
+				<ThinkingDisclosure isActive={false} text={thinking} />
 			)}
 
 			<div className={styles.assistantBody}>

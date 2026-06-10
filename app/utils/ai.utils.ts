@@ -1,13 +1,4 @@
-type FetchAiModelsOptions = {
-	apiKey?: string;
-	ollamaUrl?: string;
-	ollamaApiKey?: string;
-};
-
-type FetchAiModelsResult = {
-	models: string[];
-	error?: string;
-};
+import { AiStreamEventType } from "@/lib/constants/ai";
 
 export const fetchAiModels = async (
 	provider: AiProvider,
@@ -77,19 +68,13 @@ export const fetchOllamaModels = async (
 	return result.models;
 };
 
-type RequestAiActionOptions = {
-	userPrompt?: string;
-	signal?: AbortSignal;
-	history?: AiHistoryMessage[];
-};
-
 export const requestAiAction = async (
 	action: AiAction,
 	code: string,
 	language: string,
 	options: RequestAiActionOptions = {}
 ): Promise<AiResponse> => {
-	const { userPrompt, signal, history } = options;
+	const { userPrompt, signal, history, onThinkingDelta, onTextDelta } = options;
 
 	const response = await fetch("/api/ai", {
 		method: "POST",
@@ -108,5 +93,69 @@ export const requestAiAction = async (
 		throw new Error(errorMessage);
 	}
 
-	return response.json();
+	const contentType = response.headers.get("content-type") ?? "";
+
+	if (!contentType.includes("ndjson") || !response.body) {
+		return response.json();
+	}
+
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	let buffer = "";
+	let finalResponse: AiResponse | null = null;
+
+	const handleLine = (line: string): void => {
+		const trimmed = line.trim();
+
+		if (!trimmed) {
+			return;
+		}
+
+		// Each NDJSON line emitted by /api/ai is a serialized AiStreamEvent.
+		const event = JSON.parse(trimmed) as AiStreamEvent;
+
+		if (event.type === AiStreamEventType.Thinking) {
+			onThinkingDelta?.(event.delta);
+		} else if (event.type === AiStreamEventType.Text) {
+			onTextDelta?.(event.delta);
+		} else if (event.type === AiStreamEventType.Done) {
+			finalResponse = {
+				result: event.result,
+				thinking: event.thinking,
+				provider: event.provider,
+				model: event.model,
+				usage: event.usage,
+			};
+		} else if (event.type === AiStreamEventType.Error) {
+			throw new Error(event.error);
+		}
+	};
+
+	for (;;) {
+		const { done, value } = await reader.read();
+
+		if (done) {
+			break;
+		}
+
+		buffer += decoder.decode(value, { stream: true });
+
+		let newlineIndex = buffer.indexOf("\n");
+
+		while (newlineIndex !== -1) {
+			handleLine(buffer.slice(0, newlineIndex));
+			buffer = buffer.slice(newlineIndex + 1);
+			newlineIndex = buffer.indexOf("\n");
+		}
+	}
+
+	if (buffer.trim().length > 0) {
+		handleLine(buffer);
+	}
+
+	if (finalResponse === null) {
+		throw new Error("AI stream ended without a result");
+	}
+
+	return finalResponse;
 };
