@@ -67,6 +67,19 @@ export const enum AiPaneTab {
 	Code = "code",
 }
 
+export const enum AiProviderId {
+	Claude = "claude",
+	Nvidia = "nvidia",
+	Ollama = "ollama",
+	OllamaCloud = "ollama-cloud",
+	OpenAi = "openai",
+}
+
+export const enum SegmentType {
+	Code = "code",
+	Prose = "prose",
+}
+
 export const enum AiStreamEventType {
 	Done = "done",
 	Error = "error",
@@ -125,6 +138,7 @@ export const fencedCodeBlockPattern = /```([a-zA-Z0-9_+-]*)\n([\s\S]*?)```/g;
 
 export const aiChatModalMinWidthPx = 440;
 export const aiChatModalWidthStorageKey = "aiChatModal.width";
+export const ScrollPinThresholdPx = 80;
 
 export const maxHistoryMessages = 20;
 
@@ -132,6 +146,20 @@ export const ollamaTimeout = 55000;
 export const maxOutputTokens = 4096;
 export const claudeMaxOutputTokens = 8192;
 export const claudeThinkingBudgetTokens = 2048;
+
+export const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
+export const defaultAnthropicModel =
+	process.env.ANTHROPIC_MODEL || "claude-sonnet-4-20250514";
+export const defaultOllamaUrl =
+	process.env.OLLAMA_URL || "http://localhost:11434";
+export const ollamaCloudUrl = "https://ollama.com";
+export const ollamaContextWindowCacheLimit = 64;
+export const ollamaContextWindowCache = new Map<string, number>();
+export const openAiBaseUrl = "https://api.openai.com/v1";
+export const nvidiaBaseUrl = "https://integrate.api.nvidia.com/v1";
+export const defaultOpenAIModel = process.env.OPENAI_MODEL || "gpt-4o";
+export const defaultNvidiaModel =
+	process.env.NVIDIA_MODEL || "meta/llama-3.1-70b-instruct";
 
 export const ssePrefix = "data:";
 export const sseDoneSentinel = "[DONE]";

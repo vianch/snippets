@@ -8,6 +8,7 @@ import {
 	aiActions,
 	ChatStatus,
 	codeActions,
+	ScrollPinThresholdPx,
 	UserRole,
 } from "@/lib/constants/ai";
 import { ToastType } from "@/lib/constants/toast";
@@ -83,8 +84,17 @@ const useAiChat = ({
 	};
 
 	useEffect(() => {
-		if (chatRef.current) {
-			chatRef.current.scrollTop = chatRef.current.scrollHeight;
+		const chat = chatRef.current;
+
+		if (!chat) {
+			return;
+		}
+
+		const distanceFromBottom =
+			chat.scrollHeight - chat.scrollTop - chat.clientHeight;
+
+		if (distanceFromBottom < ScrollPinThresholdPx) {
+			chat.scrollTop = chat.scrollHeight;
 		}
 	}, [history, revealedAnswer, thinkingText]);
 
@@ -166,10 +176,14 @@ const useAiChat = ({
 	};
 
 	const commitCurrentTurn = (): void => {
+		const turnAnswered = status === ChatStatus.Answered;
+		const turnStoppedWithAnswer =
+			status === ChatStatus.Stopped && revealedAnswer.length > 0;
+
 		if (
 			currentUserMessage &&
 			revealedAnswer &&
-			status === ChatStatus.Answered
+			(turnAnswered || turnStoppedWithAnswer)
 		) {
 			appendMessage({ role: UserRole.User, content: currentUserMessage });
 
@@ -185,6 +199,7 @@ const useAiChat = ({
 				userPrompt: currentUserPrompt || undefined,
 				thinking: thinkingText || undefined,
 				isReplaceCandidate,
+				stopped: turnStoppedWithAnswer || undefined,
 			});
 		}
 	};
@@ -250,6 +265,54 @@ const useAiChat = ({
 					}))
 				: [];
 
+		let streamedAnswer = "";
+		let pendingText = "";
+		let pendingThinking = "";
+		let flushHandle = 0;
+
+		const flushPending = (): void => {
+			flushHandle = 0;
+
+			if (controller.signal.aborted) {
+				pendingText = "";
+				pendingThinking = "";
+
+				return;
+			}
+
+			if (pendingText.length > 0) {
+				const chunk = pendingText;
+
+				pendingText = "";
+				setRevealedAnswer((previous) => previous + chunk);
+			}
+
+			if (pendingThinking.length > 0) {
+				const chunk = pendingThinking;
+
+				pendingThinking = "";
+				setThinkingText((previous) => previous + chunk);
+			}
+		};
+
+		const scheduleFlush = (): void => {
+			if (flushHandle !== 0) {
+				return;
+			}
+
+			flushHandle = requestAnimationFrame(flushPending);
+		};
+
+		const cancelFlush = (): void => {
+			if (flushHandle !== 0) {
+				cancelAnimationFrame(flushHandle);
+				flushHandle = 0;
+			}
+
+			pendingText = "";
+			pendingThinking = "";
+		};
+
 		try {
 			const response = await requestAiAction(
 				action,
@@ -259,12 +322,19 @@ const useAiChat = ({
 					userPrompt: effectivePrompt,
 					signal: controller.signal,
 					history: historyForRequest,
-					onThinkingDelta: (delta) =>
-						setThinkingText((previous) => previous + delta),
-					onTextDelta: (delta) =>
-						setRevealedAnswer((previous) => previous + delta),
+					onThinkingDelta: (delta) => {
+						pendingThinking += delta;
+						scheduleFlush();
+					},
+					onTextDelta: (delta) => {
+						streamedAnswer += delta;
+						pendingText += delta;
+						scheduleFlush();
+					},
 				}
 			);
+
+			cancelFlush();
 
 			if (controller.signal.aborted) {
 				return;
@@ -275,7 +345,16 @@ const useAiChat = ({
 			setThinkingText(response.thinking ?? "");
 			setStatus(ChatStatus.Answered);
 		} catch (requestError) {
+			cancelFlush();
+
 			if (controller.signal.aborted) {
+				return;
+			}
+
+			if (streamedAnswer.trim().length > 0) {
+				setRevealedAnswer(streamedAnswer);
+				setStatus(ChatStatus.Answered);
+
 				return;
 			}
 

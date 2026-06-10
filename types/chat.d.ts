@@ -9,6 +9,7 @@ declare global {
 		userPrompt?: string;
 		thinking?: string;
 		isReplaceCandidate?: boolean;
+		stopped?: boolean;
 	};
 
 	type AiStreamThinkingEvent = {

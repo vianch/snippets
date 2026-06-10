@@ -1197,7 +1197,7 @@
     "@shikijs/types" "4.2.0"
     "@shikijs/vscode-textmate" "^10.0.2"
 
-"@shikijs/langs@4.2.0":
+"@shikijs/langs@4.2.0", "@shikijs/langs@^4.0.2":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@shikijs/langs/-/langs-4.2.0.tgz#084f832fda4e858738ff3070f8439e732131d709"
   integrity sha512-bwrVRlJ0wUhZxAbVdvBbv2TTC9yLsh4C/IO5Ofz0T8MQntgDvyVnkbjw9vi50r1kx7RCIJdnJnjZAwmAsXFLZQ==
@@ -1213,7 +1213,7 @@
     "@shikijs/vscode-textmate" "^10.0.2"
     "@types/hast" "^3.0.4"
 
-"@shikijs/themes@4.2.0":
+"@shikijs/themes@4.2.0", "@shikijs/themes@^4.0.2":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@shikijs/themes/-/themes-4.2.0.tgz#3c56a59446775a312d1abaf198a1b18f449acf16"
   integrity sha512-RX8IHYeLv8Cu2W6ruc3RxUqWn0IYCqSrMBzi/uRGAmfyDNOnNO5BF/Px7o97n4XTpmFTo5GbRaazuOWj+2ak2w==
