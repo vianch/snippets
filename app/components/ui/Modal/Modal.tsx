@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 /* Icons */
@@ -29,6 +29,13 @@ const Modal = ({
 	closeOnOverlayClick = true,
 }: ModalProps): ReactElement | null => {
 	const modalRef = useRef<HTMLDivElement>(null);
+	const [isRendered, setIsRendered] = useState<boolean>(isOpen);
+
+	useEffect(() => {
+		if (isOpen) {
+			setIsRendered(true);
+		}
+	}, [isOpen]);
 
 	useEffect(() => {
 		const handleEscapeKey = (event: KeyboardEvent) => {
@@ -54,16 +61,32 @@ const Modal = ({
 		}
 	};
 
-	if (!isOpen) {
+	const handlePanelAnimationEnd = (
+		event: React.AnimationEvent<HTMLDivElement>
+	): void => {
+		if (!isOpen && event.target === event.currentTarget) {
+			setIsRendered(false);
+		}
+	};
+
+	if (!isRendered) {
 		return null;
 	}
 
+	const isClosing = !isOpen;
+
 	const modalContent = (
-		<div className={styles.overlay} onClick={handleOverlayClick}>
+		<div
+			className={`${styles.overlay} ${isClosing ? styles.overlayClosing : ""}`}
+			onClick={handleOverlayClick}
+		>
 			<div
 				ref={modalRef}
-				className={`${styles.modal} ${className}`}
-				onClick={(e) => e.stopPropagation()}
+				className={`${styles.modal} ${isClosing ? styles.modalClosing : ""} ${className}`}
+				role="dialog"
+				aria-modal="true"
+				onClick={(event) => event.stopPropagation()}
+				onAnimationEnd={handlePanelAnimationEnd}
 			>
 				{(title || showCloseButton) && (
 					<div className={styles.header}>

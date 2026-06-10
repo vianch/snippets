@@ -1,7 +1,9 @@
 "use client";
 
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useEffect } from "react";
 import { Command } from "cmdk";
+
+import useMenuStore from "@/lib/store/menu.store";
 
 /* Components */
 import Book from "@/components/ui/icons/Book";
@@ -44,13 +46,19 @@ const CommandPalette = ({
 	onTagClick,
 	onAccountClick,
 }: CommandPaletteProps): ReactElement => {
-	const [open, setOpen] = useState(false);
+	const open = useMenuStore((store) => store.commandPaletteOpen);
+	const setCommandPaletteOpen = useMenuStore(
+		(store) => store.setCommandPaletteOpen
+	);
+	const toggleCommandPalette = useMenuStore(
+		(store) => store.toggleCommandPalette
+	);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent): void => {
 			if ((event.metaKey || event.ctrlKey) && event.key === "k") {
 				event.preventDefault();
-				setOpen((current) => !current);
+				toggleCommandPalette();
 			}
 		};
 
@@ -60,14 +68,14 @@ const CommandPalette = ({
 	}, []);
 
 	const runAction = (action: () => void): void => {
-		setOpen(false);
+		setCommandPaletteOpen(false);
 		action();
 	};
 
 	return (
 		<Command.Dialog
 			open={open}
-			onOpenChange={setOpen}
+			onOpenChange={setCommandPaletteOpen}
 			label="Command palette"
 			className={styles.dialog}
 			overlayClassName={styles.overlay}

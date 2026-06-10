@@ -1,15 +1,25 @@
 .item {
 	display: flex;
 	align-items: center;
-	padding: 0.313rem 1.875rem;
+	margin: 0 0.5rem 0.125rem;
+	padding: 0.313rem 0.625rem 0.313rem 1.25rem;
+	border-radius: var(--border-radius-md);
 	cursor: pointer;
-	transition: background-color 0.3s;
 	color: var(--gray-color);
 	font-size: var(--small-font-size);
+	transition:
+		background-color var(--duration-fast) var(--ease-fluid),
+		color var(--duration-fast) var(--ease-fluid);
+}
+
+.item:hover {
+	background: var(--current-line);
+	color: var(--foreground-color);
 }
 
 .active {
 	color: var(--cyan-color);
+	background: var(--current-line);
 }
 
 .icon {
@@ -18,9 +28,30 @@
 	height: 1rem;
 	color: var(--cyan-color);
 	margin-right: 0.625rem;
+	flex-shrink: 0;
+}
+
+.itemName {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .numberOfItems {
-	font-size: var(--small-font-size);
-	margin-left: 0.313rem;
+	margin-left: 0.5rem;
+	padding: 0.063rem 0.5rem;
+	font-size: var(--tiny-font-size);
+	line-height: 1.5;
+	color: var(--gray-color);
+	background: var(--current-line);
+	border-radius: 999px;
+	flex-shrink: 0;
+	transition: background-color var(--duration-fast) var(--ease-fluid);
+}
+
+.active .numberOfItems,
+.item:hover .numberOfItems {
+	background: var(--bg-color-dark);
 }

@@ -25,7 +25,7 @@ import {
 	setSnippetState,
 	trashRestoreSnippet,
 } from "@/lib/supabase/queries";
-import { MenuItems, SnippetState } from "@/lib/constants/core";
+import { MenuItems, MenuPrefixes, SnippetState } from "@/lib/constants/core";
 import { ToastType } from "@/lib/constants/toast";
 import useToastStore from "@/lib/store/toast.store";
 import { findSnippetByName } from "@/lib/wikiLinkResolver";
@@ -499,7 +499,7 @@ const SnippetsWorkspace = ({
 
 		setCodedEditorStates({
 			...defaultCodeEditorStates,
-			menuType: folder,
+			menuType: `${MenuPrefixes.Folder}${folder}`,
 			activeSnippetId: data?.[0]?.snippet_id ?? null,
 		});
 
@@ -515,7 +515,7 @@ const SnippetsWorkspace = ({
 
 		setCodedEditorStates({
 			...defaultCodeEditorStates,
-			menuType: tag,
+			menuType: `${MenuPrefixes.Tag}${tag}`,
 			activeSnippetId: data?.[0]?.snippet_id ?? null,
 		});
 
@@ -631,7 +631,7 @@ const SnippetsWorkspace = ({
 
 		setCodedEditorStates((prev) => ({
 			...prev,
-			menuType: `smart:${group.name}`,
+			menuType: `${MenuPrefixes.SmartGroup}${group.name}`,
 		}));
 		setSeedSearch({ query: group.query, nonce: Date.now() });
 	};

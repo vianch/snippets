@@ -32,6 +32,7 @@ import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
 import Tabs from "@/components/ui/Tabs/Tabs";
+import Switch from "@/components/ui/Switch/Switch";
 import ThemePreview from "@/components/AccountModal/ThemePreview";
 import TwoFactorSettings from "@/components/TwoFactorSettings/TwoFactorSettings";
 
@@ -47,6 +48,9 @@ import { fetchAiModels } from "@/utils/ai.utils";
 import Envelope from "@/components/ui/icons/Envelope";
 import Lock from "@/components/ui/icons/Lock";
 import Loading from "@/components/ui/icons/Loading";
+import Settings from "@/components/ui/icons/Settings";
+import Sparkle from "@/components/ui/icons/Sparkle";
+import User from "@/components/ui/icons/User";
 
 /* Styles */
 import styles from "./accountModal.module.css";
@@ -619,27 +623,17 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			{/* Editor Settings */}
 			<div className={styles.section}>
 				<h3 className={styles.sectionTitle}>Editor</h3>
-				<div className={styles.toggleGroup}>
-					<label className={styles.toggleLabel}>
-						<input
-							type="checkbox"
-							checked={userData.autoSave ?? false}
-							onChange={(event) =>
-								setUserData((prev) => ({
-									...prev,
-									autoSave: event.target.checked,
-								}))
-							}
-							className={styles.toggleCheckbox}
-						/>
-						<span className={styles.toggleText}>
-							Auto-save on snippet switch
-						</span>
-					</label>
-					<small className={styles.helpText}>
-						Automatically save changes when switching to another snippet
-					</small>
-				</div>
+				<Switch
+					checked={userData.autoSave ?? false}
+					label="Auto-save on snippet switch"
+					description="Automatically save changes when switching to another snippet"
+					onChange={(checked) =>
+						setUserData((prev) => ({
+							...prev,
+							autoSave: checked,
+						}))
+					}
+				/>
 			</div>
 		</>
 	);
@@ -752,9 +746,24 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	);
 
 	const tabItems = [
-		{ value: "profile", label: "Profile", content: profileTab },
-		{ value: "preferences", label: "Preferences", content: preferencesTab },
-		{ value: "ai", label: "AI", content: aiTab },
+		{
+			content: profileTab,
+			icon: <User width={16} height={16} />,
+			label: "Profile",
+			value: "profile",
+		},
+		{
+			content: preferencesTab,
+			icon: <Settings width={16} height={16} />,
+			label: "Preferences",
+			value: "preferences",
+		},
+		{
+			content: aiTab,
+			icon: <Sparkle width={16} height={16} />,
+			label: "AI",
+			value: "ai",
+		},
 	];
 
 	return (

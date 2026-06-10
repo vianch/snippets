@@ -75,9 +75,13 @@ const SnippetList = ({
 	const [smartGroupFormOpen, setSmartGroupFormOpen] = useState<boolean>(false);
 	const [smartGroupName, setSmartGroupName] = useState<string>("");
 	const [isSavingSmartGroup, setIsSavingSmartGroup] = useState<boolean>(false);
+	const [isMac, setIsMac] = useState<boolean>(true);
 	const asideRef = useRef<HTMLDivElement | null>(null);
 	const mobileListOpen = useMenuStore((state) => state.snippetListOpen);
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
+	const setCommandPaletteOpen = useMenuStore(
+		(state) => state.setCommandPaletteOpen
+	);
 	const isTrashActive = menuType === "trash";
 	const formattedDates = useMemo(
 		(): Map<UUID, string> =>
@@ -138,6 +142,10 @@ const SnippetList = ({
 			onEmptyTrash();
 		}
 	};
+
+	useEffect(() => {
+		setIsMac(window.navigator.userAgent.includes("Mac"));
+	}, []);
 
 	useEffect(() => {
 		setSearchData({
@@ -245,6 +253,15 @@ const SnippetList = ({
 								<Floppy width={20} height={20} />
 							</button>
 						)}
+
+					<button
+						type="button"
+						className={styles.paletteHint}
+						title="Open command palette"
+						onClick={() => setCommandPaletteOpen(true)}
+					>
+						{isMac ? "⌘" : "Ctrl"} K
+					</button>
 
 					{isTrashActive ? (
 						<Trash
