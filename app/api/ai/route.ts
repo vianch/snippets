@@ -34,7 +34,7 @@ const maxCodeLength = 50_000;
 const maxPromptLength = 4_000;
 const defaultOllamaModel = process.env.OLLAMA_MODEL || "codellama";
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 const validActions: AiAction[] = [
 	aiActions.explain,
