@@ -126,8 +126,8 @@ declare global {
 	type AiResponse = {
 		result: string;
 		thinking?: string;
-		provider: AiProvider;
-		model: string;
+		provider?: AiProvider;
+		model?: string;
 		usage?: AiUsage;
 	};
 }

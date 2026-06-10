@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { openAiExcludedPrefixes } from "@/lib/constants/ai";
+import {
+	anthropicVersion,
+	AiProviderId,
+	defaultNvidiaModel,
+	defaultOllamaUrl,
+	ollamaCloudUrl,
+	openAiBaseUrl,
+	openAiExcludedPrefixes,
+} from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import createSupabaseServerClient from "@/lib/supabase/server";
 import { isSafeRemoteUrl } from "@/utils/url.utils";
-
-const defaultOllamaUrl = process.env.OLLAMA_URL || "http://localhost:11434";
-const ollamaCloudUrl = "https://ollama.com";
-const anthropicVersion = process.env.ANTHROPIC_VERSION || "2023-06-01";
-const openAiBaseUrl = "https://api.openai.com/v1";
 
 const fetchOllamaModels = async (
 	baseUrl: string,
@@ -98,10 +101,11 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 		);
 	}
 
-	const provider = request.nextUrl.searchParams.get("provider") || "ollama";
+	const provider =
+		request.nextUrl.searchParams.get("provider") || AiProviderId.Ollama;
 	const headerApiKey = request.headers.get("x-api-key") || "";
 
-	if (provider === "claude") {
+	if (provider === AiProviderId.Claude) {
 		const apiKey = headerApiKey || process.env.ANTHROPIC_API_KEY || "";
 
 		if (!apiKey) {
@@ -120,7 +124,7 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 		}
 	}
 
-	if (provider === "openai") {
+	if (provider === AiProviderId.OpenAi) {
 		const apiKey = headerApiKey || process.env.OPENAI_API_KEY || "";
 
 		if (!apiKey) {
@@ -144,11 +148,8 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 		}
 	}
 
-	if (provider === "nvidia") {
-		const nvidiaModel =
-			process.env.NVIDIA_MODEL || "meta/llama-3.1-70b-instruct";
-
-		return NextResponse.json({ models: [nvidiaModel] });
+	if (provider === AiProviderId.Nvidia) {
+		return NextResponse.json({ models: [defaultNvidiaModel] });
 	}
 
 	// Default: Ollama

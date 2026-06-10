@@ -1,6 +1,15 @@
 const escapeHtml = (snippet: string): string =>
 	snippet.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+const stripMarkdownCodeFences = (text: string): string => {
+	const trimmed = text.trim();
+	const codeBlockRegex = /^```[\w]*\n?([\s\S]*?)```\s*$/;
+	const match = trimmed.match(codeBlockRegex);
+	const fencedBody = match?.[1];
+
+	return fencedBody ? fencedBody.trim() : trimmed;
+};
+
 const normalizeRecoveryCode = (value: unknown): string => {
 	if (typeof value !== "string") {
 		return "";
@@ -23,6 +32,6 @@ const uuidv4 = (): UUID => {
 	}) as UUID;
 };
 
-export { escapeHtml, normalizeRecoveryCode };
+export { escapeHtml, normalizeRecoveryCode, stripMarkdownCodeFences };
 
 export default uuidv4;

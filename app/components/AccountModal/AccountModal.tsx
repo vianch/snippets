@@ -23,6 +23,7 @@ import {
 	aiProviders,
 	modalCloseDelay,
 } from "@/lib/constants/account";
+import { AiProviderId } from "@/lib/constants/ai";
 import { FormMessageTypes } from "@/lib/constants/form";
 
 /* Components */
@@ -117,15 +118,19 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 	}, [userData.theme]);
 
 	const refreshModels = async (provider?: AiProvider): Promise<void> => {
-		const activeProvider = provider ?? userData.aiProvider ?? "ollama";
+		const activeProvider =
+			provider ?? userData.aiProvider ?? AiProviderId.Ollama;
 
 		setModelsLoading(true);
 		resetMessages();
 
 		const { models, error } = await fetchAiModels(activeProvider, {
-			apiKey: activeProvider !== "ollama" ? userData.aiApiKey : undefined,
-			ollamaUrl: activeProvider === "ollama" ? userData.aiUrl : undefined,
-			ollamaApiKey: activeProvider === "ollama" ? userData.aiApiKey : undefined,
+			apiKey:
+				activeProvider !== AiProviderId.Ollama ? userData.aiApiKey : undefined,
+			ollamaUrl:
+				activeProvider === AiProviderId.Ollama ? userData.aiUrl : undefined,
+			ollamaApiKey:
+				activeProvider === AiProviderId.Ollama ? userData.aiApiKey : undefined,
 		});
 
 		if (error) {
@@ -141,7 +146,9 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		setAiModels([]);
 
 		const hasCredentials =
-			provider === "ollama" || provider === "nvidia" || !!userData.aiApiKey;
+			provider === AiProviderId.Ollama ||
+			provider === AiProviderId.Nvidia ||
+			!!userData.aiApiKey;
 
 		if (hasCredentials) {
 			await refreshModels(provider);
@@ -198,7 +205,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			avatar: userData.avatar,
 			theme: userData.theme,
 			auto_save: userData.autoSave ?? false,
-			ai_provider: userData.aiProvider ?? "ollama",
+			ai_provider: userData.aiProvider ?? AiProviderId.Ollama,
 			ai_api_key: userData.aiApiKey ?? "",
 			ai_model: userData.aiModel ?? "",
 			ai_url: userData.aiUrl ?? "",
@@ -272,10 +279,10 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 				updateUserStore();
 
 				if (
-					userData.aiProvider === "ollama" &&
+					userData.aiProvider === AiProviderId.Ollama &&
 					userData.aiUrl !== originalAiUrl
 				) {
-					await refreshModels("ollama");
+					await refreshModels(AiProviderId.Ollama);
 					setOriginalAiUrl(userData.aiUrl ?? "");
 				}
 
@@ -392,14 +399,20 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 				}
 
 				const activeProvider: AiProvider =
-					userMetadata?.ai_provider ?? "ollama";
+					userMetadata?.ai_provider ?? AiProviderId.Ollama;
 				const { models } = await fetchAiModels(activeProvider, {
 					apiKey:
-						activeProvider !== "ollama" ? userMetadata?.ai_api_key : undefined,
+						activeProvider !== AiProviderId.Ollama
+							? userMetadata?.ai_api_key
+							: undefined,
 					ollamaUrl:
-						activeProvider === "ollama" ? userMetadata?.ai_url : undefined,
+						activeProvider === AiProviderId.Ollama
+							? userMetadata?.ai_url
+							: undefined,
 					ollamaApiKey:
-						activeProvider === "ollama" ? userMetadata?.ai_api_key : undefined,
+						activeProvider === AiProviderId.Ollama
+							? userMetadata?.ai_api_key
+							: undefined,
 				});
 
 				if (!isMounted) return;
@@ -432,7 +445,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			);
 		}
 
-		if (userData.aiProvider === "nvidia") {
+		if (userData.aiProvider === AiProviderId.Nvidia) {
 			return (
 				<div className={styles.modelLoadGroup}>
 					<small className={styles.helpText}>
@@ -640,7 +653,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 					<span className={styles.label}>AI Provider</span>
 					<select
 						className={styles.modelSelect}
-						value={userData.aiProvider ?? "ollama"}
+						value={userData.aiProvider ?? AiProviderId.Ollama}
 						onChange={(event) =>
 							handleProviderChange(event.target.value as AiProvider)
 						}
@@ -659,17 +672,17 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 				<h3 className={styles.sectionTitle}>
 					{
 						{
-							ollama: "Ollama",
-							"ollama-cloud": "Ollama Cloud",
-							claude: "Claude (Anthropic)",
-							openai: "OpenAI",
-							nvidia: "NVIDIA",
-						}[userData.aiProvider ?? "ollama"]
+							[AiProviderId.Ollama]: "Ollama",
+							[AiProviderId.OllamaCloud]: "Ollama Cloud",
+							[AiProviderId.Claude]: "Claude (Anthropic)",
+							[AiProviderId.OpenAi]: "OpenAI",
+							[AiProviderId.Nvidia]: "NVIDIA",
+						}[userData.aiProvider ?? AiProviderId.Ollama]
 					}
 				</h3>
 
 				{/* Endpoint URL — Ollama only */}
-				{userData.aiProvider === "ollama" && (
+				{userData.aiProvider === AiProviderId.Ollama && (
 					<div className={styles.inputGroup}>
 						<span className={styles.label}>Endpoint URL</span>
 						<Input
@@ -699,11 +712,11 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 						type="password"
 						name="aiApiKey"
 						placeholder={
-							userData.aiProvider === "claude"
+							userData.aiProvider === AiProviderId.Claude
 								? "sk-ant-..."
-								: userData.aiProvider === "openai"
+								: userData.aiProvider === AiProviderId.OpenAi
 									? "sk-..."
-									: userData.aiProvider === "nvidia"
+									: userData.aiProvider === AiProviderId.Nvidia
 										? "nvapi-..."
 										: "ollama-api-key..."
 						}
@@ -718,13 +731,13 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 						maxLength={255}
 					/>
 					<small className={styles.helpText}>
-						{userData.aiProvider === "claude" &&
+						{userData.aiProvider === AiProviderId.Claude &&
 							"Get your API key at console.anthropic.com"}
-						{userData.aiProvider === "openai" &&
+						{userData.aiProvider === AiProviderId.OpenAi &&
 							"Get your API key at platform.openai.com/api-keys"}
-						{userData.aiProvider === "nvidia" &&
+						{userData.aiProvider === AiProviderId.Nvidia &&
 							"Get your API key at build.nvidia.com"}
-						{userData.aiProvider === "ollama" &&
+						{userData.aiProvider === AiProviderId.Ollama &&
 							"Required only for ollama.com cloud models"}
 					</small>
 				</div>

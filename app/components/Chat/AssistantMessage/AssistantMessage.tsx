@@ -1,6 +1,9 @@
 "use client";
 
-import { ReactElement } from "react";
+import { memo, ReactElement, useMemo } from "react";
+
+/* Lib */
+import { SegmentType } from "@/lib/constants/ai";
 
 /* Components */
 import CodeBlock from "@/components/Chat/CodeBlock/CodeBlock";
@@ -34,7 +37,7 @@ const AssistantMessage = ({
 	onCopyToSnippet,
 	onReplaceSnippet,
 }: AssistantMessageProps): ReactElement => {
-	const segments = parseAssistantSegments(content);
+	const segments = useMemo(() => parseAssistantSegments(content), [content]);
 	const showCopy = showActions && typeof onCopyToSnippet === "function";
 
 	return (
@@ -54,7 +57,7 @@ const AssistantMessage = ({
 
 			<div className={styles.assistantBody}>
 				{segments.map((segment, index) =>
-					segment.type === "code" ? (
+					segment.type === SegmentType.Code ? (
 						<CodeBlock
 							key={index}
 							body={segment.body}
@@ -87,4 +90,4 @@ const AssistantMessage = ({
 	);
 };
 
-export default AssistantMessage;
+export default memo(AssistantMessage);

@@ -1,4 +1,6 @@
-import { AiStreamEventType } from "@/lib/constants/ai";
+import { aiActions, AiProviderId, AiStreamEventType } from "@/lib/constants/ai";
+import { readLines } from "@/lib/ai/streamLines";
+import { stripMarkdownCodeFences } from "@/utils/string.utils";
 
 export const fetchAiModels = async (
 	provider: AiProvider,
@@ -8,7 +10,7 @@ export const fetchAiModels = async (
 		const params = new URLSearchParams({ provider });
 		const headers: Record<string, string> = {};
 
-		if (provider === "claude" || provider === "openai") {
+		if (provider === AiProviderId.Claude || provider === AiProviderId.OpenAi) {
 			if (options.apiKey) {
 				headers["x-api-key"] = options.apiKey;
 			}
@@ -63,7 +65,10 @@ export const fetchOllamaModels = async (
 	ollamaUrl?: string,
 	ollamaApiKey?: string
 ): Promise<string[]> => {
-	const result = await fetchAiModels("ollama", { ollamaUrl, ollamaApiKey });
+	const result = await fetchAiModels(AiProviderId.Ollama, {
+		ollamaUrl,
+		ollamaApiKey,
+	});
 
 	return result.models;
 };
@@ -100,23 +105,37 @@ export const requestAiAction = async (
 	}
 
 	const reader = response.body.getReader();
-	const decoder = new TextDecoder();
-	let buffer = "";
+	let streamedText = "";
+	let streamedThinking = "";
 	let finalResponse: AiResponse | null = null;
 
-	const handleLine = (line: string): void => {
+	const parseLine = (line: string): AiStreamEvent | null => {
 		const trimmed = line.trim();
 
 		if (!trimmed) {
+			return null;
+		}
+
+		try {
+			// Each NDJSON line emitted by /api/ai is a serialized AiStreamEvent.
+			return JSON.parse(trimmed) as AiStreamEvent;
+		} catch {
+			return null;
+		}
+	};
+
+	const handleLine = (line: string): void => {
+		const event = parseLine(line);
+
+		if (!event) {
 			return;
 		}
 
-		// Each NDJSON line emitted by /api/ai is a serialized AiStreamEvent.
-		const event = JSON.parse(trimmed) as AiStreamEvent;
-
 		if (event.type === AiStreamEventType.Thinking) {
+			streamedThinking += event.delta;
 			onThinkingDelta?.(event.delta);
 		} else if (event.type === AiStreamEventType.Text) {
+			streamedText += event.delta;
 			onTextDelta?.(event.delta);
 		} else if (event.type === AiStreamEventType.Done) {
 			finalResponse = {
@@ -131,31 +150,21 @@ export const requestAiAction = async (
 		}
 	};
 
-	for (;;) {
-		const { done, value } = await reader.read();
+	await readLines(reader, handleLine, () => Boolean(signal?.aborted));
 
-		if (done) {
-			break;
-		}
-
-		buffer += decoder.decode(value, { stream: true });
-
-		let newlineIndex = buffer.indexOf("\n");
-
-		while (newlineIndex !== -1) {
-			handleLine(buffer.slice(0, newlineIndex));
-			buffer = buffer.slice(newlineIndex + 1);
-			newlineIndex = buffer.indexOf("\n");
-		}
+	if (finalResponse !== null) {
+		return finalResponse;
 	}
 
-	if (buffer.trim().length > 0) {
-		handleLine(buffer);
+	if (streamedText.trim().length > 0) {
+		return {
+			result:
+				action === aiActions.ask
+					? streamedText
+					: stripMarkdownCodeFences(streamedText),
+			thinking: streamedThinking || undefined,
+		};
 	}
 
-	if (finalResponse === null) {
-		throw new Error("AI stream ended without a result");
-	}
-
-	return finalResponse;
+	throw new Error("AI stream ended without a result");
 };

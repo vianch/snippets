@@ -1,6 +1,49 @@
-import { codeToHtml } from "shiki";
+import { createHighlighterCore, HighlighterCore } from "shiki/core";
+import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 
 import { ThemeName, ThemeNames } from "./themes";
+
+let highlighterPromise: Promise<HighlighterCore> | null = null;
+
+const getHighlighter = (): Promise<HighlighterCore> => {
+	if (!highlighterPromise) {
+		highlighterPromise = createHighlighterCore({
+			engine: createOnigurumaEngine(import("shiki/wasm")),
+			themes: [
+				import("@shikijs/themes/ayu-light"),
+				import("@shikijs/themes/catppuccin-latte"),
+				import("@shikijs/themes/dracula"),
+				import("@shikijs/themes/github-dark"),
+				import("@shikijs/themes/github-light"),
+				import("@shikijs/themes/material-theme-palenight"),
+			],
+			langs: [
+				import("@shikijs/langs/bash"),
+				import("@shikijs/langs/c"),
+				import("@shikijs/langs/cpp"),
+				import("@shikijs/langs/css"),
+				import("@shikijs/langs/dart"),
+				import("@shikijs/langs/go"),
+				import("@shikijs/langs/html"),
+				import("@shikijs/langs/java"),
+				import("@shikijs/langs/javascript"),
+				import("@shikijs/langs/json"),
+				import("@shikijs/langs/kotlin"),
+				import("@shikijs/langs/markdown"),
+				import("@shikijs/langs/php"),
+				import("@shikijs/langs/python"),
+				import("@shikijs/langs/ruby"),
+				import("@shikijs/langs/rust"),
+				import("@shikijs/langs/sql"),
+				import("@shikijs/langs/swift"),
+				import("@shikijs/langs/typescript"),
+				import("@shikijs/langs/yaml"),
+			],
+		});
+	}
+
+	return highlighterPromise;
+};
 
 const shikiThemeMap: Record<ThemeName, string> = {
 	[ThemeNames.AyuLight]: "ayu-light",
@@ -69,8 +112,9 @@ export const getHighlightedCode = async (
 ): Promise<string> => {
 	const shikiLanguage = shikiLanguageMap[language] ?? "plaintext";
 	const shikiTheme = shikiThemeMap[theme] ?? "dracula";
+	const highlighter = await getHighlighter();
 
-	return codeToHtml(code, {
+	return highlighter.codeToHtml(code, {
 		lang: shikiLanguage,
 		theme: shikiTheme,
 	});
@@ -90,7 +134,9 @@ export const getHighlightedFenceCode = async (
 	const shikiTheme = shikiThemeMap[theme] ?? "dracula";
 
 	try {
-		return await codeToHtml(code, {
+		const highlighter = await getHighlighter();
+
+		return highlighter.codeToHtml(code, {
 			lang: shikiLanguage,
 			theme: shikiTheme,
 		});

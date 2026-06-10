@@ -2,6 +2,7 @@ import {
 	fencedCodeBlockPattern,
 	maxHistoryMessages,
 	replaceIntentPattern,
+	SegmentType,
 	UserRole,
 } from "@/lib/constants/ai";
 
@@ -50,13 +51,13 @@ const parseAssistantSegments = (content: string): AssistantSegment[] => {
 	while (match !== null) {
 		if (match.index > lastIndex) {
 			segments.push({
-				type: "prose",
+				type: SegmentType.Prose,
 				content: content.slice(lastIndex, match.index),
 			});
 		}
 
 		segments.push({
-			type: "code",
+			type: SegmentType.Code,
 			language: match[1] ?? "",
 			body: match[2] ?? "",
 		});
@@ -65,7 +66,10 @@ const parseAssistantSegments = (content: string): AssistantSegment[] => {
 	}
 
 	if (lastIndex < content.length) {
-		segments.push({ type: "prose", content: content.slice(lastIndex) });
+		segments.push({
+			type: SegmentType.Prose,
+			content: content.slice(lastIndex),
+		});
 	}
 
 	return segments;

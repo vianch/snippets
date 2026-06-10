@@ -3,6 +3,7 @@
 import { ChangeEvent, ReactElement, useEffect, useState } from "react";
 
 /* Lib */
+import { AiProviderId } from "@/lib/constants/ai";
 import { ToastType } from "@/lib/constants/toast";
 import useChatStore from "@/lib/store/chat.store";
 import useToastStore from "@/lib/store/toast.store";
@@ -37,7 +38,8 @@ const ModelSelector = ({
 
 			const session = await getUserDataFromSession();
 			const metadata = session?.user?.user_metadata ?? {};
-			const activeProvider = (metadata.ai_provider as AiProvider) ?? "ollama";
+			const activeProvider =
+				(metadata.ai_provider as AiProvider) ?? AiProviderId.Ollama;
 
 			if (cancelled) return;
 
@@ -47,15 +49,15 @@ const ModelSelector = ({
 
 			const { models: fetched } = await fetchAiModels(activeProvider, {
 				apiKey:
-					activeProvider !== "ollama"
+					activeProvider !== AiProviderId.Ollama
 						? (metadata.ai_api_key as string | undefined)
 						: undefined,
 				ollamaUrl:
-					activeProvider === "ollama"
+					activeProvider === AiProviderId.Ollama
 						? (metadata.ai_url as string | undefined)
 						: undefined,
 				ollamaApiKey:
-					activeProvider === "ollama"
+					activeProvider === AiProviderId.Ollama
 						? (metadata.ai_api_key as string | undefined)
 						: undefined,
 			});
