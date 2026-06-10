@@ -1,10 +1,22 @@
 "use client";
 
-import { MouseEvent, ReactElement, useEffect, useRef, useState } from "react";
+import {
+	MouseEvent,
+	ReactElement,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 /* Constants */
-import { MenuItems } from "@/lib/constants/core";
+import {
+	AsideScrollThreshold,
+	AsideSectionKeys,
+	MenuItems,
+	MenuPrefixes,
+} from "@/lib/constants/core";
 import { defaultAvatar } from "@/lib/constants/account";
 
 /* Components */
@@ -93,6 +105,12 @@ const Aside = ({
 	onAccountClick,
 }: AsideProps): ReactElement => {
 	const { menuType } = codeEditorStates;
+	const activeFolderName = menuType?.startsWith(MenuPrefixes.Folder)
+		? menuType.slice(MenuPrefixes.Folder.length)
+		: null;
+	const activeTagName = menuType?.startsWith(MenuPrefixes.Tag)
+		? menuType.slice(MenuPrefixes.Tag.length)
+		: null;
 	const router = useRouter();
 	const pathname = usePathname();
 	const isOnAiAssistant = pathname?.startsWith("/ai-assistant") ?? false;
@@ -102,6 +120,8 @@ const Aside = ({
 	const [isLoginOut, setIsLoginOut] = useState<boolean>(false);
 	const [isTagsExpanded, setIsTagsExpanded] = useState<boolean>(false);
 	const [isFoldersExpanded, setIsFoldersExpanded] = useState<boolean>(true);
+	const [isSmartGroupsExpanded, setIsSmartGroupsExpanded] =
+		useState<boolean>(true);
 	const [isUserMenuOpen, setIsUserMenuOpen] = useState<boolean>(false);
 	const [isShortcutsOpen, setIsShortcutsOpen] = useState<boolean>(false);
 	const [isMac, setIsMac] = useState<boolean>(true);
@@ -113,8 +133,6 @@ const Aside = ({
 	const toggleMainMenu = useMenuStore((state) => state.toggleMainMenu);
 	const closeMainMenu = useMenuStore((state) => state.closeMainMenu);
 	const closeSnippetList = useMenuStore((state) => state.closeSnippetList);
-	const openSnippetList = () =>
-		useMenuStore.setState({ snippetListOpen: true });
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const userName = useUserStore((state) => state.userName);
 	const userAvatar = useUserStore((state) => state.userAvatar);
@@ -133,12 +151,12 @@ const Aside = ({
 		window.location.href = error ? "/login?error=logout_failed" : "/login";
 	};
 
-	const openSnippetListMobile = (): void => {
+	const openSnippetListMobile = useCallback((): void => {
 		if (isMobile) {
 			closeMainMenu();
-			openSnippetList();
+			useMenuStore.setState({ snippetListOpen: true });
 		}
-	};
+	}, [isMobile, closeMainMenu]);
 
 	const clickMenuHandler = (
 		event: MouseEvent<HTMLAnchorElement>,
@@ -184,22 +202,41 @@ const Aside = ({
 		toggleMainMenu();
 	};
 
-	const handlerTagClick = (tag: string): void => {
-		onTagClick(tag);
-		openSnippetListMobile();
-	};
+	const handlerTagClick = useCallback(
+		(tag: string): void => {
+			onTagClick(tag);
+			openSnippetListMobile();
+		},
+		[onTagClick, openSnippetListMobile]
+	);
 
-	const handlerFolderClick = (folder: string): void => {
-		onFolderClick(folder);
-		openSnippetListMobile();
-	};
+	const handlerFolderClick = useCallback(
+		(folder: string): void => {
+			onFolderClick(folder);
+			openSnippetListMobile();
+		},
+		[onFolderClick, openSnippetListMobile]
+	);
 
 	const toggleTagsExpansion = (): void => {
-		setIsTagsExpanded(!isTagsExpanded);
+		const expanded = !isTagsExpanded;
+
+		setIsTagsExpanded(expanded);
+		localStorage.setItem(AsideSectionKeys.Tags, String(expanded));
 	};
 
 	const toggleFoldersExpansion = (): void => {
-		setIsFoldersExpanded(!isFoldersExpanded);
+		const expanded = !isFoldersExpanded;
+
+		setIsFoldersExpanded(expanded);
+		localStorage.setItem(AsideSectionKeys.Folders, String(expanded));
+	};
+
+	const toggleSmartGroupsExpansion = (): void => {
+		const expanded = !isSmartGroupsExpanded;
+
+		setIsSmartGroupsExpanded(expanded);
+		localStorage.setItem(AsideSectionKeys.SmartGroups, String(expanded));
 	};
 
 	const handleSettingsClick = (): void => {
@@ -249,6 +286,24 @@ const Aside = ({
 
 	useEffect(() => {
 		setIsMac(window.navigator.userAgent.includes("Mac"));
+
+		const storedTags = localStorage.getItem(AsideSectionKeys.Tags);
+		const storedFolders = localStorage.getItem(AsideSectionKeys.Folders);
+		const storedSmartGroups = localStorage.getItem(
+			AsideSectionKeys.SmartGroups
+		);
+
+		if (storedTags !== null) {
+			setIsTagsExpanded(storedTags === String(true));
+		}
+
+		if (storedFolders !== null) {
+			setIsFoldersExpanded(storedFolders === String(true));
+		}
+
+		if (storedSmartGroups !== null) {
+			setIsSmartGroupsExpanded(storedSmartGroups === String(true));
+		}
 	}, []);
 
 	useEffect(() => {
@@ -318,7 +373,7 @@ const Aside = ({
 						>
 							<Book className={styles.icon} width={18} height={18} />
 							All Snippets
-							<span className={styles.numberOfItems}>({allCount})</span>
+							<span className={styles.numberOfItems}>{allCount}</span>
 						</a>
 
 						<a
@@ -329,9 +384,7 @@ const Aside = ({
 						>
 							<Tray className={styles.icon} width={18} height={18} />
 							Uncategorized
-							<span className={styles.numberOfItems}>
-								({uncategorizedCount})
-							</span>
+							<span className={styles.numberOfItems}>{uncategorizedCount}</span>
 						</a>
 
 						{publicCount > 0 && (
@@ -343,7 +396,7 @@ const Aside = ({
 							>
 								<Globe className={styles.icon} width={18} height={18} />
 								Public
-								<span className={styles.numberOfItems}>({publicCount})</span>
+								<span className={styles.numberOfItems}>{publicCount}</span>
 							</a>
 						)}
 
@@ -355,7 +408,7 @@ const Aside = ({
 						>
 							<Star className={styles.icon} width={18} height={18} />
 							Favorites
-							<span className={styles.numberOfItems}>({favoritesCount})</span>
+							<span className={styles.numberOfItems}>{favoritesCount}</span>
 						</a>
 
 						<a
@@ -371,46 +424,73 @@ const Aside = ({
 
 					{!isLoading && smartGroups?.length > 0 && (
 						<section className={styles.section}>
-							<h2 className={`${styles.title} cyan-color`}>
+							<button
+								type="button"
+								className={`${styles.title} ${styles.titleClickable} ${styles.titleToggle} cyan-color`}
+								aria-expanded={isSmartGroupsExpanded}
+								onClick={toggleSmartGroupsExpansion}
+							>
 								<MagnifyingGlass
 									className={styles.icon}
 									width={18}
 									height={18}
 								/>
 								Smart Groups
-							</h2>
-							<ul>
-								{smartGroups.map((group) => (
-									<li
-										key={`smart-group-${group.name}`}
-										className={`${styles.smartGroupItem} ${menuType === `smart:${group.name}` ? styles.linkItemActive : ""}`}
-										onClick={() => onSmartGroupClick(group)}
-									>
-										<Floppy className={styles.icon} width={14} height={14} />
-										<span className={styles.smartGroupName}>{group.name}</span>
-										<button
-											type="button"
-											className={styles.smartGroupRemove}
-											aria-label={`Remove smart group ${group.name}`}
-											onClick={(event) => {
-												event.stopPropagation();
-												onSmartGroupRemove(group.name);
-											}}
-										>
-											×
-										</button>
-									</li>
-								))}
-							</ul>
+								<CaretDown
+									className={`${styles.caretIcon} ${isSmartGroupsExpanded ? styles.caretExpanded : styles.caretCollapsed}`}
+									width={12}
+									height={12}
+								/>
+							</button>
+
+							<div
+								className={`${styles.collapse} ${isSmartGroupsExpanded ? styles.collapseOpen : ""}`}
+								inert={!isSmartGroupsExpanded}
+							>
+								<div className={styles.collapseInner}>
+									<ul>
+										{smartGroups.map((group) => (
+											<li
+												key={`smart-group-${group.name}`}
+												className={`${styles.smartGroupItem} ${menuType === `${MenuPrefixes.SmartGroup}${group.name}` ? styles.linkItemActive : ""}`}
+												title={group.name}
+												onClick={() => onSmartGroupClick(group)}
+											>
+												<Floppy
+													className={styles.icon}
+													width={14}
+													height={14}
+												/>
+												<span className={styles.smartGroupName}>
+													{group.name}
+												</span>
+												<button
+													type="button"
+													className={styles.smartGroupRemove}
+													aria-label={`Remove smart group ${group.name}`}
+													onClick={(event) => {
+														event.stopPropagation();
+														onSmartGroupRemove(group.name);
+													}}
+												>
+													×
+												</button>
+											</li>
+										))}
+									</ul>
+								</div>
+							</div>
 						</section>
 					)}
 
 					{!isLoading && folders?.length > 0 && (
 						<section
-							className={`${styles.section} ${isFoldersExpanded && folders.length > 12 ? styles.tagsSection : ""}`}
+							className={`${styles.section} ${isFoldersExpanded && folders.length > AsideScrollThreshold ? styles.tagsSection : ""}`}
 						>
-							<h2
-								className={`${styles.title} blue-color ${styles.titleClickable}`}
+							<button
+								type="button"
+								className={`${styles.title} ${styles.titleClickable} ${styles.titleToggle} blue-color`}
+								aria-expanded={isFoldersExpanded}
 								onClick={toggleFoldersExpansion}
 							>
 								<Folder className={styles.icon} width={18} height={18} />
@@ -420,21 +500,29 @@ const Aside = ({
 									width={12}
 									height={12}
 								/>
-							</h2>
+							</button>
 
-							{isFoldersExpanded && (
-								<div
-									className={
-										folders.length > 12 ? styles.tagsListScrollable : undefined
-									}
-								>
-									<AsideItem
-										active={menuType}
-										items={folders}
-										onItemClicked={handlerFolderClick}
-									/>
+							<div
+								className={`${styles.collapse} ${isFoldersExpanded ? styles.collapseOpen : ""}`}
+								inert={!isFoldersExpanded}
+							>
+								<div className={styles.collapseInner}>
+									<div
+										className={
+											folders.length > AsideScrollThreshold
+												? styles.tagsListScrollable
+												: undefined
+										}
+									>
+										<AsideItem
+											active={activeFolderName}
+											ItemIcon={Folder}
+											items={folders}
+											onItemClicked={handlerFolderClick}
+										/>
+									</div>
 								</div>
-							)}
+							</div>
 						</section>
 					)}
 
@@ -449,10 +537,12 @@ const Aside = ({
 					) : (
 						tags?.length > 0 && (
 							<section
-								className={`${styles.section} ${isTagsExpanded && tags.length > 12 ? styles.tagsSection : ""}`}
+								className={`${styles.section} ${isTagsExpanded && tags.length > AsideScrollThreshold ? styles.tagsSection : ""}`}
 							>
-								<h2
-									className={`${styles.title} purple-color ${styles.titleClickable}`}
+								<button
+									type="button"
+									className={`${styles.title} ${styles.titleClickable} ${styles.titleToggle} purple-color`}
+									aria-expanded={isTagsExpanded}
 									onClick={toggleTagsExpansion}
 								>
 									<Bookmark className={styles.icon} width={18} height={18} />
@@ -462,21 +552,28 @@ const Aside = ({
 										width={12}
 										height={12}
 									/>
-								</h2>
+								</button>
 
-								{isTagsExpanded && (
-									<div
-										className={
-											tags.length > 12 ? styles.tagsListScrollable : undefined
-										}
-									>
-										<AsideItem
-											active={menuType}
-											items={tags}
-											onItemClicked={handlerTagClick}
-										/>
+								<div
+									className={`${styles.collapse} ${isTagsExpanded ? styles.collapseOpen : ""}`}
+									inert={!isTagsExpanded}
+								>
+									<div className={styles.collapseInner}>
+										<div
+											className={
+												tags.length > AsideScrollThreshold
+													? styles.tagsListScrollable
+													: undefined
+											}
+										>
+											<AsideItem
+												active={activeTagName}
+												items={tags}
+												onItemClicked={handlerTagClick}
+											/>
+										</div>
 									</div>
-								)}
+								</div>
 							</section>
 						)
 					)}

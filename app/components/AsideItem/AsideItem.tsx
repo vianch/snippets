@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import { memo, ReactElement } from "react";
 
 /* Components */
 import Tag from "@/components/ui/icons/Tag";
@@ -8,12 +8,14 @@ import styles from "./asideItem.module.css";
 
 type AsideItemProps = {
 	active?: string | null;
+	ItemIcon?: (props: Icon) => ReactElement;
 	items: TagItem[];
 	onItemClicked: (name: string) => void;
 };
 
 const AsideItem = ({
 	active,
+	ItemIcon = Tag,
 	items,
 	onItemClicked,
 }: AsideItemProps): ReactElement => {
@@ -23,16 +25,17 @@ const AsideItem = ({
 
 	return (
 		<ul>
-			{items.map(({ name, total }: TagItem, index: number) => (
+			{items.map(({ name, total }: TagItem) => (
 				<li
 					className={`${styles.item} ${active === name ? styles.active : ""}`}
-					key={`${index + 1}-tag-item`}
+					key={name}
+					title={name}
 					onClick={() => onItemClicked(name)}
 				>
-					<Tag className={styles.icon} />
-					{name}{" "}
+					<ItemIcon className={styles.icon} />
+					<span className={styles.itemName}>{name}</span>
 					{total > 0 ? (
-						<span className={styles.numberOfItems}>{`(${total})`}</span>
+						<span className={styles.numberOfItems}>{total}</span>
 					) : (
 						<></>
 					)}
@@ -42,4 +45,4 @@ const AsideItem = ({
 	);
 };
 
-export default AsideItem;
+export default memo(AsideItem);

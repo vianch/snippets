@@ -149,15 +149,57 @@
 	height: 3.2rem;
 }
 
+.paletteHint {
+	display: inline-flex;
+	align-items: center;
+	margin-right: 0.5rem;
+	padding: 0.25rem 0.5rem;
+	background: var(--bg-color);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius);
+	color: var(--gray-color);
+	font-size: var(--tiny-font-size);
+	font-family: inherit;
+	cursor: pointer;
+	white-space: nowrap;
+	flex-shrink: 0;
+	transition:
+		color var(--duration-fast) var(--ease-fluid),
+		border-color var(--duration-fast) var(--ease-fluid),
+		background-color var(--duration-fast) var(--ease-fluid),
+		transform var(--duration-fast) var(--ease-fluid);
+}
+
+.paletteHint:hover {
+	color: var(--cyan-color);
+	border-color: var(--cyan-color);
+	transform: translateY(-1px);
+}
+
+.paletteHint:active {
+	transform: translateY(0) scale(0.96);
+}
+
 .addButton {
-	margin: 0 0.625rem 0 0;
+	margin: 0 0.5rem 0 0;
+	padding: 0.25rem;
+	border-radius: var(--border-radius-md);
 	cursor: pointer;
 	color: var(--gray-color);
-	transition: all 0.25s ease;
+	transition:
+		color var(--duration-fast) var(--ease-fluid),
+		background-color var(--duration-fast) var(--ease-fluid),
+		transform var(--duration-fast) var(--ease-spring);
 }
 
 .addButton:hover {
 	color: var(--cyan-color);
+	background: var(--current-line);
+	transform: scale(1.08);
+}
+
+.addButton:active {
+	transform: scale(0.94);
 }
 
 .snippetsList {
@@ -192,23 +234,96 @@
 	color: var(--gray-color);
 	cursor: pointer;
 	display: flex;
+	position: relative;
 	width: calc(100% - 1.25rem);
 	align-items: center;
-	border-bottom: 1px solid var(--border-color);
-	padding: 0.625rem;
 	justify-content: space-between;
+	padding: 0.625rem;
+	margin-bottom: 0.5rem;
+	border-radius: var(--border-radius);
 	font-size: var(--small-font-size);
+	transition:
+		color var(--duration-fast) var(--ease-fluid),
+		background-color var(--duration-fast) var(--ease-fluid);
+	animation: snippet-item-in var(--duration-slow) var(--ease-fluid) backwards;
+}
+
+.snippetItem::after {
+	content: "";
+	position: absolute;
+	left: 0.25rem;
+	right: 0.25rem;
+	bottom: -0.25rem;
+	height: 1px;
+	background: var(--border-color);
+}
+
+@keyframes snippet-item-in {
+	from {
+		opacity: 0;
+		transform: translateY(0.375rem);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.snippetItem:nth-child(2) {
+	animation-delay: 25ms;
+}
+
+.snippetItem:nth-child(3) {
+	animation-delay: 50ms;
+}
+
+.snippetItem:nth-child(4) {
+	animation-delay: 75ms;
+}
+
+.snippetItem:nth-child(5) {
+	animation-delay: 100ms;
+}
+
+.snippetItem:nth-child(6) {
+	animation-delay: 125ms;
+}
+
+.snippetItem:nth-child(7) {
+	animation-delay: 150ms;
+}
+
+.snippetItem:nth-child(8) {
+	animation-delay: 175ms;
+}
+
+.snippetItem:nth-child(9) {
+	animation-delay: 200ms;
+}
+
+.snippetItem:nth-child(10) {
+	animation-delay: 225ms;
+}
+
+.snippetItem:nth-child(n + 11) {
+	animation-delay: 250ms;
+}
+
+.snippetItem:hover {
+	color: var(--foreground-color);
+	background: var(--current-line);
 }
 
 .snippetItem.active {
 	color: var(--foreground-color);
 	background: var(--current-line);
-	border-radius: var(--border-radius);
 }
 
 .snippetDate {
 	color: var(--comment-color);
 	font-size: var(--tiny-font-size);
+	flex-shrink: 0;
 }
 
 .noSnippetContainer {
@@ -233,17 +348,37 @@
 .itemLeftSide {
 	display: flex;
 	align-items: center;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .trashIcon,
 .restoreIcon,
 .listIcon {
 	margin-right: 0.313rem;
+	transition:
+		color var(--duration-fast) var(--ease-fluid),
+		opacity var(--duration-fast) var(--ease-fluid),
+		transform var(--duration-fast) var(--ease-spring);
+}
+
+@media (hover: hover) {
+	.snippetItem .trashIcon {
+		opacity: 0;
+	}
+
+	.snippetItem:hover .trashIcon,
+	.snippetItem.active .trashIcon {
+		opacity: 1;
+	}
 }
 
 .favoriteIcon {
 	margin-right: 0.313rem;
 	color: var(--yellow-color);
+	transition: transform var(--duration-fast) var(--ease-spring);
 }
 
 .favoriteIconWrapper {
@@ -252,12 +387,18 @@
 	cursor: pointer;
 }
 
+.favoriteIconWrapper:hover .favoriteIcon {
+	transform: scale(1.2) rotate(-8deg);
+}
+
 .trashIcon:hover {
 	color: var(--red-color);
+	transform: scale(1.15);
 }
 
 .restoreIcon:hover {
 	color: var(--green-color);
+	transform: scale(1.15);
 }
 
 @media (width < 1140px) {

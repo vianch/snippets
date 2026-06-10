@@ -1,35 +1,81 @@
 .overlay {
 	position: fixed;
 	inset: 0;
-	background-color: rgb(0 0 0 / 75%);
+	background-color: rgb(0 0 0 / 55%);
+	backdrop-filter: blur(6px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	z-index: 1000;
 	padding: 1rem;
+	animation: overlay-fade-in var(--duration-base) var(--ease-fluid);
+}
+
+.overlayClosing {
+	animation: overlay-fade-out var(--duration-base) var(--ease-fluid) forwards;
+	pointer-events: none;
 }
 
 .modal {
 	background: var(--bg-color-dark);
+	border: 1px solid var(--border-color);
 	border-radius: var(--border-radius-lg);
-	box-shadow: 0 10px 25px rgb(0 0 0 / 50%);
+	box-shadow:
+		0 24px 64px rgb(0 0 0 / 45%),
+		0 4px 16px rgb(0 0 0 / 30%);
 	max-width: var(--modal-max-width, 90vw);
 	max-height: var(--modal-max-height, 90vh);
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
-	animation: modal-fade-in 0.3s ease-out;
+	animation: modal-pop-in var(--duration-slow) var(--ease-spring);
 }
 
-@keyframes modal-fade-in {
+.modalClosing {
+	animation: modal-pop-out var(--duration-base) var(--ease-fluid) forwards;
+}
+
+@keyframes overlay-fade-in {
 	from {
 		opacity: 0;
-		transform: scale(0.95) translateY(-10px);
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes overlay-fade-out {
+	from {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes modal-pop-in {
+	from {
+		opacity: 0;
+		transform: scale(0.95) translateY(14px);
 	}
 
 	to {
 		opacity: 1;
 		transform: scale(1) translateY(0);
+	}
+}
+
+@keyframes modal-pop-out {
+	from {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(0.97) translateY(8px);
 	}
 }
 
@@ -59,14 +105,22 @@
 	align-items: center;
 	justify-content: center;
 	color: var(--gray-color);
-	transition: all 0.2s ease;
+	transition:
+		color var(--duration-fast) var(--ease-fluid),
+		background-color var(--duration-fast) var(--ease-fluid),
+		transform var(--duration-fast) var(--ease-fluid);
 }
 
 .closeButton:hover {
 	color: var(--foreground-color);
+	background: var(--current-line);
 }
 
-.closeButton:focus {
+.closeButton:active {
+	transform: scale(0.92);
+}
+
+.closeButton:focus-visible {
 	outline: 2px solid var(--green-color);
 	outline-offset: 2px;
 }

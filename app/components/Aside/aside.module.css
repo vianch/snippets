@@ -47,22 +47,70 @@
 }
 
 .title {
-	font-size: var(--small-font-size);
+	font-size: var(--tiny-font-size);
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
 	user-select: none; /* Safari */
 	display: flex;
 	align-items: center;
 	width: 100%;
-	margin-bottom: 0.313rem;
+	margin-bottom: 0.375rem;
+	padding: 0 0.25rem;
 }
 
 .titleClickable {
 	cursor: pointer;
-	transition: color 0.2s ease;
+	transition: opacity var(--duration-fast) var(--ease-fluid);
+}
+
+.titleClickable:hover {
+	opacity: 0.75;
+}
+
+.titleToggle {
+	background: none;
+	border: none;
+	font-family: inherit;
+}
+
+.titleToggle:focus-visible {
+	outline: 2px solid var(--cyan-color);
+	outline-offset: 2px;
+	border-radius: var(--border-radius);
+}
+
+.collapse {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows var(--duration-base) var(--ease-fluid);
+}
+
+.collapseOpen {
+	grid-template-rows: 1fr;
+}
+
+.collapseInner {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+	opacity: 0;
+	transition: opacity var(--duration-base) var(--ease-fluid);
+}
+
+.collapseOpen .collapseInner {
+	opacity: 1;
+}
+
+.tagsSection .collapse {
+	flex: 1;
+	min-height: 0;
 }
 
 .caretIcon {
 	margin-left: auto;
-	transition: transform 0.2s ease;
+	transition: transform var(--duration-base) var(--ease-fluid);
 }
 
 .caretExpanded {
@@ -76,9 +124,18 @@
 .linkItem {
 	display: flex;
 	align-items: center;
-	padding: 0.313rem 0.938rem;
+	margin: 0 0.5rem 0.125rem;
+	padding: 0.375rem 0.625rem;
+	border-radius: var(--border-radius-md);
 	cursor: pointer;
 	font-size: var(--small-font-size);
+	transition:
+		background-color var(--duration-fast) var(--ease-fluid),
+		color var(--duration-fast) var(--ease-fluid);
+}
+
+.linkItem:hover {
+	background: var(--current-line);
 }
 
 .linkItemActive {
@@ -87,18 +144,32 @@
 }
 
 .numberOfItems {
-	font-size: var(--small-font-size);
-	margin-left: 0.313rem;
+	margin-left: auto;
+	padding: 0.063rem 0.5rem;
+	font-size: var(--tiny-font-size);
+	line-height: 1.5;
+	color: var(--gray-color);
+	background: var(--current-line);
+	border-radius: 999px;
+	transition: background-color var(--duration-fast) var(--ease-fluid);
+}
+
+.linkItemActive .numberOfItems,
+.linkItem:hover .numberOfItems {
+	background: var(--bg-color-dark);
 }
 
 .smartGroupItem {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	padding: 0.313rem 0.938rem;
+	margin: 0 0.5rem 0.125rem;
+	padding: 0.375rem 0.625rem;
+	border-radius: var(--border-radius-md);
 	cursor: pointer;
 	font-size: var(--small-font-size);
 	color: var(--foreground-color);
+	transition: background-color var(--duration-fast) var(--ease-fluid);
 }
 
 .smartGroupItem:hover {
@@ -120,15 +191,27 @@
 	font-size: 1rem;
 	line-height: 1;
 	padding: 0 0.25rem;
-	visibility: hidden;
+	opacity: 0;
+	transition:
+		opacity var(--duration-fast) var(--ease-fluid),
+		color var(--duration-fast) var(--ease-fluid),
+		transform var(--duration-fast) var(--ease-spring);
 }
 
 .smartGroupRemove:hover {
 	color: var(--red-color);
+	transform: scale(1.15);
 }
 
+.smartGroupRemove:focus-visible,
 .smartGroupItem:hover .smartGroupRemove {
-	visibility: visible;
+	opacity: 1;
+}
+
+@media (hover: none) {
+	.smartGroupRemove {
+		opacity: 1;
+	}
 }
 
 .settingsItems {

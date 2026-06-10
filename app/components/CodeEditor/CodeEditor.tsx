@@ -14,7 +14,7 @@ import wikiLinkAutocomplete from "@/lib/wikiLinkAutocomplete";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
-import { SnippetState } from "@/lib/constants/core";
+import { MenuPrefixes, SnippetState } from "@/lib/constants/core";
 import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
 import { aiActions, AiPaneTab } from "@/lib/constants/ai";
 import { requestAiAction } from "@/utils/ai.utils";
@@ -195,7 +195,11 @@ const CodeEditor = ({
 							/>
 
 							<CodeEditorTags
-								activeTag={codeEditorStates?.menuType ?? ""}
+								activeTag={
+									codeEditorStates?.menuType?.startsWith(MenuPrefixes.Tag)
+										? codeEditorStates.menuType.slice(MenuPrefixes.Tag.length)
+										: ""
+								}
 								currentSnippet={currentSnippet}
 								allSnippets={allSnippets}
 								isPublic={currentSnippet.is_public ?? false}

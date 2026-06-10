@@ -16,6 +16,7 @@ import {
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
+import Switch from "@/components/ui/Switch/Switch";
 import Loading from "@/components/ui/icons/Loading";
 import Lock from "@/components/ui/icons/Lock";
 
@@ -313,24 +314,22 @@ const TwoFactorSettings = ({
 			<h3 className={styles.sectionTitle}>Two-Factor Authentication</h3>
 
 			<div className={styles.toggleGroup}>
-				<label className={styles.toggleLabel}>
-					<input
-						type="checkbox"
-						checked={isToggleChecked}
-						onChange={handleToggle}
-						disabled={disabled || loading || initializing}
-						className={styles.toggleCheckbox}
-					/>
-					<span className={styles.toggleText}>
-						{isToggleChecked
+				<Switch
+					checked={isToggleChecked}
+					disabled={disabled || loading || initializing}
+					label={
+						isToggleChecked
 							? "Two-factor authentication is on"
-							: "Enable two-factor authentication"}
-					</span>
-					{(loading || initializing) && <Loading width={16} height={16} />}
-				</label>
-				<small className={styles.helpText}>
-					Protect your account with a time-based code from an authenticator app.
-				</small>
+							: "Enable two-factor authentication"
+					}
+					description="Protect your account with a time-based code from an authenticator app."
+					onChange={handleToggle}
+				/>
+				{(loading || initializing) && (
+					<div className={styles.loadingRow}>
+						<Loading width={16} height={16} />
+					</div>
+				)}
 			</div>
 
 			{mode === TwoFactorMode.Enrolling && enrollment && (

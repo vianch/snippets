@@ -6,6 +6,18 @@
 	border-radius: var(--border-radius);
 	border: 0.063rem solid var(--border-color);
 	align-items: center;
+	transition:
+		border-color var(--duration-fast) var(--ease-fluid),
+		box-shadow var(--duration-fast) var(--ease-fluid);
+}
+
+.inputContainer:not(.ghost):hover {
+	border-color: var(--gray-color);
+}
+
+.inputContainer:not(.ghost):focus-within {
+	border-color: var(--cyan-color);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--cyan-color) 15%, transparent);
 }
 
 /* Borderless "title" variant — reads as editable content, not form chrome.
