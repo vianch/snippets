@@ -1,9 +1,5 @@
-import { CSSProperties, ReactElement } from "react";
+import { ReactElement } from "react";
 
-/* Components */
-import Card from "@/components/ui/Card/Card";
-
-/* Styles */
 import styles from "./featureCard.module.css";
 
 type FeatureCardProps = {
@@ -12,15 +8,12 @@ type FeatureCardProps = {
 
 const FeatureCard = ({ feature }: FeatureCardProps): ReactElement => {
 	const FeatureIcon = feature.icon;
-	// Accent token derived from the feature's palette key (e.g. var(--cyan-color)).
-	const cardStyle = {
-		"--feature-accent": `var(--${feature.accent}-color)`,
-	} as CSSProperties;
 
 	return (
-		<Card
-			className={`${styles.card} ${styles[feature.size] ?? ""}`}
-			style={cardStyle}
+		<article
+			className={styles.card}
+			data-accent={feature.accent}
+			data-size={feature.size}
 		>
 			<h3 className={styles.title}>
 				<span className={styles.iconWrap}>
@@ -42,7 +35,7 @@ const FeatureCard = ({ feature }: FeatureCardProps): ReactElement => {
 			) : null}
 
 			<span className={styles.detail}>{feature.detail}</span>
-		</Card>
+		</article>
 	);
 };
 
