@@ -5,6 +5,12 @@ import {
 	UnbanDuration,
 	UsersPerPage,
 } from "@/lib/constants/admin.constants";
+import {
+	RecoveryOtpType,
+	RecoveryTokenHashParam,
+	RecoveryTypeParam,
+	ResetPasswordRoutePath,
+} from "@/lib/constants/auth.constants";
 import { AppRole } from "@/lib/constants/roles";
 import { ThemeNames } from "@/lib/config/themes";
 import createSupabaseAdminClient from "@/lib/supabase/admin";
@@ -183,6 +189,12 @@ export const revokeUserSessions = async (
 	return { error: error?.message ?? null };
 };
 
+// Builds a link to the app's own /reset-password page rather than returning
+// GoTrue's raw action_link. The raw link verifies through Supabase and then
+// drops the user on the site root, which has no recovery form. Instead we hand
+// back the one-time hashed token and let the reset page redeem it with
+// verifyOtp, so the user lands on a "set new password" form. The path is
+// relative so it resolves against whatever origin the dashboard runs on.
 export const generatePasswordResetLink = async (
 	email: string
 ): Promise<{ actionLink: string | null; error: string | null }> => {
@@ -192,8 +204,18 @@ export const generatePasswordResetLink = async (
 		type: "recovery",
 	});
 
-	return {
-		actionLink: data?.properties?.action_link ?? null,
-		error: error?.message ?? null,
-	};
+	if (error || !data?.properties?.hashed_token) {
+		return {
+			actionLink: null,
+			error: error?.message ?? "Could not generate a recovery link",
+		};
+	}
+
+	const params = new URLSearchParams({
+		[RecoveryTokenHashParam]: data.properties.hashed_token,
+		[RecoveryTypeParam]: RecoveryOtpType,
+	});
+	const actionLink = `${ResetPasswordRoutePath}?${params.toString()}`;
+
+	return { actionLink, error: null };
 };

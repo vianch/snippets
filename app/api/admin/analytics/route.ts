@@ -5,6 +5,11 @@ import { isAdminClientConfigured } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/supabase/adminGuard";
 import { computeSnippetAnalytics } from "@/lib/supabase/adminAnalytics";
 
+// Analytics must reflect the current database, never a cached snapshot.
+export const dynamic = "force-dynamic";
+
+const NoStoreHeaders = { "Cache-Control": "no-store" } as const;
+
 export const GET = async (request: NextRequest): Promise<NextResponse> => {
 	if (!isAdminClientConfigured()) {
 		return NextResponse.json(
@@ -21,5 +26,5 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 
 	const analytics = await computeSnippetAnalytics();
 
-	return NextResponse.json(analytics);
+	return NextResponse.json(analytics, { headers: NoStoreHeaders });
 };

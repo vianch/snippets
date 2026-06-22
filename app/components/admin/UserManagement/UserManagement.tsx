@@ -55,7 +55,9 @@ const UserManagement = ({ isReadOnly }: UserManagementProps): ReactElement => {
 		setStatus(RequestStatus.Loading);
 
 		try {
-			const response = await fetch(AdminApiPaths.users);
+			// no-store: the browser otherwise serves a stale cached response, so
+			// the table only refreshed when devtools had caching disabled.
+			const response = await fetch(AdminApiPaths.users, { cache: "no-store" });
 
 			if (!response.ok) {
 				throw new Error("Failed to load users");

@@ -58,7 +58,10 @@ const SnippetAnalytics = (): ReactElement => {
 		setStatus(RequestStatus.Loading);
 
 		try {
-			const response = await fetch(AdminApiPaths.analytics);
+			// no-store: keep analytics live instead of serving a cached response.
+			const response = await fetch(AdminApiPaths.analytics, {
+				cache: "no-store",
+			});
 
 			if (!response.ok) {
 				throw new Error("Failed to load analytics");
