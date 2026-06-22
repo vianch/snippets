@@ -7,6 +7,12 @@ import { isAdminClientConfigured } from "@/lib/supabase/admin";
 import { rejectDemoActor, requireAdmin } from "@/lib/supabase/adminGuard";
 import { createAdminUser, listAdminUsers } from "@/lib/supabase/adminUsers";
 
+// This endpoint reflects live mutations (create/disable/delete), so it must
+// never be cached by Next's data cache or the browser.
+export const dynamic = "force-dynamic";
+
+const NoStoreHeaders = { "Cache-Control": "no-store" } as const;
+
 const serviceUnavailable = (): NextResponse =>
 	NextResponse.json(
 		{ error: "Admin features are not configured on the server" },
@@ -26,7 +32,7 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 
 	const response = await listAdminUsers();
 
-	return NextResponse.json(response);
+	return NextResponse.json(response, { headers: NoStoreHeaders });
 };
 
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
