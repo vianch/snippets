@@ -1,0 +1,83 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 1rem;
+}
+
+.panelRow {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1.25rem;
+}
+
+.toggle {
+	display: inline-flex;
+	gap: 0.375rem;
+}
+
+.emptyNote {
+	padding: 2rem 0;
+	font-size: var(--small-font-size);
+	color: var(--gray-color);
+	text-align: center;
+}
+
+.errorRow {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.rankList {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.rankItem {
+	display: grid;
+	grid-template-columns: minmax(6rem, 1fr) 2fr auto;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.rankLabel {
+	overflow: hidden;
+	font-size: var(--small-font-size);
+	color: var(--foreground-color);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.rankTrack {
+	height: 0.5rem;
+	border-radius: var(--border-radius-md);
+	background: var(--current-line);
+	overflow: hidden;
+}
+
+.rankBar {
+	display: block;
+	height: 100%;
+	border-radius: var(--border-radius-md);
+	transition: width var(--duration-slow) var(--ease-fluid);
+}
+
+.rankValue {
+	font-size: var(--small-font-size);
+	font-variant-numeric: tabular-nums;
+	color: var(--gray-color);
+}
+
+@media (width <= 768px) {
+	.panelRow {
+		grid-template-columns: 1fr;
+	}
+}

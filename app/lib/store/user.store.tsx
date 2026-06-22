@@ -11,6 +11,7 @@ type UserState = {
 	theme: string;
 	aiApiKey: string;
 	autoSave: boolean;
+	isAdmin: boolean;
 	isLoading: boolean;
 	setUserName: (userName: string | null) => void;
 	setUserAvatar: (avatar: string) => void;
@@ -18,6 +19,7 @@ type UserState = {
 	setTheme: (theme: string) => void;
 	setAiApiKey: (aiApiKey: string) => void;
 	setAutoSave: (autoSave: boolean) => void;
+	setIsAdmin: (isAdmin: boolean) => void;
 	setUserData: (userData: {
 		userName?: string | null;
 		userAvatar?: string;
@@ -25,6 +27,7 @@ type UserState = {
 		theme?: string;
 		aiApiKey?: string;
 		autoSave?: boolean;
+		isAdmin?: boolean;
 	}) => void;
 	setLoading: (loading: boolean) => void;
 	clearUser: () => void;
@@ -37,6 +40,7 @@ const useUserStore = create<UserState>((set) => ({
 	theme: ThemeNames.ShadesOfPurple,
 	aiApiKey: "",
 	autoSave: false,
+	isAdmin: false,
 	isLoading: true,
 	setUserName: (userName) => set({ userName }),
 	setUserAvatar: (userAvatar) => set({ userAvatar }),
@@ -44,6 +48,7 @@ const useUserStore = create<UserState>((set) => ({
 	setTheme: (theme) => set({ theme }),
 	setAiApiKey: (aiApiKey) => set({ aiApiKey }),
 	setAutoSave: (autoSave) => set({ autoSave }),
+	setIsAdmin: (isAdmin) => set({ isAdmin }),
 	setUserData: (userData) =>
 		set((state) => ({
 			...state,
@@ -58,6 +63,7 @@ const useUserStore = create<UserState>((set) => ({
 			theme: ThemeNames.ShadesOfPurple,
 			aiApiKey: "",
 			autoSave: false,
+			isAdmin: false,
 			isLoading: false,
 		}),
 }));

@@ -1,0 +1,82 @@
+.donut {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	flex-wrap: wrap;
+}
+
+.ring {
+	position: relative;
+	flex-shrink: 0;
+	width: 160px;
+	height: 160px;
+}
+
+.svg {
+	width: 100%;
+	height: 100%;
+}
+
+.segment {
+	transition: stroke-dasharray var(--duration-slow) var(--ease-fluid);
+}
+
+.center {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.125rem;
+	pointer-events: none;
+}
+
+.centerValue {
+	font-size: var(--big-font-size);
+	font-weight: 700;
+	color: var(--foreground-color);
+	font-variant-numeric: tabular-nums;
+}
+
+.centerLabel {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+	text-transform: uppercase;
+	letter-spacing: 0.05rem;
+}
+
+.legend {
+	display: flex;
+	flex: 1 1 8rem;
+	flex-direction: column;
+	gap: 0.5rem;
+	min-width: 8rem;
+}
+
+.legendItem {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: var(--small-font-size);
+}
+
+.legendDot {
+	flex-shrink: 0;
+	width: 0.625rem;
+	height: 0.625rem;
+	border-radius: 50%;
+}
+
+.legendLabel {
+	flex: 1;
+	overflow: hidden;
+	color: var(--foreground-color);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.legendValue {
+	font-variant-numeric: tabular-nums;
+	color: var(--gray-color);
+}

@@ -18,4 +18,7 @@ const formatDateToDDMMYYYY = (dateString: string): string => {
 	return "";
 };
 
+// ISO timestamp → YYYY-MM-DD day bucket key.
+export const dayKey = (isoDate: string): string => isoDate.slice(0, 10);
+
 export default formatDateToDDMMYYYY;

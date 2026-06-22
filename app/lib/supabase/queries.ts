@@ -7,6 +7,7 @@ import {
 	MfaFactorType,
 	MfaFriendlyName,
 } from "@/lib/constants/mfa";
+import { AppRole, RoleClaimKey, RolesTableName } from "@/lib/constants/roles";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { AuthError, UserAttributes, UserResponse } from "@supabase/supabase-js";
 
@@ -50,6 +51,31 @@ export const getUserEmailBySession = async (): Promise<
 	const userFromServer = await getUserDataFromServer();
 
 	return userFromServer?.email ?? null;
+};
+
+export const getCurrentUserRole = async (): Promise<AppRole> => {
+	const { data } = await supabase.auth.getClaims();
+	// The access-token hook injects `user_role`; the typed JwtPayload omits it.
+	const claims = data?.claims as Record<string, unknown> | undefined;
+	const claimed = claims?.[RoleClaimKey];
+
+	if (claimed === AppRole.Admin || claimed === AppRole.User) {
+		return claimed;
+	}
+
+	const userId = await getUserIdBySession();
+
+	if (!userId) {
+		return AppRole.User;
+	}
+
+	const { data: roleRow } = await supabase
+		.from(RolesTableName)
+		.select("role")
+		.eq("user_id", userId)
+		.maybeSingle();
+
+	return roleRow?.role === AppRole.Admin ? AppRole.Admin : AppRole.User;
 };
 
 export const getAllSnippets = async (): Promise<Snippet[]> => {
