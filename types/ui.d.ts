@@ -5,6 +5,19 @@ declare global {
 
 	type Severity = "error" | "warning" | "info" | "success";
 	type SnapshotPadding = "lg" | "md" | "sm" | "xl";
+
+	type TableColumn = {
+		align?: "right";
+		label: string;
+	};
+
+	type MenuItem = {
+		danger?: boolean;
+		disabled?: boolean;
+		icon?: ReactNode;
+		label: string;
+		onSelect: () => void;
+	};
 	type Variants =
 		| "primary"
 		| "secondary"

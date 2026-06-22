@@ -1,44 +1,23 @@
+/* Built on the shared <Card> primitive; these rules layer the landing's glass
+   surface + accent on top (featureCard styles import after Card, so they win). */
 .card {
 	--feature-accent: var(--purple-color);
 
-	display: flex;
-	flex-flow: column nowrap;
 	align-items: flex-start;
 	gap: 0.65rem;
 	background: var(--glass-bg);
 	border: 1px solid var(--glass-border);
-	border-radius: var(--border-radius-lg);
 	padding: 1.5rem;
 	backdrop-filter: blur(8px);
 	overflow: hidden;
 }
 
-.card[data-accent="blue"] {
-	--feature-accent: var(--blue-color);
+.large {
+	min-height: 16rem;
 }
 
-.card[data-accent="cyan"] {
-	--feature-accent: var(--cyan-color);
-}
-
-.card[data-accent="green"] {
-	--feature-accent: var(--green-color);
-}
-
-.card[data-accent="orange"] {
-	--feature-accent: var(--orange-color);
-}
-
-.card[data-accent="purple"] {
-	--feature-accent: var(--purple-color);
-}
-
-.card[data-accent="red"] {
-	--feature-accent: var(--red-color);
-}
-
-.card[data-accent="yellow"] {
-	--feature-accent: var(--yellow-color);
+.medium {
+	min-height: 11rem;
 }
 
 .iconWrap {
@@ -87,12 +66,4 @@
 	font-family: monospace;
 	color: var(--feature-accent);
 	padding-top: 0.5rem;
-}
-
-.card[data-size="large"] {
-	min-height: 16rem;
-}
-
-.card[data-size="medium"] {
-	min-height: 11rem;
 }

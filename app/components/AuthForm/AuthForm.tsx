@@ -10,7 +10,12 @@ import {
 import { useRouter } from "next/navigation";
 
 /* Lib */
-import { FormMessageTypes, regexPatterns } from "@/lib/constants/form";
+import {
+	BannedErrorFragment,
+	DisabledUserMessage,
+	FormMessageTypes,
+	regexPatterns,
+} from "@/lib/constants/form";
 import { AuthFormStep, MfaCodeLength } from "@/lib/constants/mfa";
 import supabase from "@/lib/supabase/client";
 import {
@@ -87,9 +92,17 @@ const AuthForm = (): ReactElement => {
 		});
 
 		if (error) {
+			const rawMessage =
+				error.message || "something went wrong!, try again later";
+			const friendlyMessage = rawMessage
+				.toLowerCase()
+				.includes(BannedErrorFragment)
+				? DisabledUserMessage
+				: rawMessage;
+
 			setFormData({
 				...formData,
-				text: error?.message ?? "something went wrong!, try again later",
+				text: friendlyMessage,
 				type: FormMessageTypes.Error,
 			});
 			setLoading(false);

@@ -13,6 +13,10 @@
 		transform var(--duration-fast) var(--ease-fluid);
 }
 
+.pill {
+	border-radius: 999px;
+}
+
 .primary {
 	background: var(--button-bg);
 	color: var(--foreground-color);

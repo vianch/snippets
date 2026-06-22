@@ -23,26 +23,28 @@
 	word-break: break-word;
 }
 
+/* Severity colors derive from the active theme's palette (color-mix tint over
+   the current surface) so alerts track every [data-theme], dark or light. */
 .success {
-	background-color: var(--success-color);
-	color: var(--dark-green-color);
-	border-color: var(--dark-green-color);
+	background-color: color-mix(in srgb, var(--green-color) 14%, transparent);
+	color: var(--green-color);
+	border: 1px solid color-mix(in srgb, var(--green-color) 45%, transparent);
 }
 
 .warning {
-	background-color: var(--warning-color);
-	color: var(--dark-orange-color);
-	border-color: var(--dark-orange-color);
+	background-color: color-mix(in srgb, var(--yellow-color) 14%, transparent);
+	color: var(--yellow-color);
+	border: 1px solid color-mix(in srgb, var(--yellow-color) 45%, transparent);
 }
 
 .error {
-	background-color: var(--error-color);
-	color: var(--dark-red-color);
-	border: 2px solid var(--dark-red-color);
+	background-color: color-mix(in srgb, var(--red-color) 14%, transparent);
+	color: var(--red-color);
+	border: 1px solid color-mix(in srgb, var(--red-color) 45%, transparent);
 }
 
 .info {
-	background-color: var(--info-color);
-	color: var(--blue-color);
-	border-color: var(--blue-color);
+	background-color: color-mix(in srgb, var(--cyan-color) 14%, transparent);
+	color: var(--cyan-color);
+	border: 1px solid color-mix(in srgb, var(--cyan-color) 45%, transparent);
 }

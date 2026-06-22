@@ -32,6 +32,7 @@ import supabase from "@/lib/supabase/client";
 import useMenuStore from "@/lib/store/menu.store";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
+import useCurrentUser from "@/lib/hooks/useCurrentUser";
 import { getUserDataFromSession } from "@/lib/supabase/queries";
 import { isValidTheme, ThemeName, ThemeNames } from "@/lib/config/themes";
 import { setCookie } from "@/lib/cookies";
@@ -56,6 +57,7 @@ import CaretDown from "@/components/ui/icons/CaretDown";
 import Globe from "@/components/ui/icons/Globe";
 import Keyboard from "@/components/ui/icons/Keyboard";
 import Sparkle from "@/components/ui/icons/Sparkle";
+import ShieldCheck from "@/components/ui/icons/ShieldCheck";
 import ShortcutsModal from "@/components/ShortcutsModal/ShortcutsModal";
 
 /* Styles */
@@ -140,6 +142,7 @@ const Aside = ({
 	const setUserData = useUserStore((state) => state.setUserData);
 	const setLoading = useUserStore((state) => state.setLoading);
 	const setTheme = useUserStore((state) => state.setTheme);
+	const { isAdmin } = useCurrentUser();
 
 	const signOut = async (): Promise<void> => {
 		setIsLoginOut(true);
@@ -591,6 +594,25 @@ const Aside = ({
 						</div>
 
 						<div className={styles.userMenuSep} />
+
+						{isAdmin && (
+							<button
+								className={styles.userMenuItem}
+								role="menuitem"
+								onClick={() => {
+									setIsUserMenuOpen(false);
+									closeMainMenu();
+									router.push("/admin");
+								}}
+							>
+								<ShieldCheck
+									className={styles.userMenuIco}
+									width={16}
+									height={16}
+								/>
+								<span className={styles.userMenuLabel}>Admin</span>
+							</button>
+						)}
 
 						{isOnAiAssistant ? (
 							<button

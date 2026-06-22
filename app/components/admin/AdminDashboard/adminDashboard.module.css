@@ -1,0 +1,151 @@
+.page {
+	display: flex;
+	width: 100%;
+	min-height: 100vh;
+}
+
+/* Every admin button: 30px tall with 0 15px padding. Table buttons keep a
+   compact icon padding (override below). */
+.page button {
+	min-height: 1.875rem;
+	padding: 0 0.9375rem;
+}
+
+.page td button {
+	padding: 0 0.5rem;
+}
+
+.sidebar {
+	/* border-box so padding stays inside the 100vh height (no global box-sizing
+	   reset exists) — otherwise the rail overflows the viewport and scrolls. */
+	box-sizing: border-box;
+	position: sticky;
+	top: 0;
+	align-self: flex-start;
+	flex: 0 0 15rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	height: 100vh;
+	padding: 1.5rem 1rem;
+	background: var(--bg-color-dark);
+	border-right: 1px solid var(--border-color);
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+}
+
+.brandIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	border-radius: var(--border-radius-md);
+	color: var(--purple-color);
+	background: color-mix(in srgb, var(--purple-color) 14%, transparent);
+}
+
+.brandTitle {
+	font-size: var(--big-font-size);
+	font-weight: 700;
+	color: var(--foreground-color);
+}
+
+.demoTag {
+	margin-left: auto;
+	padding: 0.125rem 0.5rem;
+	border-radius: var(--border-radius-pill, 999px);
+	font-size: var(--tiny-font-size);
+	font-weight: 600;
+	color: var(--yellow-color);
+	background: color-mix(in srgb, var(--yellow-color) 16%, transparent);
+}
+
+.nav {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.navItem {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	width: 100%;
+	border: none;
+	border-radius: var(--border-radius-md);
+	background: transparent;
+	color: var(--gray-color);
+	font-family: inherit;
+	font-size: var(--small-font-size);
+	text-align: left;
+	cursor: pointer;
+	transition:
+		background var(--duration-fast) var(--ease-fluid),
+		color var(--duration-fast) var(--ease-fluid);
+}
+
+.navItemActive {
+	color: var(--cyan-color);
+	background: color-mix(in srgb, var(--cyan-color) 12%, transparent);
+}
+
+.navItem:hover {
+	color: var(--foreground-color);
+	background: var(--current-line);
+}
+
+.navIcon {
+	display: inline-flex;
+	flex-shrink: 0;
+}
+
+.navLabel {
+	flex: 1;
+}
+
+.backButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.375rem;
+	margin-top: auto;
+}
+
+.main {
+	box-sizing: border-box;
+	flex: 1;
+	min-width: 0;
+	padding: 2rem;
+}
+
+@media (width <= 768px) {
+	.page {
+		flex-direction: column;
+	}
+
+	.sidebar {
+		position: static;
+		flex: none;
+		width: 100%;
+		height: auto;
+		border-right: none;
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.nav {
+		flex-flow: row wrap;
+	}
+
+	.backButton {
+		margin-top: 0;
+	}
+
+	.main {
+		padding: 1.25rem;
+	}
+}

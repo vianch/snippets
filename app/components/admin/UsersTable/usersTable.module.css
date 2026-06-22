@@ -1,0 +1,81 @@
+.demoRow {
+	background: color-mix(in srgb, var(--yellow-color) 7%, transparent);
+}
+
+.userCell {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.userName {
+	font-weight: 600;
+	color: var(--foreground-color);
+}
+
+.userEmail {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.188rem 0.5rem;
+	border-radius: var(--border-radius-pill, 999px);
+	font-size: var(--tiny-font-size);
+	font-weight: 600;
+	text-transform: capitalize;
+}
+
+.badgeAdmin {
+	color: var(--purple-color);
+	background: color-mix(in srgb, var(--purple-color) 16%, transparent);
+}
+
+.badgeUser {
+	color: var(--gray-color);
+	background: color-mix(in srgb, var(--gray-color) 16%, transparent);
+}
+
+.badgeActive {
+	color: var(--green-color);
+	background: color-mix(in srgb, var(--green-color) 16%, transparent);
+}
+
+.badgeDisabled {
+	color: var(--red-color);
+	background: color-mix(in srgb, var(--red-color) 16%, transparent);
+}
+
+.theme {
+	font-size: var(--tiny-font-size);
+	color: var(--cyan-color);
+}
+
+.muted {
+	color: var(--gray-color);
+	white-space: nowrap;
+}
+
+.actionsCell {
+	text-align: right;
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.375rem;
+	flex-wrap: wrap;
+}
+
+.lockNote {
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.375rem;
+	width: 100%;
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+}
