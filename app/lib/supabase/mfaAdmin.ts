@@ -1,5 +1,6 @@
 import { createHash, randomInt } from "crypto";
 
+import { logger } from "@/lib/logger/logger";
 import createSupabaseAdminClient from "@/lib/supabase/admin";
 import {
 	MfaFactorType,
@@ -66,6 +67,10 @@ export const consumeRecoveryCode = async (
 	const { data, error } = await admin.auth.admin.getUserById(userId);
 
 	if (error || !data?.user) {
+		logger.error(error ?? "consumeRecoveryCode: user not found", {
+			source: "consumeRecoveryCode",
+		});
+
 		return false;
 	}
 
@@ -92,6 +97,10 @@ export const deleteUserMfaFactors = async (
 	const { data, error } = await admin.auth.admin.mfa.listFactors({ userId });
 
 	if (error || !data) {
+		logger.error(error ?? "Could not list factors", {
+			source: "deleteUserMfaFactors",
+		});
+
 		return { error: error?.message ?? "Could not list factors" };
 	}
 

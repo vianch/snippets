@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const securityHeaders = [
 	{ key: "X-Frame-Options", value: "DENY" },
@@ -21,4 +23,12 @@ const nextConfig = {
 	},
 };
 
-module.exports = nextConfig;
+// Sentry build-time wrapper (POC). Source-map upload runs only when
+// SENTRY_AUTH_TOKEN is present; without it the build still succeeds.
+export default withSentryConfig(nextConfig, {
+	org: "vianch",
+	project: "snippets",
+	silent: !process.env.CI,
+	widenClientFileUpload: true,
+	disableLogger: true,
+});

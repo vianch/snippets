@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { AppRole } from "@/lib/constants/roles";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
+import { logger } from "@/lib/logger/logger";
 import { isAdminClientConfigured } from "@/lib/supabase/admin";
 import {
 	rejectDemoActor,
@@ -32,6 +33,12 @@ export const PATCH = async (
 	const guard = await requireAdmin(request);
 
 	if (guard.error) {
+		logger.error("Admin guard denied", {
+			method: request.method,
+			route: "/api/admin/users/[userId]",
+			status: guard.error.status,
+		});
+
 		return guard.error;
 	}
 
@@ -102,6 +109,12 @@ export const DELETE = async (
 	const guard = await requireAdmin(request);
 
 	if (guard.error) {
+		logger.error("Admin guard denied", {
+			method: request.method,
+			route: "/api/admin/users/[userId]",
+			status: guard.error.status,
+		});
+
 		return guard.error;
 	}
 

@@ -1,7 +1,10 @@
 import { create } from "zustand";
 
 /* Constants */
-import { ToastPositions, ToastTimeOut } from "@/lib/constants/toast";
+import { ToastPositions, ToastTimeOut, ToastType } from "@/lib/constants/toast";
+
+/* Logger */
+import { logger } from "@/lib/logger/logger";
 
 /* Utils */
 import uuidv4 from "@/utils/string.utils";
@@ -12,6 +15,10 @@ const useToastStore = create<ToastState & ToastActions>((set) => ({
 	toasts: null,
 	position: ToastPositions.BottomCenter,
 	addToast: (toast: Toast) => {
+		if (toast.type === ToastType.Error) {
+			logger.error(toast.message, { source: "toast" });
+		}
+
 		const newToast = {
 			...toast,
 			id: toast.id || uuidv4(),
