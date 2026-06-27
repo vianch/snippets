@@ -9,6 +9,7 @@ import type { EditorView } from "@codemirror/view";
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import inlineCompletion from "@/lib/inlineCompletion";
+import lspExtension from "@/lib/lsp";
 import markdownKeymap from "@/lib/markdown/markdownKeymap";
 import wikiLinkAutocomplete from "@/lib/wikiLinkAutocomplete";
 import useViewPortStore from "@/lib/store/viewPort.store";
@@ -146,6 +147,16 @@ const CodeEditor = ({
 	const wikiAutocompleteExtension = useMemo(
 		() => wikiLinkAutocomplete(allSnippets),
 		[allSnippets]
+	);
+
+	const languageServerExtension = useMemo(
+		() =>
+			lspExtension({
+				enabled: !isTrashActive,
+				language: currentSnippet.language,
+				snippetId: currentSnippet.snippet_id ?? "draft",
+			}),
+		[isTrashActive, currentSnippet.language, currentSnippet.snippet_id]
 	);
 
 	const handleCopyToSnippet = (content: string): void => {
@@ -345,6 +356,7 @@ const CodeEditor = ({
 										currentSnippet.extension,
 										inlineCompletionExtension,
 										wikiAutocompleteExtension,
+										languageServerExtension,
 										...(isMarkdownLanguage ? [markdownKeymap] : []),
 									]}
 									theme={editorTheme}
@@ -397,7 +409,11 @@ const CodeEditor = ({
 							placeholder={"Write your snipped here"}
 							className={styles.codeMirrorContainer}
 							value={currentSnippet?.snippet ?? ""}
-							extensions={[currentSnippet.extension, wikiAutocompleteExtension]}
+							extensions={[
+								currentSnippet.extension,
+								wikiAutocompleteExtension,
+								languageServerExtension,
+							]}
 							theme={editorTheme}
 							height={editorHeight}
 							width="100%"

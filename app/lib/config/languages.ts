@@ -44,4 +44,29 @@ export const languageAbbreviations: Record<string, string> = {
 	[SupportedLanguages.YAML]: "YML",
 };
 
+// LSP standard language identifiers (per the Language Server Protocol spec),
+// used as the `languageId` sent to the language server on didOpen.
+export const languageServerIds: Record<string, string> = {
+	[SupportedLanguages.Markdown]: "markdown",
+	[SupportedLanguages.Bash]: "shellscript",
+	[SupportedLanguages.C]: "c",
+	[SupportedLanguages.Cpp]: "cpp",
+	[SupportedLanguages.CSS]: "css",
+	[SupportedLanguages.Dart]: "dart",
+	[SupportedLanguages.Go]: "go",
+	[SupportedLanguages.HTML]: "html",
+	[SupportedLanguages.Java]: "java",
+	[SupportedLanguages.JavaScript]: "javascript",
+	[SupportedLanguages.JSON]: "json",
+	[SupportedLanguages.Kotlin]: "kotlin",
+	[SupportedLanguages.PHP]: "php",
+	[SupportedLanguages.Python]: "python",
+	[SupportedLanguages.Ruby]: "ruby",
+	[SupportedLanguages.Rust]: "rust",
+	[SupportedLanguages.SQL]: "sql",
+	[SupportedLanguages.Swift]: "swift",
+	[SupportedLanguages.TypeScript]: "typescript",
+	[SupportedLanguages.YAML]: "yaml",
+};
+
 export default SupportedLanguages;
