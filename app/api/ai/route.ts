@@ -15,6 +15,7 @@ import {
 	UserRole,
 } from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
+import { logger } from "@/lib/logger/logger";
 import { connectClaude, pumpClaudeStream } from "@/lib/ai/providers/claude";
 import {
 	connectOllama,
@@ -84,6 +85,10 @@ const createStreamResponse = (
 			try {
 				await pump(emit);
 			} catch (streamError) {
+				// The provider error is swallowed into a stream event below, so the
+				// server-side stack would never reach Sentry otherwise. Log it here.
+				logger.error(streamError, { source: "ai-stream" });
+
 				const message =
 					streamError instanceof Error
 						? streamError.message

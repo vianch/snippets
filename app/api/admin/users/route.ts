@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { MinPasswordLength } from "@/lib/constants/admin.constants";
 import { AppRole } from "@/lib/constants/roles";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
+import { logger } from "@/lib/logger/logger";
 import { isAdminClientConfigured } from "@/lib/supabase/admin";
 import { rejectDemoActor, requireAdmin } from "@/lib/supabase/adminGuard";
 import { createAdminUser, listAdminUsers } from "@/lib/supabase/adminUsers";
@@ -27,6 +28,12 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 	const guard = await requireAdmin(request);
 
 	if (guard.error) {
+		logger.error("Admin guard denied", {
+			method: request.method,
+			route: "/api/admin/users",
+			status: guard.error.status,
+		});
+
 		return guard.error;
 	}
 
@@ -43,6 +50,12 @@ export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	const guard = await requireAdmin(request);
 
 	if (guard.error) {
+		logger.error("Admin guard denied", {
+			method: request.method,
+			route: "/api/admin/users",
+			status: guard.error.status,
+		});
+
 		return guard.error;
 	}
 

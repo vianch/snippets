@@ -1,4 +1,5 @@
 import supabase from "@/lib/supabase/client";
+import { logger } from "@/lib/logger/logger";
 import SnippetValueObject from "@/lib/models/Snippet";
 import { SnippetState } from "@/lib/constants/core";
 import {
@@ -10,6 +11,15 @@ import {
 import { AppRole, RoleClaimKey, RolesTableName } from "@/lib/constants/roles";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { AuthError, UserAttributes, UserResponse } from "@supabase/supabase-js";
+
+// Logs the failure to Sentry, then throws so callers and the UI still react.
+// `cause` carries the underlying Supabase error when one is available; without
+// it the message itself is captured.
+const failQuery = (message: string, cause?: unknown): never => {
+	logger.error(cause ?? message, { query: message });
+
+	throw new Error(message);
+};
 
 export const getUserDataFromServer = async (): Promise<User> => {
 	const {
@@ -214,7 +224,7 @@ export const saveSnippet = async (
 	const userId = await getUserIdBySession();
 
 	if (!userId) {
-		throw new Error("Not authenticated");
+		failQuery("Not authenticated");
 	}
 
 	const payload = {
@@ -237,7 +247,7 @@ export const saveSnippet = async (
 		.select("snippet_id");
 
 	if (updateError) {
-		throw new Error("Error saving snippet");
+		failQuery("Error saving snippet", updateError);
 	}
 
 	if (updated && updated.length > 0) {
@@ -249,7 +259,7 @@ export const saveSnippet = async (
 		.insert({ ...payload, user_id: userId });
 
 	if (insertError) {
-		throw new Error("Error saving snippet");
+		failQuery("Error saving snippet", insertError);
 	}
 };
 
@@ -262,7 +272,7 @@ export const trashRestoreSnippet = async (
 	const userId = await getUserIdBySession();
 
 	if (!userId) {
-		throw new Error("Not authenticated");
+		failQuery("Not authenticated");
 	}
 
 	const { error } = await supabase
@@ -271,7 +281,7 @@ export const trashRestoreSnippet = async (
 		.match({ snippet_id: snippetId, user_id: userId });
 
 	if (error) {
-		throw new Error("Error trashing snippet");
+		failQuery("Error trashing snippet", error);
 	}
 };
 
@@ -284,7 +294,7 @@ export const setSnippetState = async (
 	const userId = await getUserIdBySession();
 
 	if (!userId) {
-		throw new Error("Not authenticated");
+		failQuery("Not authenticated");
 	}
 
 	const { error } = await supabase
@@ -293,7 +303,7 @@ export const setSnippetState = async (
 		.match({ snippet_id: snippetId, user_id: userId });
 
 	if (error) {
-		throw new Error("Error updating snippet state");
+		failQuery("Error updating snippet state", error);
 	}
 };
 
@@ -308,7 +318,7 @@ export const emptyTrash = async (): Promise<void> => {
 				.match({ user_id: userId, state: SnippetState.Inactive });
 
 			if (error) {
-				throw new Error("Error emptying trash");
+				failQuery("Error emptying trash", error);
 			}
 		}
 	}
@@ -336,7 +346,7 @@ export const saveSnippetVersion = async (
 		const userId = await getUserIdBySession();
 
 		if (!userId) {
-			throw new Error("Not authenticated");
+			failQuery("Not authenticated");
 		}
 
 		const { data: parent } = await supabase
@@ -346,7 +356,7 @@ export const saveSnippetVersion = async (
 			.maybeSingle();
 
 		if (!parent) {
-			throw new Error("Snippet not found");
+			failQuery("Snippet not found");
 		}
 
 		const { data: latestVersion } = await supabase
@@ -369,7 +379,7 @@ export const saveSnippetVersion = async (
 		});
 
 		if (error) {
-			throw new Error("Error saving snippet version");
+			failQuery("Error saving snippet version", error);
 		}
 	}
 };
@@ -423,7 +433,7 @@ export const toggleSnippetPublic = async (
 	const userId = await getUserIdBySession();
 
 	if (!userId) {
-		throw new Error("Not authenticated");
+		failQuery("Not authenticated");
 	}
 
 	const slug = isPublic ? (existingSlug ?? generateSlug()) : existingSlug;
@@ -434,7 +444,7 @@ export const toggleSnippetPublic = async (
 		.match({ snippet_id: snippetId, user_id: userId });
 
 	if (error) {
-		throw new Error("Error toggling snippet visibility");
+		failQuery("Error toggling snippet visibility", error);
 	}
 
 	return slug;
@@ -465,7 +475,7 @@ export const saveSmartGroups = async (groups: SmartGroup[]): Promise<void> => {
 	});
 
 	if (error) {
-		throw new Error("Error saving smart groups");
+		failQuery("Error saving smart groups", error);
 	}
 };
 

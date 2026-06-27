@@ -13,6 +13,7 @@ import {
 } from "@/lib/constants/auth.constants";
 import { AppRole } from "@/lib/constants/roles";
 import { ThemeNames } from "@/lib/config/themes";
+import { logger } from "@/lib/logger/logger";
 import createSupabaseAdminClient from "@/lib/supabase/admin";
 import { isDemoAccount } from "@/lib/supabase/adminGuard";
 import { fetchRoleMap, setUserRole } from "@/lib/supabase/roles";
@@ -63,6 +64,10 @@ export const listAdminUsers = async (): Promise<AdminUsersResponse> => {
 	});
 
 	if (error || !data) {
+		logger.error(error ?? "listAdminUsers returned no data", {
+			source: "listAdminUsers",
+		});
+
 		return { total: 0, users: [] };
 	}
 
@@ -98,6 +103,10 @@ export const createAdminUser = async (
 	});
 
 	if (error || !data?.user) {
+		logger.error(error ?? "Could not create user", {
+			source: "createAdminUser",
+		});
+
 		return { error: error?.message ?? "Could not create user", userId: null };
 	}
 
@@ -108,6 +117,8 @@ export const createAdminUser = async (
 	);
 
 	if (roleError) {
+		logger.error(roleError, { source: "createAdminUser:setUserRole" });
+
 		return { error: roleError, userId: data.user.id };
 	}
 
@@ -143,6 +154,8 @@ export const updateAdminUser = async (
 		const { error } = await admin.auth.admin.updateUserById(userId, attributes);
 
 		if (error) {
+			logger.error(error, { source: "updateAdminUser:updateUserById" });
+
 			return { error: error.message };
 		}
 	}
@@ -151,6 +164,8 @@ export const updateAdminUser = async (
 		const { error } = await setUserRole(userId, payload.role);
 
 		if (error) {
+			logger.error(error, { source: "updateAdminUser:setUserRole" });
+
 			return { error };
 		}
 	}
@@ -205,6 +220,10 @@ export const generatePasswordResetLink = async (
 	});
 
 	if (error || !data?.properties?.hashed_token) {
+		logger.error(error ?? "Could not generate a recovery link", {
+			source: "generatePasswordResetLink",
+		});
+
 		return {
 			actionLink: null,
 			error: error?.message ?? "Could not generate a recovery link",
