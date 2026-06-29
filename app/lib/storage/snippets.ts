@@ -3,7 +3,6 @@ import {
 	DefaultStorageBackend,
 	ServerSideBackends,
 	StorageApiBasePath,
-	StorageBackend,
 } from "@/lib/constants/storage.constants";
 import SnippetValueObject from "@/lib/models/Snippet";
 import { backendAdapter } from "@/lib/storage/adapters/backend.adapter";
@@ -13,7 +12,7 @@ import { getUserIdBySession } from "@/lib/supabase/queries";
 // Public snippet-persistence facade. App code imports these — the SAME names
 // and signatures the Supabase queries had — so call sites only change their
 // import path. The active backend (set globally by an admin) decides whether an
-// op runs in the client (Supabase / Browser-SQLite) or via the server.
+// op runs in the client (Supabase) or via the server.
 
 const backendCache: { value: StorageBackendType | null } = { value: null };
 
@@ -43,14 +42,6 @@ export const resetActiveBackendCache = (): void => {
 
 const getStorage = async (): Promise<SnippetStorage> => {
 	const backend = await getActiveBackend();
-
-	if (backend === StorageBackend.BrowserSqlite) {
-		// Lazy import keeps the SQLite WASM out of the main bundle.
-		const { browserAdapter } =
-			await import("@/lib/storage/adapters/browserSqlite.adapter");
-
-		return browserAdapter;
-	}
 
 	if (ServerSideBackends.includes(backend)) {
 		return backendAdapter;

@@ -5,7 +5,6 @@ import {
 	ExportFormat,
 	ServerSideBackends,
 	SnippetTableName,
-	StorageBackend,
 } from "@/lib/constants/storage.constants";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { loadActiveConfig } from "@/lib/storage/config.server";
@@ -13,10 +12,6 @@ import { buildSqlDump, buildSqliteFile } from "@/lib/storage/server/export";
 import { runWithServerStorage } from "@/lib/storage/server/resolve";
 import createSupabaseAdminClient from "@/lib/supabase/admin";
 import createSupabaseServerClient from "@/lib/supabase/server";
-
-export const dynamic = "force-dynamic";
-
-export const runtime = "nodejs";
 
 const fetchSnippets = async (
 	config: StorageConfig,
@@ -50,14 +45,6 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 	}
 
 	const config = await loadActiveConfig();
-
-	// Browser-SQLite data never leaves the browser, so it can't be exported here.
-	if (config.backend === StorageBackend.BrowserSqlite) {
-		return NextResponse.json(
-			{ error: "Export Browser-SQLite data from the browser" },
-			{ status: HttpStatusCode.BadRequest }
-		);
-	}
 
 	const format =
 		request.nextUrl.searchParams.get("format") === ExportFormat.Sql

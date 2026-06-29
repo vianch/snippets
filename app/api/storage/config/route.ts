@@ -9,10 +9,6 @@ import {
 import { isStorageSecretConfigured } from "@/lib/storage/crypto.server";
 import { rejectDemoActor, requireAdmin } from "@/lib/supabase/adminGuard";
 
-export const dynamic = "force-dynamic";
-
-export const runtime = "nodejs";
-
 // Connection secrets are never returned to the client. The admin sees which
 // fields are set (blanked) and re-enters secrets to change them.
 const SecretKeys: (keyof StorageConnection)[] = ["authToken", "password"];

@@ -3,7 +3,6 @@
 // global row in `storage_config`, set by an admin and applied to every user.
 
 export const enum StorageBackend {
-	BrowserSqlite = "browser-sqlite",
 	LocalSqlite = "local-sqlite",
 	Mysql = "mysql",
 	Postgres = "postgres",
@@ -54,7 +53,6 @@ export const StorageBackendValues: StorageBackend[] = [
 	StorageBackend.Mysql,
 	StorageBackend.Turso,
 	StorageBackend.LocalSqlite,
-	StorageBackend.BrowserSqlite,
 ];
 
 export const SnippetTableName = "snippet";
@@ -69,7 +67,7 @@ export const StorageConfigRowId = 1;
 export const StorageApiBasePath = "/api/storage";
 
 // Backends whose connections are credentialed/external and therefore must run
-// server-side. Supabase and Browser-SQLite run directly in the client.
+// server-side. Supabase runs directly in the client.
 export const ServerSideBackends: StorageBackend[] = [
 	StorageBackend.LocalSqlite,
 	StorageBackend.Mysql,
@@ -87,7 +85,6 @@ export const StorageBackendFields: Record<
 	StorageBackend,
 	StorageFieldConfig[]
 > = {
-	[StorageBackend.BrowserSqlite]: [],
 	[StorageBackend.LocalSqlite]: [
 		{
 			key: "filePath",
@@ -146,7 +143,6 @@ export const StorageBackendFields: Record<
 };
 
 export const StorageBackendLabels: Record<StorageBackend, string> = {
-	[StorageBackend.BrowserSqlite]: "Browser SQLite (this browser only)",
 	[StorageBackend.LocalSqlite]: "Local SQLite file (server)",
 	[StorageBackend.Mysql]: "MySQL",
 	[StorageBackend.Postgres]: "PostgreSQL",

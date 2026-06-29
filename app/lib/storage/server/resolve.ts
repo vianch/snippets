@@ -5,7 +5,7 @@ import { createPgDriver } from "@/lib/storage/server/drivers/pg";
 import { createSqlSnippetStorage } from "@/lib/storage/server/sqlStorage";
 
 // Server-only. Builds the right SQL driver for the active credentialed backend.
-// Supabase and Browser-SQLite never reach here — they run in the client.
+// Supabase never reaches here — it runs in the client.
 
 // Guards against silently-empty connections (e.g. a blank Turso config would
 // otherwise fall back to a local file and pass a bogus connectivity test).

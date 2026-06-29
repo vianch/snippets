@@ -10,10 +10,6 @@ import { loadActiveConfig } from "@/lib/storage/config.server";
 import { runWithServerStorage } from "@/lib/storage/server/resolve";
 import createSupabaseServerClient from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
-
-export const runtime = "nodejs";
-
 type StorageRequestBody = {
 	args?: unknown[];
 	op?: StorageOp;

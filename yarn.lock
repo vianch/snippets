@@ -1761,11 +1761,6 @@
   resolved "https://registry.yarnpkg.com/@shikijs/vscode-textmate/-/vscode-textmate-10.0.2.tgz#a90ab31d0cc1dfb54c66a69e515bf624fa7b2224"
   integrity sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==
 
-"@sqlite.org/sqlite-wasm@^3.53.0-build1":
-  version "3.53.0-build1"
-  resolved "https://registry.yarnpkg.com/@sqlite.org/sqlite-wasm/-/sqlite-wasm-3.53.0-build1.tgz#066cab9189973c39edbb7078c55bb4daa1cd2d30"
-  integrity sha512-PfWPWN2n+/37doa8oh2/oUXk4OOsRYZsxc1W1sDXIGb/Pu5Yrb+f2eyYpgQMGITVX7HVgxhs9P18Rc6I97ym/g==
-
 "@supabase/auth-js@2.107.0":
   version "2.107.0"
   resolved "https://registry.yarnpkg.com/@supabase/auth-js/-/auth-js-2.107.0.tgz#34f0cd6d532b48f4ee4e86c6fddde88f5a964a41"

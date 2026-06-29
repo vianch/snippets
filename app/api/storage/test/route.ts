@@ -5,12 +5,8 @@ import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { testServerConnection } from "@/lib/storage/server/resolve";
 import { requireAdmin } from "@/lib/supabase/adminGuard";
 
-export const dynamic = "force-dynamic";
-
-export const runtime = "nodejs";
-
-// Admin-only. Tests a connection before it is saved. Supabase/Browser backends
-// have nothing external to reach, so they always pass.
+// Admin-only. Tests a connection before it is saved. Supabase has nothing
+// external to reach, so it always passes.
 export const POST = async (request: NextRequest): Promise<NextResponse> => {
 	const guard = await requireAdmin(request);
 

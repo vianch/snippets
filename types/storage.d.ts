@@ -104,33 +104,6 @@ declare global {
 		exec(sql: string): Promise<void>;
 		query(sql: string, params: unknown[]): Promise<SqlQueryResult>;
 	}
-
-	// Shape of the runtime-loaded sqlite-wasm ESM module (served from /public, so
-	// it isn't in the bundle graph and the bundled types don't apply).
-	type SqliteWasmModule = {
-		default: () => Promise<{
-			installOpfsSAHPoolVfs: (options: object) => Promise<{
-				OpfsSAHPoolDb: new (path: string) => SqliteOo1Db;
-			}>;
-		}>;
-	};
-
-	// Minimal slice of the sqlite-wasm oo1 DB API the browser adapter uses; the
-	// bundled types don't cover the OPFS SAH-pool DB.
-	type SqliteOo1Db = {
-		changes(): number;
-		close(): void;
-		exec(
-			input:
-				| string
-				| {
-						bind?: unknown[];
-						returnValue?: string;
-						rowMode?: string;
-						sql: string;
-				  }
-		): unknown;
-	};
 }
 
 export {};
