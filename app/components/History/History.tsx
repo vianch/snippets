@@ -3,7 +3,7 @@
 import { ReactElement, useEffect, useState } from "react";
 
 /* Lib and Utils */
-import { getSnippetVersions } from "@/lib/supabase/queries";
+import { getSnippetVersions } from "@/lib/storage/snippets";
 import useViewPortStore from "@/lib/store/viewPort.store";
 
 /* Components */

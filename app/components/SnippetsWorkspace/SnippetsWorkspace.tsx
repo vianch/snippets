@@ -13,19 +13,20 @@ import CommandPalette from "@/components/CommandPalette/CommandPalette";
 /* Lib */
 import {
 	getAllSnippets,
-	getSmartGroups,
 	getSnippetsByFolder,
 	getSnippetsByState,
 	getSnippetsByTag,
 	getUncategorizedSnippets,
-	saveSmartGroups,
 	saveSnippet,
 	saveSnippetVersion,
 	setNewSnippet,
 	setSnippetState,
 	trashRestoreSnippet,
-} from "@/lib/supabase/queries";
+} from "@/lib/storage/snippets";
+import { getSmartGroups, saveSmartGroups } from "@/lib/supabase/queries";
 import { MenuItems, MenuPrefixes, SnippetState } from "@/lib/constants/core";
+import { DefaultSettingsSection } from "@/lib/constants/settings.constants";
+import { buildSettingsHash } from "@/utils/settings.utils";
 import { ToastType } from "@/lib/constants/toast";
 import useToastStore from "@/lib/store/toast.store";
 import { findSnippetByName } from "@/lib/wikiLinkResolver";
@@ -64,7 +65,6 @@ const SnippetsWorkspace = ({
 	const [uncategorizedCount, setUncategorizedCount] = useState<number>(0);
 	const [favoritesCount, setFavoritesCount] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const { addToast } = useToastStore();
 
 	const findIndexForCurrentSnippet = (currentSnippet: CurrentSnippet): number =>
@@ -565,7 +565,7 @@ const SnippetsWorkspace = ({
 	};
 
 	const handleAccountClick = (): void => {
-		setIsAccountModalOpen(true);
+		window.location.hash = buildSettingsHash(DefaultSettingsSection);
 	};
 
 	const loadSmartGroups = async (): Promise<void> => {
@@ -634,10 +634,6 @@ const SnippetsWorkspace = ({
 			menuType: `${MenuPrefixes.SmartGroup}${group.name}`,
 		}));
 		setSeedSearch({ query: group.query, nonce: Date.now() });
-	};
-
-	const handleAccountModalClose = (): void => {
-		setIsAccountModalOpen(false);
 	};
 
 	const handleWikiNavigate = async (target: string): Promise<void> => {
@@ -765,10 +761,7 @@ const SnippetsWorkspace = ({
 					/>
 				}
 			/>
-			<AccountModal
-				isOpen={isAccountModalOpen}
-				onClose={handleAccountModalClose}
-			/>
+			<AccountModal />
 			<CommandPalette
 				snippets={snippets}
 				tags={tags}

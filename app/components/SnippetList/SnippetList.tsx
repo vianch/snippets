@@ -13,7 +13,7 @@ import Input from "@/components/ui/Input/Input";
 import MagnifyingGlass from "@/components/ui/icons/MagnifyingGlass";
 
 /* Utils */
-import { emptyTrash, setNewSnippet } from "@/lib/supabase/queries";
+import { emptyTrash, setNewSnippet } from "@/lib/storage/snippets";
 import formatDateToDDMMYYYY from "@/utils/date.utils";
 import { pinFavoritesFirst } from "@/utils/array.utils";
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
