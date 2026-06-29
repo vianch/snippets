@@ -13,3 +13,6 @@ yarn.lock
 # Generated
 storybook-static/
 next-env.d.ts
+
+# Vendored SQLite WASM (served from /public, not our source)
+public/sqlite-wasm/

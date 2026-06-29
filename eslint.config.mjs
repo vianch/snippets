@@ -12,6 +12,7 @@ export default tseslint.config(
 			"dist/",
 			"build/",
 			"storybook-static/",
+			"public/sqlite-wasm/",
 		],
 	},
 	eslint.configs.recommended,

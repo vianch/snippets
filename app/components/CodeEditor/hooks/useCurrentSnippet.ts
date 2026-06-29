@@ -10,9 +10,9 @@ import useToastStore from "@/lib/store/toast.store";
 import { SnippetState } from "@/lib/constants/core";
 import { ToastType } from "@/lib/constants/toast";
 import {
-	toggleSnippetPublic,
 	getSnippetVersions,
-} from "@/lib/supabase/queries";
+	toggleSnippetPublic,
+} from "@/lib/storage/snippets";
 
 type UseCurrentSnippetProps = {
 	snippet: Snippet | null;

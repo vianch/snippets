@@ -8,10 +8,12 @@ import {
 
 /* Lib */
 import {
+	getCurrentUserRole,
 	getUserDataFromSession,
 	getUserEmailBySession,
 	updateUser,
 } from "@/lib/supabase/queries";
+import { settingsSections } from "@/lib/config/settings";
 import { ThemeName, isValidTheme } from "@/lib/config/themes";
 import { setCookie } from "@/lib/cookies";
 import { themeCookieName } from "@/lib/constants/cookies";
@@ -25,16 +27,23 @@ import {
 } from "@/lib/constants/account";
 import { AiProviderId } from "@/lib/constants/ai";
 import { FormMessageTypes } from "@/lib/constants/form";
+import { AppRole } from "@/lib/constants/roles";
+import {
+	DefaultSettingsSection,
+	SettingsSection,
+} from "@/lib/constants/settings.constants";
 
 /* Components */
 import Modal from "@/components/ui/Modal/Modal";
 import Input from "@/components/ui/Input/Input";
 import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
-import Tabs from "@/components/ui/Tabs/Tabs";
 import Switch from "@/components/ui/Switch/Switch";
+import DatabaseSettings from "@/components/AccountModal/DatabaseSettings";
+import SettingsSidebar from "@/components/AccountModal/SettingsSidebar";
 import ThemePreview from "@/components/AccountModal/ThemePreview";
 import TwoFactorSettings from "@/components/TwoFactorSettings/TwoFactorSettings";
+import { useSettingsHash } from "@/components/AccountModal/useSettingsHash";
 
 /* Store */
 import useChatStore from "@/lib/store/chat.store";
@@ -48,19 +57,14 @@ import { fetchAiModels } from "@/utils/ai.utils";
 import Envelope from "@/components/ui/icons/Envelope";
 import Lock from "@/components/ui/icons/Lock";
 import Loading from "@/components/ui/icons/Loading";
-import Settings from "@/components/ui/icons/Settings";
-import Sparkle from "@/components/ui/icons/Sparkle";
-import User from "@/components/ui/icons/User";
 
 /* Styles */
 import styles from "./accountModal.module.css";
 
-interface AccountModalProps {
-	isOpen: boolean;
-	onClose: () => void;
-}
-
-const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
+const AccountModal = (): ReactElement | null => {
+	const { close, openSection, section } = useSettingsHash();
+	const isOpen = section !== null;
+	const [isAdmin, setIsAdmin] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const {
 		userName: currentUserName,
@@ -291,7 +295,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 				}
 
 				setTimeout(() => {
-					onClose();
+					close();
 				}, modalCloseDelay);
 			}
 		} catch (_catchError) {
@@ -315,7 +319,7 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			useUserStore.getState().setTheme(originalTheme);
 		}
 
-		onClose();
+		close();
 	};
 
 	// Load user data when modal opens
@@ -330,6 +334,15 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 			try {
 				resetMessages();
 				resetStateData();
+
+				const role = await getCurrentUserRole();
+
+				if (!isMounted) {
+					return;
+				}
+
+				setIsAdmin(role === AppRole.Admin);
+
 				const userEmail = await getUserEmailBySession();
 
 				if (!isMounted) return;
@@ -745,72 +758,76 @@ const AccountModal = ({ isOpen, onClose }: AccountModalProps): ReactElement => {
 		</>
 	);
 
-	const tabItems = [
-		{
-			content: profileTab,
-			icon: <User width={16} height={16} />,
-			label: "Profile",
-			value: "profile",
-		},
-		{
-			content: preferencesTab,
-			icon: <Settings width={16} height={16} />,
-			label: "Preferences",
-			value: "preferences",
-		},
-		{
-			content: aiTab,
-			icon: <Sparkle width={16} height={16} />,
-			label: "AI",
-			value: "ai",
-		},
-	];
+	const visibleSections = settingsSections.filter(
+		(item) => !item.adminOnly || isAdmin
+	);
+	const resolvedSection = section ?? DefaultSettingsSection;
+	const activeSection = visibleSections.some(
+		(item) => item.key === resolvedSection
+	)
+		? resolvedSection
+		: DefaultSettingsSection;
 
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={handleClose}
-			title="Account Settings"
+			title="Settings"
 			className={styles.accountModal}
 		>
-			<div className={styles.container}>
-				<form onSubmit={handleSubmit} className={styles.form}>
-					<Tabs items={tabItems} defaultValue="profile" />
+			<div className={styles.layout}>
+				<SettingsSidebar
+					activeSection={activeSection}
+					onSelect={openSection}
+					sections={visibleSections}
+				/>
+				<div className={styles.panel}>
+					{activeSection === SettingsSection.Database ? (
+						<DatabaseSettings />
+					) : (
+						<form onSubmit={handleSubmit} className={styles.form}>
+							{activeSection === SettingsSection.Profile && profileTab}
+							{activeSection === SettingsSection.Preferences && preferencesTab}
+							{activeSection === SettingsSection.Ai && aiTab}
 
-					{/* Message */}
-					{message.text && (
-						<Alert
-							severity={
-								message.type === FormMessageTypes.Error
-									? FormMessageTypes.Error
-									: FormMessageTypes.Success
-							}
-							className={styles.alert}
-						>
-							{message.text}
-						</Alert>
+							{message.text && (
+								<Alert
+									severity={
+										message.type === FormMessageTypes.Error
+											? FormMessageTypes.Error
+											: FormMessageTypes.Success
+									}
+									className={styles.alert}
+								>
+									{message.text}
+								</Alert>
+							)}
+
+							<div className={styles.buttonContainer}>
+								<Button
+									type="submit"
+									disabled={loading || isUserEmailDemo(userData.email ?? "")}
+									className={styles.submitButton}
+								>
+									{loading ? (
+										<Loading width={20} height={20} />
+									) : (
+										"Update Profile"
+									)}
+								</Button>
+								<Button
+									type="button"
+									variant="secondary"
+									onClick={handleClose}
+									disabled={loading}
+									className={styles.cancelButton}
+								>
+									Cancel
+								</Button>
+							</div>
+						</form>
 					)}
-
-					{/* Submit Button */}
-					<div className={styles.buttonContainer}>
-						<Button
-							type="submit"
-							disabled={loading || isUserEmailDemo(userData.email ?? "")}
-							className={styles.submitButton}
-						>
-							{loading ? <Loading width={20} height={20} /> : "Update Profile"}
-						</Button>
-						<Button
-							type="button"
-							variant="secondary"
-							onClick={handleClose}
-							disabled={loading}
-							className={styles.cancelButton}
-						>
-							Cancel
-						</Button>
-					</div>
-				</form>
+				</div>
 			</div>
 		</Modal>
 	);
