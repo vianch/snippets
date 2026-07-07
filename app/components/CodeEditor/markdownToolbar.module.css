@@ -46,3 +46,7 @@
 	margin: 0 0.375rem;
 	background: var(--border-color);
 }
+
+.previewToggle {
+	margin-left: auto;
+}

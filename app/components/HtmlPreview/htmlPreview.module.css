@@ -1,0 +1,45 @@
+.previewContainer {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	border-left: 1px solid var(--border-color);
+	background: var(--bg-color-dark);
+}
+
+.previewHeader {
+	display: flex;
+	align-items: center;
+	height: 2rem;
+	padding: 0 0.75rem;
+	background: var(--bg-color-dark);
+	border-bottom: 1px solid var(--border-color);
+	flex-shrink: 0;
+}
+
+.previewTitle {
+	font-size: var(--smaller-font-size);
+	color: var(--gray-color);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.previewFrame {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	border: none;
+
+	/* Rendered HTML expects a light page background regardless of app theme */
+	background: #fff;
+}
+
+/* Mobile: no left border, add top border instead */
+@media (width < 1140px) {
+	.previewContainer {
+		flex: none;
+		border-left: none;
+		border-top: 1px solid var(--border-color);
+	}
+}
