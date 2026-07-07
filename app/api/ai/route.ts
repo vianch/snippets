@@ -9,9 +9,11 @@ import {
 	defaultNvidiaModel,
 	defaultOllamaUrl,
 	defaultOpenAIModel,
+	defaultOpenRouterModel,
 	nvidiaBaseUrl,
 	ollamaCloudUrl,
 	openAiBaseUrl,
+	openRouterBaseUrl,
 	UserRole,
 } from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
@@ -280,6 +282,46 @@ export const POST = async (request: NextRequest): Promise<Response> => {
 				const outcome = await pumpOpenAiCompatibleStream(upstream, emit);
 
 				emitDone(emit, outcome, stripFences, AiProviderId.Nvidia, nvidiaModel);
+			});
+		}
+
+		// OpenRouter provider (OpenAI-compatible)
+		if (aiProvider === AiProviderId.OpenRouter) {
+			// Env key first: ai_api_key is shared across providers, so a key saved
+			// for another provider would otherwise be sent to OpenRouter.
+			const openRouterApiKey = process.env.OPENROUTER_API_KEY || aiApiKey || "";
+
+			if (!openRouterApiKey) {
+				return NextResponse.json(
+					{
+						error:
+							"OpenRouter API key not configured. Add your API key in Account Settings > AI tab.",
+					},
+					{ status: HttpStatusCode.ServiceUnavailable }
+				);
+			}
+
+			const openRouterModel = aiModel || defaultOpenRouterModel;
+			const upstream = await connectOpenAiCompatible(
+				openRouterBaseUrl,
+				"OpenRouter",
+				messages,
+				systemPrompt,
+				openRouterApiKey,
+				openRouterModel,
+				upstreamAbort.signal
+			);
+
+			return createStreamResponse(upstreamAbort, async (emit) => {
+				const outcome = await pumpOpenAiCompatibleStream(upstream, emit);
+
+				emitDone(
+					emit,
+					outcome,
+					stripFences,
+					AiProviderId.OpenRouter,
+					openRouterModel
+				);
 			});
 		}
 

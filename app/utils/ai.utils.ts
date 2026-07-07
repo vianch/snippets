@@ -10,7 +10,11 @@ export const fetchAiModels = async (
 		const params = new URLSearchParams({ provider });
 		const headers: Record<string, string> = {};
 
-		if (provider === AiProviderId.Claude || provider === AiProviderId.OpenAi) {
+		if (
+			provider === AiProviderId.Claude ||
+			provider === AiProviderId.OpenAi ||
+			provider === AiProviderId.OpenRouter
+		) {
 			if (options.apiKey) {
 				headers["x-api-key"] = options.apiKey;
 			}

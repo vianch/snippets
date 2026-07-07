@@ -73,6 +73,7 @@ export const enum AiProviderId {
 	Ollama = "ollama",
 	OllamaCloud = "ollama-cloud",
 	OpenAi = "openai",
+	OpenRouter = "openrouter",
 }
 
 export const enum SegmentType {
@@ -157,9 +158,13 @@ export const ollamaContextWindowCacheLimit = 64;
 export const ollamaContextWindowCache = new Map<string, number>();
 export const openAiBaseUrl = "https://api.openai.com/v1";
 export const nvidiaBaseUrl = "https://integrate.api.nvidia.com/v1";
+export const openRouterBaseUrl = "https://openrouter.ai/api/v1";
 export const defaultOpenAIModel = process.env.OPENAI_MODEL || "gpt-4o";
 export const defaultNvidiaModel =
 	process.env.NVIDIA_MODEL || "meta/llama-3.1-70b-instruct";
+export const defaultOpenRouterModel =
+	process.env.OPENROUTER_MODEL || "openrouter/free";
+export const openRouterFreeSuffix = ":free";
 
 export const ssePrefix = "data:";
 export const sseDoneSentinel = "[DONE]";
