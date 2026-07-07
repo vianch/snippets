@@ -683,6 +683,7 @@ const AccountModal = (): ReactElement | null => {
 							[AiProviderId.OllamaCloud]: "Ollama Cloud",
 							[AiProviderId.Claude]: "Claude (Anthropic)",
 							[AiProviderId.OpenAi]: "OpenAI",
+							[AiProviderId.OpenRouter]: "OpenRouter",
 							[AiProviderId.Nvidia]: "NVIDIA",
 						}[userData.aiProvider ?? AiProviderId.Ollama]
 					}
@@ -723,9 +724,11 @@ const AccountModal = (): ReactElement | null => {
 								? "sk-ant-..."
 								: userData.aiProvider === AiProviderId.OpenAi
 									? "sk-..."
-									: userData.aiProvider === AiProviderId.Nvidia
-										? "nvapi-..."
-										: "ollama-api-key..."
+									: userData.aiProvider === AiProviderId.OpenRouter
+										? "sk-or-..."
+										: userData.aiProvider === AiProviderId.Nvidia
+											? "nvapi-..."
+											: "ollama-api-key..."
 						}
 						fat
 						value={userData.aiApiKey ?? ""}
@@ -742,6 +745,8 @@ const AccountModal = (): ReactElement | null => {
 							"Get your API key at console.anthropic.com"}
 						{userData.aiProvider === AiProviderId.OpenAi &&
 							"Get your API key at platform.openai.com/api-keys"}
+						{userData.aiProvider === AiProviderId.OpenRouter &&
+							"Get your API key at openrouter.ai/keys"}
 						{userData.aiProvider === AiProviderId.Nvidia &&
 							"Get your API key at build.nvidia.com"}
 						{userData.aiProvider === AiProviderId.Ollama &&

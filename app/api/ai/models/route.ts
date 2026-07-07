@@ -8,6 +8,8 @@ import {
 	ollamaCloudUrl,
 	openAiBaseUrl,
 	openAiExcludedPrefixes,
+	openRouterBaseUrl,
+	openRouterFreeSuffix,
 } from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import createSupabaseServerClient from "@/lib/supabase/server";
@@ -88,6 +90,33 @@ const fetchOpenAiCompatibleModels = async (
 		.sort();
 };
 
+const fetchOpenRouterModels = async (apiKey: string): Promise<string[]> => {
+	const headers: Record<string, string> = {};
+
+	if (apiKey) {
+		headers["Authorization"] = `Bearer ${apiKey}`;
+	}
+
+	const response = await fetch(`${openRouterBaseUrl}/models`, { headers });
+
+	if (!response.ok) {
+		throw new Error(`OpenRouter API error ${response.status}`);
+	}
+
+	const data = await response.json();
+	const modelIds: string[] = (data.data || []).map(
+		(model: { id: string }) => model.id
+	);
+	const freeModels = modelIds
+		.filter((modelId) => modelId.endsWith(openRouterFreeSuffix))
+		.sort();
+	const paidModels = modelIds
+		.filter((modelId) => !modelId.endsWith(openRouterFreeSuffix))
+		.sort();
+
+	return [...freeModels, ...paidModels];
+};
+
 export const GET = async (request: NextRequest): Promise<NextResponse> => {
 	const { supabase } = await createSupabaseServerClient(request);
 	const {
@@ -150,6 +179,22 @@ export const GET = async (request: NextRequest): Promise<NextResponse> => {
 
 	if (provider === AiProviderId.Nvidia) {
 		return NextResponse.json({ models: [defaultNvidiaModel] });
+	}
+
+	if (provider === AiProviderId.OpenRouter) {
+		// Env key first — see the chat route: ai_api_key is shared across providers.
+		const apiKey = process.env.OPENROUTER_API_KEY || headerApiKey || "";
+
+		try {
+			const models = await fetchOpenRouterModels(apiKey);
+
+			return NextResponse.json({ models });
+		} catch (fetchError) {
+			const message =
+				fetchError instanceof Error ? fetchError.message : "Unknown error";
+
+			return NextResponse.json({ models: [], error: message });
+		}
 	}
 
 	// Default: Ollama
