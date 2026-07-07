@@ -1,0 +1,122 @@
+.consoleContainer {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	border-left: 1px solid var(--border-color);
+	background: var(--bg-color-dark);
+}
+
+.consoleHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 2rem;
+	padding: 0 0.75rem;
+	background: var(--bg-color-dark);
+	border-bottom: 1px solid var(--border-color);
+	flex-shrink: 0;
+}
+
+.consoleTitle {
+	font-size: var(--smaller-font-size);
+	color: var(--gray-color);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.consoleActions {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.consoleButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.25rem;
+	background: transparent;
+	border: none;
+	border-radius: var(--border-radius);
+	cursor: pointer;
+	color: var(--gray-color);
+	transition:
+		color 0.2s ease,
+		background-color 0.2s ease,
+		transform 0.15s ease;
+}
+
+.consoleButton:hover {
+	background: var(--bg-color);
+	color: var(--cyan-color);
+}
+
+.consoleButton:active {
+	transform: scale(0.95);
+}
+
+.consoleButton:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px var(--cyan-color);
+}
+
+.consoleButton:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.consoleOutput {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: 0.75rem 1rem;
+	color: var(--foreground-color);
+	font-family: monospace;
+	font-size: var(--smaller-font-size);
+	line-height: 1.5;
+}
+
+.consoleEmpty {
+	color: var(--gray-color);
+}
+
+.consoleEntry {
+	padding: 0.125rem 0;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.warn {
+	color: var(--yellow-color);
+}
+
+.error {
+	color: var(--red-color);
+}
+
+.sandboxFrame {
+	display: none;
+}
+
+.consoleOutput::-webkit-scrollbar {
+	width: 10px;
+}
+
+.consoleOutput::-webkit-scrollbar-track {
+	background: var(--bg-color);
+}
+
+.consoleOutput::-webkit-scrollbar-thumb {
+	background: var(--bg-color-dark);
+}
+
+/* Mobile: no left border, add top border instead */
+@media (width < 1140px) {
+	.consoleContainer {
+		flex: none;
+		border-left: none;
+		border-top: 1px solid var(--border-color);
+	}
+}

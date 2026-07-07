@@ -15,6 +15,10 @@ import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
 import { MenuPrefixes, SnippetState } from "@/lib/constants/core";
+import {
+	LanguagePreviewKinds,
+	PreviewKind,
+} from "@/lib/constants/preview.constants";
 import { getCodeMirrorTheme, ThemeName } from "@/lib/config/themes";
 import { aiActions, AiPaneTab } from "@/lib/constants/ai";
 import { requestAiAction } from "@/utils/ai.utils";
@@ -32,6 +36,8 @@ import MarkdownToolbar from "@/components/CodeEditor/MarkdownToolbar";
 import SnippetDetails from "@/components/CodeEditor/SnippetDetails/SnippetDetails";
 import History from "@/components/History/History";
 import MarkdownPreview from "@/components/MarkdownPreview/MarkdownPreview";
+import HtmlPreview from "@/components/HtmlPreview/HtmlPreview";
+import CodeConsole from "@/components/CodeConsole/CodeConsole";
 import AiAssistantPanel from "@/components/AiAssistantPanel/AiAssistantPanel";
 import SkeletonCodeEditor from "@/components/ui/Skeleton/SkeletonCodeEditor";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
@@ -87,6 +93,7 @@ const CodeEditor = ({
 	const { menuType } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
 	const [mobileChatTab, setMobileChatTab] = useState<AiPaneTab>(AiPaneTab.Chat);
+	const [isPreviewVisible, setIsPreviewVisible] = useState(true);
 	const editorContentRef = useRef<HTMLDivElement>(null);
 	const editorViewRef = useRef<EditorView | null>(null);
 	const editorTheme = useMemo(() => getCodeMirrorTheme(theme), [theme]);
@@ -160,11 +167,19 @@ const CodeEditor = ({
 
 	const isMarkdownLanguage =
 		currentSnippet?.language === SupportedLanguages.Markdown;
+	const previewKind =
+		LanguagePreviewKinds[currentSnippet.language] ?? PreviewKind.None;
+	const hasPreviewPanel = previewKind !== PreviewKind.None;
 	const isChatMode = rightPane === "chat";
-	const showPreview = !isChatMode && isMarkdownLanguage && !isTrashActive;
+	const showPreview =
+		!isChatMode && hasPreviewPanel && !isTrashActive && isPreviewVisible;
 	const showChatPane = isChatMode && !isTrashActive;
 	const hasRightPane = showPreview || showChatPane;
-	const showMarkdownToolbar = !isMobile && isMarkdownLanguage && !isTrashActive;
+	const showPreviewToggle = hasPreviewPanel && !isChatMode;
+	const showMarkdownToolbar =
+		!isMobile &&
+		!isTrashActive &&
+		(isMarkdownLanguage || (hasPreviewPanel && !isChatMode));
 
 	const editorHeight = calculateEditorHeight({
 		hasMarkdownToolbar: showMarkdownToolbar,
@@ -291,120 +306,128 @@ const CodeEditor = ({
 						</>
 					)}
 
-					{hasRightPane ? (
-						<div
-							ref={editorContentRef}
-							className={isMobile ? styles.splitViewMobile : styles.splitView}
-						>
-							{showChatPane && isMobile && (
-								<div className={styles.chatTabs} role="tablist">
-									<button
-										type="button"
-										role="tab"
-										aria-selected={mobileChatTab === AiPaneTab.Chat}
-										className={`${styles.chatTab} ${mobileChatTab === AiPaneTab.Chat ? styles.chatTabActive : ""}`}
-										onClick={() => setMobileChatTab(AiPaneTab.Chat)}
-									>
-										Chat
-									</button>
-									<button
-										type="button"
-										role="tab"
-										aria-selected={mobileChatTab === AiPaneTab.Code}
-										className={`${styles.chatTab} ${mobileChatTab === AiPaneTab.Code ? styles.chatTabActive : ""}`}
-										onClick={() => setMobileChatTab(AiPaneTab.Code)}
-									>
-										Code
-									</button>
-								</div>
-							)}
+					{/* One stable tree for every mode: the right pane, resizer, and
+					    toolbar toggle in and out around a single CodeMirror instance,
+					    so toggling the preview never remounts the editor (which would
+					    wipe undo history, cursor, and scroll position). */}
+					<div
+						ref={editorContentRef}
+						className={isMobile ? styles.splitViewMobile : styles.splitView}
+					>
+						{showChatPane && isMobile && (
+							<div className={styles.chatTabs} role="tablist">
+								<button
+									type="button"
+									role="tab"
+									aria-selected={mobileChatTab === AiPaneTab.Chat}
+									className={`${styles.chatTab} ${mobileChatTab === AiPaneTab.Chat ? styles.chatTabActive : ""}`}
+									onClick={() => setMobileChatTab(AiPaneTab.Chat)}
+								>
+									Chat
+								</button>
+								<button
+									type="button"
+									role="tab"
+									aria-selected={mobileChatTab === AiPaneTab.Code}
+									className={`${styles.chatTab} ${mobileChatTab === AiPaneTab.Code ? styles.chatTabActive : ""}`}
+									onClick={() => setMobileChatTab(AiPaneTab.Code)}
+								>
+									Code
+								</button>
+							</div>
+						)}
 
+						<div
+							className={`${styles.editorPanel} ${
+								showChatPane && isMobile && mobileChatTab !== AiPaneTab.Code
+									? styles.paneHidden
+									: ""
+							}`}
+							style={
+								!isMobile
+									? { width: hasRightPane ? `${editorWidthPercent}%` : "100%" }
+									: undefined
+							}
+						>
+							{showMarkdownToolbar && (
+								<MarkdownToolbar
+									getEditorView={() => editorViewRef.current}
+									isPreviewVisible={isPreviewVisible}
+									onTogglePreview={() => setIsPreviewVisible(!isPreviewVisible)}
+									showFormattingActions={isMarkdownLanguage}
+									showPreviewToggle={showPreviewToggle}
+								/>
+							)}
+							<CodeMirror
+								autoFocus={false}
+								indentWithTab={true}
+								basicSetup={
+									isTrashActive ? { lineNumbers: true } : codeMirrorOptions
+								}
+								placeholder={"Write your snipped here"}
+								className={styles.codeMirrorContainer}
+								value={currentSnippet?.snippet ?? ""}
+								extensions={[
+									currentSnippet.extension,
+									inlineCompletionExtension,
+									wikiAutocompleteExtension,
+									...(isMarkdownLanguage && !isTrashActive
+										? [markdownKeymap]
+										: []),
+								]}
+								theme={editorTheme}
+								height={
+									showChatPane && isMobile ? chatTabPaneHeight : editorHeight
+								}
+								width="100%"
+								readOnly={isTrashActive}
+								onChange={updateCurrentSnippetValue}
+								onCreateEditor={(view) => {
+									editorViewRef.current = view;
+								}}
+							/>
+						</div>
+						{!isMobile && hasRightPane && (
 							<div
-								className={`${styles.editorPanel} ${
-									showChatPane && isMobile && mobileChatTab !== AiPaneTab.Code
+								className={styles.previewResizer}
+								onMouseDown={handlePreviewMouseDown}
+							/>
+						)}
+						{showChatPane ? (
+							<AiAssistantPanel
+								currentSnippet={currentSnippet}
+								allSnippets={allSnippets}
+								height={isMobile ? chatTabPaneHeight : previewHeight}
+								className={
+									isMobile && mobileChatTab !== AiPaneTab.Chat
 										? styles.paneHidden
 										: ""
-								}`}
-								style={
-									!isMobile ? { width: `${editorWidthPercent}%` } : undefined
 								}
-							>
-								{showMarkdownToolbar && (
-									<MarkdownToolbar
-										getEditorView={() => editorViewRef.current}
-									/>
-								)}
-								<CodeMirror
-									autoFocus={false}
-									indentWithTab={true}
-									basicSetup={codeMirrorOptions}
-									placeholder={"Write your snipped here"}
-									className={styles.codeMirrorContainer}
-									value={currentSnippet?.snippet ?? ""}
-									extensions={[
-										currentSnippet.extension,
-										inlineCompletionExtension,
-										wikiAutocompleteExtension,
-										...(isMarkdownLanguage ? [markdownKeymap] : []),
-									]}
-									theme={editorTheme}
-									height={
-										showChatPane && isMobile ? chatTabPaneHeight : editorHeight
-									}
-									width="100%"
-									onChange={updateCurrentSnippetValue}
-									onCreateEditor={(view) => {
-										editorViewRef.current = view;
-									}}
-								/>
-							</div>
-							{!isMobile && (
-								<div
-									className={styles.previewResizer}
-									onMouseDown={handlePreviewMouseDown}
-								/>
-							)}
-							{showChatPane ? (
-								<AiAssistantPanel
-									currentSnippet={currentSnippet}
-									allSnippets={allSnippets}
-									height={isMobile ? chatTabPaneHeight : previewHeight}
-									className={
-										isMobile && mobileChatTab !== AiPaneTab.Chat
-											? styles.paneHidden
-											: ""
-									}
-									onCopyToSnippet={handleCopyToSnippet}
-									onReplaceSnippet={updateCurrentSnippetValue}
-									onSelectSnippet={onActiveSnippet}
-									onNewSnippet={onNewSnippet}
-								/>
-							) : (
-								<MarkdownPreview
-									content={currentSnippet.snippet}
-									height={previewHeight}
-									onWikiNavigate={onWikiNavigate}
-								/>
-							)}
-						</div>
-					) : (
-						<CodeMirror
-							autoFocus={false}
-							indentWithTab={true}
-							basicSetup={
-								isTrashActive ? { lineNumbers: true } : codeMirrorOptions
-							}
-							placeholder={"Write your snipped here"}
-							className={styles.codeMirrorContainer}
-							value={currentSnippet?.snippet ?? ""}
-							extensions={[currentSnippet.extension, wikiAutocompleteExtension]}
-							theme={editorTheme}
-							height={editorHeight}
-							width="100%"
-							readOnly={isTrashActive}
-							onChange={updateCurrentSnippetValue}
-						/>
-					)}
+								onCopyToSnippet={handleCopyToSnippet}
+								onReplaceSnippet={updateCurrentSnippetValue}
+								onSelectSnippet={onActiveSnippet}
+								onNewSnippet={onNewSnippet}
+							/>
+						) : !showPreview ? null : previewKind === PreviewKind.Html ? (
+							<HtmlPreview
+								content={currentSnippet.snippet ?? ""}
+								height={previewHeight}
+							/>
+						) : previewKind === PreviewKind.Console ? (
+							<CodeConsole
+								key={currentSnippet.snippet_id}
+								code={currentSnippet.snippet ?? ""}
+								height={previewHeight}
+								language={currentSnippet.language}
+							/>
+						) : (
+							<MarkdownPreview
+								content={currentSnippet.snippet}
+								height={previewHeight}
+								onWikiNavigate={onWikiNavigate}
+							/>
+						)}
+					</div>
 				</>
 			) : (
 				<EmptyState
