@@ -13,7 +13,9 @@ import {
 	nvidiaBaseUrl,
 	ollamaCloudUrl,
 	openAiBaseUrl,
+	openRouterAppTitle,
 	openRouterBaseUrl,
+	openRouterRefererUrl,
 	UserRole,
 } from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
@@ -309,7 +311,11 @@ export const POST = async (request: NextRequest): Promise<Response> => {
 				systemPrompt,
 				openRouterApiKey,
 				openRouterModel,
-				upstreamAbort.signal
+				upstreamAbort.signal,
+				{
+					"HTTP-Referer": openRouterRefererUrl,
+					"X-Title": openRouterAppTitle,
+				}
 			);
 
 			return createStreamResponse(upstreamAbort, async (emit) => {

@@ -8,8 +8,10 @@ import {
 	ollamaCloudUrl,
 	openAiBaseUrl,
 	openAiExcludedPrefixes,
+	openRouterAppTitle,
 	openRouterBaseUrl,
 	openRouterFreeSuffix,
+	openRouterRefererUrl,
 } from "@/lib/constants/ai";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import createSupabaseServerClient from "@/lib/supabase/server";
@@ -91,7 +93,10 @@ const fetchOpenAiCompatibleModels = async (
 };
 
 const fetchOpenRouterModels = async (apiKey: string): Promise<string[]> => {
-	const headers: Record<string, string> = {};
+	const headers: Record<string, string> = {
+		"HTTP-Referer": openRouterRefererUrl,
+		"X-Title": openRouterAppTitle,
+	};
 
 	if (apiKey) {
 		headers["Authorization"] = `Bearer ${apiKey}`;

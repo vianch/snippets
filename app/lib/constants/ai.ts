@@ -165,6 +165,9 @@ export const defaultNvidiaModel =
 export const defaultOpenRouterModel =
 	process.env.OPENROUTER_MODEL || "openrouter/free";
 export const openRouterFreeSuffix = ":free";
+export const openRouterRefererUrl =
+	process.env.NEXT_PUBLIC_BASE_URL || "https://snippets.vianch.com";
+export const openRouterAppTitle = "Snippets";
 
 export const ssePrefix = "data:";
 export const sseDoneSentinel = "[DONE]";
