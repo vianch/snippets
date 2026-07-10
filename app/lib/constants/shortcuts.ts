@@ -16,7 +16,8 @@ const shortcutGroups: ShortcutGroup[] = [
 	{
 		heading: "Editor",
 		items: [
-			{ keys: ["Mod", "S"], description: "Save current snippet" },
+			{ keys: ["Mod", "m"], description: "Create a new snippet" },
+			{ keys: ["Mod", "s"], description: "Save current snippet" },
 			{
 				keys: ["Mod", "Shift", "I"],
 				description: "Request AI inline completion",

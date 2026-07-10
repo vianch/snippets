@@ -9,6 +9,8 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
 import AccountModal from "@/components/AccountModal/AccountModal";
 import CommandPalette from "@/components/CommandPalette/CommandPalette";
+import ConfirmationModal from "@/components/ui/ConfirmationModal/ConfirmationModal";
+import Warning from "@/components/ui/icons/Warning";
 
 /* Lib */
 import {
@@ -65,6 +67,8 @@ const SnippetsWorkspace = ({
 	const [uncategorizedCount, setUncategorizedCount] = useState<number>(0);
 	const [favoritesCount, setFavoritesCount] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [showUnsavedSnippetModal, setShowUnsavedSnippetModal] =
+		useState<boolean>(false);
 	const { addToast } = useToastStore();
 
 	const findIndexForCurrentSnippet = (currentSnippet: CurrentSnippet): number =>
@@ -420,9 +424,14 @@ const SnippetsWorkspace = ({
 
 	const newSnippetHandler = (newSnippet: Snippet): void => {
 		if (newSnippet) {
-			setSnippets([newSnippet, ...snippets]);
+			setSnippets((previousSnippets) => [newSnippet, ...previousSnippets]);
 
-			setActiveSnippetId(newSnippet.snippet_id);
+			setCodedEditorStates((previousStates) => ({
+				...previousStates,
+				activeSnippetId: newSnippet.snippet_id,
+				isSaving: false,
+				touched: false,
+			}));
 		}
 	};
 
@@ -669,12 +678,32 @@ const SnippetsWorkspace = ({
 		});
 	};
 
-	const createSnippetFromPalette = async (): Promise<void> => {
+	const performCreateSnippet = async (): Promise<void> => {
 		const newSnippet = await setNewSnippet();
 
 		if (newSnippet) {
 			newSnippetHandler(newSnippet);
 		}
+	};
+
+	const createSnippetFromPalette = async (): Promise<void> => {
+		if (codeEditorStates.touched) {
+			setShowUnsavedSnippetModal(true);
+
+			return;
+		}
+
+		await performCreateSnippet();
+	};
+
+	const handleConfirmCreateSnippet = async (): Promise<void> => {
+		setShowUnsavedSnippetModal(false);
+
+		await performCreateSnippet();
+	};
+
+	const handleCancelCreateSnippet = (): void => {
+		setShowUnsavedSnippetModal(false);
 	};
 
 	useEffect(() => {
@@ -774,6 +803,16 @@ const SnippetsWorkspace = ({
 				onGetTrash={getTrashHandler}
 				onTagClick={getSnippetsByTagHandler}
 				onAccountClick={handleAccountClick}
+			/>
+			<ConfirmationModal
+				isOpen={showUnsavedSnippetModal}
+				icon={<Warning width={20} height={20} />}
+				title="You have unsaved changes"
+				description="Create a new snippet anyway?"
+				cancelLabel="Cancel"
+				confirmLabel="Create new"
+				onCancel={handleCancelCreateSnippet}
+				onConfirm={handleConfirmCreateSnippet}
 			/>
 		</>
 	);

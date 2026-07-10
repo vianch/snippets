@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactElement, useEffect } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { Command } from "cmdk";
 
 import useMenuStore from "@/lib/store/menu.store";
@@ -53,6 +53,11 @@ const CommandPalette = ({
 	const toggleCommandPalette = useMenuStore(
 		(store) => store.toggleCommandPalette
 	);
+	const [isMac, setIsMac] = useState<boolean>(true);
+
+	useEffect(() => {
+		setIsMac(window.navigator.userAgent.includes("Mac"));
+	}, []);
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent): void => {
@@ -60,12 +65,23 @@ const CommandPalette = ({
 				event.preventDefault();
 				toggleCommandPalette();
 			}
+
+			const isMacPlatform = window.navigator.userAgent.includes("Mac");
+			const newSnippetModifier = isMacPlatform
+				? event.metaKey && !event.ctrlKey
+				: event.ctrlKey && !event.metaKey;
+
+			if (newSnippetModifier && event.code === "KeyM") {
+				event.preventDefault();
+				setCommandPaletteOpen(false);
+				onNewSnippet();
+			}
 		};
 
-		document.addEventListener("keydown", handleKeyDown);
+		document.addEventListener("keydown", handleKeyDown, true);
 
-		return () => document.removeEventListener("keydown", handleKeyDown);
-	}, []);
+		return () => document.removeEventListener("keydown", handleKeyDown, true);
+	}, [onNewSnippet, setCommandPaletteOpen, toggleCommandPalette]);
 
 	const runAction = (action: () => void): void => {
 		setCommandPaletteOpen(false);
@@ -98,6 +114,7 @@ const CommandPalette = ({
 					>
 						<NewFile width={16} height={16} />
 						<span>New snippet</span>
+						<span className={styles.shortcut}>{isMac ? "⌘" : "Ctrl"} m</span>
 					</Command.Item>
 					<Command.Item
 						className={styles.item}
