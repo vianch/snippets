@@ -14,13 +14,15 @@ export const connectOpenAiCompatible = async (
 	systemPrompt: string,
 	apiKey: string,
 	model: string,
-	abortSignal?: AbortSignal
+	abortSignal?: AbortSignal,
+	extraHeaders?: Record<string, string>
 ): Promise<Response> => {
 	const response = await fetch(`${baseUrl}/chat/completions`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 			Authorization: `Bearer ${apiKey}`,
+			...extraHeaders,
 		},
 		body: JSON.stringify({
 			model,
