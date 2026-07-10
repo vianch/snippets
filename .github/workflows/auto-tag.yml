@@ -1,0 +1,50 @@
+name: Auto Tag on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute and push next tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          latest=$(git tag --list --sort=-v:refname | head -n1)
+          latest=${latest:-0.0.0}
+          IFS=. read -r major minor patch <<< "$latest"
+
+          # fix/minor PR -> patch bump; anything else -> minor bump
+          if echo "$PR_TITLE" | grep -qiE '^(fix|minor)(\(.+\))?!?:'; then
+            patch=$((patch + 1))
+          else
+            minor=$((minor + 1))
+            patch=0
+          fi
+
+          next="$major.$minor.$patch"
+          echo "Latest: $latest -> Next: $next (PR: $PR_TITLE)"
+
+          git tag "$next"
+          git push origin "$next"
+
+          # Release with auto-generated notes (commits/PRs since last tag)
+          gh release create "$next" \
+            --title "$next" \
+            --generate-notes \
+            --notes "Merged: #${PR_NUMBER} $PR_TITLE"
