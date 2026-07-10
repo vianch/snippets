@@ -104,6 +104,12 @@
 	color: var(--comment-color);
 }
 
+.shortcut {
+	margin-left: auto;
+	font-size: var(--tiny-font-size);
+	color: var(--comment-color);
+}
+
 .footer {
 	display: flex;
 	align-items: center;

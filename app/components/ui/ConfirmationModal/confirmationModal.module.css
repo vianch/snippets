@@ -1,0 +1,31 @@
+.modal {
+	min-width: 350px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.title {
+	margin: 0;
+	font-size: var(--font-size);
+}
+
+.description {
+	margin: 24px 0;
+	color: var(--foreground-color);
+}
+
+.actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+.button {
+	padding: 0.4rem 1rem;
+	height: 44px;
+}
