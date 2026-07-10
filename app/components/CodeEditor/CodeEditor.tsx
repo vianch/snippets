@@ -356,6 +356,7 @@ const CodeEditor = ({
 									onTogglePreview={() => setIsPreviewVisible(!isPreviewVisible)}
 									showFormattingActions={isMarkdownLanguage}
 									showPreviewToggle={showPreviewToggle}
+									snippetFileName={currentSnippet.name ?? ""}
 								/>
 							)}
 							<CodeMirror
