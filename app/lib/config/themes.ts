@@ -9,8 +9,12 @@ export const ThemeNames = {
 	ShadesOfPurple: "shades-of-purple",
 	CatppuccinLatte: "catppuccin-latte",
 	AyuLight: "ayu-light",
+	CatppuccinFrappe: "catppuccin-frappe",
+	CatppuccinMacchiato: "catppuccin-macchiato",
+	CatppuccinMocha: "catppuccin-mocha",
 	GithubDark: "github-dark",
 	GithubLight: "github-light",
+	QuietGreen: "quiet-green",
 } as const;
 
 export type ThemeName = (typeof ThemeNames)[keyof typeof ThemeNames];
@@ -92,6 +96,50 @@ export const themeList: ThemeConfig[] = [
 			sidebar: "#f6f8fa",
 			accent: "#8250df",
 			text: "#1f2328",
+		},
+	},
+	{
+		name: ThemeNames.QuietGreen,
+		label: "Quiet Green",
+		isDark: false,
+		previewColors: {
+			bg: "#dbe7d7",
+			sidebar: "#cdddc9",
+			accent: "#e0705f",
+			text: "#2d4a3e",
+		},
+	},
+	{
+		name: ThemeNames.CatppuccinFrappe,
+		label: "Catppuccin Frappé",
+		isDark: true,
+		previewColors: {
+			bg: "#303446",
+			sidebar: "#292c3c",
+			accent: "#ca9ee6",
+			text: "#c6d0f5",
+		},
+	},
+	{
+		name: ThemeNames.CatppuccinMacchiato,
+		label: "Catppuccin Macchiato",
+		isDark: true,
+		previewColors: {
+			bg: "#24273a",
+			sidebar: "#1e2030",
+			accent: "#c6a0f6",
+			text: "#cad3f5",
+		},
+	},
+	{
+		name: ThemeNames.CatppuccinMocha,
+		label: "Catppuccin Mocha",
+		isDark: true,
+		previewColors: {
+			bg: "#1e1e2e",
+			sidebar: "#181825",
+			accent: "#cba6f7",
+			text: "#cdd6f4",
 		},
 	},
 ];
@@ -187,6 +235,123 @@ const catppuccinLatteTheme = createTheme({
 	],
 });
 
+const catppuccinFrappeTheme = createTheme({
+	theme: "dark",
+	settings: {
+		background: "#303446",
+		foreground: "#c6d0f5",
+		caret: "#f2d5cf",
+		selection: "#babbf133",
+		selectionMatch: "#babbf122",
+		lineHighlight: "#292c3c",
+		gutterBackground: "#303446",
+		gutterForeground: "#838ba7",
+		gutterActiveForeground: "#c6d0f5",
+		gutterBorder: "transparent",
+		...codeMirrorSettings,
+	},
+	styles: [
+		{ tag: tags.comment, color: "#838ba7" },
+		{ tag: tags.keyword, color: "#ca9ee6" },
+		{ tag: [tags.string, tags.special(tags.brace)], color: "#a6d189" },
+		{ tag: tags.number, color: "#ef9f76" },
+		{ tag: tags.bool, color: "#ef9f76" },
+		{ tag: tags.null, color: "#ef9f76" },
+		{
+			tag: [
+				tags.definition(tags.variableName),
+				tags.function(tags.variableName),
+			],
+			color: "#8caaee",
+		},
+		{ tag: tags.variableName, color: "#c6d0f5" },
+		{ tag: tags.typeName, color: "#e5c890" },
+		{ tag: tags.propertyName, color: "#8caaee" },
+		{ tag: tags.operator, color: "#81c8be" },
+		{ tag: tags.punctuation, color: "#a5adce" },
+		{ tag: tags.tagName, color: "#e78284" },
+		{ tag: tags.attributeName, color: "#e5c890" },
+	],
+});
+
+const catppuccinMacchiatoTheme = createTheme({
+	theme: "dark",
+	settings: {
+		background: "#24273a",
+		foreground: "#cad3f5",
+		caret: "#f4dbd6",
+		selection: "#b7bdf833",
+		selectionMatch: "#b7bdf822",
+		lineHighlight: "#1e2030",
+		gutterBackground: "#24273a",
+		gutterForeground: "#8087a2",
+		gutterActiveForeground: "#cad3f5",
+		gutterBorder: "transparent",
+		...codeMirrorSettings,
+	},
+	styles: [
+		{ tag: tags.comment, color: "#8087a2" },
+		{ tag: tags.keyword, color: "#c6a0f6" },
+		{ tag: [tags.string, tags.special(tags.brace)], color: "#a6da95" },
+		{ tag: tags.number, color: "#f5a97f" },
+		{ tag: tags.bool, color: "#f5a97f" },
+		{ tag: tags.null, color: "#f5a97f" },
+		{
+			tag: [
+				tags.definition(tags.variableName),
+				tags.function(tags.variableName),
+			],
+			color: "#8aadf4",
+		},
+		{ tag: tags.variableName, color: "#cad3f5" },
+		{ tag: tags.typeName, color: "#eed49f" },
+		{ tag: tags.propertyName, color: "#8aadf4" },
+		{ tag: tags.operator, color: "#8bd5ca" },
+		{ tag: tags.punctuation, color: "#a5adcb" },
+		{ tag: tags.tagName, color: "#ed8796" },
+		{ tag: tags.attributeName, color: "#eed49f" },
+	],
+});
+
+const catppuccinMochaTheme = createTheme({
+	theme: "dark",
+	settings: {
+		background: "#1e1e2e",
+		foreground: "#cdd6f4",
+		caret: "#f5e0dc",
+		selection: "#b4befe33",
+		selectionMatch: "#b4befe22",
+		lineHighlight: "#181825",
+		gutterBackground: "#1e1e2e",
+		gutterForeground: "#7f849c",
+		gutterActiveForeground: "#cdd6f4",
+		gutterBorder: "transparent",
+		...codeMirrorSettings,
+	},
+	styles: [
+		{ tag: tags.comment, color: "#7f849c" },
+		{ tag: tags.keyword, color: "#cba6f7" },
+		{ tag: [tags.string, tags.special(tags.brace)], color: "#a6e3a1" },
+		{ tag: tags.number, color: "#fab387" },
+		{ tag: tags.bool, color: "#fab387" },
+		{ tag: tags.null, color: "#fab387" },
+		{
+			tag: [
+				tags.definition(tags.variableName),
+				tags.function(tags.variableName),
+			],
+			color: "#89b4fa",
+		},
+		{ tag: tags.variableName, color: "#cdd6f4" },
+		{ tag: tags.typeName, color: "#f9e2af" },
+		{ tag: tags.propertyName, color: "#89b4fa" },
+		{ tag: tags.operator, color: "#94e2d5" },
+		{ tag: tags.punctuation, color: "#a6adc8" },
+		{ tag: tags.tagName, color: "#f38ba8" },
+		{ tag: tags.attributeName, color: "#f9e2af" },
+	],
+});
+
 const ayuLightTheme = createTheme({
 	theme: "light",
 	settings: {
@@ -226,6 +391,45 @@ const ayuLightTheme = createTheme({
 	],
 });
 
+const quietGreenTheme = createTheme({
+	theme: "light",
+	settings: {
+		background: "#dbe7d7",
+		foreground: "#2d4a3e",
+		caret: "#e0705f",
+		selection: "#4a7c5933",
+		selectionMatch: "#4a7c5922",
+		lineHighlight: "#cdddc9",
+		gutterBackground: "#dbe7d7",
+		gutterForeground: "#7d9080",
+		gutterActiveForeground: "#2d4a3e",
+		gutterBorder: "transparent",
+		...codeMirrorSettings,
+	},
+	styles: [
+		{ tag: tags.comment, color: "#8a9c8d" },
+		{ tag: tags.keyword, color: "#2f8a7d" },
+		{ tag: [tags.string, tags.special(tags.brace)], color: "#6f8f3f" },
+		{ tag: tags.number, color: "#c2922f" },
+		{ tag: tags.bool, color: "#c2922f" },
+		{ tag: tags.null, color: "#c2922f" },
+		{
+			tag: [
+				tags.definition(tags.variableName),
+				tags.function(tags.variableName),
+			],
+			color: "#3f7d8f",
+		},
+		{ tag: tags.variableName, color: "#2d4a3e" },
+		{ tag: tags.typeName, color: "#b07a3c" },
+		{ tag: tags.propertyName, color: "#3f7d8f" },
+		{ tag: tags.operator, color: "#2f8a7d" },
+		{ tag: tags.punctuation, color: "#617066" },
+		{ tag: tags.tagName, color: "#e0705f" },
+		{ tag: tags.attributeName, color: "#c2922f" },
+	],
+});
+
 const githubDarkTheme = githubDarkInit({
 	settings: {
 		background: "#161b22",
@@ -245,8 +449,12 @@ const codeMirrorThemes: Record<ThemeName, Extension> = {
 	[ThemeNames.ShadesOfPurple]: shadesOfPurpleTheme,
 	[ThemeNames.CatppuccinLatte]: catppuccinLatteTheme,
 	[ThemeNames.AyuLight]: ayuLightTheme,
+	[ThemeNames.CatppuccinFrappe]: catppuccinFrappeTheme,
+	[ThemeNames.CatppuccinMacchiato]: catppuccinMacchiatoTheme,
+	[ThemeNames.CatppuccinMocha]: catppuccinMochaTheme,
 	[ThemeNames.GithubDark]: githubDarkTheme,
 	[ThemeNames.GithubLight]: githubLightTheme,
+	[ThemeNames.QuietGreen]: quietGreenTheme,
 };
 
 export const getCodeMirrorTheme = (themeName: ThemeName): Extension =>

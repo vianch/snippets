@@ -11,8 +11,12 @@ const getHighlighter = (): Promise<HighlighterCore> => {
 			engine: createOnigurumaEngine(import("shiki/wasm")),
 			themes: [
 				import("@shikijs/themes/ayu-light"),
+				import("@shikijs/themes/catppuccin-frappe"),
 				import("@shikijs/themes/catppuccin-latte"),
+				import("@shikijs/themes/catppuccin-macchiato"),
+				import("@shikijs/themes/catppuccin-mocha"),
 				import("@shikijs/themes/dracula"),
+				import("@shikijs/themes/everforest-light"),
 				import("@shikijs/themes/github-dark"),
 				import("@shikijs/themes/github-light"),
 				import("@shikijs/themes/material-theme-palenight"),
@@ -47,10 +51,14 @@ const getHighlighter = (): Promise<HighlighterCore> => {
 
 const shikiThemeMap: Record<ThemeName, string> = {
 	[ThemeNames.AyuLight]: "ayu-light",
+	[ThemeNames.CatppuccinFrappe]: "catppuccin-frappe",
 	[ThemeNames.CatppuccinLatte]: "catppuccin-latte",
+	[ThemeNames.CatppuccinMacchiato]: "catppuccin-macchiato",
+	[ThemeNames.CatppuccinMocha]: "catppuccin-mocha",
 	[ThemeNames.Dracula]: "dracula",
 	[ThemeNames.GithubDark]: "github-dark",
 	[ThemeNames.GithubLight]: "github-light",
+	[ThemeNames.QuietGreen]: "everforest-light",
 	// Shiki has no shades-of-purple bundle; material-theme-palenight is the closest dark-purple equivalent
 	[ThemeNames.ShadesOfPurple]: "material-theme-palenight",
 };
