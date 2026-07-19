@@ -72,7 +72,12 @@ export const renderMarkdownToHtml = async (
 
 	const rawHtml = await markedInstance.parse(content);
 
+	// This HTML is injected into the app DOM (dangerouslySetInnerHTML), so a
+	// raw <style> in the snippet would restyle the whole app (body/* selectors
+	// leak out). Forbid it — styled full documents belong in the HTML preview,
+	// which renders inside a sandboxed iframe.
 	return DOMPurify.sanitize(rawHtml, {
 		ADD_ATTR: ["data-wiki-target"],
+		FORBID_TAGS: ["style"],
 	});
 };
