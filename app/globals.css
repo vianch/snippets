@@ -369,6 +369,138 @@ table {
 	--pet-glow: rgb(130 80 223 / 38%);
 }
 
+[data-theme="catppuccin-frappe"] {
+	--bg-color-dark: #292c3c;
+	--bg-color: #303446;
+	--border-color: #51576d;
+	--current-line: #414559;
+	--comment-color: #838ba7;
+	--cyan-color: #99d1db;
+	--blue-color: #8caaee;
+	--green-color: #a6d189;
+	--dark-green-color: #8aae6f;
+	--gray-color: #a5adce;
+	--purple-color: #ca9ee6;
+	--yellow-color: #e5c890;
+	--orange-color: #ef9f76;
+	--dark-orange-color: #d98456;
+	--red-color: #e78284;
+	--dark-red-color: #d16b6d;
+	--foreground-color: #c6d0f5;
+	--success-color: #eff7ee;
+	--error-color: #fbeeed;
+	--warning-color: #fef4e6;
+	--info-color: #e8f6fd;
+	--skeleton-shimmer: #51576d;
+	--button-bg: #414559;
+	--input-bg: #232634;
+	--glass-bg: rgb(255 255 255 / 4%);
+	--glass-border: rgb(255 255 255 / 10%);
+	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 45%);
+	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 58%);
+	--grid-line: rgb(255 255 255 / 5%);
+	--pet-glow: rgb(202 158 230 / 50%);
+}
+
+[data-theme="catppuccin-macchiato"] {
+	--bg-color-dark: #1e2030;
+	--bg-color: #24273a;
+	--border-color: #494d64;
+	--current-line: #363a4f;
+	--comment-color: #8087a2;
+	--cyan-color: #91d7e3;
+	--blue-color: #8aadf4;
+	--green-color: #a6da95;
+	--dark-green-color: #86bd76;
+	--gray-color: #a5adcb;
+	--purple-color: #c6a0f6;
+	--yellow-color: #eed49f;
+	--orange-color: #f5a97f;
+	--dark-orange-color: #dd8a60;
+	--red-color: #ed8796;
+	--dark-red-color: #d76f7e;
+	--foreground-color: #cad3f5;
+	--success-color: #eff7ee;
+	--error-color: #fbeeed;
+	--warning-color: #fef4e6;
+	--info-color: #e8f6fd;
+	--skeleton-shimmer: #494d64;
+	--button-bg: #363a4f;
+	--input-bg: #181926;
+	--glass-bg: rgb(255 255 255 / 4%);
+	--glass-border: rgb(255 255 255 / 10%);
+	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 45%);
+	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 58%);
+	--grid-line: rgb(255 255 255 / 5%);
+	--pet-glow: rgb(198 160 246 / 50%);
+}
+
+[data-theme="catppuccin-mocha"] {
+	--bg-color-dark: #181825;
+	--bg-color: #1e1e2e;
+	--border-color: #45475a;
+	--current-line: #313244;
+	--comment-color: #7f849c;
+	--cyan-color: #89dceb;
+	--blue-color: #89b4fa;
+	--green-color: #a6e3a1;
+	--dark-green-color: #86c781;
+	--gray-color: #a6adc8;
+	--purple-color: #cba6f7;
+	--yellow-color: #f9e2af;
+	--orange-color: #fab387;
+	--dark-orange-color: #e39866;
+	--red-color: #f38ba8;
+	--dark-red-color: #d97490;
+	--foreground-color: #cdd6f4;
+	--success-color: #eff7ee;
+	--error-color: #fbeeed;
+	--warning-color: #fef4e6;
+	--info-color: #e8f6fd;
+	--skeleton-shimmer: #45475a;
+	--button-bg: #313244;
+	--input-bg: #11111b;
+	--glass-bg: rgb(255 255 255 / 4%);
+	--glass-border: rgb(255 255 255 / 10%);
+	--card-shadow: 0 0.75rem 2rem rgb(0 0 0 / 45%);
+	--card-shadow-hover: 0 1.25rem 2.5rem rgb(0 0 0 / 58%);
+	--grid-line: rgb(255 255 255 / 5%);
+	--pet-glow: rgb(203 166 247 / 50%);
+}
+
+[data-theme="quiet-green"] {
+	--bg-color-dark: #cdddc9;
+	--bg-color: #dbe7d7;
+	--border-color: #bacdb4;
+	--current-line: #cbdac6;
+	--comment-color: #7d9080;
+	--cyan-color: #2f8a7d;
+	--blue-color: #3f7d8f;
+	--green-color: #4a7c59;
+	--dark-green-color: #2d4a3e;
+	--gray-color: #617066;
+	--purple-color: #8d7099;
+	--yellow-color: #c2922f;
+	--orange-color: #d97b52;
+	--dark-orange-color: #bd5f38;
+	--red-color: #e0705f;
+	--dark-red-color: #c85a49;
+	--foreground-color: #2d4a3e;
+	--success-color: #dff0dd;
+	--error-color: #f5e1dc;
+	--warning-color: #f4ecd6;
+	--info-color: #dbecec;
+	--skeleton-shimmer: #dbe7d7;
+	--button-bg: #cdddc9;
+	--input-bg: #fff;
+	--glass-bg: rgb(255 255 255 / 62%);
+	--glass-border: rgb(45 74 62 / 14%);
+	--card-shadow: 0 0.5rem 1.5rem rgb(45 74 62 / 10%);
+	--card-shadow-hover: 0 1rem 2.25rem rgb(45 74 62 / 16%);
+	--grid-line: rgb(45 74 62 / 6%);
+	--pet-glow: rgb(74 124 89 / 42%);
+}
+
 [data-theme="dracula"] {
 	--bg-color-dark: #282a36;
 	--bg-color: #363945;
@@ -477,13 +609,17 @@ html:not([data-theme]) {
 
 html[data-theme="dracula"],
 html[data-theme="shades-of-purple"],
-html[data-theme="github-dark"] {
+html[data-theme="github-dark"],
+html[data-theme="catppuccin-frappe"],
+html[data-theme="catppuccin-macchiato"],
+html[data-theme="catppuccin-mocha"] {
 	color-scheme: dark;
 }
 
 html[data-theme="catppuccin-latte"],
 html[data-theme="ayu-light"],
-html[data-theme="github-light"] {
+html[data-theme="github-light"],
+html[data-theme="quiet-green"] {
 	color-scheme: light;
 }
 
