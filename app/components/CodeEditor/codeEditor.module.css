@@ -243,6 +243,7 @@
 }
 
 .tagInput {
+	position: relative;
 	flex: 1;
 	min-width: 7rem;
 	max-width: 14.75rem;

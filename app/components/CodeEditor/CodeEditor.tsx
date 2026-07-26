@@ -60,6 +60,7 @@ type CodeEditorProps = {
 	defaultLanguage?: SupportedLanguages;
 	codeEditorStates: SnippetEditorStates;
 	allSnippets: Snippet[];
+	availableTags?: TagItem[];
 	rightPane?: RightPaneMode;
 	onSave: (
 		currentSnippet: CurrentSnippet,
@@ -79,6 +80,7 @@ const CodeEditor = ({
 	codeEditorStates,
 	defaultLanguage = SupportedLanguages.Markdown,
 	allSnippets,
+	availableTags,
 	rightPane = "preview",
 	onSave,
 	onStarred,
@@ -217,6 +219,7 @@ const CodeEditor = ({
 								}
 								currentSnippet={currentSnippet}
 								allSnippets={allSnippets}
+								availableTags={availableTags}
 								isPublic={currentSnippet.is_public ?? false}
 								showDetails={showDetails}
 								hideAiButton={isChatMode}

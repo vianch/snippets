@@ -779,6 +779,7 @@ const SnippetsWorkspace = ({
 						}
 						codeEditorStates={codeEditorStates}
 						allSnippets={snippets}
+						availableTags={tags}
 						rightPane={rightPane}
 						onSave={saveSnippetHandler}
 						onStarred={onStarredHandler}
