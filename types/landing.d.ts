@@ -2,22 +2,12 @@ import { ReactElement } from "react";
 
 declare global {
 	type LandingAccent =
-		| "blue"
-		| "cyan"
-		| "green"
-		| "orange"
-		| "purple"
-		| "red"
-		| "yellow";
+		"blue" | "cyan" | "green" | "orange" | "purple" | "red" | "yellow";
 
 	type LandingFeatureSize = "large" | "medium" | "small";
 
 	type LandingTokenKind =
-		| "comment"
-		| "function"
-		| "keyword"
-		| "plain"
-		| "string";
+		"comment" | "function" | "keyword" | "plain" | "string";
 
 	interface LandingCodeToken {
 		kind: LandingTokenKind;

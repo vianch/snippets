@@ -19,10 +19,5 @@ declare global {
 		onSelect: () => void;
 	};
 	type Variants =
-		| "primary"
-		| "secondary"
-		| "tertiary"
-		| "cta"
-		| Severity
-		| "empty";
+		"primary" | "secondary" | "tertiary" | "cta" | Severity | "empty";
 }

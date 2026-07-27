@@ -27,4 +27,6 @@ export enum AsideSectionKeys {
 
 export const AsideScrollThreshold = 12;
 
+export const TagSuggestionLimit = 6;
+
 export const tags = "tags";

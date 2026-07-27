@@ -1,4 +1,11 @@
-import { ReactElement, useEffect, useState, ChangeEvent } from "react";
+import {
+	ReactElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	ChangeEvent,
+} from "react";
 
 /* Constants */
 import { MenuItems } from "@/lib/constants/core";
@@ -8,6 +15,10 @@ import Input from "@/components/ui/Input/Input";
 import Tag from "@/components/ui/icons/Tag";
 import Badge from "@/components/ui/Badge/Badge";
 import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
+import TagSuggestions from "@/components/CodeEditor/TagSuggestions";
+
+/* Utils */
+import filterTagSuggestions from "@/utils/tag.utils";
 
 /* Styles */
 import styles from "./codeEditor.module.css";
@@ -16,6 +27,7 @@ type CodeEditorTagsProps = {
 	activeTag: MenuItems | string;
 	currentSnippet: CurrentSnippet;
 	allSnippets?: Snippet[];
+	availableTags?: TagItem[];
 	isPublic: boolean;
 	showDetails: boolean;
 	hideAiButton?: boolean;
@@ -36,6 +48,7 @@ const CodeEditorTags = ({
 	activeTag,
 	currentSnippet,
 	allSnippets,
+	availableTags,
 	isPublic,
 	showDetails,
 	hideAiButton,
@@ -52,6 +65,11 @@ const CodeEditorTags = ({
 	onReplaceSnippet,
 }: CodeEditorTagsProps): ReactElement => {
 	const [tagList, setTagList] = useState<string[]>([]);
+	const [tagQuery, setTagQuery] = useState<string>("");
+	const suggestions = useMemo(
+		() => filterTagSuggestions(availableTags ?? [], tagQuery, tagList),
+		[availableTags, tagQuery, tagList]
+	);
 	const getTagForSnippet = (snippetTag: Tags): string[] =>
 		snippetTag && snippetTag?.length > 0 ? snippetTag.trim().split(",") : [];
 
@@ -60,6 +78,16 @@ const CodeEditorTags = ({
 	): currentActiveTag is MenuItems => {
 		return Object.values(MenuItems).includes(currentActiveTag as MenuItems);
 	};
+
+	const commitTag = useCallback(
+		(tag: string): void => {
+			setTagQuery("");
+			onNewTag(tag);
+		},
+		[onNewTag]
+	);
+
+	const dismissSuggestions = useCallback((): void => setTagQuery(""), []);
 
 	useEffect(() => {
 		if (!currentSnippet?.tags && activeTag && !isMenuItem(activeTag)) {
@@ -77,16 +105,14 @@ const CodeEditorTags = ({
 					<Tag width={20} height={20} />
 				</span>
 				{tagList?.length > 0 &&
-					tagList.map(
-						(tag: string, index: number): ReactElement => (
-							<Badge
-								key={`${index + 1}-code-editor-tag`}
-								onRemove={() => onRemoveTag(tag)}
-							>
-								{tag ?? ""}
-							</Badge>
-						)
-					)}
+					tagList.map((tag: string, index: number): ReactElement => (
+						<Badge
+							key={`${index + 1}-code-editor-tag`}
+							onRemove={() => onRemoveTag(tag)}
+						>
+							{tag ?? ""}
+						</Badge>
+					))}
 
 				{tagList?.length < 3 && (
 					<div className={styles.tagInput}>
@@ -99,12 +125,21 @@ const CodeEditorTags = ({
 							placeholder={
 								tagList?.length > 0 ? "Add another tag…" : "Add a tag…"
 							}
-							value=""
+							value={tagQuery}
 							required={true}
-							onKeyDown={onNewTag}
-							onChange={onChange}
-							onBlur={onNewTag}
+							onKeyDown={commitTag}
+							onChange={(event: ChangeEvent<HTMLInputElement>) => {
+								setTagQuery(event.target.value);
+								onChange(event);
+							}}
+							onBlur={commitTag}
 							maxLength={25}
+						/>
+
+						<TagSuggestions
+							suggestions={suggestions}
+							onSelect={commitTag}
+							onDismiss={dismissSuggestions}
 						/>
 					</div>
 				)}

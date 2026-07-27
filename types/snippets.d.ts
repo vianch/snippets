@@ -75,12 +75,7 @@ declare global {
 	};
 
 	type AiProvider =
-		| "ollama"
-		| "ollama-cloud"
-		| "claude"
-		| "openai"
-		| "openrouter"
-		| "nvidia";
+		"ollama" | "ollama-cloud" | "claude" | "openai" | "openrouter" | "nvidia";
 
 	interface SmartGroup {
 		name: string;
