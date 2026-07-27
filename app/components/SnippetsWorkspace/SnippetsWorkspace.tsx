@@ -372,11 +372,10 @@ const SnippetsWorkspace = ({
 			setActiveSnippetId(pickNextActiveId(removedIndex, remaining));
 		} else {
 			setSnippets(
-				snippets.map(
-					(item: Snippet): Snippet =>
-						item.snippet_id === snippet.snippet_id
-							? { ...item, state: toggledState }
-							: item
+				snippets.map((item: Snippet): Snippet =>
+					item.snippet_id === snippet.snippet_id
+						? { ...item, state: toggledState }
+						: item
 				)
 			);
 		}

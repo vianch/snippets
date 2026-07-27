@@ -105,16 +105,14 @@ const CodeEditorTags = ({
 					<Tag width={20} height={20} />
 				</span>
 				{tagList?.length > 0 &&
-					tagList.map(
-						(tag: string, index: number): ReactElement => (
-							<Badge
-								key={`${index + 1}-code-editor-tag`}
-								onRemove={() => onRemoveTag(tag)}
-							>
-								{tag ?? ""}
-							</Badge>
-						)
-					)}
+					tagList.map((tag: string, index: number): ReactElement => (
+						<Badge
+							key={`${index + 1}-code-editor-tag`}
+							onRemove={() => onRemoveTag(tag)}
+						>
+							{tag ?? ""}
+						</Badge>
+					))}
 
 				{tagList?.length < 3 && (
 					<div className={styles.tagInput}>
