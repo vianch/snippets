@@ -20,6 +20,9 @@ export const headingPattern = /^(#{1,6})\s/;
 export const numberedListPattern = /^\d+\.\s/;
 export const linkSyntaxPattern = /^\[(.*)\]\((.*)\)$/;
 
+export const markdownFileAccept = ".md,.markdown";
+export const markdownExtensionPattern = /\.(md|markdown)$/i;
+
 export const boldShortcutKey = "Mod-b";
 export const duplicateLineShortcutKey = "Mod-d";
 export const inlineCodeShortcutKey = "Mod-e";

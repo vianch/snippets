@@ -26,6 +26,8 @@ import {
 	trashRestoreSnippet,
 } from "@/lib/storage/snippets";
 import { getSmartGroups, saveSmartGroups } from "@/lib/supabase/queries";
+import SupportedLanguages from "@/lib/config/languages";
+import languageExtensions from "@/lib/codeEditor";
 import { MenuItems, MenuPrefixes, SnippetState } from "@/lib/constants/core";
 import { DefaultSettingsSection } from "@/lib/constants/settings.constants";
 import { buildSettingsHash } from "@/utils/settings.utils";
@@ -69,6 +71,8 @@ const SnippetsWorkspace = ({
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [showUnsavedSnippetModal, setShowUnsavedSnippetModal] =
 		useState<boolean>(false);
+	const [pendingMarkdownUpload, setPendingMarkdownUpload] =
+		useState<UploadedMarkdown | null>(null);
 	const { addToast } = useToastStore();
 
 	const findIndexForCurrentSnippet = (currentSnippet: CurrentSnippet): number =>
@@ -78,11 +82,11 @@ const SnippetsWorkspace = ({
 		);
 
 	const setActiveSnippetId = (snippetId: UUID | null): void => {
-		setCodedEditorStates({
-			...codeEditorStates,
+		setCodedEditorStates((previousStates) => ({
+			...previousStates,
 			activeSnippetId: snippetId,
-			isSaving: codeEditorStates.touched,
-		});
+			isSaving: previousStates.touched,
+		}));
 	};
 
 	const findSnippetIndexById = (snippetId: UUID | null): number =>
@@ -106,10 +110,10 @@ const SnippetsWorkspace = ({
 	};
 
 	const touchedHandler = (touched: boolean): void => {
-		setCodedEditorStates({
-			...codeEditorStates,
+		setCodedEditorStates((previousStates) => ({
+			...previousStates,
 			touched,
-		});
+		}));
 	};
 
 	const getFolders = (snippetsLoaded: Snippet[]): void => {
@@ -232,11 +236,11 @@ const SnippetsWorkspace = ({
 			setSnippets(snippetsSorted);
 		}
 
-		setCodedEditorStates({
-			...codeEditorStates,
+		setCodedEditorStates((previousStates) => ({
+			...previousStates,
 			isSaving: false,
 			touched: false,
-		});
+		}));
 	};
 
 	const updateSnippetTagList = async (
@@ -270,24 +274,36 @@ const SnippetsWorkspace = ({
 		currentSnippet: CurrentSnippet,
 		fromButton: boolean | SnippetState.Favorite = false
 	): Promise<void> => {
-		const activeSnippet = snippets.find(
+		// Match on the snippet being saved, not on whatever is active now: the
+		// auto-save-on-switch path fires for the outgoing snippet. A snippet the
+		// list no longer holds was just trashed, so saving it would resurrect it —
+		// skip silently instead of warning about a snippet the user already dropped.
+		const storedSnippet = snippets.find(
 			(snippet: Snippet): boolean =>
-				snippet.snippet_id === codeEditorStates.activeSnippetId
+				snippet.snippet_id === currentSnippet?.snippet_id
 		);
 
+		if (!storedSnippet) {
+			setCodedEditorStates((previousStates) => ({
+				...previousStates,
+				isSaving: false,
+			}));
+
+			return;
+		}
+
 		if (
-			activeSnippet?.snippet_id &&
 			currentSnippet?.name &&
 			currentSnippet?.name?.length > 0 &&
 			currentSnippet?.snippet
 		) {
-			setCodedEditorStates({
-				...codeEditorStates,
+			setCodedEditorStates((previousStates) => ({
+				...previousStates,
 				isSaving: true,
-			});
+			}));
 
-			const previousTags = activeSnippet.tags ?? null;
-			const previousFolder = activeSnippet.folder ?? null;
+			const previousTags = storedSnippet.tags ?? null;
+			const previousFolder = storedSnippet.folder ?? null;
 			const updatedSnippet = {
 				...currentSnippet,
 				updated_at: new Date().toISOString(),
@@ -323,10 +339,10 @@ const SnippetsWorkspace = ({
 			}
 
 			setTimeout(() => {
-				setCodedEditorStates({
-					...codeEditorStates,
+				setCodedEditorStates((previousStates) => ({
+					...previousStates,
 					isSaving: false,
-				});
+				}));
 			}, 400);
 		}
 	};
@@ -545,10 +561,11 @@ const SnippetsWorkspace = ({
 		cloneSnippets.splice(foundIndex, 1);
 		setSnippets(cloneSnippets);
 
+		// No `touched: true` here — trashing is not an edit, and flagging it made
+		// the editor auto-save the snippet that was just removed on the switch.
 		setCodedEditorStates((prevStates) => ({
 			...prevStates,
 			isSaving: true,
-			touched: true,
 			activeSnippetId: pickNextActiveId(foundIndex, cloneSnippets),
 		}));
 
@@ -677,12 +694,38 @@ const SnippetsWorkspace = ({
 		});
 	};
 
-	const performCreateSnippet = async (): Promise<void> => {
+	const performCreateSnippet = async (
+		upload: UploadedMarkdown | null = null
+	): Promise<void> => {
 		const newSnippet = await setNewSnippet();
 
-		if (newSnippet) {
-			newSnippetHandler(newSnippet);
+		if (!newSnippet) {
+			return;
 		}
+
+		if (!upload) {
+			newSnippetHandler(newSnippet);
+
+			return;
+		}
+
+		const uploadedSnippet: CurrentSnippet = {
+			...newSnippet,
+			extension: languageExtensions[SupportedLanguages.Markdown],
+			language: SupportedLanguages.Markdown,
+			name: upload.name,
+			snippet: upload.content,
+		};
+
+		newSnippetHandler(uploadedSnippet);
+
+		await saveSnippet(uploadedSnippet);
+		await updateSnippetTagList();
+
+		addToast({
+			type: ToastType.Success,
+			message: `Imported "${upload.name}"`,
+		});
 	};
 
 	const createSnippetFromPalette = async (): Promise<void> => {
@@ -695,14 +738,31 @@ const SnippetsWorkspace = ({
 		await performCreateSnippet();
 	};
 
-	const handleConfirmCreateSnippet = async (): Promise<void> => {
-		setShowUnsavedSnippetModal(false);
+	const uploadMarkdownHandler = async (
+		upload: UploadedMarkdown
+	): Promise<void> => {
+		if (codeEditorStates.touched) {
+			setPendingMarkdownUpload(upload);
+			setShowUnsavedSnippetModal(true);
 
-		await performCreateSnippet();
+			return;
+		}
+
+		await performCreateSnippet(upload);
+	};
+
+	const handleConfirmCreateSnippet = async (): Promise<void> => {
+		const upload = pendingMarkdownUpload;
+
+		setShowUnsavedSnippetModal(false);
+		setPendingMarkdownUpload(null);
+
+		await performCreateSnippet(upload);
 	};
 
 	const handleCancelCreateSnippet = (): void => {
 		setShowUnsavedSnippetModal(false);
+		setPendingMarkdownUpload(null);
 	};
 
 	useEffect(() => {
@@ -787,6 +847,7 @@ const SnippetsWorkspace = ({
 						onWikiNavigate={handleWikiNavigate}
 						onActiveSnippet={setActiveSnippetId}
 						onNewSnippet={createSnippetFromPalette}
+						onUploadMarkdown={uploadMarkdownHandler}
 					/>
 				}
 			/>

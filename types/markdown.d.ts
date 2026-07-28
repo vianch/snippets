@@ -10,6 +10,11 @@ declare global {
 		label: string;
 	};
 
+	type UploadedMarkdown = {
+		content: string;
+		name: string;
+	};
+
 	type LinePrefixTransform = {
 		addToLine: (lineText: string, indexWithinSelection: number) => string;
 		isLinePrefixed: (lineText: string) => boolean;

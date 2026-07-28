@@ -72,6 +72,7 @@ type CodeEditorProps = {
 	onWikiNavigate?: (target: string) => void;
 	onActiveSnippet?: (snippetId: UUID | null) => void;
 	onNewSnippet?: () => void;
+	onUploadMarkdown: (upload: UploadedMarkdown) => void;
 };
 
 const CodeEditor = ({
@@ -89,6 +90,7 @@ const CodeEditor = ({
 	onWikiNavigate,
 	onActiveSnippet,
 	onNewSnippet,
+	onUploadMarkdown,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
 	const theme = useUserStore((state) => state.theme) as ThemeName;
@@ -357,6 +359,7 @@ const CodeEditor = ({
 									getEditorView={() => editorViewRef.current}
 									isPreviewVisible={isPreviewVisible}
 									onTogglePreview={() => setIsPreviewVisible(!isPreviewVisible)}
+									onUploadMarkdown={onUploadMarkdown}
 									showFormattingActions={isMarkdownLanguage}
 									showPreviewToggle={showPreviewToggle}
 								/>
