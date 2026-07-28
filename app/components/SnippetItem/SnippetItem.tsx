@@ -92,8 +92,10 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 							}
 						/>
 					)}
-					{touched && isSnippetActive && "* "}
-					{snippet?.name ?? "Untitled"}
+					<span className={styles.snippetName} title={snippet?.name ?? ""}>
+						{touched && isSnippetActive && "* "}
+						{snippet?.name ?? "Untitled"}
+					</span>
 					<LanguageBadge language={snippet.language} />
 				</div>
 

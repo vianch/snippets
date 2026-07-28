@@ -351,12 +351,20 @@
 	min-width: 0;
 	overflow: hidden;
 	white-space: nowrap;
+}
+
+/* Only the title truncates — icons and badge keep their space. */
+.snippetName {
+	min-width: 0;
+	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .trashIcon,
 .restoreIcon,
 .listIcon {
+	flex-shrink: 0;
 	margin-right: 0.313rem;
 	transition:
 		color var(--duration-fast) var(--ease-fluid),
@@ -383,6 +391,7 @@
 
 .favoriteIconWrapper {
 	display: inline-flex;
+	flex-shrink: 0;
 	align-items: center;
 	cursor: pointer;
 }
