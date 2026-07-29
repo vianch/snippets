@@ -8,10 +8,12 @@ import { demoAccountData } from "@/lib/constants/account";
 import { AdminTab } from "@/lib/constants/admin.constants";
 
 /* Components */
+import DatabaseExplorer from "@/components/admin/DatabaseExplorer/DatabaseExplorer";
 import SnippetAnalytics from "@/components/admin/SnippetAnalytics/SnippetAnalytics";
 import UserManagement from "@/components/admin/UserManagement/UserManagement";
 import Button from "@/components/ui/Button/Button";
 import Book from "@/components/ui/icons/Book";
+import Database from "@/components/ui/icons/Database";
 import ListChecks from "@/components/ui/icons/ListChecks";
 import ShieldCheck from "@/components/ui/icons/ShieldCheck";
 import User from "@/components/ui/icons/User";
@@ -38,6 +40,11 @@ const AdminDashboard = (): ReactElement => {
 			icon: <ListChecks width={18} height={18} />,
 			label: "Analytics",
 			value: AdminTab.Analytics,
+		},
+		{
+			icon: <Database width={18} height={18} />,
+			label: "Database",
+			value: AdminTab.Database,
 		},
 	];
 
@@ -77,11 +84,11 @@ const AdminDashboard = (): ReactElement => {
 			</aside>
 
 			<main className={styles.main}>
-				{section === AdminTab.Users ? (
+				{section === AdminTab.Users && (
 					<UserManagement isReadOnly={isReadOnly} />
-				) : (
-					<SnippetAnalytics />
 				)}
+				{section === AdminTab.Analytics && <SnippetAnalytics />}
+				{section === AdminTab.Database && <DatabaseExplorer />}
 			</main>
 		</div>
 	);

@@ -3,6 +3,7 @@
 
 export const enum AdminTab {
 	Analytics = "analytics",
+	Database = "database",
 	Users = "users",
 }
 
@@ -63,6 +64,7 @@ export const MinPasswordLength = 6;
 
 export const AdminApiPaths = {
 	analytics: "/api/admin/analytics",
+	database: "/api/admin/database",
 	users: "/api/admin/users",
 } as const;
 

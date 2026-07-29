@@ -1,0 +1,131 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+}
+
+.header {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.source {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	color: var(--foreground-color);
+}
+
+.sourceText {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+}
+
+.sourceName {
+	font-size: var(--small-font-size);
+	font-weight: 600;
+}
+
+.sourceMeta {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+}
+
+.body {
+	display: grid;
+	grid-template-columns: 220px minmax(0, 1fr);
+	gap: 1.25rem;
+	align-items: start;
+}
+
+.tableList {
+	display: flex;
+	flex-direction: column;
+	gap: 0.125rem;
+	padding: 0.5rem;
+	background: var(--bg-color-dark);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius-md);
+}
+
+.tableItem {
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	padding: 0.5rem 0.625rem;
+	font-size: var(--small-font-size);
+	color: var(--gray-color);
+	cursor: pointer;
+	background: none;
+	border: none;
+	border-radius: var(--border-radius);
+	transition: color var(--duration-fast) var(--ease-fluid);
+}
+
+.tableItem:hover {
+	color: var(--foreground-color);
+	background: var(--current-line);
+}
+
+.tableItemActive {
+	color: var(--foreground-color);
+	background: var(--current-line);
+}
+
+.tableName {
+	flex: 1;
+	overflow: hidden;
+	text-align: left;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.columnCount {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+}
+
+.grid {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+.gridMeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.75rem;
+	align-items: center;
+	justify-content: flex-end;
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+}
+
+.relation {
+	padding: 0.125rem 0.5rem;
+	color: var(--cyan-color);
+	background: color-mix(in srgb, var(--cyan-color) 12%, transparent);
+	border-radius: var(--border-radius);
+}
+
+.pager {
+	display: flex;
+	gap: 0.75rem;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.pageLabel {
+	font-size: var(--tiny-font-size);
+	color: var(--gray-color);
+}
+
+@media (width <= 900px) {
+	.body {
+		grid-template-columns: 1fr;
+	}
+}
