@@ -1,0 +1,19 @@
+.cell {
+	max-width: 260px;
+}
+
+/* Native truncation — no JS slicing, and the full value stays in the title. */
+.value {
+	display: block;
+	overflow: hidden;
+	font-family: monospace;
+	font-size: var(--tiny-font-size);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.nullValue {
+	font-size: var(--tiny-font-size);
+	font-style: italic;
+	color: var(--gray-color);
+}
