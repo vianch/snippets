@@ -28,6 +28,18 @@ const shortcutGroups: ShortcutGroup[] = [
 				keys: ["["],
 				description: "Type [[ in any snippet to link to another snippet",
 			},
+			{
+				keys: ["↑", "↓"],
+				description: "Navigate tag or wiki-link suggestions",
+			},
+			{
+				keys: ["↵"],
+				description: "Accept highlighted tag or wiki-link suggestion",
+			},
+			{
+				keys: ["Esc"],
+				description: "Dismiss tag or wiki-link suggestions",
+			},
 		],
 	},
 	{
@@ -37,6 +49,14 @@ const shortcutGroups: ShortcutGroup[] = [
 			{ keys: ["Mod", "I"], description: "Italic selected text" },
 			{ keys: ["Mod", "E"], description: "Wrap selection in inline code" },
 			{ keys: ["Mod", "D"], description: "Duplicate current line below" },
+			{
+				keys: ["Mod", "Shift", "F"],
+				description: "Toggle distraction-free writing",
+			},
+			{
+				keys: ["Esc"],
+				description: "Exit distraction-free writing",
+			},
 		],
 	},
 	{

@@ -201,6 +201,45 @@ table {
 	/* Desktop pixel pet (body uses the active palette's darkest token) */
 	--pet-glow: rgb(165 153 233 / 55%);
 	--pet-ground-offset: 10px;
+
+	/* Typography (default: Google Sans Flex) */
+	--app-font: var(--font-google-sans-flex), var(--font-inter), sans-serif;
+}
+
+html[data-font="google-sans-flex"] {
+	--app-font: var(--font-google-sans-flex), var(--font-inter), sans-serif;
+}
+
+html[data-font="google-sans-code"] {
+	--app-font: var(--font-google-sans-code), var(--font-inter), monospace;
+}
+
+html[data-font="source-code-pro"] {
+	--app-font: var(--font-source-code-pro), var(--font-inter), monospace;
+}
+
+html[data-font="montserrat"] {
+	--app-font: var(--font-montserrat), var(--font-inter), sans-serif;
+}
+
+html[data-font="aleo"] {
+	--app-font: var(--font-aleo), var(--font-inter), serif;
+}
+
+html[data-font="open-sans"] {
+	--app-font: var(--font-open-sans), var(--font-inter), sans-serif;
+}
+
+html[data-font="source-sans-3"] {
+	--app-font: var(--font-source-sans-3), var(--font-inter), sans-serif;
+}
+
+html[data-font="raleway"] {
+	--app-font: var(--font-raleway), var(--font-inter), sans-serif;
+}
+
+html[data-font="inconsolata"] {
+	--app-font: var(--font-inconsolata), var(--font-inter), monospace;
 }
 
 [data-theme="shades-of-purple"] {
@@ -536,6 +575,12 @@ body {
 	overflow-x: hidden;
 	background: var(--bg-color);
 	color: var(--foreground-color);
+	font-family: var(--app-font);
+}
+
+.cm-editor,
+.cm-content {
+	font-family: var(--app-font);
 }
 
 .green-color {

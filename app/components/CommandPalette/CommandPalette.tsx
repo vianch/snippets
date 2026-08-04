@@ -12,6 +12,7 @@ import Globe from "@/components/ui/icons/Globe";
 import Star from "@/components/ui/icons/Star";
 import Trash from "@/components/ui/icons/Trash";
 import Bookmark from "@/components/ui/icons/Bookmark";
+import FocusMode from "@/components/ui/icons/FocusMode";
 import Settings from "@/components/ui/icons/Settings";
 import NewFile from "@/components/ui/icons/NewFile";
 import LanguageBadge from "@/components/ui/LanguageBadge/LanguageBadge";
@@ -20,6 +21,7 @@ import LanguageBadge from "@/components/ui/LanguageBadge/LanguageBadge";
 import styles from "./commandPalette.module.css";
 
 type CommandPaletteProps = {
+	canToggleFocusMode: boolean;
 	snippets: Snippet[];
 	tags: TagItem[];
 	onActiveSnippet: (snippetId: UUID) => void;
@@ -31,9 +33,11 @@ type CommandPaletteProps = {
 	onGetTrash: () => void;
 	onTagClick: (tag: string) => void;
 	onAccountClick: () => void;
+	onToggleFocusMode: () => void;
 };
 
 const CommandPalette = ({
+	canToggleFocusMode,
 	snippets,
 	tags,
 	onActiveSnippet,
@@ -45,6 +49,7 @@ const CommandPalette = ({
 	onGetTrash,
 	onTagClick,
 	onAccountClick,
+	onToggleFocusMode,
 }: CommandPaletteProps): ReactElement => {
 	const open = useMenuStore((store) => store.commandPaletteOpen);
 	const setCommandPaletteOpen = useMenuStore(
@@ -123,6 +128,18 @@ const CommandPalette = ({
 						<Settings width={16} height={16} />
 						<span>Open settings</span>
 					</Command.Item>
+					{canToggleFocusMode && (
+						<Command.Item
+							className={styles.item}
+							onSelect={() => runAction(onToggleFocusMode)}
+						>
+							<FocusMode width={16} height={16} />
+							<span>Toggle distraction-free writing</span>
+							<span className={styles.shortcut}>
+								{isMac ? "⌘" : "Ctrl"} ⇧ F
+							</span>
+						</Command.Item>
+					)}
 				</Command.Group>
 
 				<Command.Group heading="Navigate" className={styles.group}>

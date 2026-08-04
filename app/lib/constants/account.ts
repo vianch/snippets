@@ -1,4 +1,5 @@
 import { ThemeNames } from "@/lib/config/themes";
+import { DefaultFontName } from "@/lib/config/fonts";
 
 export const avatarImages = [
 	"/assets/images/avatars/frog.png",
@@ -29,6 +30,7 @@ export const accountInitialStateData: InitialAccountStateData = {
 	confirmPassword: "",
 	avatar: defaultAvatar,
 	theme: ThemeNames.ShadesOfPurple,
+	font: DefaultFontName,
 	aiProvider: "ollama",
 	aiApiKey: "",
 	aiModel: "",
