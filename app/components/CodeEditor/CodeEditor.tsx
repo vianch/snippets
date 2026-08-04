@@ -1,9 +1,8 @@
 "use client";
 
-import { ReactElement, useMemo, useRef, useState } from "react";
+import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
+import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
-
-import type { EditorView } from "@codemirror/view";
 
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
@@ -25,6 +24,7 @@ import { requestAiAction } from "@/utils/ai.utils";
 
 /* Hooks */
 import useCurrentSnippet from "@/components/CodeEditor/hooks/useCurrentSnippet";
+import useFocusModeShortcut from "@/components/CodeEditor/hooks/useFocusModeShortcut";
 import useKeyboardSave from "@/components/CodeEditor/hooks/useKeyboardSave";
 import usePreviewResize from "@/components/CodeEditor/hooks/usePreviewResize";
 
@@ -32,6 +32,7 @@ import usePreviewResize from "@/components/CodeEditor/hooks/usePreviewResize";
 import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
+import FocusModeBar from "@/components/CodeEditor/FocusModeBar";
 import MarkdownToolbar from "@/components/CodeEditor/MarkdownToolbar";
 import SnippetDetails from "@/components/CodeEditor/SnippetDetails/SnippetDetails";
 import History from "@/components/History/History";
@@ -93,6 +94,8 @@ const CodeEditor = ({
 	onUploadMarkdown,
 }: CodeEditorProps): ReactElement => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
+	const isFocusMode = useViewPortStore((state) => state.isFocusMode);
+	const setFocusMode = useViewPortStore((state) => state.setFocusMode);
 	const theme = useUserStore((state) => state.theme) as ThemeName;
 	const { menuType } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
@@ -180,28 +183,83 @@ const CodeEditor = ({
 	const showChatPane = isChatMode && !isTrashActive;
 	const hasRightPane = showPreview || showChatPane;
 	const showPreviewToggle = hasPreviewPanel && !isChatMode;
+	const canToggleFocusMode = isMarkdownLanguage && !isTrashActive;
+
+	// Long-form prose fixes: wrap instead of horizontal-scrolling, and let the
+	// browser spellcheck markdown content the way it would a text field.
+	const markdownProseExtensions = useMemo(
+		() =>
+			isMarkdownLanguage && !isTrashActive
+				? [
+						EditorView.lineWrapping,
+						EditorView.contentAttributes.of({ spellcheck: "true" }),
+					]
+				: [],
+		[isMarkdownLanguage, isTrashActive]
+	);
+
 	const showMarkdownToolbar =
 		!isMobile &&
 		!isTrashActive &&
+		!isFocusMode &&
 		(isMarkdownLanguage || (hasPreviewPanel && !isChatMode));
+
+	const toggleFocusModeHandler = (): void => {
+		if (!canToggleFocusMode) {
+			return;
+		}
+
+		setFocusMode(!isFocusMode);
+	};
+
+	useFocusModeShortcut({
+		canToggleFocusMode,
+		isFocusMode,
+		onExit: () => setFocusMode(false),
+		onToggle: toggleFocusModeHandler,
+	});
+
+	// Focus mode is only meaningful for markdown, outside trash. If either
+	// condition stops holding while it's on (language switch, trash open),
+	// drop back to the normal layout instead of leaving a broken overlay.
+	useEffect(() => {
+		if (isFocusMode && !canToggleFocusMode) {
+			setFocusMode(false);
+		}
+	}, [isFocusMode, canToggleFocusMode, setFocusMode]);
+
+	useEffect(() => {
+		if (!isFocusMode) {
+			return;
+		}
+
+		const previousOverflow = document.body.style.overflow;
+
+		document.body.style.overflow = "hidden";
+
+		return () => {
+			document.body.style.overflow = previousOverflow;
+		};
+	}, [isFocusMode]);
 
 	const editorHeight = calculateEditorHeight({
 		hasMarkdownToolbar: showMarkdownToolbar,
 		hasRightPane,
+		isFocusMode,
 		isMobile,
 		isTrashActive,
 	});
-	const previewHeight = calculatePreviewHeight(isMobile);
+	const previewHeight = calculatePreviewHeight(isMobile, isFocusMode);
 
 	return (
 		<div
-			className={`${styles.codeEditorContainer} ${!snippet && !isLoading && styles.noSnippetContainer}`}
+			className={`${styles.codeEditorContainer} ${!snippet && !isLoading && styles.noSnippetContainer} ${isFocusMode ? styles.focusOverlay : ""}`}
 		>
 			{isLoading ? (
 				<SkeletonCodeEditor />
 			) : snippet ? (
 				<>
-					{!isTrashActive && (
+					{!isTrashActive && !isFocusMode && (
 						<>
 							<CodeEditorHeader
 								currentSnippet={currentSnippet}
@@ -311,6 +369,17 @@ const CodeEditor = ({
 						</>
 					)}
 
+					{isFocusMode && (
+						<FocusModeBar
+							content={currentSnippet.snippet ?? ""}
+							isPreviewVisible={isPreviewVisible}
+							showPreviewToggle={showPreviewToggle}
+							snippetName={currentSnippet.name ?? ""}
+							onExit={() => setFocusMode(false)}
+							onTogglePreview={() => setIsPreviewVisible(!isPreviewVisible)}
+						/>
+					)}
+
 					{/* One stable tree for every mode: the right pane, resizer, and
 					    toolbar toggle in and out around a single CodeMirror instance,
 					    so toggling the preview never remounts the editor (which would
@@ -347,7 +416,7 @@ const CodeEditor = ({
 								showChatPane && isMobile && mobileChatTab !== AiPaneTab.Code
 									? styles.paneHidden
 									: ""
-							}`}
+							} ${isFocusMode && !hasRightPane ? styles.focusEditorPanel : ""}`}
 							style={
 								!isMobile
 									? { width: hasRightPane ? `${editorWidthPercent}%` : "100%" }
@@ -357,7 +426,9 @@ const CodeEditor = ({
 							{showMarkdownToolbar && (
 								<MarkdownToolbar
 									getEditorView={() => editorViewRef.current}
+									isFocusMode={isFocusMode}
 									isPreviewVisible={isPreviewVisible}
+									onToggleFocusMode={toggleFocusModeHandler}
 									onTogglePreview={() => setIsPreviewVisible(!isPreviewVisible)}
 									onUploadMarkdown={onUploadMarkdown}
 									showFormattingActions={isMarkdownLanguage}
@@ -371,7 +442,9 @@ const CodeEditor = ({
 									isTrashActive ? { lineNumbers: true } : codeMirrorOptions
 								}
 								placeholder={"Write your snipped here"}
-								className={styles.codeMirrorContainer}
+								className={`${styles.codeMirrorContainer} ${
+									isFocusMode ? styles.focusCodeMirror : ""
+								}`}
 								value={currentSnippet?.snippet ?? ""}
 								extensions={[
 									currentSnippet.extension,
@@ -380,6 +453,7 @@ const CodeEditor = ({
 									...(isMarkdownLanguage && !isTrashActive
 										? [markdownKeymap]
 										: []),
+									...markdownProseExtensions,
 								]}
 								theme={editorTheme}
 								height={

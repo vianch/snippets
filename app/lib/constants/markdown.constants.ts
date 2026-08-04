@@ -27,3 +27,5 @@ export const boldShortcutKey = "Mod-b";
 export const duplicateLineShortcutKey = "Mod-d";
 export const inlineCodeShortcutKey = "Mod-e";
 export const italicShortcutKey = "Mod-i";
+
+export const ReadingWordsPerMinute = 200;

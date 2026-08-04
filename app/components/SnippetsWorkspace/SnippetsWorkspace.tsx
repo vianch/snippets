@@ -33,6 +33,7 @@ import { DefaultSettingsSection } from "@/lib/constants/settings.constants";
 import { buildSettingsHash } from "@/utils/settings.utils";
 import { ToastType } from "@/lib/constants/toast";
 import useToastStore from "@/lib/store/toast.store";
+import useViewPortStore from "@/lib/store/viewPort.store";
 import { findSnippetByName } from "@/lib/wikiLinkResolver";
 
 /* Utils */
@@ -765,6 +766,28 @@ const SnippetsWorkspace = ({
 		setPendingMarkdownUpload(null);
 	};
 
+	const isFocusMode = useViewPortStore((store) => store.isFocusMode);
+	const setFocusMode = useViewPortStore((store) => store.setFocusMode);
+
+	const activeSnippet =
+		snippets?.length > 0
+			? (snippets.find(
+					(snippetItem: Snippet): boolean =>
+						snippetItem.snippet_id === codeEditorStates.activeSnippetId
+				) ?? snippets[0])
+			: null;
+	const canToggleFocusMode =
+		activeSnippet?.language === SupportedLanguages.Markdown &&
+		codeEditorStates.menuType !== MenuItems.Trash;
+
+	const toggleFocusModeFromPalette = (): void => {
+		if (!canToggleFocusMode) {
+			return;
+		}
+
+		setFocusMode(!isFocusMode);
+	};
+
 	useEffect(() => {
 		getSnippets().then(() => null);
 		loadSmartGroups().then(() => null);
@@ -853,6 +876,7 @@ const SnippetsWorkspace = ({
 			/>
 			<AccountModal />
 			<CommandPalette
+				canToggleFocusMode={canToggleFocusMode}
 				snippets={snippets}
 				tags={tags}
 				onActiveSnippet={setActiveSnippetId}
@@ -864,6 +888,7 @@ const SnippetsWorkspace = ({
 				onGetTrash={getTrashHandler}
 				onTagClick={getSnippetsByTagHandler}
 				onAccountClick={handleAccountClick}
+				onToggleFocusMode={toggleFocusModeFromPalette}
 			/>
 			<ConfirmationModal
 				isOpen={showUnsavedSnippetModal}

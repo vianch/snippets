@@ -10,6 +10,7 @@ import {
 /* Components */
 import EyeClosed from "@/components/ui/icons/EyeClosed";
 import EyeOpen from "@/components/ui/icons/EyeOpen";
+import FocusMode from "@/components/ui/icons/FocusMode";
 import Upload from "@/components/ui/icons/Upload";
 
 /* Types */
@@ -20,7 +21,9 @@ import styles from "./markdownToolbar.module.css";
 
 type MarkdownToolbarProps = {
 	getEditorView: () => EditorView | null;
+	isFocusMode: boolean;
 	isPreviewVisible: boolean;
+	onToggleFocusMode: () => void;
 	onTogglePreview: () => void;
 	onUploadMarkdown: (upload: UploadedMarkdown) => void;
 	showFormattingActions: boolean;
@@ -29,7 +32,9 @@ type MarkdownToolbarProps = {
 
 const MarkdownToolbar = ({
 	getEditorView,
+	isFocusMode,
 	isPreviewVisible,
+	onToggleFocusMode,
 	onTogglePreview,
 	onUploadMarkdown,
 	showFormattingActions,
@@ -68,6 +73,9 @@ const MarkdownToolbar = ({
 	};
 
 	const previewToggleLabel = isPreviewVisible ? "Hide preview" : "Show preview";
+	const focusModeLabel = isFocusMode
+		? "Exit distraction-free writing"
+		: "Enter distraction-free writing";
 
 	return (
 		<div
@@ -134,6 +142,21 @@ const MarkdownToolbar = ({
 						<EyeClosed height={16} width={16} />
 					)}
 				</button>
+			)}
+			{showFormattingActions && (
+				<>
+					<span aria-hidden="true" className={styles.divider} />
+					<button
+						aria-label={focusModeLabel}
+						aria-pressed={isFocusMode}
+						className={styles.toolbarButton}
+						onClick={onToggleFocusMode}
+						title={focusModeLabel}
+						type="button"
+					>
+						<FocusMode height={16} width={16} />
+					</button>
+				</>
 			)}
 		</div>
 	);

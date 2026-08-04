@@ -13,10 +13,11 @@ import {
 	getUserEmailBySession,
 	updateUser,
 } from "@/lib/supabase/queries";
+import { isValidFont } from "@/lib/config/fonts";
 import { settingsSections } from "@/lib/config/settings";
 import { ThemeName, isValidTheme } from "@/lib/config/themes";
 import { setCookie } from "@/lib/cookies";
-import { themeCookieName } from "@/lib/constants/cookies";
+import { fontCookieName, themeCookieName } from "@/lib/constants/cookies";
 
 /* Constants */
 import {
@@ -40,6 +41,7 @@ import Button from "@/components/ui/Button/Button";
 import Alert from "@/components/ui/Alert/Alert";
 import Switch from "@/components/ui/Switch/Switch";
 import DatabaseSettings from "@/components/AccountModal/DatabaseSettings";
+import FontPreview from "@/components/AccountModal/FontPreview";
 import SettingsSidebar from "@/components/AccountModal/SettingsSidebar";
 import ThemePreview from "@/components/AccountModal/ThemePreview";
 import TwoFactorSettings from "@/components/TwoFactorSettings/TwoFactorSettings";
@@ -83,6 +85,9 @@ const AccountModal = (): ReactElement | null => {
 	const [originalTheme, setOriginalTheme] = useState<string | undefined>(
 		accountInitialStateData.theme
 	);
+	const [originalFont, setOriginalFont] = useState<string | undefined>(
+		accountInitialStateData.font
+	);
 	const [aiModels, setAiModels] = useState<string[]>([]);
 	const [originalAiUrl, setOriginalAiUrl] = useState<string>("");
 	const [modelsLoading, setModelsLoading] = useState(false);
@@ -117,6 +122,15 @@ const AccountModal = (): ReactElement | null => {
 		useUserStore.getState().setTheme(themeName);
 	};
 
+	const handleFontChange = (fontName: FontName): void => {
+		setUserData((prev) => ({
+			...prev,
+			font: fontName,
+		}));
+
+		useUserStore.getState().setFont(fontName);
+	};
+
 	// Apply theme to the document whenever userData.theme changes (optimistic update)
 	useEffect(() => {
 		if (userData.theme) {
@@ -124,6 +138,14 @@ const AccountModal = (): ReactElement | null => {
 			setCookie(themeCookieName, userData.theme);
 		}
 	}, [userData.theme]);
+
+	// Apply font to the document whenever userData.font changes (optimistic update)
+	useEffect(() => {
+		if (userData.font) {
+			document.documentElement.dataset.font = userData.font;
+			setCookie(fontCookieName, userData.font);
+		}
+	}, [userData.font]);
 
 	const refreshModels = async (provider?: AiProvider): Promise<void> => {
 		const activeProvider =
@@ -212,6 +234,7 @@ const AccountModal = (): ReactElement | null => {
 			username: userData.username,
 			avatar: userData.avatar,
 			theme: userData.theme,
+			font: userData.font,
 			auto_save: userData.autoSave ?? false,
 			ai_provider: userData.aiProvider ?? AiProviderId.Ollama,
 			ai_api_key: userData.aiApiKey ?? "",
@@ -236,20 +259,31 @@ const AccountModal = (): ReactElement | null => {
 		const { hasUserNameChanged, hasUserAvatarChanged } =
 			checkForUserDataChanges();
 		const hasThemeChanged = userData.theme !== originalTheme;
+		const hasFontChanged = userData.font !== originalFont;
 
 		useUserStore.getState().setAutoSave(userData.autoSave ?? false);
 		useChatStore.getState().setSelectedModel(userData.aiModel ?? "");
 
-		if (hasUserNameChanged || hasUserAvatarChanged || hasThemeChanged) {
+		if (
+			hasUserNameChanged ||
+			hasUserAvatarChanged ||
+			hasThemeChanged ||
+			hasFontChanged
+		) {
 			setStoreUserData({
 				userName: userData.username,
 				userAvatar: userData.avatar,
 				email: userData.email,
 				theme: userData.theme,
+				font: userData.font,
 			});
 
 			if (hasThemeChanged) {
 				setOriginalTheme(userData.theme);
+			}
+
+			if (hasFontChanged) {
+				setOriginalFont(userData.font);
 			}
 		}
 	};
@@ -319,6 +353,12 @@ const AccountModal = (): ReactElement | null => {
 			useUserStore.getState().setTheme(originalTheme);
 		}
 
+		if (originalFont && userData.font !== originalFont) {
+			document.documentElement.dataset.font = originalFont;
+			setCookie(fontCookieName, originalFont);
+			useUserStore.getState().setFont(originalFont);
+		}
+
 		close();
 	};
 
@@ -377,6 +417,14 @@ const AccountModal = (): ReactElement | null => {
 						theme: userMetadata.theme,
 					}));
 					setOriginalTheme(userMetadata.theme);
+				}
+
+				if (userMetadata?.font && isValidFont(userMetadata.font)) {
+					setUserData((prev) => ({
+						...prev,
+						font: userMetadata.font,
+					}));
+					setOriginalFont(userMetadata.font);
 				}
 
 				if (userMetadata?.auto_save !== undefined) {
@@ -630,6 +678,15 @@ const AccountModal = (): ReactElement | null => {
 				<ThemePreview
 					activeTheme={userData.theme}
 					onThemeChange={handleThemeChange}
+				/>
+			</div>
+
+			{/* Typography */}
+			<div className={styles.section}>
+				<h3 className={styles.sectionTitle}>Typography</h3>
+				<FontPreview
+					activeFont={userData.font}
+					onFontChange={handleFontChange}
 				/>
 			</div>
 

@@ -6,6 +6,7 @@ interface InitialAccountStateData {
 	confirmPassword?: string;
 	avatar?: string;
 	theme?: string;
+	font?: string;
 	aiProvider?: AiProvider;
 	aiApiKey?: string;
 	aiModel?: string;
@@ -19,6 +20,7 @@ interface User {
 		username?: string;
 		avatar?: string;
 		theme?: string;
+		font?: string;
 		ai_provider?: AiProvider;
 		ai_api_key?: string;
 		ai_model?: string;

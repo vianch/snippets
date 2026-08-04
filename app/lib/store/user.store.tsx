@@ -3,12 +3,14 @@ import { create } from "zustand";
 /* Constants */
 import { defaultAvatar } from "../constants/account";
 import { ThemeNames } from "../config/themes";
+import { DefaultFontName } from "../config/fonts";
 
 type UserState = {
 	userName: string | null;
 	userAvatar: string;
 	email: string | null;
 	theme: string;
+	font: string;
 	aiApiKey: string;
 	autoSave: boolean;
 	isAdmin: boolean;
@@ -17,6 +19,7 @@ type UserState = {
 	setUserAvatar: (avatar: string) => void;
 	setEmail: (email: string | null) => void;
 	setTheme: (theme: string) => void;
+	setFont: (font: string) => void;
 	setAiApiKey: (aiApiKey: string) => void;
 	setAutoSave: (autoSave: boolean) => void;
 	setIsAdmin: (isAdmin: boolean) => void;
@@ -25,6 +28,7 @@ type UserState = {
 		userAvatar?: string;
 		email?: string | null;
 		theme?: string;
+		font?: string;
 		aiApiKey?: string;
 		autoSave?: boolean;
 		isAdmin?: boolean;
@@ -38,6 +42,7 @@ const useUserStore = create<UserState>((set) => ({
 	userAvatar: defaultAvatar,
 	email: null,
 	theme: ThemeNames.ShadesOfPurple,
+	font: DefaultFontName,
 	aiApiKey: "",
 	autoSave: false,
 	isAdmin: false,
@@ -46,6 +51,7 @@ const useUserStore = create<UserState>((set) => ({
 	setUserAvatar: (userAvatar) => set({ userAvatar }),
 	setEmail: (email) => set({ email }),
 	setTheme: (theme) => set({ theme }),
+	setFont: (font) => set({ font }),
 	setAiApiKey: (aiApiKey) => set({ aiApiKey }),
 	setAutoSave: (autoSave) => set({ autoSave }),
 	setIsAdmin: (isAdmin) => set({ isAdmin }),
@@ -61,6 +67,7 @@ const useUserStore = create<UserState>((set) => ({
 			userAvatar: defaultAvatar,
 			email: null,
 			theme: ThemeNames.ShadesOfPurple,
+			font: DefaultFontName,
 			aiApiKey: "",
 			autoSave: false,
 			isAdmin: false,

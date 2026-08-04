@@ -493,3 +493,31 @@
 		width: 100%;
 	}
 }
+
+/* Distraction-free writing: the whole editor takes over the viewport, header
+   and tags chrome are unmounted, and the FocusModeBar substitutes for them. */
+.focusOverlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	margin-bottom: 0;
+	background: var(--bg-color);
+}
+
+.focusEditorPanel {
+	margin: 0 auto;
+	max-width: 72ch;
+	width: 100%;
+}
+
+.focusCodeMirror {
+	font-size: 1.125rem;
+}
+
+.focusCodeMirror :global(.cm-content) {
+	line-height: 1.9;
+}
+
+.focusCodeMirror :global(.cm-line) {
+	padding: 0 0.125rem;
+}
