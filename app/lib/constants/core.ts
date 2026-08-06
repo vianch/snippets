@@ -1,3 +1,6 @@
+// Deliberately a runtime `enum`, not a `const enum`: the tag guard in
+// useCurrentSnippet calls `Object.values(MenuItems)`, which needs the emitted
+// runtime object. A `const enum` would erase it and silently break the guard.
 export enum MenuItems {
 	All = "all",
 	Uncategorized = "uncategorized",
@@ -28,5 +31,7 @@ export enum AsideSectionKeys {
 export const AsideScrollThreshold = 12;
 
 export const TagSuggestionLimit = 6;
+
+export const MaxSnippetTags = 3;
 
 export const tags = "tags";

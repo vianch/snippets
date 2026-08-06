@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect, ChangeEvent } from "react";
+import { useState, useRef, useEffect, useMemo, ChangeEvent } from "react";
 
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import useUserStore from "@/lib/store/user.store";
 import useToastStore from "@/lib/store/toast.store";
-import { SnippetState } from "@/lib/constants/core";
+import {
+	MaxSnippetTags,
+	MenuItems,
+	MenuPrefixes,
+	SnippetState,
+} from "@/lib/constants/core";
 import { ToastType } from "@/lib/constants/toast";
 import {
 	getSnippetVersions,
@@ -30,6 +35,7 @@ type UseCurrentSnippetProps = {
 type UseCurrentSnippetReturn = {
 	currentSnippet: CurrentSnippet;
 	setCurrentSnippet: (snippet: CurrentSnippet) => void;
+	tagList: string[];
 	showDetails: boolean;
 	setShowDetails: (show: boolean) => void;
 	showHistory: boolean;
@@ -41,7 +47,7 @@ type UseCurrentSnippetReturn = {
 	updateCurrentSnippetName: (event: ChangeEvent<HTMLInputElement>) => void;
 	updateCurrentSnippetUrl: (event: ChangeEvent<HTMLInputElement>) => void;
 	updateCurrentSnippetNotes: (event: ChangeEvent<HTMLTextAreaElement>) => void;
-	updateCurrentSnippetFolder: (event: ChangeEvent<HTMLInputElement>) => void;
+	updateCurrentSnippetFolder: (folder: string) => void;
 	setLanguageHandler: (selectedLanguage: string) => void;
 	starringHandler: () => void;
 	newTagHandler: (newTagValue: string) => void;
@@ -78,6 +84,22 @@ const useCurrentSnippet = ({
 	const [preRestoreSnapshot, setPreRestoreSnapshot] =
 		useState<CurrentSnippet | null>(null);
 	const previousSnippetIdRef = useRef<UUID | null>(null);
+	const tagList = useMemo(
+		() =>
+			currentSnippet.tags && currentSnippet.tags.length > 0
+				? currentSnippet.tags.trim().split(",")
+				: [],
+		[currentSnippet.tags]
+	);
+	// Tag routes look like `tag:react`; anything else is not a tag context.
+	const activeTag = menuType?.startsWith(MenuPrefixes.Tag)
+		? menuType.slice(MenuPrefixes.Tag.length)
+		: "";
+
+	const isMenuItem = (
+		currentActiveTag: string
+	): currentActiveTag is MenuItems =>
+		Object.values(MenuItems).includes(currentActiveTag as MenuItems);
 
 	const setLanguageExtension = (newLanguage: SupportedLanguages): void => {
 		setCurrentSnippet({
@@ -130,14 +152,12 @@ const useCurrentSnippet = ({
 		onTouched(true);
 	};
 
-	const updateCurrentSnippetFolder = (
-		event: ChangeEvent<HTMLInputElement>
-	): void => {
-		const value = event.target.value;
-
+	// Takes the raw value rather than a change event so the folder autocomplete
+	// can commit a picked suggestion through the same dirty-flag path.
+	const updateCurrentSnippetFolder = (folder: string): void => {
 		setCurrentSnippet({
 			...currentSnippet,
-			folder: value.trim().length > 0 ? value : null,
+			folder: folder.trim().length > 0 ? folder : null,
 		});
 		onTouched(true);
 	};
@@ -162,14 +182,16 @@ const useCurrentSnippet = ({
 	};
 
 	const newTagHandler = (newTagValue: string): void => {
-		const tagList = currentSnippet?.tags ? currentSnippet.tags?.split(",") : [];
+		const currentTags = currentSnippet?.tags
+			? currentSnippet.tags?.split(",")
+			: [];
 		const newTagValueTrimmed = newTagValue.trim();
 
 		if (
 			!newTagValue ||
 			newTagValue.length >= 28 ||
-			tagList.length >= 3 ||
-			tagList.includes(newTagValueTrimmed)
+			currentTags.length >= MaxSnippetTags ||
+			currentTags.includes(newTagValueTrimmed)
 		)
 			return;
 
@@ -265,6 +287,22 @@ const useCurrentSnippet = ({
 		setPreRestoreSnapshot(null);
 	}, [snippet?.snippet_id, autoSave, touched, isTrashActive]);
 
+	// Snippets created from an Aside tag route inherit that tag. The snippet_id
+	// guard is load-bearing: currentSnippet starts as an empty placeholder with
+	// `tags: null`, and applying the tag to it would be clobbered a moment later
+	// when the load effect spreads Supabase's own `tags: null` over the state.
+	useEffect(() => {
+		if (!currentSnippet.snippet_id || currentSnippet.tags) {
+			return;
+		}
+
+		if (!activeTag || isMenuItem(activeTag)) {
+			return;
+		}
+
+		newTagHandler(activeTag);
+	}, [currentSnippet.snippet_id, currentSnippet.tags, activeTag]);
+
 	// Refresh version count when snippet changes
 	useEffect(() => {
 		if (currentSnippet?.snippet_id) {
@@ -292,6 +330,7 @@ const useCurrentSnippet = ({
 	return {
 		currentSnippet,
 		setCurrentSnippet,
+		tagList,
 		showDetails,
 		setShowDetails,
 		showHistory,

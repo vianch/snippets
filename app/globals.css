@@ -178,6 +178,11 @@ table {
 	--desktop: 1024px;
 
 	/* Spacing */
+
+	/* One height for every pill-shaped control sitting in the editor chrome row
+	   (tag badges, add-tag/public chips, language select, save). Each of those
+	   sets box-sizing: border-box so this is the real rendered height. */
+	--row-control-height: 1.75rem;
 	--border-radius: 0.313rem;
 	--border-radius-md: 0.5rem;
 	--border-radius-lg: 0.75rem;
@@ -540,6 +545,42 @@ html[data-font="inconsolata"] {
 	--pet-glow: rgb(74 124 89 / 42%);
 }
 
+[data-theme="notepad"] {
+	--bg-color-dark: #e5e5e5;
+	--bg-color: #f9f9f9;
+	--border-color: #d4d4d4;
+	--current-line: #efefef;
+	--comment-color: #9a9a9a;
+	--cyan-color: #1f7a6d;
+	--blue-color: #2f6fb3;
+	--green-color: #4f7a28;
+	--dark-green-color: #3b5c1e;
+	--gray-color: #5a5a5a;
+
+	/* Gangster Gold, darkened for text contrast on paper; pure #ffd52e stays in
+	   --yellow-color and the editor selection highlight */
+	--purple-color: #a37d00;
+	--yellow-color: #ffd52e;
+	--orange-color: #b35c00;
+	--dark-orange-color: #8f4900;
+	--red-color: #c0392b;
+	--dark-red-color: #a02d21;
+	--foreground-color: #2b2b2b;
+	--success-color: #e8f2e2;
+	--error-color: #f7e3e0;
+	--warning-color: #fdf3d6;
+	--info-color: #e3edf7;
+	--skeleton-shimmer: #f9f9f9;
+	--button-bg: #e5e5e5;
+	--input-bg: #fff;
+	--glass-bg: rgb(255 255 255 / 72%);
+	--glass-border: rgb(43 43 43 / 12%);
+	--card-shadow: 0 0.5rem 1.5rem rgb(43 43 43 / 10%);
+	--card-shadow-hover: 0 1rem 2.25rem rgb(43 43 43 / 16%);
+	--grid-line: rgb(43 43 43 / 6%);
+	--pet-glow: rgb(255 213 46 / 55%);
+}
+
 [data-theme="dracula"] {
 	--bg-color-dark: #282a36;
 	--bg-color: #363945;
@@ -664,6 +705,7 @@ html[data-theme="catppuccin-mocha"] {
 html[data-theme="catppuccin-latte"],
 html[data-theme="ayu-light"],
 html[data-theme="github-light"],
+html[data-theme="notepad"],
 html[data-theme="quiet-green"] {
 	color-scheme: light;
 }

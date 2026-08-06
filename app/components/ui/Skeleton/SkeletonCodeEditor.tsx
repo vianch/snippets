@@ -2,7 +2,6 @@ import { ReactElement } from "react";
 
 /* Components */
 import Skeleton from "./Skeleton";
-import SkeletonActions from "./SkeletonActions";
 
 /* Styles */
 import styles from "./skeleton.module.css";
@@ -10,24 +9,21 @@ import styles from "./skeleton.module.css";
 const SkeletonCodeEditor = (): ReactElement => {
 	return (
 		<div className={styles.editorContainer}>
+			{/* One row, matching the merged editor chrome: identity on the left,
+			    tag chips and the actions cluster on the right. */}
 			<div className={styles.editorHeader}>
 				<div className={styles.editorHeaderLeft}>
 					<Skeleton width="1.25rem" height="1.25rem" borderRadius="50%" />
 					<Skeleton width="12rem" height="1.25rem" />
+					<Skeleton width="1.25rem" height="1.25rem" borderRadius="50%" />
 				</div>
 				<div className={styles.editorHeaderRight}>
+					<Skeleton width="4rem" height="1.5rem" borderRadius="12px" />
+					<Skeleton width="4rem" height="1.5rem" borderRadius="12px" />
+					<Skeleton width="1.25rem" height="1.25rem" borderRadius="4px" />
 					<Skeleton width="5rem" height="1.5rem" borderRadius="4px" />
 					<Skeleton width="4rem" height="1.5rem" borderRadius="4px" />
 				</div>
-			</div>
-
-			<div className={styles.editorTags}>
-				<div className={styles.editorTagsLeft}>
-					<Skeleton width="5rem" height="1.5rem" borderRadius="12px" />
-					<Skeleton width="4rem" height="1.5rem" borderRadius="12px" />
-					<Skeleton width="6rem" height="1.5rem" borderRadius="12px" />
-				</div>
-				<SkeletonActions />
 			</div>
 
 			<div className={styles.editorCode}>

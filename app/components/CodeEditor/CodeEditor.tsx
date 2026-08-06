@@ -13,7 +13,7 @@ import wikiLinkAutocomplete from "@/lib/wikiLinkAutocomplete";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import codeMirrorOptions from "@/lib/constants/codeMirror";
-import { MenuPrefixes, SnippetState } from "@/lib/constants/core";
+import { SnippetState } from "@/lib/constants/core";
 import {
 	LanguagePreviewKinds,
 	PreviewKind,
@@ -29,7 +29,6 @@ import useKeyboardSave from "@/components/CodeEditor/hooks/useKeyboardSave";
 import usePreviewResize from "@/components/CodeEditor/hooks/usePreviewResize";
 
 /* Components */
-import CodeEditorTags from "@/components/CodeEditor/CodeEditorTags";
 import CodeEditorHeader from "@/components/CodeEditor/CodeEditorHeader";
 import CodeEditorActions from "@/components/CodeEditor/CodeEditorActions";
 import FocusModeBar from "@/components/CodeEditor/FocusModeBar";
@@ -62,6 +61,7 @@ type CodeEditorProps = {
 	codeEditorStates: SnippetEditorStates;
 	allSnippets: Snippet[];
 	availableTags?: TagItem[];
+	availableFolders?: TagItem[];
 	rightPane?: RightPaneMode;
 	onSave: (
 		currentSnippet: CurrentSnippet,
@@ -83,6 +83,7 @@ const CodeEditor = ({
 	defaultLanguage = SupportedLanguages.Markdown,
 	allSnippets,
 	availableTags,
+	availableFolders,
 	rightPane = "preview",
 	onSave,
 	onStarred,
@@ -102,12 +103,14 @@ const CodeEditor = ({
 	const [mobileChatTab, setMobileChatTab] = useState<AiPaneTab>(AiPaneTab.Chat);
 	const [isPreviewVisible, setIsPreviewVisible] = useState(true);
 	const editorContentRef = useRef<HTMLDivElement>(null);
+	const detailsAnchorRef = useRef<HTMLButtonElement>(null);
 	const editorViewRef = useRef<EditorView | null>(null);
 	const editorTheme = useMemo(() => getCodeMirrorTheme(theme), [theme]);
 
 	const {
 		currentSnippet,
 		setCurrentSnippet,
+		tagList,
 		showDetails,
 		setShowDetails,
 		showHistory,
@@ -266,53 +269,36 @@ const CodeEditor = ({
 								currentSnippet={currentSnippet}
 								codeEditorStates={codeEditorStates}
 								snippetName={snippet?.name ?? ""}
-								onStarred={starringHandler}
-								onUpdateName={updateCurrentSnippetName}
-								onSetLanguage={setLanguageHandler}
-								onSave={saveHandler}
-							/>
-
-							<CodeEditorTags
-								activeTag={
-									codeEditorStates?.menuType?.startsWith(MenuPrefixes.Tag)
-										? codeEditorStates.menuType.slice(MenuPrefixes.Tag.length)
-										: ""
-								}
-								currentSnippet={currentSnippet}
 								allSnippets={allSnippets}
-								availableTags={availableTags}
-								isPublic={currentSnippet.is_public ?? false}
-								showDetails={showDetails}
-								hideAiButton={isChatMode}
-								onNewTag={newTagHandler}
-								onChange={() => onTouched(true)}
-								onRemoveTag={removeTagHandler}
-								onToggleDetails={() => setShowDetails(!showDetails)}
-								onTogglePublic={togglePublicHandler}
-								onToggleHistory={() => setShowHistory(!showHistory)}
-								showHistory={showHistory}
+								tagList={tagList}
+								detailsAnchorRef={detailsAnchorRef}
 								hasVersions={versionCount > 0}
+								hideAiButton={isChatMode}
+								isMobile={isMobile}
+								showDetails={showDetails}
+								showHistory={showHistory}
 								onApplyAiCode={updateCurrentSnippetValue}
 								onCopyToSnippet={handleCopyToSnippet}
+								onRemoveTag={removeTagHandler}
 								onReplaceSnippet={updateCurrentSnippetValue}
+								onSave={saveHandler}
+								onSetLanguage={setLanguageHandler}
+								onStarred={starringHandler}
+								onToggleDetails={() => setShowDetails(!showDetails)}
+								onToggleHistory={() => setShowHistory(!showHistory)}
+								onTogglePublic={togglePublicHandler}
+								onUpdateName={updateCurrentSnippetName}
 							/>
 
 							{isMobile && (
 								<div className={styles.mobileActions}>
 									<CodeEditorActions
 										currentSnippet={currentSnippet}
-										allSnippets={allSnippets}
 										isPublic={currentSnippet.is_public ?? false}
-										showDetails={showDetails}
-										hideAiButton={isChatMode}
-										onToggleDetails={() => setShowDetails(!showDetails)}
 										onTogglePublic={togglePublicHandler}
 										onToggleHistory={() => setShowHistory(!showHistory)}
 										showHistory={showHistory}
 										hasVersions={versionCount > 0}
-										onApplyAiCode={updateCurrentSnippetValue}
-										onCopyToSnippet={handleCopyToSnippet}
-										onReplaceSnippet={updateCurrentSnippetValue}
 									/>
 								</div>
 							)}
@@ -360,8 +346,15 @@ const CodeEditor = ({
 							{showDetails && (
 								<SnippetDetails
 									currentSnippet={currentSnippet}
+									anchorRef={detailsAnchorRef}
 									isMobile={isMobile}
+									tagList={tagList}
+									availableTags={availableTags}
+									availableFolders={availableFolders}
 									onClose={() => setShowDetails(false)}
+									onNewTag={newTagHandler}
+									onRemoveTag={removeTagHandler}
+									onTouched={onTouched}
 									onUrlChange={updateCurrentSnippetUrl}
 									onNotesChange={updateCurrentSnippetNotes}
 									onFolderChange={updateCurrentSnippetFolder}

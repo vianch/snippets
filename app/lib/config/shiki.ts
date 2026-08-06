@@ -58,6 +58,8 @@ const shikiThemeMap: Record<ThemeName, string> = {
 	[ThemeNames.Dracula]: "dracula",
 	[ThemeNames.GithubDark]: "github-dark",
 	[ThemeNames.GithubLight]: "github-light",
+	// Shiki has no notepad bundle; github-light is the closest neutral light equivalent
+	[ThemeNames.Notepad]: "github-light",
 	[ThemeNames.QuietGreen]: "everforest-light",
 	// Shiki has no shades-of-purple bundle; material-theme-palenight is the closest dark-purple equivalent
 	[ThemeNames.ShadesOfPurple]: "material-theme-palenight",

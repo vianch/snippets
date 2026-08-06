@@ -14,6 +14,7 @@ export const ThemeNames = {
 	CatppuccinMocha: "catppuccin-mocha",
 	GithubDark: "github-dark",
 	GithubLight: "github-light",
+	Notepad: "notepad",
 	QuietGreen: "quiet-green",
 } as const;
 
@@ -96,6 +97,17 @@ export const themeList: ThemeConfig[] = [
 			sidebar: "#f6f8fa",
 			accent: "#8250df",
 			text: "#1f2328",
+		},
+	},
+	{
+		name: ThemeNames.Notepad,
+		label: "Notepad",
+		isDark: false,
+		previewColors: {
+			bg: "#f9f9f9",
+			sidebar: "#e5e5e5",
+			accent: "#ffd52e",
+			text: "#2b2b2b",
 		},
 	},
 	{
@@ -430,6 +442,45 @@ const quietGreenTheme = createTheme({
 	],
 });
 
+const notepadTheme = createTheme({
+	theme: "light",
+	settings: {
+		background: "#f9f9f9",
+		foreground: "#2b2b2b",
+		caret: "#c9a200",
+		selection: "#ffd52e66",
+		selectionMatch: "#ffd52e40",
+		lineHighlight: "#f0f0f0",
+		gutterBackground: "#f9f9f9",
+		gutterForeground: "#9a9a9a",
+		gutterActiveForeground: "#2b2b2b",
+		gutterBorder: "transparent",
+		...codeMirrorSettings,
+	},
+	styles: [
+		{ tag: tags.comment, color: "#9a9a9a" },
+		{ tag: tags.keyword, color: "#a37d00" },
+		{ tag: [tags.string, tags.special(tags.brace)], color: "#4f7a28" },
+		{ tag: tags.number, color: "#b35c00" },
+		{ tag: tags.bool, color: "#b35c00" },
+		{ tag: tags.null, color: "#b35c00" },
+		{
+			tag: [
+				tags.definition(tags.variableName),
+				tags.function(tags.variableName),
+			],
+			color: "#2f6fb3",
+		},
+		{ tag: tags.variableName, color: "#2b2b2b" },
+		{ tag: tags.typeName, color: "#8a6d00" },
+		{ tag: tags.propertyName, color: "#2f6fb3" },
+		{ tag: tags.operator, color: "#1f7a6d" },
+		{ tag: tags.punctuation, color: "#5a5a5a" },
+		{ tag: tags.tagName, color: "#c0392b" },
+		{ tag: tags.attributeName, color: "#a37d00" },
+	],
+});
+
 const githubDarkTheme = githubDarkInit({
 	settings: {
 		background: "#161b22",
@@ -454,6 +505,7 @@ const codeMirrorThemes: Record<ThemeName, Extension> = {
 	[ThemeNames.CatppuccinMocha]: catppuccinMochaTheme,
 	[ThemeNames.GithubDark]: githubDarkTheme,
 	[ThemeNames.GithubLight]: githubLightTheme,
+	[ThemeNames.Notepad]: notepadTheme,
 	[ThemeNames.QuietGreen]: quietGreenTheme,
 };
 
