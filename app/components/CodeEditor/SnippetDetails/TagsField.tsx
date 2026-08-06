@@ -8,6 +8,7 @@ import { MaxSnippetTags } from "@/lib/constants/core";
 /* Components */
 import Badge from "@/components/ui/Badge/Badge";
 import Input from "@/components/ui/Input/Input";
+import Tag from "@/components/ui/icons/Tag";
 import TagSuggestions from "@/components/CodeEditor/TagSuggestions";
 
 /* Utils */
@@ -45,7 +46,10 @@ const TagsField = ({
 
 	return (
 		<div className={styles.detailsField}>
-			<label className={styles.detailsLabel}>Tags</label>
+			<label className={styles.detailsLabel}>
+				<Tag width={14} height={14} />
+				Tags
+			</label>
 
 			{tagList.length > 0 && (
 				<div className={styles.detailsChips}>

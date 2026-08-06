@@ -146,6 +146,36 @@
 	flex: 1 1 auto;
 }
 
+.contextToggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.125rem 0.5rem;
+	font-size: 0.6875rem;
+	line-height: 1.4;
+	background: transparent;
+	color: var(--gray-color);
+}
+
+.contextToggle:hover:not(:disabled) {
+	background: var(--bg-color-dark);
+	transform: none;
+	box-shadow: none;
+}
+
+.contextToggleOn {
+	border-color: var(--purple-color);
+	color: var(--foreground-color);
+}
+
+.contextToggleState {
+	font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	font-size: 0.625rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	opacity: 0.75;
+}
+
 .dockHint {
 	display: flex;
 	flex-wrap: wrap;

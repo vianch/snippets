@@ -508,6 +508,9 @@
 }
 
 .detailsLabel {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
 	font-size: var(--tiny-font-size);
 	color: var(--comment-color);
 	font-weight: 600;

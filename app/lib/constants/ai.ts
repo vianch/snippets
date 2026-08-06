@@ -48,6 +48,9 @@ export const aiSystemPrompts: Record<AiAction, (language: string) => string> = {
 		`You are an inline ${language} code completion assistant. The user's message is a partial code prefix; return ONLY the next 1 to 3 lines that should follow the cursor. Output raw text, no explanation, no markdown, no code fences. Preserve the existing indentation and style. If the prefix already looks complete, return an empty response.`,
 };
 
+export const aiStandaloneAskSystemPrompt =
+	"You are a coding assistant. Answer the user's question clearly and concisely. No code snippet has been shared as context, so answer from general knowledge and ask for the code if you need it. If you include code, wrap it in fenced code blocks with the language tag.";
+
 export const codeActions: AiAction[] = [
 	"comments",
 	"format",

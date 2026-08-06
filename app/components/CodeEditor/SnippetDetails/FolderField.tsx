@@ -3,6 +3,7 @@
 import { ChangeEvent, ReactElement, useMemo, useState } from "react";
 
 /* Components */
+import Folder from "@/components/ui/icons/Folder";
 import Input from "@/components/ui/Input/Input";
 import TagSuggestions from "@/components/CodeEditor/TagSuggestions";
 
@@ -40,7 +41,10 @@ const FolderField = ({
 
 	return (
 		<div className={styles.detailsField}>
-			<label className={styles.detailsLabel}>Folder</label>
+			<label className={styles.detailsLabel}>
+				<Folder width={14} height={14} />
+				Folder
+			</label>
 			<div className={styles.detailsAutocomplete}>
 				<Input
 					placeholder="e.g. Recipes, Work, Snippets-2026"

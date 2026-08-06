@@ -71,6 +71,7 @@ const AiChatModal = ({
 		handleWikiSelect,
 		hasCurrentTurn,
 		history,
+		includeSnippetContext,
 		inputValue,
 		isAnswered,
 		isProcessing,
@@ -81,6 +82,7 @@ const AiChatModal = ({
 		revealedAnswer,
 		selectedModel,
 		sendDisabled,
+		setIncludeSnippetContext,
 		setSelectedModel,
 		showApplyButton,
 		showEmptyState,
@@ -357,10 +359,12 @@ const AiChatModal = ({
 			</div>
 
 			<ChatComposer
+				includeSnippetContext={includeSnippetContext}
 				inputDisabled={isProcessing}
 				inputValue={inputValue}
 				isProcessing={isProcessing}
 				lastUsage={lastUsage}
+				onIncludeSnippetContextChange={setIncludeSnippetContext}
 				onInputChange={handleInputChange}
 				onInputSelect={handleInputSelect}
 				onKeyDown={handleKeyDown}

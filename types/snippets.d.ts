@@ -101,6 +101,7 @@ declare global {
 		action: AiAction;
 		code: string;
 		language: string;
+		includeSnippet?: boolean;
 		userPrompt?: string;
 		history?: AiHistoryMessage[];
 	};

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
 	aiActions,
 	AiProviderId,
+	aiStandaloneAskSystemPrompt,
 	AiStreamEventType,
 	aiSystemPrompts,
 	defaultAnthropicModel,
@@ -140,7 +141,15 @@ const emitDone = (
 	});
 };
 
-const buildAskSystemPrompt = (language: string, code: string): string => {
+const buildAskSystemPrompt = (
+	language: string,
+	code: string,
+	withSnippetContext: boolean
+): string => {
+	if (!withSnippetContext) {
+		return aiStandaloneAskSystemPrompt;
+	}
+
 	const base = aiSystemPrompts.ask(language || "unknown");
 
 	return `${base}\n\nHere is the ${language || "code"} snippet:\n\`\`\`${language || ""}\n${code}\n\`\`\``;
@@ -161,7 +170,8 @@ export const POST = async (request: NextRequest): Promise<Response> => {
 		}
 
 		const body = (await request.json()) as AiRequest;
-		const { action, code, language, userPrompt, history } = body;
+		const { action, code, includeSnippet, language, userPrompt, history } =
+			body;
 
 		if (!action || !validActions.includes(action)) {
 			return NextResponse.json(
@@ -173,21 +183,23 @@ export const POST = async (request: NextRequest): Promise<Response> => {
 			);
 		}
 
-		if (!code || code.trim().length === 0) {
+		const isAskAction = action === aiActions.ask;
+		// Only the ask action may opt out of snippet context; code actions operate on the snippet.
+		const withSnippetContext = isAskAction ? includeSnippet !== false : true;
+
+		if (withSnippetContext && (!code || code.trim().length === 0)) {
 			return NextResponse.json(
 				{ error: "Code is required" },
 				{ status: HttpStatusCode.BadRequest }
 			);
 		}
 
-		if (code.length > maxCodeLength) {
+		if (code && code.length > maxCodeLength) {
 			return NextResponse.json(
 				{ error: `Code exceeds ${maxCodeLength} character limit` },
 				{ status: HttpStatusCode.PayloadTooLarge }
 			);
 		}
-
-		const isAskAction = action === aiActions.ask;
 
 		if (isAskAction && (!userPrompt || userPrompt.trim().length === 0)) {
 			return NextResponse.json(
@@ -204,7 +216,7 @@ export const POST = async (request: NextRequest): Promise<Response> => {
 		}
 
 		const systemPrompt = isAskAction
-			? buildAskSystemPrompt(language || "unknown", code)
+			? buildAskSystemPrompt(language || "unknown", code, withSnippetContext)
 			: aiSystemPrompts[action](language || "unknown");
 		const prompt = isAskAction ? (userPrompt as string) : code;
 		const stripFences = !isAskAction;
