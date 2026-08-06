@@ -83,14 +83,28 @@ export const requestAiAction = async (
 	language: string,
 	options: RequestAiActionOptions = {}
 ): Promise<AiResponse> => {
-	const { userPrompt, signal, history, onThinkingDelta, onTextDelta } = options;
+	const {
+		includeSnippet,
+		userPrompt,
+		signal,
+		history,
+		onThinkingDelta,
+		onTextDelta,
+	} = options;
 
 	const response = await fetch("/api/ai", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ action, code, language, userPrompt, history }),
+		body: JSON.stringify({
+			action,
+			code,
+			language,
+			includeSnippet,
+			userPrompt,
+			history,
+		}),
 		signal,
 	});
 

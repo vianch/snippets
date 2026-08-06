@@ -11,6 +11,7 @@ declare global {
 	};
 
 	type RequestAiActionOptions = {
+		includeSnippet?: boolean;
 		userPrompt?: string;
 		signal?: AbortSignal;
 		history?: AiHistoryMessage[];

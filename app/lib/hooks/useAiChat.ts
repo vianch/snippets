@@ -32,6 +32,12 @@ const useAiChat = ({
 	const selectedModel = useChatStore((state) => state.selectedModel);
 	const setSelectedModel = useChatStore((state) => state.setSelectedModel);
 	const history = useChatStore((state) => state.history);
+	const includeSnippetContext = useChatStore(
+		(state) => state.includeSnippetContext
+	);
+	const setIncludeSnippetContext = useChatStore(
+		(state) => state.setIncludeSnippetContext
+	);
 	const lastUsage = useChatStore((state) => state.lastUsage);
 	const appendMessage = useChatStore((state) => state.appendMessage);
 	const clearHistory = useChatStore((state) => state.clearHistory);
@@ -187,11 +193,14 @@ const useAiChat = ({
 		) {
 			appendMessage({ role: UserRole.User, content: currentUserMessage });
 
-			const isReplaceCandidate = detectReplaceCandidate(
-				currentUserPrompt,
-				revealedAnswer,
-				snippetLanguage
-			);
+			// Replacing the snippet with an answer that never saw it would destroy content.
+			const isReplaceCandidate =
+				includeSnippetContext &&
+				detectReplaceCandidate(
+					currentUserPrompt,
+					revealedAnswer,
+					snippetLanguage
+				);
 
 			appendMessage({
 				role: UserRole.Assistant,
@@ -209,7 +218,12 @@ const useAiChat = ({
 		displayMessage: string,
 		userPrompt?: string
 	): Promise<void> => {
-		if (!currentSnippet?.snippet?.trim()) {
+		// Chip actions transform the snippet, so they always need it; a plain question
+		// only needs it while the user keeps snippet context switched on.
+		const withSnippetContext =
+			action !== aiActions.ask || includeSnippetContext;
+
+		if (withSnippetContext && !currentSnippet?.snippet?.trim()) {
 			addToast({
 				type: ToastType.Error,
 				message: missingSnippetMessage,
@@ -316,9 +330,10 @@ const useAiChat = ({
 		try {
 			const response = await requestAiAction(
 				action,
-				currentSnippet.snippet,
-				currentSnippet.language,
+				withSnippetContext ? (currentSnippet?.snippet ?? "") : "",
+				withSnippetContext ? (currentSnippet?.language ?? "") : "",
 				{
+					includeSnippet: withSnippetContext,
 					userPrompt: effectivePrompt,
 					signal: controller.signal,
 					history: historyForRequest,
@@ -418,6 +433,7 @@ const useAiChat = ({
 	const showTurnActions = isAnswered && lastAction === aiActions.ask;
 	const currentTurnReplaceCandidate =
 		isAnswered &&
+		includeSnippetContext &&
 		detectReplaceCandidate(currentUserPrompt, revealedAnswer, snippetLanguage);
 
 	return {
@@ -437,6 +453,7 @@ const useAiChat = ({
 		handleWikiSelect,
 		hasCurrentTurn,
 		history,
+		includeSnippetContext,
 		inputValue,
 		isAnswered,
 		isProcessing,
@@ -447,6 +464,7 @@ const useAiChat = ({
 		revealedAnswer,
 		selectedModel,
 		sendDisabled,
+		setIncludeSnippetContext,
 		setSelectedModel,
 		showApplyButton,
 		showEmptyState,

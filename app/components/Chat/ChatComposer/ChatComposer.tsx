@@ -6,15 +6,19 @@ import { ChangeEvent, KeyboardEvent, ReactElement, RefObject } from "react";
 import WikiLinkPopover from "@/components/Chat/WikiLinkPopover/WikiLinkPopover";
 import ContextUsage from "@/components/ContextUsage/ContextUsage";
 import ModelSelector from "@/components/ModelSelector/ModelSelector";
+import Button from "@/components/ui/Button/Button";
+import Code from "@/components/ui/icons/Code";
 
 /* Styles */
 import styles from "./chatComposer.module.css";
 
 type ChatComposerProps = {
+	includeSnippetContext: boolean;
 	inputDisabled: boolean;
 	inputValue: string;
 	isProcessing: boolean;
 	lastUsage: AiUsage | null;
+	onIncludeSnippetContextChange: (includeSnippetContext: boolean) => void;
 	onInputChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
 	onInputSelect: () => void;
 	onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
@@ -32,10 +36,12 @@ type ChatComposerProps = {
 };
 
 const ChatComposer = ({
+	includeSnippetContext,
 	inputDisabled,
 	inputValue,
 	isProcessing,
 	lastUsage,
+	onIncludeSnippetContextChange,
 	onInputChange,
 	onInputSelect,
 	onKeyDown,
@@ -116,6 +122,28 @@ const ChatComposer = ({
 			<div className={styles.dockHint}>
 				<div className={styles.dockHintLeft}>
 					{showModelSelector && <ModelSelector compact />}
+					<Button
+						className={`${styles.contextToggle} ${
+							includeSnippetContext ? styles.contextToggleOn : ""
+						}`}
+						variant="secondary"
+						shape="pill"
+						aria-pressed={includeSnippetContext}
+						title={
+							includeSnippetContext
+								? "The snippet is sent with your question. Turn off to ask without it."
+								: "The snippet is not sent with your question. Turn on to include it."
+						}
+						onClick={() =>
+							onIncludeSnippetContextChange(!includeSnippetContext)
+						}
+					>
+						<Code width="12" height="12" />
+						Snippet context
+						<span className={styles.contextToggleState}>
+							{includeSnippetContext ? "on" : "off"}
+						</span>
+					</Button>
 					<ContextUsage usage={lastUsage} />
 				</div>
 				<span>

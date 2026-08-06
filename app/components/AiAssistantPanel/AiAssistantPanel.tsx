@@ -60,6 +60,7 @@ const AiAssistantPanel = ({
 		handleWikiSelect,
 		hasCurrentTurn,
 		history,
+		includeSnippetContext,
 		inputValue,
 		isAnswered,
 		isProcessing,
@@ -69,6 +70,7 @@ const AiAssistantPanel = ({
 		revealedAnswer,
 		selectedModel,
 		sendDisabled,
+		setIncludeSnippetContext,
 		showApplyButton,
 		showEmptyState,
 		showThinking,
@@ -112,11 +114,12 @@ const AiAssistantPanel = ({
 		addToast({ type: ToastType.Success, message: "AI result applied" });
 	};
 
-	const inputPlaceholder = currentSnippet
-		? history.length > 0 || currentUserMessage
+	const needsSnippet = !currentSnippet && includeSnippetContext;
+	const inputPlaceholder = needsSnippet
+		? "Select a snippet to start a chat"
+		: history.length > 0 || currentUserMessage
 			? "Ask a follow-up… ([[ to link a snippet)"
-			: "Ask something… ([[ to link a snippet)"
-		: "Select a snippet to start a chat";
+			: "Ask something… ([[ to link a snippet)";
 
 	return (
 		<section
@@ -181,10 +184,12 @@ const AiAssistantPanel = ({
 			</div>
 
 			<ChatComposer
-				inputDisabled={isProcessing || !currentSnippet}
+				includeSnippetContext={includeSnippetContext}
+				inputDisabled={isProcessing || needsSnippet}
 				inputValue={inputValue}
 				isProcessing={isProcessing}
 				lastUsage={lastUsage}
+				onIncludeSnippetContextChange={setIncludeSnippetContext}
 				onInputChange={handleInputChange}
 				onInputSelect={handleInputSelect}
 				onKeyDown={handleKeyDown}
