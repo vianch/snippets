@@ -1,5 +1,8 @@
+/* Pinned to the shared editor-row control height so tag pills line up with the
+   language Select and Save button. border-box makes it the real height. */
 .badgeWrapper {
-	height: 1.563rem;
+	box-sizing: border-box;
+	height: var(--row-control-height);
 	display: inline-flex;
 	flex-flow: row nowrap;
 	justify-content: center;

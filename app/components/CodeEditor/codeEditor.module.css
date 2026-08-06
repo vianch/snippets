@@ -75,11 +75,9 @@
 	overflow: hidden;
 }
 
-/* Overrides Badge's own height, which is content-box and so renders taller
-   than its declared value once padding and border are added. */
+/* Badge already carries --row-control-height; only the row's width cap is
+   local. */
 .headerTagBadge {
-	box-sizing: border-box;
-	height: var(--row-control-height);
 	max-width: 7rem;
 }
 
@@ -538,12 +536,8 @@
 }
 
 /* Badge carries its own left margin for the inline row layout; the wrapped
-   chip grid supplies spacing through gap instead. Height is pinned to the same
-   token as the row's chips so the two surfaces agree — Badge's own height is
-   content-box and renders taller than declared. */
+   chip grid supplies spacing through gap instead. */
 .detailsChip {
-	box-sizing: border-box;
-	height: var(--row-control-height);
 	margin-left: 0;
 }
 
