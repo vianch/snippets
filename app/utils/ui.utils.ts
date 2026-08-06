@@ -1,4 +1,10 @@
-import { MouseEvent, MutableRefObject, RefObject, useEffect } from "react";
+import {
+	MouseEvent,
+	MutableRefObject,
+	RefObject,
+	useEffect,
+	useRef,
+} from "react";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useMenuStore from "@/lib/store/menu.store";
 
@@ -46,6 +52,51 @@ export const useClickOutside = (
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [reference, onClickOutside, enabled]);
+};
+
+// Overlays either measure their anchor once (Menu, SnippetDetails) or assume a
+// layout that a resize invalidates, so a resize while one is open leaves it
+// detached from whatever opened it. Closing is the honest outcome.
+export const useCloseOnResize = (
+	onClose: () => void,
+	enabled: boolean = true
+): void => {
+	const widthRef = useRef<number>(0);
+
+	useEffect(() => {
+		if (!enabled) {
+			return;
+		}
+
+		widthRef.current = window.innerWidth;
+
+		const handleResize = (): void => {
+			const isWidthUnchanged = widthRef.current === window.innerWidth;
+			const activeElement = document.activeElement;
+			const isEditing =
+				activeElement instanceof HTMLElement &&
+				(activeElement.isContentEditable ||
+					activeElement instanceof HTMLInputElement ||
+					activeElement instanceof HTMLTextAreaElement);
+
+			widthRef.current = window.innerWidth;
+
+			// The mobile on-screen keyboard resizes height only. Ignoring that one
+			// case keeps the overlay from closing itself the moment a field is
+			// focused — every other resize still closes it.
+			if (isWidthUnchanged && isEditing) {
+				return;
+			}
+
+			onClose();
+		};
+
+		window.addEventListener("resize", handleResize);
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+		};
+	}, [enabled, onClose]);
 };
 
 export const useCloseOutsideCodeEditor = (
