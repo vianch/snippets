@@ -7,13 +7,18 @@ import CloseSquare from "@/components/ui/icons/CloseSquare";
 import styles from "./badge.module.css";
 
 type BadgeProps = {
+	className?: string;
 	onRemove?: () => void | null;
 	children: ReactElement | ReactNode;
 };
 
-const Badge = ({ children, onRemove }: BadgeProps): ReactElement => {
+const Badge = ({
+	children,
+	className = "",
+	onRemove,
+}: BadgeProps): ReactElement => {
 	return (
-		<div className={styles.badgeWrapper}>
+		<div className={`${styles.badgeWrapper} ${className}`}>
 			<span className={styles.badgeLabel}>{children}</span>
 			{onRemove && (
 				<button

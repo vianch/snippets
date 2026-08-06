@@ -6,12 +6,14 @@ import { ReactElement, useEffect, useState } from "react";
 import styles from "./tagSuggestions.module.css";
 
 type TagSuggestionsProps = {
+	ariaLabel?: string;
 	suggestions: string[];
 	onSelect: (tag: string) => void;
 	onDismiss: () => void;
 };
 
 const TagSuggestions = ({
+	ariaLabel = "Tag suggestions",
 	suggestions,
 	onSelect,
 	onDismiss,
@@ -69,7 +71,7 @@ const TagSuggestions = ({
 	}
 
 	return (
-		<ul className={styles.popover} role="listbox" aria-label="Tag suggestions">
+		<ul className={styles.popover} role="listbox" aria-label={ariaLabel}>
 			{suggestions.map((suggestion, index) => (
 				<li
 					key={suggestion}

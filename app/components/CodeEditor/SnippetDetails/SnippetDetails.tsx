@@ -1,33 +1,79 @@
-import { ReactElement, ChangeEvent } from "react";
+"use client";
+
+import {
+	ChangeEvent,
+	ReactElement,
+	RefObject,
+	useLayoutEffect,
+	useState,
+} from "react";
 
 /* Components */
+import FolderField from "@/components/CodeEditor/SnippetDetails/FolderField";
 import Input from "@/components/ui/Input/Input";
+import TagsField from "@/components/CodeEditor/SnippetDetails/TagsField";
 
 /* Styles */
 import styles from "../codeEditor.module.css";
 
 type SnippetDetailsProps = {
 	currentSnippet: CurrentSnippet;
+	anchorRef: RefObject<HTMLButtonElement | null>;
 	isMobile: boolean;
+	tagList: string[];
+	availableTags?: TagItem[];
+	availableFolders?: TagItem[];
 	onClose: () => void;
+	onNewTag: (tag: string) => void;
+	onRemoveTag: (tag: string) => void;
+	onTouched: (touched: boolean) => void;
 	onUrlChange: (event: ChangeEvent<HTMLInputElement>) => void;
 	onNotesChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
-	onFolderChange: (event: ChangeEvent<HTMLInputElement>) => void;
+	onFolderChange: (folder: string) => void;
 };
 
 const SnippetDetails = ({
 	currentSnippet,
+	anchorRef,
 	isMobile,
+	tagList,
+	availableTags,
+	availableFolders,
 	onClose,
+	onNewTag,
+	onRemoveTag,
+	onTouched,
 	onUrlChange,
 	onNotesChange,
 	onFolderChange,
 }: SnippetDetailsProps): ReactElement => {
+	const [coords, setCoords] = useState<{ left: number; top: number }>({
+		left: 0,
+		top: 0,
+	});
+
+	// The panel hangs off the ⓘ button, whose x position moves with the title
+	// input's width, so it cannot be expressed in CSS. Measured on open only —
+	// ponytail: a resize while the panel is open leaves it offset; recompute on
+	// resize if that shows up in practice.
+	useLayoutEffect(() => {
+		const anchor = anchorRef.current;
+
+		if (isMobile || !anchor) {
+			return;
+		}
+
+		const rect = anchor.getBoundingClientRect();
+
+		setCoords({ left: rect.left, top: rect.bottom + 4 });
+	}, [anchorRef, isMobile]);
+
 	return (
 		<>
 			{!isMobile && <div className={styles.detailsOverlay} onClick={onClose} />}
 			<div
 				className={isMobile ? styles.detailsPanelMobile : styles.detailsPanel}
+				style={isMobile ? undefined : { left: coords.left, top: coords.top }}
 			>
 				<div className={styles.detailsHeader}>
 					<span className={styles.detailsTitle}>Snippet Details</span>
@@ -40,16 +86,19 @@ const SnippetDetails = ({
 					</button>
 				</div>
 				<div className={styles.detailsContainer}>
-					<div className={styles.detailsField}>
-						<label className={styles.detailsLabel}>Folder</label>
-						<Input
-							placeholder="e.g. Recipes, Work, Snippets-2026"
-							value={currentSnippet?.folder ?? ""}
-							onChange={onFolderChange}
-							maxLength={60}
-							disableMargin
-						/>
-					</div>
+					<TagsField
+						tagList={tagList}
+						availableTags={availableTags}
+						onNewTag={onNewTag}
+						onRemoveTag={onRemoveTag}
+						onTouched={onTouched}
+					/>
+
+					<FolderField
+						folder={currentSnippet?.folder}
+						availableFolders={availableFolders}
+						onFolderChange={onFolderChange}
+					/>
 
 					<div className={styles.detailsField}>
 						<label className={styles.detailsLabel}>Source URL</label>

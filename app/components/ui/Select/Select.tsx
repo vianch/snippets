@@ -11,12 +11,18 @@ import { useClickOutside } from "@/utils/ui.utils";
 import styles from "./select.module.css";
 
 type SelectProps = {
+	className?: string;
 	value: string;
 	items: string[];
 	onSelect: (value: string) => void;
 };
 
-const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
+const Select = ({
+	className = "",
+	value,
+	items,
+	onSelect,
+}: SelectProps): ReactElement => {
 	const [isOpen, setIsOpen] = useState(false);
 	const selectWindowRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +38,7 @@ const Select = ({ value, items, onSelect }: SelectProps): ReactElement => {
 	return (
 		<div className={styles.selectContainer} ref={selectWindowRef}>
 			<div
-				className={styles.infoBarContainer}
+				className={`${styles.infoBarContainer} ${className}`}
 				onClick={() => setIsOpen(!isOpen)}
 			>
 				{value} <CaretDown className={styles.caret} width={16} height={16} />
