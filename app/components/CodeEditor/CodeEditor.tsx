@@ -219,9 +219,10 @@ const CodeEditor = ({
 		onToggle: toggleFocusModeHandler,
 	});
 
-	// Focus mode is only meaningful for markdown, outside trash. If either
-	// condition stops holding while it's on (language switch, trash open),
-	// drop back to the normal layout instead of leaving a broken overlay.
+	// Focus mode is only meaningful for prose languages, outside trash. If
+	// either condition stops holding while it's on (language switch, trash
+	// open), drop back to the normal layout instead of leaving a broken
+	// overlay.
 	useEffect(() => {
 		if (isFocusMode && !canToggleFocusMode) {
 			setFocusMode(false);

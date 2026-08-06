@@ -6,12 +6,14 @@ import Bold from "@/components/ui/icons/Bold";
 import Code from "@/components/ui/icons/Code";
 import CodeBlock from "@/components/ui/icons/CodeBlock";
 import Heading from "@/components/ui/icons/Heading";
+import Highlight from "@/components/ui/icons/Highlight";
 import Italic from "@/components/ui/icons/Italic";
 import Link from "@/components/ui/icons/Link";
 import List from "@/components/ui/icons/List";
 import ListChecks from "@/components/ui/icons/ListChecks";
 import ListNumbers from "@/components/ui/icons/ListNumbers";
 import Quote from "@/components/ui/icons/Quote";
+import Strikethrough from "@/components/ui/icons/Strikethrough";
 
 /* Lib */
 import {
@@ -25,6 +27,8 @@ import {
 	headingMarker,
 	headingPattern,
 	headingSeparator,
+	highlightMarker,
+	highlightPlaceholder,
 	inlineCodeMarker,
 	inlineCodePlaceholder,
 	italicMarker,
@@ -34,7 +38,10 @@ import {
 	linkUrlPlaceholder,
 	maximumHeadingLevel,
 	numberedListPattern,
+	strikethroughMarker,
+	strikethroughPlaceholder,
 } from "@/lib/constants/markdown.constants";
+import { insertTableAction } from "@/lib/markdown/tableActions";
 
 const getSelectedLines = (view: EditorView): Line[] => {
 	const { from, to } = view.state.selection.main;
@@ -176,6 +183,12 @@ export const wrapSelectionWithBold = (view: EditorView): void =>
 export const wrapSelectionWithItalic = (view: EditorView): void =>
 	applyInlineWrap(view, italicMarker, italicPlaceholder);
 
+export const wrapSelectionWithStrikethrough = (view: EditorView): void =>
+	applyInlineWrap(view, strikethroughMarker, strikethroughPlaceholder);
+
+export const wrapSelectionWithHighlight = (view: EditorView): void =>
+	applyInlineWrap(view, highlightMarker, highlightPlaceholder);
+
 export const wrapSelectionWithInlineCode = (view: EditorView): void =>
 	applyInlineWrap(view, inlineCodeMarker, inlineCodePlaceholder);
 
@@ -289,7 +302,13 @@ const markdownToolbarActions: MarkdownToolbarAction[] = [
 	{ apply: cycleHeadingOnLines, icon: Heading, label: "Heading" },
 	{ apply: wrapSelectionWithBold, icon: Bold, label: "Bold" },
 	{ apply: wrapSelectionWithItalic, icon: Italic, label: "Italic" },
+	{
+		apply: wrapSelectionWithStrikethrough,
+		icon: Strikethrough,
+		label: "Strikethrough",
+	},
 	{ apply: wrapSelectionWithInlineCode, icon: Code, label: "Inline code" },
+	{ apply: wrapSelectionWithHighlight, icon: Highlight, label: "Highlight" },
 	{ apply: wrapSelectionWithCodeBlock, icon: CodeBlock, label: "Code block" },
 	{ apply: wrapSelectionWithLink, icon: Link, label: "Link" },
 	{
@@ -305,6 +324,7 @@ const markdownToolbarActions: MarkdownToolbarAction[] = [
 		label: "Numbered list",
 	},
 	{ apply: prefixLinesWithChecklist, icon: ListChecks, label: "Checklist" },
+	insertTableAction,
 ];
 
 export default markdownToolbarActions;

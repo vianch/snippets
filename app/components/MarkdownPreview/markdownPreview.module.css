@@ -208,6 +208,70 @@
 	border-bottom-color: var(--cyan-color);
 }
 
+.previewContent :global(.md-highlight) {
+	background: color-mix(in srgb, var(--yellow-color) 35%, transparent);
+	color: var(--foreground-color);
+	border-radius: 2px;
+	padding: 0 0.15em;
+}
+
+/* Link-preview card. Rendered first as a plain fallback link (server HTML,
+   through DOMPurify) then hydrated in place by useLinkPreviews — same
+   :global escape hatch as .wiki-link since the class is injected outside
+   JSX. */
+.previewContent :global(.link-card) {
+	display: block;
+	margin: 0.75rem 0;
+}
+
+.previewContent :global(.link-card-link) {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	border: 1px solid var(--border-color);
+	border-radius: 6px;
+	color: inherit;
+	text-decoration: none;
+	background: var(--bg-color);
+}
+
+.previewContent :global(.link-card-link:hover) {
+	border-color: var(--cyan-color);
+}
+
+.previewContent :global(.link-card-image) {
+	max-height: 220px;
+	object-fit: cover;
+	width: 100%;
+}
+
+.previewContent :global(.link-card-body) {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 0.625rem 0.75rem;
+}
+
+.previewContent :global(.link-card-title) {
+	color: var(--foreground-color);
+	font-weight: 600;
+}
+
+.previewContent :global(.link-card-description) {
+	overflow: hidden;
+	color: var(--gray-color);
+	font-size: var(--smaller-font-size);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.previewContent :global(.link-card-site) {
+	color: var(--gray-color);
+	font-size: var(--smaller-font-size);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
 /* Scrollbar styles matching code editor */
 .previewContent::-webkit-scrollbar {
 	width: 10px;
