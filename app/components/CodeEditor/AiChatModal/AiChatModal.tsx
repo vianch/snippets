@@ -28,6 +28,7 @@ import { getUserDataFromSession } from "@/lib/supabase/queries";
 
 /* Utils */
 import { extractCodeBlockBody } from "@/utils/chat.utils";
+import { useCloseOnResize } from "@/utils/ui.utils";
 
 /* Styles */
 import styles from "./aiChatModal.module.css";
@@ -53,6 +54,9 @@ const AiChatModal = ({
 }: AiChatModalProps): ReactElement | null => {
 	const { addToast } = useToastStore();
 	const isMobile = useViewPortStore((state) => state.isMobile);
+
+	// Conversation lives in chat.store, so reopening restores the thread.
+	useCloseOnResize(onClose, isOpen);
 
 	const {
 		abortInFlight,

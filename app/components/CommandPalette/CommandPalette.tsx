@@ -17,6 +17,9 @@ import Settings from "@/components/ui/icons/Settings";
 import NewFile from "@/components/ui/icons/NewFile";
 import LanguageBadge from "@/components/ui/LanguageBadge/LanguageBadge";
 
+/* Utils */
+import { useCloseOnResize } from "@/utils/ui.utils";
+
 /* Styles */
 import styles from "./commandPalette.module.css";
 
@@ -59,6 +62,8 @@ const CommandPalette = ({
 		(store) => store.toggleCommandPalette
 	);
 	const [isMac, setIsMac] = useState<boolean>(true);
+
+	useCloseOnResize(() => setCommandPaletteOpen(false), open);
 
 	useEffect(() => {
 		setIsMac(window.navigator.userAgent.includes("Mac"));

@@ -13,6 +13,9 @@ import FolderField from "@/components/CodeEditor/SnippetDetails/FolderField";
 import Input from "@/components/ui/Input/Input";
 import TagsField from "@/components/CodeEditor/SnippetDetails/TagsField";
 
+/* Utils */
+import { useCloseOnResize } from "@/utils/ui.utils";
+
 /* Styles */
 import styles from "../codeEditor.module.css";
 
@@ -54,8 +57,9 @@ const SnippetDetails = ({
 
 	// The panel hangs off the ⓘ button, whose x position moves with the title
 	// input's width, so it cannot be expressed in CSS. Measured on open only —
-	// ponytail: a resize while the panel is open leaves it offset; recompute on
-	// resize if that shows up in practice.
+	// the panel closes on resize rather than tracking the anchor.
+	useCloseOnResize(onClose);
+
 	useLayoutEffect(() => {
 		const anchor = anchorRef.current;
 

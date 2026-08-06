@@ -6,6 +6,9 @@ import { createPortal } from "react-dom";
 /* Components */
 import DotsThreeVertical from "@/components/ui/icons/DotsThreeVertical";
 
+/* Utils */
+import { useCloseOnResize } from "@/utils/ui.utils";
+
 /* Styles */
 import styles from "./menu.module.css";
 
@@ -27,6 +30,10 @@ const Menu = ({
 	});
 	const triggerRef = useRef<HTMLButtonElement | null>(null);
 	const menuRef = useRef<HTMLDivElement | null>(null);
+
+	// The dropdown is portaled at coordinates measured when it opened, and its
+	// trigger is hidden below 1140px — a resize would otherwise strand it.
+	useCloseOnResize(() => setIsOpen(false), isOpen);
 
 	useEffect(() => {
 		if (!isOpen) {

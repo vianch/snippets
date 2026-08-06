@@ -4,6 +4,9 @@ import { createPortal } from "react-dom";
 /* Icons */
 import CloseSquare from "@/components/ui/icons/CloseSquare";
 
+/* Utils */
+import { useCloseOnResize } from "@/utils/ui.utils";
+
 /* Styles */
 import styles from "./modal.module.css";
 
@@ -30,6 +33,8 @@ const Modal = ({
 }: ModalProps): ReactElement | null => {
 	const modalRef = useRef<HTMLDivElement>(null);
 	const [isRendered, setIsRendered] = useState<boolean>(isOpen);
+
+	useCloseOnResize(onClose, isOpen);
 
 	useEffect(() => {
 		if (isOpen) {
