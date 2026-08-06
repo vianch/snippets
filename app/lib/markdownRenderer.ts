@@ -3,6 +3,8 @@ import { Marked } from "marked";
 
 /* Lib */
 import { getHighlightedFenceCode } from "@/lib/config/shiki";
+import highlightMarked from "@/lib/markdown/highlightMarked";
+import linkCardMarked from "@/lib/markdown/linkCardMarked";
 import wikiLinkMarked from "@/lib/wikiLinkMarked";
 
 /* Utils */
@@ -27,6 +29,8 @@ export const renderMarkdownToHtml = async (
 	const markedInstance = new Marked();
 
 	markedInstance.use(wikiLinkMarked);
+	markedInstance.use(highlightMarked);
+	markedInstance.use(linkCardMarked);
 
 	markedInstance.use({
 		async: true,
@@ -77,7 +81,12 @@ export const renderMarkdownToHtml = async (
 	// leak out). Forbid it — styled full documents belong in the HTML preview,
 	// which renders inside a sandboxed iframe.
 	return DOMPurify.sanitize(rawHtml, {
-		ADD_ATTR: ["data-wiki-target"],
+		ADD_ATTR: [
+			"data-link-card-url",
+			"data-wiki-target",
+			"loading",
+			"referrerpolicy",
+		],
 		FORBID_TAGS: ["style"],
 	});
 };

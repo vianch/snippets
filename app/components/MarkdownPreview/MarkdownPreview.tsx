@@ -1,10 +1,13 @@
 "use client";
 
-import { MouseEvent, ReactElement, useEffect, useState } from "react";
+import { MouseEvent, ReactElement, useEffect, useRef, useState } from "react";
 
 /* Lib */
 import { renderMarkdownToHtml } from "@/lib/markdownRenderer";
 import useUserStore from "@/lib/store/user.store";
+
+/* Components */
+import useLinkPreviews from "@/components/MarkdownPreview/useLinkPreviews";
 
 /* Types */
 import type { ThemeName } from "@/lib/config/themes";
@@ -26,6 +29,9 @@ const MarkdownPreview = ({
 	// Store theme is a plain string; narrow it to the ThemeName shiki expects
 	const theme = useUserStore((state) => state.theme) as ThemeName;
 	const [htmlContent, setHtmlContent] = useState<string>("");
+	const previewContentRef = useRef<HTMLDivElement>(null);
+
+	useLinkPreviews(previewContentRef, htmlContent);
 
 	useEffect(() => {
 		if (!content) {
@@ -80,6 +86,7 @@ const MarkdownPreview = ({
 				<span className={styles.previewTitle}>Preview</span>
 			</div>
 			<div
+				ref={previewContentRef}
 				className={styles.previewContent}
 				onClick={handleClick}
 				dangerouslySetInnerHTML={{ __html: htmlContent }}

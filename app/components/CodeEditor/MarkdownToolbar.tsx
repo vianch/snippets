@@ -79,9 +79,7 @@ const MarkdownToolbar = ({
 
 	return (
 		<div
-			aria-label={
-				showFormattingActions ? "Markdown formatting" : "Editor toolbar"
-			}
+			aria-label={showFormattingActions ? "Text formatting" : "Editor toolbar"}
 			className={styles.toolbar}
 			role="toolbar"
 		>

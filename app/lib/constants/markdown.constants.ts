@@ -1,5 +1,7 @@
 export const boldMarker = "**";
 export const italicMarker = "*";
+export const strikethroughMarker = "~~";
+export const highlightMarker = "==";
 export const inlineCodeMarker = "`";
 export const codeFenceMarker = "```";
 export const blockquotePrefix = "> ";
@@ -11,6 +13,8 @@ export const maximumHeadingLevel = 3;
 
 export const boldPlaceholder = "bold text";
 export const italicPlaceholder = "italic text";
+export const strikethroughPlaceholder = "strikethrough text";
+export const highlightPlaceholder = "highlighted text";
 export const inlineCodePlaceholder = "code";
 export const codeBlockPlaceholder = "code";
 export const linkTextPlaceholder = "text";
@@ -27,5 +31,9 @@ export const boldShortcutKey = "Mod-b";
 export const duplicateLineShortcutKey = "Mod-d";
 export const inlineCodeShortcutKey = "Mod-e";
 export const italicShortcutKey = "Mod-i";
+export const strikethroughShortcutKey = "Mod-Shift-x";
+
+export const tableEnterKey = "Enter";
+export const tableTabKey = "Tab";
 
 export const ReadingWordsPerMinute = 200;
