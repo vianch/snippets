@@ -6,7 +6,6 @@ import CodeMirror from "@uiw/react-codemirror";
 
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
-import languageExtensions from "@/lib/codeEditor";
 import inlineCompletion from "@/lib/inlineCompletion";
 import markdownKeymap from "@/lib/markdown/markdownKeymap";
 import wikiLinkAutocomplete from "@/lib/wikiLinkAutocomplete";
@@ -129,6 +128,7 @@ const CodeEditor = ({
 		removeTagHandler,
 		togglePublicHandler,
 		refreshVersionCount,
+		restoreVersionHandler,
 		saveHandler,
 	} = useCurrentSnippet({
 		snippet,
@@ -311,26 +311,7 @@ const CodeEditor = ({
 										setShowHistory(false);
 										setPreRestoreSnapshot(null);
 									}}
-									onRestore={(version) => {
-										const restoredLanguage =
-											version.language as SupportedLanguages;
-
-										if (!preRestoreSnapshot) {
-											setPreRestoreSnapshot({ ...currentSnippet });
-										}
-
-										setCurrentSnippet({
-											...currentSnippet,
-											snippet: version.content,
-											language: restoredLanguage,
-											name: version.name,
-											tags: version.tags,
-											extension: languageExtensions[restoredLanguage],
-										});
-										onTouched(true);
-										setShowDetails(false);
-										refreshVersionCount(currentSnippet.snippet_id);
-									}}
+									onRestore={restoreVersionHandler}
 									undoSnapshot={preRestoreSnapshot}
 									onUndo={() => {
 										if (!preRestoreSnapshot) return;

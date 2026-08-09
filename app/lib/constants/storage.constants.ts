@@ -59,6 +59,22 @@ export const SnippetTableName = "snippet";
 
 export const SnippetVersionTableName = "snippet_version";
 
+// A bare `.select()` is `select *`, which on Supabase also ships the generated
+// `fts` tsvector — roughly as many bytes again as the snippet body itself, for a
+// column no client ever reads. Every snippet read names its columns instead.
+export const SnippetColumns =
+	"snippet_id, user_id, created_at, updated_at, name, url, notes, snippet, language, state, tags, is_public, public_slug, folder";
+
+// Version rows carry a full copy of the snippet body in `content`. The history
+// panel only renders metadata, so the list stays content-free and the body is
+// fetched for the one version the user actually restores.
+export const SnippetVersionSummaryColumns =
+	"version_id, snippet_id, user_id, version_number, name, language, tags, created_at";
+
+// Postgres function that allocates the next version_number and inserts in one
+// statement — see supabase/migrations/20260809200000_create_snippet_version_rpc.sql.
+export const CreateSnippetVersionFunction = "create_snippet_version";
+
 export const StorageConfigTableName = "storage_config";
 
 // Single global config row id — there is exactly one active backend per deploy.

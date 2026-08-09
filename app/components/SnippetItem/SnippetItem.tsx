@@ -49,6 +49,13 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 			onToggleFavorite(snippet);
 		};
 
+		// The row itself selects a snippet, so a delete/restore click must not reach
+		// it: the row would then make the snippet that was just removed the active
+		// one, leaving the editor on a fallback snippet and no row highlighted.
+		const stopRowSelection = (event: MouseEvent<HTMLSpanElement>): void => {
+			event.stopPropagation();
+		};
+
 		const isSnippetActive = activeSnippetId === snippet.snippet_id;
 
 		return (
@@ -72,25 +79,35 @@ const SnippetItem: FC<SnippetItemPropsComponent> = ({
 								/>
 							</span>
 						) : (
-							<Trash
-								className={styles.trashIcon}
-								width="18"
-								height="18"
-								onClick={() =>
-									onDeleteSnippet(snippet?.snippet_id, SnippetState.Inactive)
-								}
-							/>
+							<span
+								className={styles.actionIconWrapper}
+								onClick={stopRowSelection}
+							>
+								<Trash
+									className={styles.trashIcon}
+									width="18"
+									height="18"
+									onClick={() =>
+										onDeleteSnippet(snippet?.snippet_id, SnippetState.Inactive)
+									}
+								/>
+							</span>
 						))}
 
 					{snippet?.state === SnippetState.Inactive && (
-						<Restore
-							className={styles.restoreIcon}
-							width="18"
-							height="18"
-							onClick={() =>
-								onRestoreSnippet(snippet?.snippet_id, SnippetState.Active)
-							}
-						/>
+						<span
+							className={styles.actionIconWrapper}
+							onClick={stopRowSelection}
+						>
+							<Restore
+								className={styles.restoreIcon}
+								width="18"
+								height="18"
+								onClick={() =>
+									onRestoreSnippet(snippet?.snippet_id, SnippetState.Active)
+								}
+							/>
+						</span>
 					)}
 					<span className={styles.snippetName} title={snippet?.name ?? ""}>
 						{touched && isSnippetActive && "* "}

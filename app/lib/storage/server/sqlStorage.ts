@@ -1,6 +1,7 @@
 import { SnippetState } from "@/lib/constants/core";
 import {
 	SnippetTableName,
+	SnippetVersionSummaryColumns,
 	SqlDialect,
 } from "@/lib/constants/storage.constants";
 import { SnippetVersionTableName } from "@/lib/constants/storage.constants";
@@ -37,9 +38,10 @@ const rowToSnippet = (row: Record<string, unknown>): Snippet =>
 		user_id: row.user_id as UUID,
 	}) satisfies Snippet;
 
-const rowToVersion = (row: Record<string, unknown>): SnippetVersion =>
+const rowToVersionSummary = (
+	row: Record<string, unknown>
+): SnippetVersionSummary =>
 	({
-		content: String(row.content ?? ""),
 		created_at: String(row.created_at ?? ""),
 		language: String(row.language ?? ""),
 		name: String(row.name ?? ""),
@@ -48,6 +50,12 @@ const rowToVersion = (row: Record<string, unknown>): SnippetVersion =>
 		user_id: (row.user_id as UUID) ?? null,
 		version_id: row.version_id as UUID,
 		version_number: Number(row.version_number ?? 0),
+	}) satisfies SnippetVersionSummary;
+
+const rowToVersion = (row: Record<string, unknown>): SnippetVersion =>
+	({
+		...rowToVersionSummary(row),
+		content: String(row.content ?? ""),
 	}) satisfies SnippetVersion;
 
 export const createSqlSnippetStorage = (driver: SqlDriver): SnippetStorage => {
@@ -118,11 +126,11 @@ export const createSqlSnippetStorage = (driver: SqlDriver): SnippetStorage => {
 			await ensureSchema();
 
 			const { rows } = await driver.query(
-				`SELECT * FROM ${SnippetVersionTableName} WHERE snippet_id = ? ORDER BY version_number DESC LIMIT 5`,
+				`SELECT ${SnippetVersionSummaryColumns} FROM ${SnippetVersionTableName} WHERE snippet_id = ? ORDER BY version_number DESC LIMIT 5`,
 				[snippetId]
 			);
 
-			return rows.map(rowToVersion);
+			return rows.map(rowToVersionSummary);
 		},
 
 		list: (userId) =>

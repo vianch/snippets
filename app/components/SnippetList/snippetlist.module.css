@@ -389,7 +389,8 @@
 	transition: transform var(--duration-fast) var(--ease-spring);
 }
 
-.favoriteIconWrapper {
+.favoriteIconWrapper,
+.actionIconWrapper {
 	display: inline-flex;
 	flex-shrink: 0;
 	align-items: center;

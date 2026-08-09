@@ -47,7 +47,7 @@ declare global {
 		emptyTrash(userId: UUID): Promise<void>;
 		getPublicBySlug(slug: string): Promise<Snippet | null>;
 		getVersion(versionId: UUID): Promise<SnippetVersion | null>;
-		getVersions(snippetId: UUID): Promise<SnippetVersion[]>;
+		getVersions(snippetId: UUID): Promise<SnippetVersionSummary[]>;
 		list(userId: UUID): Promise<Snippet[]>;
 		listByFolder(userId: UUID, folder: string): Promise<Snippet[]>;
 		listByState(userId: UUID, state: SnippetStateEnum): Promise<Snippet[]>;
