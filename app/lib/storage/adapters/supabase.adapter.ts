@@ -1,4 +1,7 @@
-import { SnippetTableName } from "@/lib/constants/storage.constants";
+import {
+	SnippetColumns,
+	SnippetTableName,
+} from "@/lib/constants/storage.constants";
 import {
 	emptyTrash,
 	getAllSnippets,
@@ -24,7 +27,7 @@ export const supabaseAdapter: SnippetStorage = {
 	getPublicBySlug: async (slug) => {
 		const { data } = await supabase
 			.from(SnippetTableName)
-			.select()
+			.select(SnippetColumns)
 			.match({ is_public: true, public_slug: slug })
 			.maybeSingle();
 

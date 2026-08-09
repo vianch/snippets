@@ -9,6 +9,11 @@ import {
 	MfaFriendlyName,
 } from "@/lib/constants/mfa";
 import { AppRole, RoleClaimKey, RolesTableName } from "@/lib/constants/roles";
+import {
+	CreateSnippetVersionFunction,
+	SnippetColumns,
+	SnippetVersionSummaryColumns,
+} from "@/lib/constants/storage.constants";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
 import { AuthError, UserAttributes, UserResponse } from "@supabase/supabase-js";
 
@@ -37,16 +42,29 @@ export const getUserDataFromSession = async (): Promise<Session> => {
 	return session as Session;
 };
 
-export const getUserIdBySession = async (): Promise<string | null> => {
-	const session = await getUserDataFromSession();
+// The storage facade resolves the user id, then every query it delegates to
+// resolved it again — up to three lookups per save, each of which can hit the
+// network when the local session is missing. Resolve once and let Supabase tell
+// us when the answer stops being valid.
+const sessionUserIdCache: { value: string | null } = { value: null };
 
-	if (session) {
-		return session?.user?.id;
+supabase.auth.onAuthStateChange(() => {
+	sessionUserIdCache.value = null;
+});
+
+export const getUserIdBySession = async (): Promise<string | null> => {
+	if (sessionUserIdCache.value) {
+		return sessionUserIdCache.value;
 	}
 
-	const userFromServer = await getUserDataFromServer();
+	const session = await getUserDataFromSession();
+	const userFromServer = session ? null : await getUserDataFromServer();
 
-	return userFromServer?.id ?? null;
+	sessionUserIdCache.value = session
+		? (session?.user?.id ?? null)
+		: (userFromServer?.id ?? null);
+
+	return sessionUserIdCache.value;
 };
 
 export const getUserEmailBySession = async (): Promise<
@@ -95,7 +113,7 @@ export const getAllSnippets = async (): Promise<Snippet[]> => {
 		if (userId) {
 			const { data } = await supabase
 				.from("snippet")
-				.select()
+				.select(SnippetColumns)
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
 				.neq("state", SnippetState.Inactive);
@@ -116,7 +134,7 @@ export const getSnippetsByState = async (
 		if (userId) {
 			const { data } = await supabase
 				.from("snippet")
-				.select()
+				.select(SnippetColumns)
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId, state });
 
@@ -134,7 +152,7 @@ export const getUncategorizedSnippets = async (): Promise<Snippet[]> => {
 		if (userId) {
 			const { data } = await supabase
 				.from("snippet")
-				.select()
+				.select(SnippetColumns)
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
 				.neq("state", SnippetState.Inactive)
@@ -156,7 +174,7 @@ export const getSnippetsByFolder = async (
 		if (userId) {
 			const { data } = await supabase
 				.from("snippet")
-				.select()
+				.select(SnippetColumns)
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId, folder })
 				.neq("state", SnippetState.Inactive);
@@ -175,7 +193,7 @@ export const getSnippetsByTag = async (tag: string): Promise<Snippet[]> => {
 		if (userId) {
 			const { data } = await supabase
 				.from("snippet")
-				.select()
+				.select(SnippetColumns)
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
 				.neq("state", SnippetState.Inactive)
@@ -203,7 +221,7 @@ export const searchSnippets = async (query: string): Promise<Snippet[]> => {
 
 			const { data } = await supabase
 				.from("snippet")
-				.select()
+				.select(SnippetColumns)
 				.order("updated_at", { ascending: false })
 				.match({ user_id: userId })
 				.neq("state", SnippetState.Inactive)
@@ -338,44 +356,20 @@ export const setNewSnippet = async (): Promise<Snippet | null> => {
 
 /* ─── Snippet Versioning ─── */
 
+// One statement: the database picks the next version_number, checks ownership of
+// the parent snippet, and inserts. Replaces a parent lookup, a max() lookup and
+// an insert — and closes the race where two saves read the same max.
 export const saveSnippetVersion = async (
 	snippetId: UUID,
 	currentSnippet: CurrentSnippet
 ): Promise<void> => {
 	if (supabase) {
-		const userId = await getUserIdBySession();
-
-		if (!userId) {
-			failQuery("Not authenticated");
-		}
-
-		const { data: parent } = await supabase
-			.from("snippet")
-			.select("snippet_id")
-			.match({ snippet_id: snippetId, user_id: userId })
-			.maybeSingle();
-
-		if (!parent) {
-			failQuery("Snippet not found");
-		}
-
-		const { data: latestVersion } = await supabase
-			.from("snippet_version")
-			.select("version_number")
-			.eq("snippet_id", snippetId)
-			.order("version_number", { ascending: false })
-			.limit(1)
-			.single();
-
-		const nextVersion = (latestVersion?.version_number ?? 0) + 1;
-
-		const { error } = await supabase.from("snippet_version").insert({
-			snippet_id: snippetId,
-			content: currentSnippet.snippet,
-			language: currentSnippet.language,
-			name: currentSnippet.name,
-			tags: currentSnippet.tags ?? null,
-			version_number: nextVersion,
+		const { error } = await supabase.rpc(CreateSnippetVersionFunction, {
+			p_content: currentSnippet.snippet,
+			p_language: currentSnippet.language,
+			p_name: currentSnippet.name,
+			p_snippet_id: snippetId,
+			p_tags: currentSnippet.tags ?? null,
 		});
 
 		if (error) {
@@ -386,16 +380,16 @@ export const saveSnippetVersion = async (
 
 export const getSnippetVersions = async (
 	snippetId: UUID
-): Promise<SnippetVersion[]> => {
+): Promise<SnippetVersionSummary[]> => {
 	if (supabase) {
 		const { data } = await supabase
 			.from("snippet_version")
-			.select()
+			.select(SnippetVersionSummaryColumns)
 			.eq("snippet_id", snippetId)
 			.order("version_number", { ascending: false })
 			.limit(5);
 
-		return (data ?? []) as SnippetVersion[];
+		return (data ?? []) as SnippetVersionSummary[];
 	}
 
 	return [];
@@ -407,7 +401,7 @@ export const getSnippetVersion = async (
 	if (supabase) {
 		const { data } = await supabase
 			.from("snippet_version")
-			.select()
+			.select(`${SnippetVersionSummaryColumns}, content`)
 			.eq("version_id", versionId)
 			.single();
 

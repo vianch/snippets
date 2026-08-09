@@ -15,6 +15,7 @@ import {
 } from "@/lib/constants/core";
 import { ToastType } from "@/lib/constants/toast";
 import {
+	getSnippetVersion,
 	getSnippetVersions,
 	toggleSnippetPublic,
 } from "@/lib/storage/snippets";
@@ -54,6 +55,7 @@ type UseCurrentSnippetReturn = {
 	removeTagHandler: (tagRemoved: string) => void;
 	togglePublicHandler: () => Promise<void>;
 	refreshVersionCount: (snippetId: UUID) => void;
+	restoreVersionHandler: (version: SnippetVersionSummary) => Promise<void>;
 	saveHandler: () => void;
 };
 
@@ -257,6 +259,42 @@ const useCurrentSnippet = ({
 			.catch(() => setVersionCount(0));
 	};
 
+	// The history list carries metadata only, so the body of the version the user
+	// picked is fetched here instead of shipping five snippet bodies with the list.
+	const restoreVersionHandler = async (
+		version: SnippetVersionSummary
+	): Promise<void> => {
+		const fullVersion = await getSnippetVersion(version.version_id);
+
+		if (!fullVersion) {
+			addToast({
+				type: ToastType.Error,
+				message: "Could not load that version",
+			});
+
+			return;
+		}
+
+		// `language` is a free-text column; the editor only knows SupportedLanguages.
+		const restoredLanguage = fullVersion.language as SupportedLanguages;
+
+		if (!preRestoreSnapshot) {
+			setPreRestoreSnapshot({ ...currentSnippet });
+		}
+
+		setCurrentSnippet({
+			...currentSnippet,
+			snippet: fullVersion.content,
+			language: restoredLanguage,
+			name: fullVersion.name,
+			tags: fullVersion.tags,
+			extension: languageExtensions[restoredLanguage],
+		});
+		onTouched(true);
+		setShowDetails(false);
+		refreshVersionCount(currentSnippet.snippet_id);
+	};
+
 	const saveHandler = (): void => {
 		onSave(currentSnippet, true);
 	};
@@ -349,6 +387,7 @@ const useCurrentSnippet = ({
 		removeTagHandler,
 		togglePublicHandler,
 		refreshVersionCount,
+		restoreVersionHandler,
 		saveHandler,
 	};
 };

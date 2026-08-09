@@ -4,6 +4,7 @@ import { SnippetState } from "@/lib/constants/core";
 import {
 	ExportFormat,
 	ServerSideBackends,
+	SnippetColumns,
 	SnippetTableName,
 } from "@/lib/constants/storage.constants";
 import { HttpStatusCode } from "@/lib/constants/ui.constants";
@@ -24,7 +25,7 @@ const fetchSnippets = async (
 	const supabase = createSupabaseAdminClient();
 	const { data } = await supabase
 		.from(SnippetTableName)
-		.select()
+		.select(SnippetColumns)
 		.match({ user_id: userId })
 		.neq("state", SnippetState.Inactive);
 

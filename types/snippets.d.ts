@@ -50,6 +50,10 @@ declare global {
 		created_at: string;
 	}
 
+	// A version row without its `content` body. Version lists render metadata
+	// only, so the body is fetched for the one version the user restores.
+	type SnippetVersionSummary = Omit<SnippetVersion, "content">;
+
 	interface CurrentSnippet extends Snippet {
 		extension: LanguageSupport;
 	}

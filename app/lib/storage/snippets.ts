@@ -14,30 +14,41 @@ import { getUserIdBySession } from "@/lib/supabase/queries";
 // import path. The active backend (set globally by an admin) decides whether an
 // op runs in the client (Supabase) or via the server.
 
-const backendCache: { value: StorageBackendType | null } = { value: null };
+// Memoizes the in-flight request, not just its result: a save fires several ops
+// at once on first load, and caching only the value let each of them start its
+// own /active fetch before the first one resolved.
+const backendCache: { request: Promise<StorageBackendType> | null } = {
+	request: null,
+};
 
-const getActiveBackend = async (): Promise<StorageBackendType> => {
-	if (backendCache.value) {
-		return backendCache.value;
-	}
-
+const fetchActiveBackend = async (): Promise<StorageBackendType> => {
 	const response = await fetch(`${StorageApiBasePath}/active`).catch(
 		() => null
 	);
 
-	if (response?.ok) {
-		const data = (await response.json()) as { backend: StorageBackendType };
+	if (!response?.ok) {
+		backendCache.request = null;
 
-		backendCache.value = data.backend;
+		return DefaultStorageBackend;
 	}
 
-	return backendCache.value ?? DefaultStorageBackend;
+	const data = (await response.json()) as { backend: StorageBackendType };
+
+	return data.backend;
+};
+
+const getActiveBackend = async (): Promise<StorageBackendType> => {
+	if (!backendCache.request) {
+		backendCache.request = fetchActiveBackend();
+	}
+
+	return backendCache.request;
 };
 
 // Clears the memoized backend so a just-saved config takes effect without a
 // reload (other sessions pick it up on their next load).
 export const resetActiveBackendCache = (): void => {
-	backendCache.value = null;
+	backendCache.request = null;
 };
 
 const getStorage = async (): Promise<SnippetStorage> => {
@@ -185,7 +196,8 @@ export const saveSnippetVersion = async (
 
 export const getSnippetVersions = async (
 	snippetId: UUID
-): Promise<SnippetVersion[]> => (await getStorage()).getVersions(snippetId);
+): Promise<SnippetVersionSummary[]> =>
+	(await getStorage()).getVersions(snippetId);
 
 export const getSnippetVersion = async (
 	versionId: UUID

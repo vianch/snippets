@@ -16,7 +16,7 @@ import styles from "./history.module.css";
 type HistoryProps = {
 	snippetId: UUID;
 	isOpen: boolean;
-	onRestore: (version: SnippetVersion) => void;
+	onRestore: (version: SnippetVersionSummary) => void;
 	onClose: () => void;
 	undoSnapshot: CurrentSnippet | null;
 	onUndo: () => void;
@@ -31,7 +31,7 @@ const History = ({
 	onUndo,
 }: HistoryProps): ReactElement | null => {
 	const isMobile = useViewPortStore((state) => state.isMobile);
-	const [versions, setVersions] = useState<SnippetVersion[]>([]);
+	const [versions, setVersions] = useState<SnippetVersionSummary[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {

@@ -213,7 +213,9 @@ export const getUserSnippets = async () => {
 
 	const { data } = await supabase
 		.from("snippet")
-		.select("snippet_id, name, updated_at, state, tags, folder, is_public, public_slug, language")
+		.select(
+			"snippet_id, name, updated_at, state, tags, folder, is_public, public_slug, language"
+		)
 		.eq("user_id", userId)
 		.neq("state", SnippetState.Inactive)
 		.order("updated_at", { ascending: false });
