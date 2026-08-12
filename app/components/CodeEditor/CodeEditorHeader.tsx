@@ -168,7 +168,7 @@ const CodeEditorHeader = ({
 					className={`${styles.saveButton} ${touched ? styles.touched : ""}`}
 					variant="secondary"
 					shape="pill"
-					disabled={isSaving}
+					disabled={isSaving || !touched}
 					aria-label="Save snippet"
 					onClick={onSave}
 				>

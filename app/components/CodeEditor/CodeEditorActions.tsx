@@ -9,6 +9,8 @@ import useSnippetActions from "@/components/CodeEditor/hooks/useSnippetActions";
 import Camera from "@/components/ui/icons/Camera";
 import Clock from "@/components/ui/icons/Clock";
 import Copy from "@/components/ui/icons/Copy";
+import EyeClosed from "@/components/ui/icons/EyeClosed";
+import EyeOpen from "@/components/ui/icons/EyeOpen";
 import Globe from "@/components/ui/icons/Globe";
 import Share from "@/components/ui/icons/Share";
 import ScreenshotModal from "@/components/ScreenshotModal/ScreenshotModal";
@@ -18,10 +20,13 @@ import styles from "./codeEditorActions.module.css";
 
 type CodeEditorActionsProps = {
 	currentSnippet: CurrentSnippet;
+	isPreviewVisible?: boolean;
 	isPublic: boolean;
+	onTogglePreview?: () => void;
 	onTogglePublic: () => void;
 	onToggleHistory?: () => void;
 	showHistory?: boolean;
+	showPreviewToggle?: boolean;
 	hasVersions?: boolean;
 };
 
@@ -30,10 +35,13 @@ type CodeEditorActionsProps = {
 // equivalent is CodeEditorActionsMenu.
 const CodeEditorActions = ({
 	currentSnippet,
+	isPreviewVisible = false,
 	isPublic,
+	onTogglePreview,
 	onTogglePublic,
 	onToggleHistory,
 	showHistory = false,
+	showPreviewToggle = false,
 	hasVersions = false,
 }: CodeEditorActionsProps): ReactElement => {
 	const {
@@ -96,6 +104,24 @@ const CodeEditorActions = ({
 						{isPublic ? "Make private" : "Make public"}
 					</span>
 				</button>
+				{showPreviewToggle && (
+					<button
+						className={`${styles.actionButton} ${isPreviewVisible ? styles.actionButtonActive : ""}`}
+						type="button"
+						aria-label={isPreviewVisible ? "Hide preview" : "Show preview"}
+						aria-pressed={isPreviewVisible}
+						onClick={onTogglePreview}
+					>
+						{isPreviewVisible ? (
+							<EyeOpen width={24} height={24} />
+						) : (
+							<EyeClosed width={24} height={24} />
+						)}
+						<span className={styles.tooltip}>
+							{isPreviewVisible ? "Hide preview" : "Show preview"}
+						</span>
+					</button>
+				)}
 			</div>
 
 			{screenshotModalOpen && (

@@ -97,10 +97,14 @@ const CodeEditor = ({
 	const isFocusMode = useViewPortStore((state) => state.isFocusMode);
 	const setFocusMode = useViewPortStore((state) => state.setFocusMode);
 	const theme = useUserStore((state) => state.theme) as ThemeName;
-	const { menuType } = codeEditorStates ?? {};
+	const { menuType, touched } = codeEditorStates ?? {};
 	const isTrashActive = menuType === "trash";
 	const [mobileChatTab, setMobileChatTab] = useState<AiPaneTab>(AiPaneTab.Chat);
-	const [isPreviewVisible, setIsPreviewVisible] = useState(true);
+	// null means "follow the viewport": on mobile and tablet the editor owns the
+	// full height and the preview is opt-in, on desktop the split is the default.
+	// A toggle pins an explicit choice for the session.
+	const [previewOverride, setPreviewOverride] = useState<boolean | null>(null);
+	const isPreviewVisible = previewOverride ?? !isMobile;
 	const editorContentRef = useRef<HTMLDivElement>(null);
 	const detailsAnchorRef = useRef<HTMLButtonElement>(null);
 	const editorViewRef = useRef<EditorView | null>(null);
@@ -140,7 +144,7 @@ const CodeEditor = ({
 		onTouched,
 	});
 
-	useKeyboardSave(saveHandler, isTrashActive);
+	useKeyboardSave(saveHandler, isTrashActive || !touched);
 
 	const inlineCompletionExtension = useMemo(
 		() =>
@@ -187,6 +191,10 @@ const CodeEditor = ({
 	const hasRightPane = showPreview || showChatPane;
 	const showPreviewToggle = hasPreviewPanel && !isChatMode;
 	const canToggleFocusMode = isMarkdownLanguage && !isTrashActive;
+
+	const togglePreviewHandler = (): void => {
+		setPreviewOverride(!isPreviewVisible);
+	};
 
 	// Long-form prose fixes: wrap instead of horizontal-scrolling, and let the
 	// browser spellcheck markdown content the way it would a text field.
@@ -294,10 +302,13 @@ const CodeEditor = ({
 								<div className={styles.mobileActions}>
 									<CodeEditorActions
 										currentSnippet={currentSnippet}
+										isPreviewVisible={isPreviewVisible}
 										isPublic={currentSnippet.is_public ?? false}
+										onTogglePreview={togglePreviewHandler}
 										onTogglePublic={togglePublicHandler}
 										onToggleHistory={() => setShowHistory(!showHistory)}
 										showHistory={showHistory}
+										showPreviewToggle={showPreviewToggle}
 										hasVersions={versionCount > 0}
 									/>
 								</div>
@@ -351,7 +362,7 @@ const CodeEditor = ({
 							showPreviewToggle={showPreviewToggle}
 							snippetName={currentSnippet.name ?? ""}
 							onExit={() => setFocusMode(false)}
-							onTogglePreview={() => setIsPreviewVisible(!isPreviewVisible)}
+							onTogglePreview={togglePreviewHandler}
 						/>
 					)}
 
@@ -404,7 +415,7 @@ const CodeEditor = ({
 									isFocusMode={isFocusMode}
 									isPreviewVisible={isPreviewVisible}
 									onToggleFocusMode={toggleFocusModeHandler}
-									onTogglePreview={() => setIsPreviewVisible(!isPreviewVisible)}
+									onTogglePreview={togglePreviewHandler}
 									onUploadMarkdown={onUploadMarkdown}
 									showFormattingActions={isMarkdownLanguage}
 									showPreviewToggle={showPreviewToggle}

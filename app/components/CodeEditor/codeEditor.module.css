@@ -239,7 +239,7 @@
 @media (width < 1140px) {
 	.mobileActions {
 		position: fixed;
-		bottom: 50px;
+		bottom: calc(50px + env(safe-area-inset-bottom, 0px));
 		left: 0;
 		width: 100%;
 		display: flex;
@@ -269,9 +269,10 @@
 		opacity 0.2s ease;
 }
 
+/* Disabled means either nothing to save or a save in flight. */
 .saveButton:disabled {
 	opacity: 0.6;
-	cursor: progress;
+	cursor: not-allowed;
 }
 
 .icon {
@@ -327,6 +328,11 @@
 	background: var(--green-color);
 	color: var(--bg-color-dark);
 	filter: brightness(1.05);
+}
+
+/* Only the in-flight save is a wait — untouched keeps not-allowed from above. */
+.saveButton.touched:disabled {
+	cursor: progress;
 }
 
 .splitView {
@@ -580,6 +586,7 @@
 @media (width < 1140px) {
 	.codeEditorContainer {
 		width: 100%;
+		height: calc(100dvh - 1.5625rem);
 	}
 }
 
