@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { defaultAvatar } from "../constants/account";
 import { ThemeNames } from "../config/themes";
 import { DefaultFontName } from "../config/fonts";
+import { DefaultPetDesignId } from "../constants/pets.constants";
 
 type UserState = {
 	userName: string | null;
@@ -15,6 +16,8 @@ type UserState = {
 	autoSave: boolean;
 	isAdmin: boolean;
 	isLoading: boolean;
+	petDesign: string;
+	petEnabled: boolean;
 	setUserName: (userName: string | null) => void;
 	setUserAvatar: (avatar: string) => void;
 	setEmail: (email: string | null) => void;
@@ -23,6 +26,10 @@ type UserState = {
 	setAiApiKey: (aiApiKey: string) => void;
 	setAutoSave: (autoSave: boolean) => void;
 	setIsAdmin: (isAdmin: boolean) => void;
+	setPetPreferences: (preferences: {
+		petDesign?: string;
+		petEnabled?: boolean;
+	}) => void;
 	setUserData: (userData: {
 		userName?: string | null;
 		userAvatar?: string;
@@ -47,6 +54,8 @@ const useUserStore = create<UserState>((set) => ({
 	autoSave: false,
 	isAdmin: false,
 	isLoading: true,
+	petDesign: DefaultPetDesignId,
+	petEnabled: true,
 	setUserName: (userName) => set({ userName }),
 	setUserAvatar: (userAvatar) => set({ userAvatar }),
 	setEmail: (email) => set({ email }),
@@ -55,6 +64,7 @@ const useUserStore = create<UserState>((set) => ({
 	setAiApiKey: (aiApiKey) => set({ aiApiKey }),
 	setAutoSave: (autoSave) => set({ autoSave }),
 	setIsAdmin: (isAdmin) => set({ isAdmin }),
+	setPetPreferences: (preferences) => set(preferences),
 	setUserData: (userData) =>
 		set((state) => ({
 			...state,
@@ -72,6 +82,8 @@ const useUserStore = create<UserState>((set) => ({
 			autoSave: false,
 			isAdmin: false,
 			isLoading: false,
+			petDesign: DefaultPetDesignId,
+			petEnabled: true,
 		}),
 }));
 

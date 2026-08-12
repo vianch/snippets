@@ -1,0 +1,7 @@
+{
+	"id": "drift-steel",
+	"displayName": "Drift Steel",
+	"description": "A tiny Codex pet robot inspired by Pacific Rim-style giant mecha.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "object"
+}

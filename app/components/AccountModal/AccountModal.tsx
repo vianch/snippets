@@ -17,7 +17,13 @@ import { isValidFont } from "@/lib/config/fonts";
 import { settingsSections } from "@/lib/config/settings";
 import { ThemeName, isValidTheme } from "@/lib/config/themes";
 import { setCookie } from "@/lib/cookies";
-import { fontCookieName, themeCookieName } from "@/lib/constants/cookies";
+import {
+	fontCookieName,
+	petDesignCookieName,
+	petEnabledCookieName,
+	themeCookieName,
+} from "@/lib/constants/cookies";
+import { DefaultPetDesignId, PetEvent } from "@/lib/constants/pets.constants";
 
 /* Constants */
 import {
@@ -42,6 +48,7 @@ import Alert from "@/components/ui/Alert/Alert";
 import Switch from "@/components/ui/Switch/Switch";
 import DatabaseSettings from "@/components/AccountModal/DatabaseSettings";
 import FontPreview from "@/components/AccountModal/FontPreview";
+import PetPreview from "@/components/AccountModal/PetPreview";
 import SettingsSidebar from "@/components/AccountModal/SettingsSidebar";
 import ThemePreview from "@/components/AccountModal/ThemePreview";
 import TwoFactorSettings from "@/components/TwoFactorSettings/TwoFactorSettings";
@@ -49,11 +56,13 @@ import { useSettingsHash } from "@/components/AccountModal/useSettingsHash";
 
 /* Store */
 import useChatStore from "@/lib/store/chat.store";
+import { emitPetEvent } from "@/lib/store/pet.store";
 import useUserStore from "@/lib/store/user.store";
 
 /* Utils */
 import { isUserEmailDemo } from "@/utils/account.utils";
 import { fetchAiModels } from "@/utils/ai.utils";
+import { isValidPetDesign } from "@/utils/pet.utils";
 
 /* Icons */
 import Envelope from "@/components/ui/icons/Envelope";
@@ -88,6 +97,12 @@ const AccountModal = (): ReactElement | null => {
 	const [originalFont, setOriginalFont] = useState<string | undefined>(
 		accountInitialStateData.font
 	);
+	const [originalPetDesign, setOriginalPetDesign] = useState<string>(
+		accountInitialStateData.petDesign ?? DefaultPetDesignId
+	);
+	const [originalPetEnabled, setOriginalPetEnabled] = useState<boolean>(
+		accountInitialStateData.petEnabled ?? true
+	);
 	const [aiModels, setAiModels] = useState<string[]>([]);
 	const [originalAiUrl, setOriginalAiUrl] = useState<string>("");
 	const [modelsLoading, setModelsLoading] = useState(false);
@@ -120,6 +135,7 @@ const AccountModal = (): ReactElement | null => {
 		}));
 
 		useUserStore.getState().setTheme(themeName);
+		emitPetEvent(PetEvent.ThemeChanged);
 	};
 
 	const handleFontChange = (fontName: FontName): void => {
@@ -129,6 +145,27 @@ const AccountModal = (): ReactElement | null => {
 		}));
 
 		useUserStore.getState().setFont(fontName);
+		emitPetEvent(PetEvent.FontChanged);
+	};
+
+	const handlePetDesignChange = (designId: string): void => {
+		setUserData((prev) => ({
+			...prev,
+			petDesign: designId,
+		}));
+
+		setCookie(petDesignCookieName, designId);
+		useUserStore.getState().setPetPreferences({ petDesign: designId });
+	};
+
+	const handlePetEnabledChange = (enabled: boolean): void => {
+		setUserData((prev) => ({
+			...prev,
+			petEnabled: enabled,
+		}));
+
+		setCookie(petEnabledCookieName, String(enabled));
+		useUserStore.getState().setPetPreferences({ petEnabled: enabled });
 	};
 
 	// Apply theme to the document whenever userData.theme changes (optimistic update)
@@ -240,6 +277,8 @@ const AccountModal = (): ReactElement | null => {
 			ai_api_key: userData.aiApiKey ?? "",
 			ai_model: userData.aiModel ?? "",
 			ai_url: userData.aiUrl ?? "",
+			pet_design: userData.petDesign ?? DefaultPetDesignId,
+			pet_enabled: userData.petEnabled ?? true,
 		};
 
 		const { error: updateError } = await updateUser({
@@ -263,6 +302,8 @@ const AccountModal = (): ReactElement | null => {
 
 		useUserStore.getState().setAutoSave(userData.autoSave ?? false);
 		useChatStore.getState().setSelectedModel(userData.aiModel ?? "");
+		setOriginalPetDesign(userData.petDesign ?? DefaultPetDesignId);
+		setOriginalPetEnabled(userData.petEnabled ?? true);
 
 		if (
 			hasUserNameChanged ||
@@ -359,6 +400,21 @@ const AccountModal = (): ReactElement | null => {
 			useUserStore.getState().setFont(originalFont);
 		}
 
+		// Pet changes apply live too, so cancelling has to put the old one back.
+		if (userData.petDesign !== originalPetDesign) {
+			setCookie(petDesignCookieName, originalPetDesign);
+			useUserStore
+				.getState()
+				.setPetPreferences({ petDesign: originalPetDesign });
+		}
+
+		if (userData.petEnabled !== originalPetEnabled) {
+			setCookie(petEnabledCookieName, String(originalPetEnabled));
+			useUserStore
+				.getState()
+				.setPetPreferences({ petEnabled: originalPetEnabled });
+		}
+
 		close();
 	};
 
@@ -432,6 +488,33 @@ const AccountModal = (): ReactElement | null => {
 						...prev,
 						autoSave: userMetadata.auto_save,
 					}));
+				}
+
+				if (
+					userMetadata?.pet_design &&
+					isValidPetDesign(userMetadata.pet_design)
+				) {
+					setUserData((prev) => ({
+						...prev,
+						petDesign: userMetadata.pet_design,
+					}));
+					setCookie(petDesignCookieName, userMetadata.pet_design);
+					setOriginalPetDesign(userMetadata.pet_design);
+					useUserStore
+						.getState()
+						.setPetPreferences({ petDesign: userMetadata.pet_design });
+				}
+
+				if (userMetadata?.pet_enabled !== undefined) {
+					setUserData((prev) => ({
+						...prev,
+						petEnabled: userMetadata.pet_enabled,
+					}));
+					setCookie(petEnabledCookieName, String(userMetadata.pet_enabled));
+					setOriginalPetEnabled(userMetadata.pet_enabled);
+					useUserStore
+						.getState()
+						.setPetPreferences({ petEnabled: userMetadata.pet_enabled });
 				}
 
 				if (userMetadata?.ai_provider) {
@@ -708,6 +791,30 @@ const AccountModal = (): ReactElement | null => {
 		</>
 	);
 
+	const petsTab = (
+		<>
+			{/* Companion */}
+			<div className={styles.section}>
+				<h3 className={styles.sectionTitle}>Companion</h3>
+				<Switch
+					checked={userData.petEnabled ?? true}
+					label="Show the pet"
+					description="A small companion wanders the app and reacts to what you do"
+					onChange={handlePetEnabledChange}
+				/>
+			</div>
+
+			{/* Design */}
+			<div className={styles.section}>
+				<h3 className={styles.sectionTitle}>Design</h3>
+				<PetPreview
+					activeDesign={userData.petDesign ?? DefaultPetDesignId}
+					onDesignChange={handlePetDesignChange}
+				/>
+			</div>
+		</>
+	);
+
 	const aiTab = (
 		<>
 			{/* Provider Selection */}
@@ -850,6 +957,7 @@ const AccountModal = (): ReactElement | null => {
 						<form onSubmit={handleSubmit} className={styles.form}>
 							{activeSection === SettingsSection.Profile && profileTab}
 							{activeSection === SettingsSection.Preferences && preferencesTab}
+							{activeSection === SettingsSection.Pets && petsTab}
 							{activeSection === SettingsSection.Ai && aiTab}
 
 							{message.text && (

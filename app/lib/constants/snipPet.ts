@@ -59,7 +59,9 @@ export const PetModes = {
 	Grabbed: "grabbed",
 	Idle: "idle",
 	Landing: "landing",
+	Reviewing: "reviewing",
 	Walking: "walking",
+	Working: "working",
 } as const;
 
 export type PetMode = (typeof PetModes)[keyof typeof PetModes];
@@ -166,6 +168,41 @@ export const PetDizzyFrame: PetFrame = [...PetBodyDizzy, ...PetDangleLegs];
 
 /* Just landed: the worried face but feet planted, ready for the squash. */
 export const PetDazedFrame: PetFrame = [...PetBodyAfraid, ...PetIdleLegs];
+
+/* Head-down concentration while a background task (an AI request) runs. */
+const PetBodyWorking: PetFrame = [
+	"..########..",
+	".##########.",
+	"############",
+	"############",
+	"############",
+	"###.####.###",
+	"############",
+	"####....####",
+	"############",
+	".##########.",
+];
+
+export const PetWorkingFrame: PetFrame = [...PetBodyWorking, ...PetIdleLegs];
+
+/* Squinting at something: used for inspect/review style reactions. */
+const PetBodyReviewing: PetFrame = [
+	"..########..",
+	".##########.",
+	"############",
+	"############",
+	"###..#...###",
+	"###..####.##",
+	"############",
+	"#####..#####",
+	"############",
+	".##########.",
+];
+
+export const PetReviewingFrame: PetFrame = [
+	...PetBodyReviewing,
+	...PetIdleLegs,
+];
 
 export const PetMessages = [
 	"Hi there!",

@@ -1,0 +1,7 @@
+{
+	"id": "glitch-prophet",
+	"displayName": "Glitch Prophet",
+	"description": "A retro-cyberpunk AI prophet trapped in a tiny CRT television pet.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "creature"
+}

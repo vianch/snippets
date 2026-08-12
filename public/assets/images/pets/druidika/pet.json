@@ -1,0 +1,7 @@
+{
+	"id": "druidika",
+	"displayName": "Druidika",
+	"description": "A tiny druid Codex companion with a leafy hood, warm face, and compact pixel-pet silhouette.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "object"
+}

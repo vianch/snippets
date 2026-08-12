@@ -40,17 +40,40 @@
 		drop-shadow(0 3px 5px rgb(0 0 0 / 45%));
 }
 
+/*
+ * One cell of an 8x9 spritesheet. --pet-row / --pet-frame are written on the
+ * container by the animation loop; the sizes come in as inline custom
+ * properties so the geometry constants stay owned by pets.constants.ts.
+ */
+.sheet {
+	display: block;
+	width: var(--pet-sprite-frame-width);
+	height: var(--pet-sprite-frame-height);
+	background-repeat: no-repeat;
+	background-position-x: calc(
+		var(--pet-frame, 0) * var(--pet-sprite-frame-width) * -1
+	);
+	background-position-y: calc(
+		var(--pet-row, 0) * var(--pet-sprite-frame-height) * -1
+	);
+	image-rendering: auto;
+	filter: drop-shadow(0 3px 5px rgb(0 0 0 / 35%));
+}
+
 .bubble {
 	position: absolute;
 	bottom: calc(100% + 8px);
 	left: 50%;
+	max-width: 15rem;
+	width: max-content;
 	padding: 0.25rem 0.5rem;
 	border-radius: var(--border-radius-md);
 	background: var(--foreground-color);
 	color: var(--bg-color-dark);
 	font-size: var(--tiny-font-size);
 	font-weight: 600;
-	white-space: nowrap;
+	line-height: 1.35;
+	text-align: center;
 	pointer-events: none;
 	transform: translateX(-50%);
 	box-shadow: 0 4px 12px rgb(0 0 0 / 35%);
@@ -70,7 +93,9 @@
 
 @media (prefers-reduced-motion: no-preference) {
 	.pet[data-mode="walking"] .motion,
-	.pet[data-mode="idle"] .motion {
+	.pet[data-mode="idle"] .motion,
+	.pet[data-mode="reviewing"] .motion,
+	.pet[data-mode="working"] .motion {
 		animation: pet-bob 0.34s steps(2, end) infinite;
 	}
 

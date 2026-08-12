@@ -1,0 +1,7 @@
+{
+	"id": "neobyte",
+	"displayName": "NeoByte",
+	"description": "A tiny bullet-time hacker pet in a black trench coat with Matrix-inspired green terminal energy.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "person"
+}

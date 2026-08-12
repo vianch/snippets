@@ -2,6 +2,10 @@
 
 import { ChangeEvent, ReactElement, useMemo, useState } from "react";
 
+/* Lib */
+import { PetEvent } from "@/lib/constants/pets.constants";
+import { emitPetEvent } from "@/lib/store/pet.store";
+
 /* Components */
 import Folder from "@/components/ui/icons/Folder";
 import Input from "@/components/ui/Input/Input";
@@ -34,9 +38,12 @@ const FolderField = ({
 		[availableFolders, folderQuery]
 	);
 
+	// Only the discrete pick emits to the pet: the free-text path fires on every
+	// keystroke, which would turn one folder rename into thirty bubbles.
 	const commitFolder = (selectedFolder: string): void => {
 		setFolderQuery("");
 		onFolderChange(selectedFolder);
+		emitPetEvent(PetEvent.FolderChanged);
 	};
 
 	return (

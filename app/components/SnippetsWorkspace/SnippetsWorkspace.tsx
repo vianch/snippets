@@ -9,6 +9,7 @@ import CodeEditor from "@/components/CodeEditor/CodeEditor";
 import ResizableLayout from "@/components/ResizableLayout/ResizableLayout";
 import AccountModal from "@/components/AccountModal/AccountModal";
 import CommandPalette from "@/components/CommandPalette/CommandPalette";
+import SnipPet from "@/components/SnipPet/SnipPet";
 import ConfirmationModal from "@/components/ui/ConfirmationModal/ConfirmationModal";
 import Warning from "@/components/ui/icons/Warning";
 
@@ -29,9 +30,15 @@ import { getSmartGroups, saveSmartGroups } from "@/lib/supabase/queries";
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import { MenuItems, MenuPrefixes, SnippetState } from "@/lib/constants/core";
+import {
+	PetEvent,
+	PetExitNagCooldownMs,
+	PetExitPointerThresholdPx,
+} from "@/lib/constants/pets.constants";
 import { DefaultSettingsSection } from "@/lib/constants/settings.constants";
 import { buildSettingsHash } from "@/utils/settings.utils";
 import { ToastType } from "@/lib/constants/toast";
+import { emitPetEvent } from "@/lib/store/pet.store";
 import useToastStore from "@/lib/store/toast.store";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import { findSnippetByName } from "@/lib/wikiLinkResolver";
@@ -330,6 +337,7 @@ const SnippetsWorkspace = ({
 					type: ToastType.Success,
 					message: "Snippet saved successfully",
 				});
+				emitPetEvent(PetEvent.SnippetSaved);
 			}
 		} else {
 			if (codeEditorStates.touched) {
@@ -337,6 +345,7 @@ const SnippetsWorkspace = ({
 					type: ToastType.Warning,
 					message: "Cannot save snippet without a name or content",
 				});
+				emitPetEvent(PetEvent.SnippetSaveFailed);
 			}
 
 			setTimeout(() => {
@@ -402,6 +411,11 @@ const SnippetsWorkspace = ({
 				? favoritesCount + 1
 				: favoritesCount - 1
 		);
+		emitPetEvent(
+			toggledState === SnippetState.Favorite
+				? PetEvent.FavoriteAdded
+				: PetEvent.FavoriteRemoved
+		);
 
 		await setSnippetState(snippet.snippet_id, toggledState);
 	};
@@ -440,6 +454,7 @@ const SnippetsWorkspace = ({
 
 	const newSnippetHandler = (newSnippet: Snippet): void => {
 		if (newSnippet) {
+			emitPetEvent(PetEvent.SnippetCreated);
 			setSnippets((previousSnippets) => [newSnippet, ...previousSnippets]);
 
 			setCodedEditorStates((previousStates) => ({
@@ -561,6 +576,11 @@ const SnippetsWorkspace = ({
 
 		cloneSnippets.splice(foundIndex, 1);
 		setSnippets(cloneSnippets);
+		emitPetEvent(
+			state === SnippetState.Inactive
+				? PetEvent.SnippetTrashed
+				: PetEvent.SnippetRestored
+		);
 
 		// No `touched: true` here — trashing is not an edit, and flagging it made
 		// the editor auto-save the snippet that was just removed on the switch.
@@ -588,6 +608,7 @@ const SnippetsWorkspace = ({
 	const emptyTrashHandler = (): void => {
 		setSnippets([]);
 		setActiveSnippetId(null);
+		emitPetEvent(PetEvent.TrashEmptied);
 	};
 
 	const handleAccountClick = (): void => {
@@ -626,6 +647,7 @@ const SnippetsWorkspace = ({
 				type: ToastType.Success,
 				message: `Saved smart group "${trimmedName}"`,
 			});
+			emitPetEvent(PetEvent.SmartGroupSaved);
 		} catch {
 			setSmartGroups(smartGroups);
 			addToast({
@@ -727,6 +749,7 @@ const SnippetsWorkspace = ({
 			type: ToastType.Success,
 			message: `Imported "${upload.name}"`,
 		});
+		emitPetEvent(PetEvent.SnippetImported);
 	};
 
 	const createSnippetFromPalette = async (): Promise<void> => {
@@ -803,6 +826,36 @@ const SnippetsWorkspace = ({
 		return () => {
 			window.onbeforeunload = null;
 		};
+	}, [codeEditorStates.touched]);
+
+	// beforeunload can't render anything, so the pet nags a beat earlier: when the
+	// pointer leaves through the top of the viewport — heading for the tab strip
+	// or the close button — while there are unsaved changes.
+	useEffect(() => {
+		if (!codeEditorStates.touched) {
+			return;
+		}
+
+		let lastNagAt = 0;
+
+		const handlePointerOut = (event: PointerEvent): void => {
+			if (event.relatedTarget || event.clientY > PetExitPointerThresholdPx) {
+				return;
+			}
+
+			const now = performance.now();
+
+			if (now - lastNagAt < PetExitNagCooldownMs) {
+				return;
+			}
+
+			lastNagAt = now;
+			emitPetEvent(PetEvent.UnsavedExit);
+		};
+
+		document.addEventListener("pointerout", handlePointerOut);
+
+		return () => document.removeEventListener("pointerout", handlePointerOut);
 	}, [codeEditorStates.touched]);
 
 	return (
@@ -901,6 +954,7 @@ const SnippetsWorkspace = ({
 				onCancel={handleCancelCreateSnippet}
 				onConfirm={handleConfirmCreateSnippet}
 			/>
+			<SnipPet />
 		</>
 	);
 };

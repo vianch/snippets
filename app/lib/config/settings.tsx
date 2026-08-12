@@ -1,6 +1,7 @@
 import { SettingsSection } from "@/lib/constants/settings.constants";
 
 import Database from "@/components/ui/icons/Database";
+import PawPrint from "@/components/ui/icons/PawPrint";
 import Settings from "@/components/ui/icons/Settings";
 import Sparkle from "@/components/ui/icons/Sparkle";
 import User from "@/components/ui/icons/User";
@@ -20,6 +21,12 @@ export const settingsSections: SettingsSectionConfig[] = [
 		icon: <Settings width={IconSize} height={IconSize} />,
 		key: SettingsSection.Preferences,
 		label: "Preferences",
+	},
+	{
+		adminOnly: false,
+		icon: <PawPrint width={IconSize} height={IconSize} />,
+		key: SettingsSection.Pets,
+		label: "Pets",
 	},
 	{
 		adminOnly: false,

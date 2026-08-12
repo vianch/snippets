@@ -11,8 +11,10 @@ import {
 	ScrollPinThresholdPx,
 	UserRole,
 } from "@/lib/constants/ai";
+import { PetEvent } from "@/lib/constants/pets.constants";
 import { ToastType } from "@/lib/constants/toast";
 import useChatStore from "@/lib/store/chat.store";
+import { emitPetEvent } from "@/lib/store/pet.store";
 import useToastStore from "@/lib/store/toast.store";
 import { resolveWikiLinks } from "@/lib/wikiLinkResolver";
 
@@ -269,6 +271,7 @@ const useAiChat = ({
 		setStatus(ChatStatus.Processing);
 		setInputValue("");
 		setWikiContext(null);
+		emitPetEvent(PetEvent.AiStarted);
 		requestAnimationFrame(autosizeTextarea);
 
 		const historyForRequest: AiHistoryMessage[] =
@@ -359,6 +362,7 @@ const useAiChat = ({
 			setRevealedAnswer(response.result);
 			setThinkingText(response.thinking ?? "");
 			setStatus(ChatStatus.Answered);
+			emitPetEvent(PetEvent.AiCompleted);
 		} catch (requestError) {
 			cancelFlush();
 
@@ -369,6 +373,7 @@ const useAiChat = ({
 			if (streamedAnswer.trim().length > 0) {
 				setRevealedAnswer(streamedAnswer);
 				setStatus(ChatStatus.Answered);
+				emitPetEvent(PetEvent.AiCompleted);
 
 				return;
 			}
@@ -380,6 +385,7 @@ const useAiChat = ({
 
 			setErrorMessage(message);
 			setStatus(ChatStatus.Error);
+			emitPetEvent(PetEvent.AiFailed);
 		}
 	};
 

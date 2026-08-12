@@ -1,0 +1,7 @@
+{
+	"id": "skelly",
+	"displayName": "Skelly",
+	"description": "A tiny translucent retro floppy disk companion.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "object"
+}

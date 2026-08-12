@@ -5,6 +5,7 @@ import { useState, useRef, useEffect, useMemo, ChangeEvent } from "react";
 /* Lib */
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
+import { emitPetEvent } from "@/lib/store/pet.store";
 import useUserStore from "@/lib/store/user.store";
 import useToastStore from "@/lib/store/toast.store";
 import {
@@ -13,6 +14,7 @@ import {
 	MenuPrefixes,
 	SnippetState,
 } from "@/lib/constants/core";
+import { PetEvent } from "@/lib/constants/pets.constants";
 import { ToastType } from "@/lib/constants/toast";
 import {
 	getSnippetVersion,
@@ -117,6 +119,7 @@ const useCurrentSnippet = ({
 		const languageSelected = selectedLanguage ?? defaultLanguage;
 
 		setLanguageExtension(languageSelected as SupportedLanguages);
+		emitPetEvent(PetEvent.LanguageChanged);
 	};
 
 	const updateCurrentSnippetValue = (value: string): void => {
@@ -177,6 +180,11 @@ const useCurrentSnippet = ({
 
 		setCurrentSnippet(newCurrentSnippet);
 		onSave(newCurrentSnippet, fromButton);
+		emitPetEvent(
+			newCurrentSnippet.state === SnippetState.Favorite
+				? PetEvent.FavoriteAdded
+				: PetEvent.FavoriteRemoved
+		);
 
 		if (isFavoriteMenu) {
 			onStarred(newCurrentSnippet);
@@ -203,6 +211,7 @@ const useCurrentSnippet = ({
 
 		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
 		onTouched(true);
+		emitPetEvent(PetEvent.TagAdded);
 	};
 
 	const removeTagHandler = (tagRemoved: string): void => {
@@ -217,6 +226,7 @@ const useCurrentSnippet = ({
 
 		setCurrentSnippet({ ...currentSnippet, tags: updatedTags });
 		onTouched(true);
+		emitPetEvent(PetEvent.TagRemoved);
 	};
 
 	const togglePublicHandler = async (): Promise<void> => {
@@ -251,6 +261,12 @@ const useCurrentSnippet = ({
 				message: "Snippet is now private",
 			});
 		}
+
+		// After the toast, never before: with the pet on screen a toast becomes a
+		// bubble too, and whichever is emitted last is the one left on screen.
+		emitPetEvent(
+			newIsPublic ? PetEvent.SnippetPublished : PetEvent.SnippetUnpublished
+		);
 	};
 
 	const refreshVersionCount = (snippetId: UUID): void => {
@@ -293,6 +309,7 @@ const useCurrentSnippet = ({
 		onTouched(true);
 		setShowDetails(false);
 		refreshVersionCount(currentSnippet.snippet_id);
+		emitPetEvent(PetEvent.VersionRestored);
 	};
 
 	const saveHandler = (): void => {

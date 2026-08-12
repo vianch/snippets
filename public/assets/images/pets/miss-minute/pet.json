@@ -1,0 +1,7 @@
+{
+	"id": "miss-minute",
+	"displayName": "Miss Minute",
+	"description": "A friendly orange clock companion with white gloves, orange boots, black stick limbs, large eyes, and a hand-drawn watercolor cartoon look.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "person"
+}

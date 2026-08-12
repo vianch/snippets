@@ -1,0 +1,6 @@
+{
+	"id": "zoidberg",
+	"displayName": "Zoidberg",
+	"description": "A tiny Codex digital pet inspired by Zoidberg from Futurama, simplified into a chibi pixel-adjacent mascot.",
+	"spritesheetPath": "spritesheet.webp"
+}

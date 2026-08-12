@@ -1,0 +1,7 @@
+{
+	"id": "volley",
+	"displayName": "Volley",
+	"description": "A loyal castaway volleyball-inspired digital pet with a weathered white ball body, red handprint-style face marking, twig-like hair tufts, and tiny limbs.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "object"
+}

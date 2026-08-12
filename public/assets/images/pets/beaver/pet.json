@@ -1,0 +1,6 @@
+{
+	"id": "beaver",
+	"displayName": "Beaver",
+	"description": "A compact pixel-art-adjacent beaver companion with a flat tail and friendly workbench energy.",
+	"spritesheetPath": "spritesheet.webp"
+}

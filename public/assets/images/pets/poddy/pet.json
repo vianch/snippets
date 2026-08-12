@@ -1,0 +1,7 @@
+{
+	"id": "poddy",
+	"displayName": "Poddy",
+	"description": "A friendly tech-savvy flying robot companion from Runpod.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "creature"
+}

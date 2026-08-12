@@ -1,0 +1,7 @@
+{
+	"id": "bt-buddy",
+	"displayName": "BT Buddy",
+	"description": "A compact chibi BT-inspired titan companion with Titan Toons proportions.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "creature"
+}

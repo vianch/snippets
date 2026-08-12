@@ -1,0 +1,7 @@
+{
+	"id": "hooper",
+	"displayName": "Hooper",
+	"description": "A meme-style Codex basketball pet based on the user doll image.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "animal"
+}

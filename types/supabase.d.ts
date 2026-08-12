@@ -12,6 +12,8 @@ interface InitialAccountStateData {
 	aiModel?: string;
 	aiUrl?: string;
 	autoSave?: boolean;
+	petDesign?: string;
+	petEnabled?: boolean;
 }
 interface User {
 	id: string;
@@ -26,6 +28,8 @@ interface User {
 		ai_model?: string;
 		ai_url?: string;
 		auto_save?: boolean;
+		pet_design?: string;
+		pet_enabled?: boolean;
 		smart_groups?: SmartGroup[];
 	};
 	aud: string;

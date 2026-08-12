@@ -432,6 +432,22 @@
 	transition: color var(--duration-fast) var(--ease-fluid);
 }
 
+/* Resting pose of one pet design, centred in its picker tile. */
+.petPreview {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	width: 100%;
+	height: 5rem;
+}
+
+.petPixelPreview {
+	display: block;
+	width: 3.75rem;
+	height: 3.75rem;
+	color: var(--foreground-color);
+}
+
 .fontGrid {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
