@@ -13,6 +13,7 @@ import {
 /* Components */
 import Footer from "@/components/Footer/Footer";
 import NavHeader from "@/components/NavHeader/NavHeader";
+import SnipPet from "@/components/SnipPet/SnipPet";
 import FeatureBento from "@/components/landing/FeatureBento/FeatureBento";
 import Hero from "@/components/landing/Hero/Hero";
 import LanguageMarquee from "@/components/landing/LanguageMarquee/LanguageMarquee";
@@ -20,7 +21,6 @@ import PageStars from "@/components/landing/PageStars/PageStars";
 import Reveal from "@/components/landing/Reveal/Reveal";
 import SectionHeading from "@/components/landing/SectionHeading/SectionHeading";
 import ShortcutsShowcase from "@/components/landing/ShortcutsShowcase/ShortcutsShowcase";
-import SnipPet from "@/components/landing/SnipPet/SnipPet";
 import StatsBar from "@/components/landing/StatsBar/StatsBar";
 import ThemeShowcase from "@/components/landing/ThemeShowcase/ThemeShowcase";
 

@@ -5,6 +5,7 @@
 export const enum SettingsSection {
 	Ai = "ai",
 	Database = "database",
+	Pets = "pets",
 	Preferences = "preferences",
 	Profile = "profile",
 }
@@ -16,6 +17,7 @@ export const SettingsHashPrefix = "settings";
 export const SettingsSectionValues = [
 	SettingsSection.Ai,
 	SettingsSection.Database,
+	SettingsSection.Pets,
 	SettingsSection.Preferences,
 	SettingsSection.Profile,
 ] as const;

@@ -3,7 +3,9 @@
 import { useState } from "react";
 
 /* Lib */
+import { emitPetEvent } from "@/lib/store/pet.store";
 import useToastStore from "@/lib/store/toast.store";
+import { PetEvent } from "@/lib/constants/pets.constants";
 import { ToastType } from "@/lib/constants/toast";
 
 type UseSnippetActionsProps = {
@@ -38,6 +40,7 @@ const useSnippetActions = ({
 				type: ToastType.Success,
 				message: "Code copied to clipboard",
 			});
+			emitPetEvent(PetEvent.CodeCopied);
 		} catch (_error) {
 			addToast({
 				type: ToastType.Error,
@@ -61,6 +64,10 @@ const useSnippetActions = ({
 				message: "Code copied to clipboard for sharing",
 			});
 		}
+
+		// After the toast, never before: with the pet on screen a toast becomes a
+		// bubble too, and whichever is emitted last is the one left on screen.
+		emitPetEvent(PetEvent.SnippetShared);
 	};
 
 	const openAiChat = (): void => {

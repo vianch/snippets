@@ -1,0 +1,7 @@
+{
+	"id": "owlbert",
+	"displayName": "Owlbert",
+	"description": "A handsome owl companion for Codex.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "animal"
+}

@@ -8,6 +8,8 @@
 	"scripts": {
 		"init": "rm -rf package-lock.json && rm -rf yarn.lock && rm -rf yarn-error.log && rm -rf node_modules && yarn install",
 		"dev": "next dev",
+		"pets:sync": "node scripts/pets.sync.mjs",
+		"prebuild": "node scripts/pets.sync.mjs",
 		"build": "next build",
 		"start": "next start",
 		"lint:code-style": "eslint --fix ./",
@@ -91,6 +93,7 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
 		"prettier": "^3.8.1",
+		"sharp": "^0.35.0",
 		"stylelint": "^16.20.0",
 		"stylelint-config-standard": "^36.0.0",
 		"typescript": "^5.8.3",

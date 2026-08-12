@@ -1,0 +1,6 @@
+{
+	"id": "byte",
+	"displayName": "Byte",
+	"description": "A tiny terminal-cube companion for quiet coding sessions.",
+	"spritesheetPath": "spritesheet.webp"
+}

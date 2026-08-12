@@ -1,0 +1,6 @@
+{
+	"id": "pet-reference-robot",
+	"displayName": "BDX Droid",
+	"description": "The super cute, retro BDX robot from Star Wars/Disney Universe - here to help you and keep you company.",
+	"spritesheetPath": "spritesheet.webp"
+}

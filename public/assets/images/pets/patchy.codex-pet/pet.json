@@ -1,0 +1,9 @@
+{
+	"id": "patchy",
+	"displayName": "Patchy",
+	"description": "A compact patchwork workspace companion inspired by recent redesign, prototype, video capture, and Mac app projects.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "object",
+	"source": "codex-pets.net",
+	"sourceId": "patchy"
+}

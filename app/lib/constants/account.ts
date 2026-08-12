@@ -1,5 +1,6 @@
 import { ThemeNames } from "@/lib/config/themes";
 import { DefaultFontName } from "@/lib/config/fonts";
+import { DefaultPetDesignId } from "@/lib/constants/pets.constants";
 
 export const avatarImages = [
 	"/assets/images/avatars/frog.png",
@@ -36,6 +37,8 @@ export const accountInitialStateData: InitialAccountStateData = {
 	aiModel: "",
 	aiUrl: "",
 	autoSave: false,
+	petDesign: DefaultPetDesignId,
+	petEnabled: true,
 };
 
 export const aiProviders: { value: AiProvider; label: string }[] = [

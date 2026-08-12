@@ -13,6 +13,8 @@ export default tseslint.config(
 			"build/",
 			"storybook-static/",
 			"public/sqlite-wasm/",
+			// Rewritten by scripts/pets.sync.mjs on every build.
+			"app/lib/constants/pets.generated.ts",
 		],
 	},
 	eslint.configs.recommended,

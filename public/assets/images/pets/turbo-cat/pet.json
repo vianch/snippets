@@ -1,0 +1,7 @@
+{
+	"id": "turbo-cat",
+	"displayName": "Turbo Cat",
+	"description": "A tiny white lucky-cat desktop pet inspired by Turbo Granny's cat form, with sleepy lashes, red ears, collar bell, and gold belly charm.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "animal"
+}

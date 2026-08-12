@@ -13,6 +13,9 @@ yarn.lock
 # Generated
 storybook-static/
 next-env.d.ts
+# Rewritten by scripts/pets.sync.mjs on every build — formatting it here would
+# fight the generator and churn the diff.
+app/lib/constants/pets.generated.ts
 
 # Vendored SQLite WASM (served from /public, not our source)
 public/sqlite-wasm/

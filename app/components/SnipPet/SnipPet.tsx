@@ -41,6 +41,7 @@ import {
 	PetModes,
 	PetPixelSizePx,
 	PetReactionDurationMs,
+	PetReviewingFrame,
 	PetScaredMessages,
 	PetShakeDecayPerSecond,
 	PetShakeMaxEnergy,
@@ -49,10 +50,38 @@ import {
 	PetShakeTriggerEnergy,
 	PetWalkFrames,
 	PetWalkSpeedPxPerSecond,
+	PetWorkingFrame,
 } from "@/lib/constants/snipPet";
+import {
+	PetEvent,
+	PetIdleChatterMaxMs,
+	PetIdleChatterMinMs,
+	PetSpriteFrameHeightPx,
+	PetSpriteFrameIntervalMs,
+	PetSpriteFrameWidthPx,
+} from "@/lib/constants/pets.constants";
+import {
+	petDesignCookieName,
+	petEnabledCookieName,
+} from "@/lib/constants/cookies";
+import { getCookie } from "@/lib/cookies";
+
+/* Store */
+import usePetStore, { emitPetEvent } from "@/lib/store/pet.store";
+import useUserStore from "@/lib/store/user.store";
+
+/* Components */
+import SnipPetPixels from "@/components/SnipPet/SnipPetPixels";
+import SnipPetSprite from "@/components/SnipPet/SnipPetSprite";
 
 /* Utils */
-import { frameToCells } from "@/utils/snipPet.utils";
+import {
+	findPetDesign,
+	isValidPetDesign,
+	randomIntBetween,
+	spriteFrameCountForRow,
+	spriteRowForMode,
+} from "@/utils/pet.utils";
 
 /* Types */
 import type { PetFacing, PetMode } from "@/lib/constants/snipPet";
@@ -66,12 +95,20 @@ const SnipPet = (): ReactElement => {
 	const [legFrameIndex, setLegFrameIndex] = useState<number>(0);
 	const [message, setMessage] = useState<string | null>(null);
 
+	const petEnabled = useUserStore((store) => store.petEnabled);
+	const petDesignId = useUserStore((store) => store.petDesign);
+	const setPetPreferences = useUserStore((store) => store.setPetPreferences);
+	const setPetActive = usePetStore((store) => store.setPetActive);
+	const signal = usePetStore((store) => store.signal);
+
 	const containerRef = useRef<HTMLDivElement>(null);
 	const positionRef = useRef<number>(PetEdgePaddingPx);
 	const facingRef = useRef<PetFacing>(PetFacings.Right);
 	const liftRef = useRef<number>(0);
 	const modeRef = useRef<PetMode>(PetModes.Walking);
 	const legAccumulatorRef = useRef<number>(0);
+	const spriteAccumulatorRef = useRef<number>(0);
+	const spriteFrameRef = useRef<number>(0);
 	const walkUntilRef = useRef<number>(0);
 	const idleUntilRef = useRef<number>(0);
 	const lastTimestampRef = useRef<number | null>(null);
@@ -83,6 +120,7 @@ const SnipPet = (): ReactElement => {
 	const landingCountRef = useRef<number>(0);
 	const dizzyCountRef = useRef<number>(0);
 	const reactionTimeoutRef = useRef<number>(0);
+	const chatterTimeoutRef = useRef<number>(0);
 	const fallVelocityRef = useRef<number>(0);
 	const impactRef = useRef<number>(0);
 	const landingUntilRef = useRef<number>(0);
@@ -94,8 +132,17 @@ const SnipPet = (): ReactElement => {
 		null
 	);
 
-	const petWidthPx = PetGridWidth * PetPixelSizePx;
-	const petHeightPx = PetGridHeight * PetPixelSizePx;
+	const design = useMemo<PetDesign>(
+		() => findPetDesign(petDesignId),
+		[petDesignId]
+	);
+	const isSprite = design.spritesheetUrl !== null;
+	const petWidthPx = isSprite
+		? PetSpriteFrameWidthPx
+		: PetGridWidth * PetPixelSizePx;
+	const petHeightPx = isSprite
+		? PetSpriteFrameHeightPx
+		: PetGridHeight * PetPixelSizePx;
 
 	const activeFrame = useMemo<PetFrame>(() => {
 		if (mode === PetModes.Afraid) {
@@ -126,17 +173,20 @@ const SnipPet = (): ReactElement => {
 			return PetDazedFrame;
 		}
 
+		if (mode === PetModes.Working) {
+			return PetWorkingFrame;
+		}
+
+		if (mode === PetModes.Reviewing) {
+			return PetReviewingFrame;
+		}
+
 		if (mode === PetModes.Walking) {
 			return PetWalkFrames[legFrameIndex] ?? PetIdleFrame;
 		}
 
 		return PetIdleFrame;
 	}, [legFrameIndex, mode]);
-
-	const cells = useMemo<PetCell[]>(
-		() => frameToCells(activeFrame),
-		[activeFrame]
-	);
 
 	const updateMode = (nextMode: PetMode): void => {
 		modeRef.current = nextMode;
@@ -150,6 +200,15 @@ const SnipPet = (): ReactElement => {
 			return;
 		}
 
+		const row = spriteRowForMode(modeRef.current);
+
+		container.style.setProperty("--pet-row", String(row));
+		container.style.setProperty(
+			"--pet-frame",
+			String(spriteFrameRef.current % spriteFrameCountForRow(design, row))
+		);
+		// Sprites mirror the same as the pixel pet — see spriteRowForMode for why
+		// the sheets' own run-left row can't be trusted to face left.
 		container.style.setProperty("--pet-facing", String(facingRef.current));
 		container.style.setProperty("--pet-impact", String(impactRef.current));
 		container.style.transform = `translate3d(${Math.round(
@@ -157,23 +216,52 @@ const SnipPet = (): ReactElement => {
 		)}px, ${-Math.round(liftRef.current)}px, 0)`;
 	};
 
+	// Shared entry point for every scripted mood change: a click, an app event,
+	// unprompted chatter, or a redirected toast. While physics owns the pet
+	// (held, falling, being shaken) only the bubble is shown — changing the mode
+	// there would strand it mid-air or cancel the drag, and swallowing the text
+	// outright would lose an error the toast strip is no longer rendering.
+	const playReaction = (
+		nextMode: PetMode,
+		bubble: string | null,
+		durationMs: number
+	): void => {
+		const current = modeRef.current;
+		const isPhysicsOwned =
+			current === PetModes.Grabbed ||
+			current === PetModes.Falling ||
+			current === PetModes.Dizzy ||
+			current === PetModes.Afraid;
+
+		setMessage(bubble);
+		window.clearTimeout(reactionTimeoutRef.current);
+
+		if (!isPhysicsOwned) {
+			liftRef.current = 0;
+			updateMode(nextMode);
+		}
+
+		reactionTimeoutRef.current = window.setTimeout(() => {
+			setMessage(null);
+
+			if (!isPhysicsOwned) {
+				walkUntilRef.current = 0;
+				updateMode(PetModes.Walking);
+			}
+		}, durationMs);
+	};
+
 	const triggerClickReaction = (): void => {
 		const index = reactionCountRef.current % PetMessages.length;
 
 		reactionExcitedRef.current = !reactionExcitedRef.current;
 		reactionCountRef.current += 1;
-		liftRef.current = 0;
-		setMessage(PetMessages[index] ?? null);
-		updateMode(
-			reactionExcitedRef.current ? PetModes.Excited : PetModes.Celebrating
-		);
-		window.clearTimeout(reactionTimeoutRef.current);
 
-		reactionTimeoutRef.current = window.setTimeout(() => {
-			setMessage(null);
-			walkUntilRef.current = 0;
-			updateMode(PetModes.Walking);
-		}, PetReactionDurationMs);
+		playReaction(
+			reactionExcitedRef.current ? PetModes.Excited : PetModes.Celebrating,
+			PetMessages[index] ?? null,
+			PetReactionDurationMs
+		);
 	};
 
 	const handlePointerDown = (
@@ -252,6 +340,8 @@ const SnipPet = (): ReactElement => {
 			shakeDirectionRef.current = 0;
 
 			if (wasClick) {
+				// playReaction refuses to interrupt a grab, so drop out of it first.
+				modeRef.current = PetModes.Walking;
 				triggerClickReaction();
 
 				return;
@@ -294,6 +384,22 @@ const SnipPet = (): ReactElement => {
 		}
 	};
 
+	// Seed the store from the cookies the settings modal writes, so the pet the
+	// user picked is already on screen before anything queries the session.
+	useEffect(() => {
+		const storedDesign = getCookie(petDesignCookieName);
+		const storedEnabled = getCookie(petEnabledCookieName);
+
+		setPetPreferences({
+			...(isValidPetDesign(storedDesign) && storedDesign
+				? { petDesign: storedDesign }
+				: {}),
+			...(storedEnabled === null
+				? {}
+				: { petEnabled: storedEnabled === String(true) }),
+		});
+	}, [setPetPreferences]);
+
 	useEffect(() => {
 		const query = window.matchMedia(
 			`(min-width: ${PetDesktopMinWidthPx}px) and (pointer: fine)`
@@ -307,8 +413,48 @@ const SnipPet = (): ReactElement => {
 		return () => query.removeEventListener("change", sync);
 	}, []);
 
+	// Tell the rest of the app the pet is really on screen, so the toast store
+	// knows to hand its messages over instead of rendering them itself.
 	useEffect(() => {
-		if (!isDesktop) {
+		setPetActive(isDesktop && petEnabled);
+
+		return () => setPetActive(false);
+	}, [isDesktop, petEnabled, setPetActive]);
+
+	// React to app events (a save, a new tag, an AI answer) and to toasts the
+	// store redirected here. The nonce in the signal is what re-fires the effect
+	// when the same message repeats.
+	useEffect(() => {
+		if (!signal || !isDesktop || !petEnabled) {
+			return;
+		}
+
+		playReaction(signal.mode, signal.message, signal.durationMs);
+	}, [signal?.nonce]);
+
+	// Unprompted chatter on a random 30s-5min timer, re-rolled after each line.
+	useEffect(() => {
+		if (!isDesktop || !petEnabled) {
+			return;
+		}
+
+		const schedule = (): void => {
+			chatterTimeoutRef.current = window.setTimeout(
+				() => {
+					emitPetEvent(PetEvent.IdleChatter);
+					schedule();
+				},
+				randomIntBetween(PetIdleChatterMinMs, PetIdleChatterMaxMs)
+			);
+		};
+
+		schedule();
+
+		return () => window.clearTimeout(chatterTimeoutRef.current);
+	}, [isDesktop, petEnabled]);
+
+	useEffect(() => {
+		if (!isDesktop || !petEnabled) {
 			return;
 		}
 
@@ -332,6 +478,15 @@ const SnipPet = (): ReactElement => {
 			const maxX = window.innerWidth - petWidthPx - PetEdgePaddingPx;
 
 			lastTimestampRef.current = timestamp;
+
+			// Sprite rows animate in every mood, not just while walking, so the
+			// frame counter advances independently of the pixel pet's leg cycle.
+			spriteAccumulatorRef.current += deltaMs;
+
+			if (spriteAccumulatorRef.current >= PetSpriteFrameIntervalMs) {
+				spriteAccumulatorRef.current = 0;
+				spriteFrameRef.current += 1;
+			}
 
 			if (shakeEnergyRef.current > 0) {
 				shakeEnergyRef.current = Math.max(
@@ -469,9 +624,9 @@ const SnipPet = (): ReactElement => {
 			cancelAnimationFrame(animationFrameRef.current);
 			window.clearTimeout(reactionTimeoutRef.current);
 		};
-	}, [isDesktop]);
+	}, [isDesktop, petEnabled, design.id]);
 
-	if (!isDesktop) {
+	if (!isDesktop || !petEnabled) {
 		return <></>;
 	}
 
@@ -494,20 +649,11 @@ const SnipPet = (): ReactElement => {
 
 			<span className={styles.facing}>
 				<span className={styles.motion}>
-					<svg
-						className={styles.sprite}
-						viewBox={`0 0 ${PetGridWidth} ${PetGridHeight}`}
-					>
-						{cells.map((cell) => (
-							<rect
-								height={1}
-								key={`${cell.x}-${cell.y}`}
-								width={1}
-								x={cell.x}
-								y={cell.y}
-							/>
-						))}
-					</svg>
+					{design.spritesheetUrl ? (
+						<SnipPetSprite spritesheetUrl={design.spritesheetUrl} />
+					) : (
+						<SnipPetPixels frame={activeFrame} />
+					)}
 				</span>
 			</span>
 		</div>

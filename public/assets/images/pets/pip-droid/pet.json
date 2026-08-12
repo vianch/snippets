@@ -1,0 +1,7 @@
+{
+	"id": "pip-droid",
+	"displayName": "Pip",
+	"description": "A tiny orange and teal PIP repair droid with a chipper handheld-tool personality.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "person"
+}

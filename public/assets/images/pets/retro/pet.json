@@ -1,0 +1,7 @@
+{
+	"id": "retro",
+	"displayName": "Retro",
+	"description": "A chunky retro Tamagotchi-style digital pet with an LCD-toy personality.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "creature"
+}

@@ -1,0 +1,7 @@
+{
+	"id": "signal",
+	"displayName": "Signal",
+	"description": "A compact terminal-like Codex companion with a rounded white shell, black screen face, cyan eyes, and a calm smile.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "creature"
+}

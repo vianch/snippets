@@ -1,0 +1,7 @@
+{
+	"id": "patch-og",
+	"displayName": "Patch",
+	"description": "A tiny repair-bot companion for calm debugging and operational cleanup.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "object"
+}

@@ -1,0 +1,7 @@
+{
+	"id": "gat-reaper",
+	"displayName": "Gat Reaper",
+	"description": "A tiny black-gat Korean grim reaper dancer with fierce glowing eyes and sharp face-framing finger poses.",
+	"spritesheetPath": "spritesheet.webp",
+	"kind": "person"
+}
