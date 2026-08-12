@@ -10,6 +10,11 @@ type EditorHeightParams = {
 // distraction-free writing is active.
 const focusModeBarHeight = "3rem";
 
+// Mobile and tablet measure against dvh, not vh: vh is the large viewport, so a
+// vh-sized pane runs underneath the browser's URL/toolbar. The inset also keeps
+// the pane clear of the home-indicator area the bottom bars pad for.
+const mobileSafeArea = "env(safe-area-inset-bottom, 0px)";
+
 export const calculateEditorHeight = ({
 	hasMarkdownToolbar,
 	hasRightPane,
@@ -18,11 +23,13 @@ export const calculateEditorHeight = ({
 	isTrashActive,
 }: EditorHeightParams): string => {
 	if (isFocusMode) {
-		return `calc(100vh - ${focusModeBarHeight})`;
+		return `calc(100dvh - ${focusModeBarHeight})`;
 	}
 
 	if (isMobile && !isTrashActive) {
-		return hasRightPane ? "calc(50vh - 3.4rem)" : "calc(100vh - 6.5rem)";
+		return hasRightPane
+			? `calc(50dvh - 3.4rem - (${mobileSafeArea} / 2))`
+			: `calc(100dvh - 6.5rem - ${mobileSafeArea})`;
 	}
 
 	if (isTrashActive && !isMobile) {
@@ -30,7 +37,7 @@ export const calculateEditorHeight = ({
 	}
 
 	if (isTrashActive && isMobile) {
-		return "calc(100vh - 3.2rem)";
+		return `calc(100dvh - 3.2rem - ${mobileSafeArea})`;
 	}
 
 	if (hasMarkdownToolbar) {
@@ -45,11 +52,11 @@ export const calculatePreviewHeight = (
 	isFocusMode: boolean = false
 ): string => {
 	if (isFocusMode) {
-		return `calc(100vh - ${focusModeBarHeight})`;
+		return `calc(100dvh - ${focusModeBarHeight})`;
 	}
 
 	if (isMobile) {
-		return "calc(50vh - 3.4rem)";
+		return `calc(50dvh - 3.4rem - (${mobileSafeArea} / 2))`;
 	}
 
 	return "calc(100vh - 3.25rem)";
@@ -58,4 +65,4 @@ export const calculatePreviewHeight = (
 // Full-height single pane used by the mobile AI Code|Chat tab switcher: total
 // viewport minus the merged header row + tab bar (top) and the editor action bar +
 // nav bar (bottom).
-export const chatTabPaneHeight = "calc(100vh - 12.3rem)";
+export const chatTabPaneHeight = `calc(100dvh - 12.3rem - ${mobileSafeArea})`;

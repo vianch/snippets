@@ -412,13 +412,14 @@
 }
 
 @media (width < 1140px) {
-	/* Snippet list becomes a left slide-in drawer over the editor. */
+	/* Snippet list becomes a left slide-in drawer over the editor. dvh keeps its
+	   bottom above the mobile browser bar, same as the Aside drawer. */
 	.snippetsListContainer {
 		position: fixed;
 		top: 0;
 		left: 0;
 		z-index: 8;
-		height: calc(100vh - 50px);
+		height: calc(100dvh - 50px - env(safe-area-inset-bottom, 0px));
 		width: min(88vw, 22rem);
 		max-width: none;
 		box-shadow: var(--card-shadow);
@@ -430,7 +431,7 @@
 	}
 
 	.snippetsList {
-		height: calc(100vh - 50px - 3.2rem);
+		height: calc(100dvh - 50px - 3.2rem - env(safe-area-inset-bottom, 0px));
 	}
 
 	.mobileListOpen {

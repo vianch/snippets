@@ -501,6 +501,8 @@
 }
 
 @media (width < 1140px) {
+	/* Bottom bar clears the home indicator / gesture area so its own buttons are
+	   not the ones sitting under the phone chrome. */
 	.mobileMenuContainer {
 		width: 100%;
 		position: fixed;
@@ -508,6 +510,7 @@
 		bottom: 0;
 		z-index: 9;
 		height: 50px;
+		padding-bottom: env(safe-area-inset-bottom, 0);
 		max-width: 100%;
 		left: 0;
 		background: var(--bg-color-dark);
@@ -524,13 +527,15 @@
 		animation: backdrop-fade-in 0.2s ease;
 	}
 
-	/* Sidebar becomes a left slide-in drawer. */
+	/* Sidebar becomes a left slide-in drawer. dvh, not vh: vh is the *large*
+	   viewport on mobile, so the bottom of the drawer — the user card and its
+	   settings menu — ends up behind the browser's own URL/toolbar. */
 	.container {
 		position: fixed;
 		left: 0;
 		top: 0;
 		z-index: 8;
-		height: calc(100vh - 50px);
+		height: calc(100dvh - 50px - env(safe-area-inset-bottom, 0px));
 		width: min(82vw, 17rem);
 		max-width: none;
 		box-shadow: var(--card-shadow);
