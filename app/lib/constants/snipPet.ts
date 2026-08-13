@@ -8,14 +8,48 @@ export const PetGridHeight = 12;
 /* Rendered size of a single sprite pixel, in CSS pixels. */
 export const PetPixelSizePx = 5;
 
-/* Motion tuning. */
-export const PetWalkSpeedPxPerSecond = 44;
-export const PetLegFrameIntervalMs = 160;
+/*
+ * Motion tuning.
+ *
+ * Walk speed is paired with the sprite run cycle: the run row is 8 frames at
+ * PetSpriteFrameIntervalMs (800ms), so at this speed the pet covers ~62px per
+ * cycle — roughly a stride per step instead of skating along the floor. Retune
+ * the two together, or the feet start sliding again.
+ *
+ * ponytail: eyeballed against the shipped sheets, not measured per design.
+ */
+export const PetWalkSpeedPxPerSecond = 78;
+export const PetLegFrameIntervalMs = 120;
 export const PetEdgePaddingPx = 18;
 export const PetGroundOffsetPx = 10;
-export const PetIdlePauseMs = 1600;
-export const PetMinWalkBeforeIdleMs = 2600;
-export const PetMaxWalkBeforeIdleMs = 6000;
+
+/*
+ * The pet stands still while the app is being used. It only wanders off once
+ * the page has gone this long without a pointer, key, wheel or scroll event —
+ * re-rolled every time so it doesn't set off like a metronome — and it stops
+ * again the moment the user touches anything.
+ */
+export const PetMinIdleBeforeWalkMs = 10000;
+export const PetMaxIdleBeforeWalkMs = 30000;
+
+/*
+ * The one walk that isn't triggered by boredom: on arrival the pet strolls in
+ * from its corner so the user actually notices it, then settles and falls into
+ * the normal stand-still-until-idle cycle. Any interaction cuts it short.
+ */
+export const PetIntroWalkMs = 5000;
+
+/*
+ * What counts as "the app is being used". Listened for on document in the
+ * capture phase, because scroll doesn't bubble.
+ */
+export const PetActivityEvents = [
+	"keydown",
+	"pointerdown",
+	"pointermove",
+	"scroll",
+	"wheel",
+] as const;
 
 /* How long a click reaction (celebrating / excited) plays before walking again. */
 export const PetReactionDurationMs = 1400;

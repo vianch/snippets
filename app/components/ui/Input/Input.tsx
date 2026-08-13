@@ -11,6 +11,7 @@ import {
 import styles from "./input.module.css";
 
 const Input = ({
+	autoComplete,
 	className = "",
 	cleanOnBlur = false,
 	fat = false,
@@ -18,6 +19,7 @@ const Input = ({
 	dark = true,
 	disabled = false,
 	disableMargin = false,
+	name,
 	type = "text",
 	placeholder = "",
 	required = false,
@@ -79,6 +81,10 @@ const Input = ({
 			<input
 				className={`${styles.input} ${ghost ? styles.inputGhost : dark ? styles.inputDark : styles.inputLight} ${className}`}
 				type={type}
+				// Both were accepted as props but never reached the DOM, so callers
+				// had no way to tell a browser not to autofill a field.
+				autoComplete={autoComplete}
+				name={name}
 				onBlur={handlerOnBlur}
 				value={updatedValue}
 				contentEditable

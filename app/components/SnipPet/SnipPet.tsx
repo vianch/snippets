@@ -11,6 +11,7 @@ import {
 
 /* Constants */
 import {
+	PetActivityEvents,
 	PetAfraidFrame,
 	PetAfraidLiftThresholdPx,
 	PetClickMovementThresholdPx,
@@ -30,14 +31,14 @@ import {
 	PetHappyFrame,
 	PetHardImpactRatio,
 	PetIdleFrame,
-	PetIdlePauseMs,
+	PetIntroWalkMs,
 	PetLandingDurationMs,
 	PetLandingMessages,
 	PetLegFrameIntervalMs,
+	PetMaxIdleBeforeWalkMs,
 	PetMaxImpactSpeedPxPerSecond,
-	PetMaxWalkBeforeIdleMs,
 	PetMessages,
-	PetMinWalkBeforeIdleMs,
+	PetMinIdleBeforeWalkMs,
 	PetModes,
 	PetPixelSizePx,
 	PetReactionDurationMs,
@@ -56,9 +57,11 @@ import {
 	PetEvent,
 	PetIdleChatterMaxMs,
 	PetIdleChatterMinMs,
+	PetIdleHoldMaxMs,
+	PetIdleHoldMinMs,
 	PetSpriteFrameHeightPx,
-	PetSpriteFrameIntervalMs,
 	PetSpriteFrameWidthPx,
+	PetSpriteRow,
 } from "@/lib/constants/pets.constants";
 import {
 	petDesignCookieName,
@@ -80,6 +83,7 @@ import {
 	isValidPetDesign,
 	randomIntBetween,
 	spriteFrameCountForRow,
+	spriteFrameIntervalForRow,
 	spriteRowForMode,
 } from "@/utils/pet.utils";
 
@@ -94,6 +98,7 @@ const SnipPet = (): ReactElement => {
 	const [mode, setMode] = useState<PetMode>(PetModes.Walking);
 	const [legFrameIndex, setLegFrameIndex] = useState<number>(0);
 	const [message, setMessage] = useState<string | null>(null);
+	const [startPositionPx, setStartPositionPx] = useState<number>(0);
 
 	const petEnabled = useUserStore((store) => store.petEnabled);
 	const petDesignId = useUserStore((store) => store.petDesign);
@@ -109,8 +114,10 @@ const SnipPet = (): ReactElement => {
 	const legAccumulatorRef = useRef<number>(0);
 	const spriteAccumulatorRef = useRef<number>(0);
 	const spriteFrameRef = useRef<number>(0);
-	const walkUntilRef = useRef<number>(0);
-	const idleUntilRef = useRef<number>(0);
+	const spriteRowRef = useRef<PetSpriteRow>(PetSpriteRow.Idle);
+	const idleHoldRef = useRef<number>(PetIdleHoldMinMs);
+	const walkAtRef = useRef<number>(0);
+	const introUntilRef = useRef<number>(0);
 	const lastTimestampRef = useRef<number | null>(null);
 	const animationFrameRef = useRef<number>(0);
 	const isAnimatingRef = useRef<boolean>(false);
@@ -193,6 +200,20 @@ const SnipPet = (): ReactElement => {
 		setMode(nextMode);
 	};
 
+	// Stand still and start the boredom countdown over. Every path that ends a
+	// mood — a reaction finishing, a drop landing, a drag being released — comes
+	// through here, so the pet always returns to being motionless and only walks
+	// again once the app has been left alone for the whole stretch.
+	const settleAndArmWalk = (): void => {
+		// Clearing the intro here is what stops a cut-short arrival walk from
+		// expiring again under the next boredom walk.
+		introUntilRef.current = 0;
+		walkAtRef.current =
+			performance.now() +
+			randomIntBetween(PetMinIdleBeforeWalkMs, PetMaxIdleBeforeWalkMs);
+		updateMode(PetModes.Idle);
+	};
+
 	const renderPetTransform = (): void => {
 		const container = containerRef.current;
 
@@ -211,9 +232,11 @@ const SnipPet = (): ReactElement => {
 		// the sheets' own run-left row can't be trusted to face left.
 		container.style.setProperty("--pet-facing", String(facingRef.current));
 		container.style.setProperty("--pet-impact", String(impactRef.current));
-		container.style.transform = `translate3d(${Math.round(
-			positionRef.current
-		)}px, ${-Math.round(liftRef.current)}px, 0)`;
+		// Deliberately sub-pixel: rounding to whole pixels made the pet hold still
+		// for a frame and then jump a pixel, which is what read as chunky walking.
+		container.style.transform = `translate3d(${positionRef.current.toFixed(
+			2
+		)}px, ${(-liftRef.current).toFixed(2)}px, 0)`;
 	};
 
 	// Shared entry point for every scripted mood change: a click, an app event,
@@ -245,8 +268,7 @@ const SnipPet = (): ReactElement => {
 			setMessage(null);
 
 			if (!isPhysicsOwned) {
-				walkUntilRef.current = 0;
-				updateMode(PetModes.Walking);
+				settleAndArmWalk();
 			}
 		}, durationMs);
 	};
@@ -341,7 +363,7 @@ const SnipPet = (): ReactElement => {
 
 			if (wasClick) {
 				// playReaction refuses to interrupt a grab, so drop out of it first.
-				modeRef.current = PetModes.Walking;
+				modeRef.current = PetModes.Idle;
 				triggerClickReaction();
 
 				return;
@@ -357,8 +379,7 @@ const SnipPet = (): ReactElement => {
 			}
 
 			liftRef.current = 0;
-			walkUntilRef.current = 0;
-			updateMode(PetModes.Walking);
+			settleAndArmWalk();
 
 			if (!isAnimatingRef.current) {
 				renderPetTransform();
@@ -367,21 +388,6 @@ const SnipPet = (): ReactElement => {
 
 		window.addEventListener("pointermove", handleMove);
 		window.addEventListener("pointerup", handleUp);
-	};
-
-	const handlePointerEnter = (): void => {
-		if (modeRef.current === PetModes.Walking) {
-			idleUntilRef.current = 0;
-			walkUntilRef.current = 0;
-			updateMode(PetModes.Idle);
-		}
-	};
-
-	const handlePointerLeave = (): void => {
-		if (modeRef.current === PetModes.Idle && idleUntilRef.current === 0) {
-			walkUntilRef.current = 0;
-			updateMode(PetModes.Walking);
-		}
 	};
 
 	// Seed the store from the cookies the settings modal writes, so the pet the
@@ -405,13 +411,26 @@ const SnipPet = (): ReactElement => {
 			`(min-width: ${PetDesktopMinWidthPx}px) and (pointer: fine)`
 		);
 
-		const sync = (): void => setIsDesktop(query.matches);
+		// Seeded here rather than in the animation effect so the position is
+		// already right on the render that first mounts the pet — otherwise it
+		// paints one frame in the bottom-left before the loop moves it over.
+		const sync = (): void => {
+			const startX = Math.max(
+				PetEdgePaddingPx,
+				window.innerWidth - petWidthPx - PetEdgePaddingPx
+			);
+
+			positionRef.current = startX;
+			facingRef.current = PetFacings.Left;
+			setStartPositionPx(startX);
+			setIsDesktop(query.matches);
+		};
 
 		sync();
 		query.addEventListener("change", sync);
 
 		return () => query.removeEventListener("change", sync);
-	}, []);
+	}, [petWidthPx]);
 
 	// Tell the rest of the app the pet is really on screen, so the toast store
 	// knows to hand its messages over instead of rendering them itself.
@@ -453,6 +472,42 @@ const SnipPet = (): ReactElement => {
 		return () => window.clearTimeout(chatterTimeoutRef.current);
 	}, [isDesktop, petEnabled]);
 
+	// The pet is a boredom indicator: any sign of life in the page parks it and
+	// restarts the countdown, so it is only ever walking while the user isn't
+	// doing anything. Capture phase because scroll doesn't bubble, and passive
+	// because none of this ever calls preventDefault.
+	useEffect(() => {
+		if (!isDesktop || !petEnabled) {
+			return;
+		}
+
+		const handleActivity = (): void => {
+			if (modeRef.current === PetModes.Walking) {
+				settleAndArmWalk();
+
+				return;
+			}
+
+			walkAtRef.current =
+				performance.now() +
+				randomIntBetween(PetMinIdleBeforeWalkMs, PetMaxIdleBeforeWalkMs);
+		};
+
+		PetActivityEvents.forEach((eventName: string): void =>
+			document.addEventListener(eventName, handleActivity, {
+				capture: true,
+				passive: true,
+			})
+		);
+
+		return () =>
+			PetActivityEvents.forEach((eventName: string): void =>
+				document.removeEventListener(eventName, handleActivity, {
+					capture: true,
+				})
+			);
+	}, [isDesktop, petEnabled]);
+
 	useEffect(() => {
 		if (!isDesktop || !petEnabled) {
 			return;
@@ -472,6 +527,12 @@ const SnipPet = (): ReactElement => {
 
 		isAnimatingRef.current = true;
 
+		// The arrival stroll. Only armed if the pet is actually walking, so a
+		// design swap while it is standing still doesn't kick off a second one.
+		if (modeRef.current === PetModes.Walking) {
+			introUntilRef.current = performance.now() + PetIntroWalkMs;
+		}
+
 		const step = (timestamp: number): void => {
 			const previous = lastTimestampRef.current ?? timestamp;
 			const deltaMs = Math.min(timestamp - previous, 48);
@@ -481,11 +542,42 @@ const SnipPet = (): ReactElement => {
 
 			// Sprite rows animate in every mood, not just while walking, so the
 			// frame counter advances independently of the pixel pet's leg cycle.
+			const spriteRow = spriteRowForMode(modeRef.current);
+			const spriteFrameCount = spriteFrameCountForRow(design, spriteRow);
+
+			// A new mood is a new animation: start it on its own first frame at its
+			// own pace instead of inheriting the previous row's position mid-cycle.
+			if (spriteRow !== spriteRowRef.current) {
+				spriteRowRef.current = spriteRow;
+				spriteAccumulatorRef.current = 0;
+				spriteFrameRef.current = 0;
+			}
+
+			// Sitting on frame 0 of the idle row means eyes open: hold it for a few
+			// seconds so the pet blinks now and then instead of continuously.
+			const isHoldingIdleFrame =
+				spriteRow === PetSpriteRow.Idle &&
+				spriteFrameRef.current % spriteFrameCount === 0;
+			const spriteIntervalMs = isHoldingIdleFrame
+				? idleHoldRef.current
+				: spriteFrameIntervalForRow(spriteRow);
+
 			spriteAccumulatorRef.current += deltaMs;
 
-			if (spriteAccumulatorRef.current >= PetSpriteFrameIntervalMs) {
-				spriteAccumulatorRef.current = 0;
+			// Carry the remainder instead of zeroing it: dropping it stretched every
+			// frame out to the next whole rAF tick and let the cadence drift, which
+			// is the stutter in the walk cycle. Every interval is well above the
+			// 48ms delta cap, so one step per tick is always enough to catch up.
+			if (spriteAccumulatorRef.current >= spriteIntervalMs) {
+				spriteAccumulatorRef.current -= spriteIntervalMs;
 				spriteFrameRef.current += 1;
+
+				if (spriteFrameRef.current % spriteFrameCount === 0) {
+					idleHoldRef.current = randomIntBetween(
+						PetIdleHoldMinMs,
+						PetIdleHoldMaxMs
+					);
+				}
 			}
 
 			if (shakeEnergyRef.current > 0) {
@@ -496,15 +588,6 @@ const SnipPet = (): ReactElement => {
 			}
 
 			if (modeRef.current === PetModes.Walking) {
-				if (walkUntilRef.current === 0) {
-					const walkSpan = PetMaxWalkBeforeIdleMs - PetMinWalkBeforeIdleMs;
-
-					walkUntilRef.current =
-						timestamp +
-						PetMinWalkBeforeIdleMs +
-						(Math.floor(timestamp) % walkSpan);
-				}
-
 				positionRef.current +=
 					(PetWalkSpeedPxPerSecond * facingRef.current * deltaMs) / 1000;
 
@@ -516,22 +599,26 @@ const SnipPet = (): ReactElement => {
 					facingRef.current = PetFacings.Left;
 				}
 
-				legAccumulatorRef.current += deltaMs;
+				// Only the pixel pet swaps leg frames through React state; for a sprite
+				// design the row already animates, so re-rendering here would just
+				// stall the loop mid-frame for nothing.
+				if (!isSprite) {
+					legAccumulatorRef.current += deltaMs;
 
-				if (legAccumulatorRef.current >= PetLegFrameIntervalMs) {
-					legAccumulatorRef.current = 0;
-					setLegFrameIndex((previousIndex) => (previousIndex === 0 ? 1 : 0));
+					if (legAccumulatorRef.current >= PetLegFrameIntervalMs) {
+						legAccumulatorRef.current -= PetLegFrameIntervalMs;
+						setLegFrameIndex((previousIndex) => (previousIndex === 0 ? 1 : 0));
+					}
 				}
 
-				if (timestamp >= walkUntilRef.current) {
-					walkUntilRef.current = 0;
-					idleUntilRef.current = timestamp + PetIdlePauseMs;
-					updateMode(PetModes.Idle);
+				// The arrival stroll is the only walk on a timer; a boredom walk runs
+				// until the activity listener parks it.
+				if (introUntilRef.current !== 0 && timestamp >= introUntilRef.current) {
+					settleAndArmWalk();
 				}
 			} else if (modeRef.current === PetModes.Idle) {
-				if (idleUntilRef.current !== 0 && timestamp >= idleUntilRef.current) {
-					idleUntilRef.current = 0;
-					walkUntilRef.current = 0;
+				if (walkAtRef.current !== 0 && timestamp >= walkAtRef.current) {
+					walkAtRef.current = 0;
 					updateMode(PetModes.Walking);
 				}
 			} else if (modeRef.current === PetModes.Falling) {
@@ -564,9 +651,8 @@ const SnipPet = (): ReactElement => {
 				if (timestamp >= landingUntilRef.current) {
 					landingUntilRef.current = 0;
 					impactRef.current = 0;
-					walkUntilRef.current = 0;
 					setMessage(null);
-					updateMode(PetModes.Walking);
+					settleAndArmWalk();
 				}
 			} else if (
 				modeRef.current === PetModes.Grabbed ||
@@ -636,12 +722,11 @@ const SnipPet = (): ReactElement => {
 			aria-hidden="true"
 			className={styles.pet}
 			data-mode={mode}
+			data-sprite={String(isSprite)}
 			onPointerDown={handlePointerDown}
-			onPointerEnter={handlePointerEnter}
-			onPointerLeave={handlePointerLeave}
 			style={{
 				height: `${petHeightPx}px`,
-				transform: `translate3d(${PetEdgePaddingPx}px, 0, 0)`,
+				transform: `translate3d(${startPositionPx}px, 0, 0)`,
 				width: `${petWidthPx}px`,
 			}}
 		>
