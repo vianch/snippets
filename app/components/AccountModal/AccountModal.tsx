@@ -1,5 +1,6 @@
 import {
 	ReactElement,
+	useRef,
 	useState,
 	useEffect,
 	FormEvent,
@@ -106,6 +107,7 @@ const AccountModal = (): ReactElement | null => {
 	const [aiModels, setAiModels] = useState<string[]>([]);
 	const [originalAiUrl, setOriginalAiUrl] = useState<string>("");
 	const [modelsLoading, setModelsLoading] = useState(false);
+	const closeTimeoutRef = useRef<number>(0);
 
 	const handleInputChange = (
 		event: ChangeEvent<HTMLInputElement>,
@@ -353,38 +355,58 @@ const AccountModal = (): ReactElement | null => {
 			const updatePasswordError = await updatePassword();
 			const updateMetadataError = await updateUserMetadata();
 
-			if (!updatePasswordError && !updateMetadataError) {
-				setMessage({
-					text: "Profile updated successfully!",
-					type: FormMessageTypes.Success,
-				});
+			resetStateData();
 
+			// The metadata write already happened above, so the store has to be
+			// synced even when the password step failed — otherwise a password
+			// error leaves the app showing stale values that are saved server-side.
+			if (!updateMetadataError) {
 				updateUserStore();
-
-				if (
-					userData.aiProvider === AiProviderId.Ollama &&
-					userData.aiUrl !== originalAiUrl
-				) {
-					await refreshModels(AiProviderId.Ollama);
-					setOriginalAiUrl(userData.aiUrl ?? "");
-				}
-
-				setTimeout(() => {
-					close();
-				}, modalCloseDelay);
 			}
+
+			if (updatePasswordError || updateMetadataError) {
+				setLoading(false);
+
+				return;
+			}
+
+			setMessage({
+				text: "Profile updated successfully!",
+				type: FormMessageTypes.Success,
+			});
+
+			if (
+				userData.aiProvider === AiProviderId.Ollama &&
+				userData.aiUrl !== originalAiUrl
+			) {
+				await refreshModels(AiProviderId.Ollama);
+				setOriginalAiUrl(userData.aiUrl ?? "");
+			}
+
+			// Stay in the loading state through the success message: the modal is
+			// still on screen for modalCloseDelay, and re-enabling the CTA in that
+			// window lets a second click fire a duplicate update.
+			closeTimeoutRef.current = window.setTimeout(() => {
+				closeTimeoutRef.current = 0;
+				setLoading(false);
+				close();
+			}, modalCloseDelay);
 		} catch (_catchError) {
 			setMessage({
 				text: "An error occurred while updating profile",
 				type: FormMessageTypes.Error,
 			});
+			resetStateData();
+			setLoading(false);
 		}
-
-		resetStateData();
-		setLoading(false);
 	};
 
 	const handleClose = (): void => {
+		// Escape or the backdrop can beat the auto-close timer. Drop it, or it
+		// fires later and slams a freshly reopened modal shut.
+		window.clearTimeout(closeTimeoutRef.current);
+		closeTimeoutRef.current = 0;
+		setLoading(false);
 		resetMessages();
 		resetStateData();
 
@@ -710,6 +732,10 @@ const AccountModal = (): ReactElement | null => {
 					<Input
 						type="password"
 						name="newPassword"
+						// Without this the browser autofills the saved account password
+						// here on open, and the next save attempts a real password
+						// change the user never asked for.
+						autoComplete="new-password"
 						placeholder="New Password"
 						fat
 						value={userData.newPassword}
@@ -730,6 +756,7 @@ const AccountModal = (): ReactElement | null => {
 						className={styles.input}
 						type="password"
 						name="confirmPassword"
+						autoComplete="new-password"
 						placeholder="Confirm New Password"
 						fat
 						value={userData.confirmPassword}
@@ -883,6 +910,9 @@ const AccountModal = (): ReactElement | null => {
 					<Input
 						type="password"
 						name="aiApiKey"
+						// A type=password field is an autofill magnet even when it holds
+						// an API key rather than a credential.
+						autoComplete="off"
 						placeholder={
 							userData.aiProvider === AiProviderId.Claude
 								? "sk-ant-..."

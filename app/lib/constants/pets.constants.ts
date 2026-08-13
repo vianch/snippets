@@ -120,8 +120,42 @@ export const PetWorkingDurationMs = 25000;
 export const PetIdleChatterMinMs = 30000;
 export const PetIdleChatterMaxMs = 300000;
 
-/* Sprite playback rate, in milliseconds per frame. */
-export const PetSpriteFrameIntervalMs = 110;
+/*
+ * Fallback sprite playback rate, in milliseconds per frame, for any row without
+ * an entry in PetSpriteRowFrameIntervalsMs.
+ */
+export const PetSpriteFrameIntervalMs = 200;
+
+/*
+ * Milliseconds per frame, indexed by PetSpriteRow — same layout as
+ * PetDefaultRowFrames.
+ *
+ * Only the run rows are tied to PetWalkSpeedPxPerSecond: the feet have to keep
+ * up with the ground, so those two and the walk speed get retuned together.
+ * Every other row is a loop in place, and playing those at run pace is what
+ * made the pets twitch — an idle blink especially has to hold still between
+ * frames or it reads as a stutter rather than a blink.
+ */
+export const PetSpriteRowFrameIntervalsMs = [
+	110, // Idle — the blink itself is quick; see PetIdleHoldMinMs for the pause
+	100, // RunRight — paired with PetWalkSpeedPxPerSecond
+	100, // RunLeft — unused, mirrored from RunRight (see spriteRowForMode)
+	190, // Wave
+	170, // Jump
+	180, // Failure
+	280, // Waiting — held pose, barely moves
+	220, // ActiveWork
+	240, // Review
+] as const;
+
+/*
+ * The idle row is a single blink, not a loop of blinking. Frame 0 is the pet
+ * with its eyes open, so it is held for this long — re-rolled each time, or
+ * every pet on screen blinks in unison — and only then does the blink play out
+ * at the row's normal interval.
+ */
+export const PetIdleHoldMinMs = 2600;
+export const PetIdleHoldMaxMs = 6500;
 
 /*
  * Pointer exits through the top edge of the viewport (clientY <= this) read as

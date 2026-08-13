@@ -2,7 +2,9 @@
 import {
 	DefaultPetDesignId,
 	PetDesigns,
+	PetSpriteFrameIntervalMs,
 	PetSpriteRow,
+	PetSpriteRowFrameIntervalsMs,
 } from "@/lib/constants/pets.constants";
 import { PetModes } from "@/lib/constants/snipPet";
 
@@ -79,3 +81,6 @@ export const spriteFrameCountForRow = (
 	design: PetDesign,
 	row: PetSpriteRow
 ): number => design.rowFrames[row] ?? 1;
+
+export const spriteFrameIntervalForRow = (row: PetSpriteRow): number =>
+	PetSpriteRowFrameIntervalsMs[row] ?? PetSpriteFrameIntervalMs;

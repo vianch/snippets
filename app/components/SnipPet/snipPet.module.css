@@ -2,7 +2,11 @@
 	position: fixed;
 	left: 0;
 	bottom: var(--pet-ground-offset, 10px);
-	z-index: 40;
+
+	/* Above every overlay in the app — modals and drawers (1000), menus (1100)
+	   and the toast strip (9999) — so the pet is never buried under the AI chat
+	   panel. It is a small sprite on the floor, so it covers nothing. */
+	z-index: 10000;
 	display: block;
 	color: var(--bg-color-dark);
 	cursor: grab;
@@ -92,19 +96,12 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-	.pet[data-mode="walking"] .motion,
-	.pet[data-mode="idle"] .motion,
-	.pet[data-mode="reviewing"] .motion,
-	.pet[data-mode="working"] .motion {
-		animation: pet-bob 0.34s steps(2, end) infinite;
-	}
-
 	.pet[data-mode="celebrating"] .motion {
 		animation: pet-hop 0.42s ease-out 0s 3;
 	}
 
 	.pet[data-mode="excited"] .motion {
-		animation: pet-hop-excited 0.28s ease-out infinite;
+		animation: pet-hop-excited 0.42s ease-out infinite;
 	}
 
 	.pet[data-mode="afraid"] .motion {
@@ -123,8 +120,47 @@
 		animation: pet-land 0.44s cubic-bezier(0.18, 0.7, 0.3, 1);
 	}
 
+	/*
+	 * The bob belongs to the hand-drawn pixel pet only: it has two leg frames
+	 * and no vertical motion of its own. Sprite sheets already animate a full
+	 * cycle, and a second bounce on a 340ms period that doesn't divide into the
+	 * sheet's 800ms run cycle is what made the sprite pets judder.
+	 */
+	.pet[data-sprite="false"][data-mode="walking"] .motion,
+	.pet[data-sprite="false"][data-mode="idle"] .motion,
+	.pet[data-sprite="false"][data-mode="reviewing"] .motion,
+	.pet[data-sprite="false"][data-mode="working"] .motion {
+		animation: pet-bob 0.5s steps(2, end) infinite;
+	}
+
+	/*
+	 * Sprite pets hold frame 0 of the idle row for seconds at a time between
+	 * blinks (see PetIdleHoldMinMs), which left them looking frozen rather than
+	 * standing. This is the breathing underneath that hold — slow and sub-pixel,
+	 * so it never competes with the blink itself.
+	 */
+	.pet[data-sprite="true"][data-mode="idle"] .motion {
+		animation: pet-breathe 2.8s ease-in-out infinite;
+	}
+
 	.bubble {
 		animation: pet-bubble-pop 0.18s ease-out;
+	}
+}
+
+/* Idle breathing. transform-origin is bottom center, so the pet swells upward
+ * off its feet instead of growing in both directions. */
+@keyframes pet-breathe {
+	0% {
+		transform: translateY(0) scaleY(1);
+	}
+
+	50% {
+		transform: translateY(-1px) scaleY(1.025);
+	}
+
+	100% {
+		transform: translateY(0) scaleY(1);
 	}
 }
 
