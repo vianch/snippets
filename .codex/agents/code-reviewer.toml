@@ -90,7 +90,7 @@ When reviewing diffs (not just file-level reviews), use a two-pass approach:
 
 For each issue: cite exact `file:line`, one line describing the problem, one line with the fix. Be terse — no preamble or "looks good overall."
 
-Reference `.Codex/skills/review/checklist.md` for the full checklist when doing pre-landing reviews.
+Reference `.claude/skills/review/checklist.md` for the full checklist when doing pre-landing reviews.
 
 ## Decision-Making Guidelines
 
