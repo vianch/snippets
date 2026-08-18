@@ -4,8 +4,6 @@ import { ReactElement } from "react";
 import {
 	FeaturesHeading,
 	FeaturesSubheading,
-	ShortcutsHeading,
-	ShortcutsSubheading,
 	ThemesHeading,
 	ThemesSubheading,
 } from "@/lib/constants/landing";
@@ -19,7 +17,6 @@ import Hero from "@/components/landing/Hero/Hero";
 import PageStars from "@/components/landing/PageStars/PageStars";
 import Reveal from "@/components/landing/Reveal/Reveal";
 import SectionHeading from "@/components/landing/SectionHeading/SectionHeading";
-import ShortcutsShowcase from "@/components/landing/ShortcutsShowcase/ShortcutsShowcase";
 import ThemeShowcase from "@/components/landing/ThemeShowcase/ThemeShowcase";
 
 /* Styles */
@@ -54,19 +51,6 @@ const Home = (): ReactElement => {
 
 				<Reveal delay={80}>
 					<ThemeShowcase />
-				</Reveal>
-			</section>
-
-			<section className={`container ${styles.section}`}>
-				<Reveal>
-					<SectionHeading
-						subtitle={ShortcutsSubheading}
-						title={ShortcutsHeading}
-					/>
-				</Reveal>
-
-				<Reveal delay={80}>
-					<ShortcutsShowcase />
 				</Reveal>
 			</section>
 

@@ -90,6 +90,16 @@ const SnippetsWorkspace = ({
 		);
 
 	const setActiveSnippetId = (snippetId: UUID | null): void => {
+		const snippetUrl = new URL(window.location.href);
+
+		if (snippetId) {
+			snippetUrl.searchParams.set("id", snippetId);
+		} else {
+			snippetUrl.searchParams.delete("id");
+		}
+
+		window.history.replaceState(null, "", snippetUrl);
+
 		setCodedEditorStates((previousStates) => ({
 			...previousStates,
 			activeSnippetId: snippetId,
@@ -208,10 +218,20 @@ const SnippetsWorkspace = ({
 			updateMenuCounts(data);
 		}
 
+		const requestedSnippetId = new URLSearchParams(window.location.search).get(
+			"id"
+		);
+		const requestedSnippet = data.find(
+			(snippet: Snippet): boolean => snippet.snippet_id === requestedSnippetId
+		);
+		const activeSnippetId =
+			requestedSnippet?.snippet_id ?? data?.[0]?.snippet_id ?? null;
+
 		setCodedEditorStates({
 			...defaultCodeEditorStates,
-			activeSnippetId: data?.[0]?.snippet_id ?? null,
+			activeSnippetId,
 		});
+		setActiveSnippetId(activeSnippetId);
 		setIsLoading(false);
 	};
 
@@ -320,6 +340,7 @@ const SnippetsWorkspace = ({
 			updateSnippet(updatedSnippet, fromButton);
 
 			await saveSnippet(updatedSnippet);
+			setActiveSnippetId(updatedSnippet.snippet_id);
 
 			if (fromButton === true) {
 				saveSnippetVersion(
@@ -455,6 +476,7 @@ const SnippetsWorkspace = ({
 	const newSnippetHandler = (newSnippet: Snippet): void => {
 		if (newSnippet) {
 			emitPetEvent(PetEvent.SnippetCreated);
+			setActiveSnippetId(null);
 			setSnippets((previousSnippets) => [newSnippet, ...previousSnippets]);
 
 			setCodedEditorStates((previousStates) => ({
@@ -499,6 +521,7 @@ const SnippetsWorkspace = ({
 				menuType: MenuItems.Uncategorized,
 				activeSnippetId: data?.[0]?.snippet_id ?? null,
 			});
+			setActiveSnippetId(data?.[0]?.snippet_id ?? null);
 		}
 	};
 
@@ -516,6 +539,7 @@ const SnippetsWorkspace = ({
 				menuType: MenuItems.Public,
 				activeSnippetId: publicSnippets?.[0]?.snippet_id ?? null,
 			});
+			setActiveSnippetId(publicSnippets?.[0]?.snippet_id ?? null);
 		}
 	};
 
@@ -542,6 +566,7 @@ const SnippetsWorkspace = ({
 			menuType: `${MenuPrefixes.Folder}${folder}`,
 			activeSnippetId: data?.[0]?.snippet_id ?? null,
 		});
+		setActiveSnippetId(data?.[0]?.snippet_id ?? null);
 
 		setSnippets(data);
 	};
@@ -558,6 +583,7 @@ const SnippetsWorkspace = ({
 			menuType: `${MenuPrefixes.Tag}${tag}`,
 			activeSnippetId: data?.[0]?.snippet_id ?? null,
 		});
+		setActiveSnippetId(data?.[0]?.snippet_id ?? null);
 
 		setSnippets(data);
 	};
@@ -589,6 +615,7 @@ const SnippetsWorkspace = ({
 			isSaving: true,
 			activeSnippetId: pickNextActiveId(foundIndex, cloneSnippets),
 		}));
+		setActiveSnippetId(pickNextActiveId(foundIndex, cloneSnippets));
 
 		await trashRestoreSnippet(snippetId, state);
 
@@ -715,6 +742,7 @@ const SnippetsWorkspace = ({
 			menuType: MenuItems.All,
 			activeSnippetId: found.snippet_id,
 		});
+		setActiveSnippetId(found.snippet_id);
 	};
 
 	const performCreateSnippet = async (
@@ -743,6 +771,7 @@ const SnippetsWorkspace = ({
 		newSnippetHandler(uploadedSnippet);
 
 		await saveSnippet(uploadedSnippet);
+		setActiveSnippetId(uploadedSnippet.snippet_id);
 		await updateSnippetTagList();
 
 		addToast({
