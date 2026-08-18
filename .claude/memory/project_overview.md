@@ -4,7 +4,7 @@ description: Core architecture and patterns for the Snippets code snippet manage
 type: project
 ---
 
-Snippets is a personal code snippet manager at snippets.vianch.com. Next.js 14 App Router + TypeScript + Supabase + Zustand + CodeMirror. Deployed on Vercel. Package manager is yarn.
+Snippets is a personal code snippet manager at snippets.vianch.com. Next.js 16 App Router + TypeScript + Supabase + Zustand + CodeMirror. Deployed on Vercel. Package manager is yarn.
 
 **Why:** Victor's personal project for saving/organizing code snippets. Part of his goal to ship one personal project per month.
 

@@ -2,24 +2,24 @@
 
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
-Project-wide rules for AI coding agents. Detailed guidance lives in `.Codex/rules/`.
+Project-wide rules for AI coding agents. Detailed guidance lives in `.claude/rules/`.
 All code Codex produces must conform to **every** rule below.
 
-| Topic                        | Rule file                                                                  |
-| ---------------------------- | -------------------------------------------------------------------------- |
-| File naming                  | [.Codex/rules/file-naming.md](.Codex/rules/file-naming.md)                 |
-| TypeScript                   | [.Codex/rules/typescript.md](.Codex/rules/typescript.md)                   |
-| Naming (no abbreviations)    | [.Codex/rules/naming.md](.Codex/rules/naming.md)                           |
-| Code style (braces, helpers) | [.Codex/rules/code-style.md](.Codex/rules/code-style.md)                   |
-| Enums and constants          | [.Codex/rules/enums-and-constants.md](.Codex/rules/enums-and-constants.md) |
-| HTTP status codes            | [.Codex/rules/http-status.md](.Codex/rules/http-status.md)                 |
-| Types location               | [.Codex/rules/types-location.md](.Codex/rules/types-location.md)           |
-| Components                   | [.Codex/rules/components.md](.Codex/rules/components.md)                   |
-| Supabase                     | [.Codex/rules/supabase.md](.Codex/rules/supabase.md)                       |
-| Internationalization         | [.Codex/rules/i18n.md](.Codex/rules/i18n.md)                               |
-| Imports                      | [.Codex/rules/imports.md](.Codex/rules/imports.md)                         |
-| Utilities                    | [.Codex/rules/utilities.md](.Codex/rules/utilities.md)                     |
-| Verification                 | [.Codex/rules/verification.md](.Codex/rules/verification.md)               |
+| Topic                        | Rule file                                                                    |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| File naming                  | [.claude/rules/file-naming.md](.claude/rules/file-naming.md)                 |
+| TypeScript                   | [.claude/rules/typescript.md](.claude/rules/typescript.md)                   |
+| Naming (no abbreviations)    | [.claude/rules/naming.md](.claude/rules/naming.md)                           |
+| Code style (braces, helpers) | [.claude/rules/code-style.md](.claude/rules/code-style.md)                   |
+| Enums and constants          | [.claude/rules/enums-and-constants.md](.claude/rules/enums-and-constants.md) |
+| HTTP status codes            | [.claude/rules/http-status.md](.claude/rules/http-status.md)                 |
+| Types location               | [.claude/rules/types-location.md](.claude/rules/types-location.md)           |
+| Components                   | [.claude/rules/components.md](.claude/rules/components.md)                   |
+| Supabase                     | [.claude/rules/supabase.md](.claude/rules/supabase.md)                       |
+| Internationalization         | [.claude/rules/i18n.md](.claude/rules/i18n.md)                               |
+| Imports                      | [.claude/rules/imports.md](.claude/rules/imports.md)                         |
+| Utilities                    | [.claude/rules/utilities.md](.claude/rules/utilities.md)                     |
+| Verification                 | [.claude/rules/verification.md](.claude/rules/verification.md)               |
 
 ## What Is This
 
@@ -109,7 +109,7 @@ This project uses Codex's persistent memory and path-scoped rules:
 
 ### Auto-Memory (cross-session learning)
 
-Stored at `~/.Codex/projects/-Users-victorchavarro-Documents-dev-personal-snippets/memory/`. Codex reads `MEMORY.md` (the index) at the start of every session and loads topic files on demand.
+Stored in `.claude/memory/` and shared with Claude Code. Codex uses the same project memory so the two agents do not drift apart.
 
 | File                  | Purpose                                                          |
 | --------------------- | ---------------------------------------------------------------- |
@@ -124,7 +124,7 @@ Stored at `~/.Codex/projects/-Users-victorchavarro-Documents-dev-personal-snippe
 - When receiving correction or feedback, create a `feedback_*.md` memory file
 - Keep `MEMORY.md` under 200 lines — it gets truncated beyond that
 
-### Path-Scoped Rules (`.Codex/rules/`)
+### Path-Scoped Rules (`.claude/rules/`)
 
 Loaded automatically when Codex works with matching file paths:
 
@@ -136,14 +136,14 @@ Loaded automatically when Codex works with matching file paths:
 
 ## Quick reference (the rules that get violated most often)
 
-- **All shared constants live in `lib/constants/`** — grouped by responsibility (one file per topic). See [enums-and-constants.md](.Codex/rules/enums-and-constants.md).
-- **All types live in `types/**/\*.d.ts`** — never inline `export type ...` in a util, hook, store, or worker file. See [types-location.md](.Codex/rules/types-location.md).
-- **No hardcoded string/number literals in conditionals or switch cases** — compare against a `const enum` member or `as const` value from `lib/constants/`. See [enums-and-constants.md](.Codex/rules/enums-and-constants.md).
-- **No raw HTTP status numbers** — use `HttpStatusCode` from `lib/constants/ui.constants` (e.g. `HttpStatusCode.Unauthorized`, never `401`) in API routes, pages, and status comparisons. See [http-status.md](.Codex/rules/http-status.md).
-- **No re-implementing UI primitives** — import from `components/ui/<Primitive>/<Primitive>.tsx`. Add missing variants there. See [components.md](.Codex/rules/components.md).
+- **All shared constants live in `lib/constants/`** — grouped by responsibility (one file per topic). See [enums-and-constants.md](.claude/rules/enums-and-constants.md).
+- **All types live in `types/**/\*.d.ts`** — never inline `export type ...` in a util, hook, store, or worker file. See [types-location.md](.claude/rules/types-location.md).
+- **No hardcoded string/number literals in conditionals or switch cases** — compare against a `const enum` member or `as const` value from `lib/constants/`. See [enums-and-constants.md](.claude/rules/enums-and-constants.md).
+- **No raw HTTP status numbers** — use `HttpStatusCode` from `lib/constants/ui.constants` (e.g. `HttpStatusCode.Unauthorized`, never `401`) in API routes, pages, and status comparisons. See [http-status.md](.claude/rules/http-status.md).
+- **No re-implementing UI primitives** — import from `components/ui/<Primitive>/<Primitive>.tsx`. Add missing variants there. See [components.md](.claude/rules/components.md).
 - **One exported component per file** — no sibling subview declarations (e.g. `const EmptyView = ...` inside `Workspace.tsx`). Split into its own file in the same feature folder.
-- **All user-facing copy goes through `t(...)`** — `react-i18next` namespaces, locale JSON in `public/locales/{language}/{namespace}.json`. No `Copy` const objects, no hardcoded user-visible strings. See [i18n.md](.Codex/rules/i18n.md).
-- **No single-letter or abbreviated identifiers** — `store` not `s`, `event` not `e`, `error` not `err`. See [naming.md](.Codex/rules/naming.md).
+- **All user-facing copy goes through `t(...)`** — `react-i18next` namespaces, locale JSON in `public/locales/{language}/{namespace}.json`. No `Copy` const objects, no hardcoded user-visible strings. See [i18n.md](.claude/rules/i18n.md).
+- **No single-letter or abbreviated identifiers** — `store` not `s`, `event` not `e`, `error` not `err`. See [naming.md](.claude/rules/naming.md).
 - **No `let`, no in-place mutation.** Enforced by ESLint (`prefer-const`, `no-var`, `no-param-reassign`).
 - **No `any`.** Enforced by `@typescript-eslint/no-explicit-any`.
 - **One named export per file** (with the single exception of `types/index.d.ts`).

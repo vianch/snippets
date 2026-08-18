@@ -16,12 +16,10 @@ import NavHeader from "@/components/NavHeader/NavHeader";
 import SnipPet from "@/components/SnipPet/SnipPet";
 import FeatureBento from "@/components/landing/FeatureBento/FeatureBento";
 import Hero from "@/components/landing/Hero/Hero";
-import LanguageMarquee from "@/components/landing/LanguageMarquee/LanguageMarquee";
 import PageStars from "@/components/landing/PageStars/PageStars";
 import Reveal from "@/components/landing/Reveal/Reveal";
 import SectionHeading from "@/components/landing/SectionHeading/SectionHeading";
 import ShortcutsShowcase from "@/components/landing/ShortcutsShowcase/ShortcutsShowcase";
-import StatsBar from "@/components/landing/StatsBar/StatsBar";
 import ThemeShowcase from "@/components/landing/ThemeShowcase/ThemeShowcase";
 
 /* Styles */
@@ -36,8 +34,6 @@ const Home = (): ReactElement => {
 
 			<Hero />
 
-			<StatsBar />
-
 			<section className={`container ${styles.section}`} id="features">
 				<Reveal>
 					<SectionHeading
@@ -50,8 +46,6 @@ const Home = (): ReactElement => {
 					<FeatureBento />
 				</Reveal>
 			</section>
-
-			<LanguageMarquee />
 
 			<section className={`container ${styles.section}`}>
 				<Reveal>
