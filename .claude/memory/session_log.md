@@ -29,3 +29,10 @@ type: project
 - Added `.codex/README.md` and retained the Codex-native agent definitions in `.codex/agents/`.
 - Removed the globally configured `node_repl` MCP server and disabled the global `apps` feature to prevent interrupted MCP startup.
 - Disabled unused document, spreadsheet, presentation, PDF, visualization, Anthropic, and TTG plugins; retained engineering and browser plugins.
+
+## 2026-08-18 — Snippet Deep Linking
+
+**What happened:**
+
+- Added `/snippets?id={snippetId}` synchronization for snippet selection, direct URL loading, view changes, deletion fallbacks, and successful saves.
+- New unsaved snippets clear the query parameter and only receive a deep-link URL after persistence succeeds.
