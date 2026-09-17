@@ -1,0 +1,85 @@
+.card {
+	border-radius: 5px;
+	box-shadow:
+		0 1px 1px hsl(0deg 0% 0% / 7.5%),
+		0 2px 2px hsl(0deg 0% 0% / 7.5%),
+		0 4px 4px hsl(0deg 0% 0% / 7.5%),
+		0 8px 8px hsl(0deg 0% 0% / 7.5%),
+		0 16px 16px hsl(0deg 0% 0% / 7.5%);
+	cursor: pointer;
+	position: absolute;
+	width: 400px;
+}
+
+.body {
+	border-radius: 0 0 5px 5px;
+	padding: 1em;
+}
+
+.header {
+	align-items: center;
+	border-radius: 5px 5px 0 0;
+	display: flex;
+	justify-content: space-between;
+	padding: 5px;
+}
+
+.textarea {
+	background-color: inherit;
+	border: none;
+	font-size: var(--normal-font-size);
+	height: 100%;
+	resize: none;
+	width: 100%;
+}
+
+.textarea:focus {
+	background-color: inherit;
+	height: 100%;
+	outline: none;
+	width: 100%;
+}
+
+.body.yellow,
+.textarea.yellow {
+	background-color: var(--yellow-color-body);
+	color: var(--yellow-color-text);
+}
+
+.body.green,
+.textarea.green {
+	background-color: var(--green-color-body);
+	color: var(--green-color-text);
+}
+
+.body.blue,
+.textarea.blue {
+	background-color: var(--blue-color-body);
+	color: var(--blue-color-text);
+}
+
+.body.purple,
+.textarea.purple {
+	background-color: var(--purple-color-body);
+	color: var(--purple-color-text);
+}
+
+.header.yellow {
+	background-color: var(--yellow-color-header);
+	color: var(--yellow-color-text);
+}
+
+.header.green {
+	background-color: var(--green-color-header);
+	color: var(--green-color-text);
+}
+
+.header.blue {
+	background-color: var(--blue-color-header);
+	color: var(--blue-color-text);
+}
+
+.header.purple {
+	background-color: var(--purple-color-header);
+	color: var(--yelpurplelow-color-text);
+}

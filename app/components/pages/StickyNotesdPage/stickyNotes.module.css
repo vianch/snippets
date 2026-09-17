@@ -1,0 +1,70 @@
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.add {
+	align-items: center;
+	background-color: rgb(107 107 107);
+	border-radius: 50%;
+	cursor: pointer;
+	display: flex;
+	height: 40px;
+	justify-content: center;
+	transition: 0.3s;
+	width: 40px;
+}
+
+.add:hover {
+	height: 45px;
+	width: 45px;
+}
+
+.color {
+	border-radius: 50%;
+	cursor: pointer;
+	height: 40px;
+	transition: 0.3s;
+	width: 40px;
+}
+
+.color:hover {
+	height: 45px;
+	width: 45px;
+}
+
+.controls {
+	align-items: center;
+	background-color: #35363e;
+	border-radius: 40px;
+	box-shadow:
+		0 1px 1px hsl(0deg 0% 0% / 7.5%),
+		0 2px 2px hsl(0deg 0% 0% / 7.5%),
+		0 4px 4px hsl(0deg 0% 0% / 7.5%),
+		0 8px 8px hsl(0deg 0% 0% / 7.5%),
+		0 16px 16px hsl(0deg 0% 0% / 7.5%);
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	left: 1em;
+	padding: 1em;
+	position: fixed;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 10000;
+}
+
+.saving {
+	align-items: center;
+	display: flex;
+	gap: 5px;
+}
+
+.spinner {
+	animation: spin var(--spinner-animation-speed) linear infinite;
+}
