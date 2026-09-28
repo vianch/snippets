@@ -1,178 +1,135 @@
-<h1 align="center">
-  Snippets
-</h1>
+<h1 align="center">Snippets</h1>
+
+<p align="center"><i>A personal workspace for code, notes, and ideas.</i></p>
 
 <p align="center">
-  <i align="center">A personal code snippet manager to save, organize, and share pieces of code</i>
+	<a href="https://github.com/vianch/snippets/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="MIT license" /></a>
+	<a href="https://snippets.vianch.com"><img src="https://img.shields.io/badge/live-snippets.vianch.com-7c3aed?style=flat-square" alt="Open Snippets" /></a>
 </p>
 
-<h4 align="center">
-  <a href="https://github.com/vianch/snippets/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="license" style="height: 20px;">
-  </a>
-  <a href="https://github.com/vianch/snippets/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/vianch/snippets?color=yellow&style=flat-square" alt="contributors" style="height: 20px;">
-  </a>
-  <a href="https://github.com/vianch/snippets/issues">
-    <img src="https://img.shields.io/github/issues/vianch/snippets?style=flat-square" alt="issues" style="height: 20px;">
-  </a>
-  <br>
-  <a href="https://snippets.vianch.com">
-    <img src="https://img.shields.io/badge/demo-snippets.vianch.com-7c3aed?style=flat-square" alt="live demo" style="height: 20px;">
-  </a>
-</h4>
+Snippets is a personal code library that pairs a syntax-highlighted editor with search, folders, tags, version history, previews, and shareable public links. The same workspace also includes a sticky-notes board and an AI assistant for working with saved code.
 
-<p align="center">
-    <img width="2475" height="1917" alt="Screenshot 2026-03-20 at 14 05 39" src="https://github.com/user-attachments/assets/66b99fbc-f718-42ea-b7fb-0c2887a5fbec" />
-</p>
+## What you can do
 
-## Introduction
+- Save, edit, search, tag, favorite, folder, archive, and restore code snippets.
+- Edit code with CodeMirror, language-aware highlighting, Markdown support, and an HTML preview.
+- Keep named versions of snippets and share selected snippets through public links.
+- Export a snippet as an image or data, and connect supported external SQL databases for snippet storage.
+- Create a separate sticky note board and link notes to snippets with wiki-style links.
+- Ask a configured AI provider about snippets, code, and refactoring, with chat history and model selection.
+- Customize editor themes, keyboard shortcuts, autosave, account security, and the animated SnipPet companion.
+- Use authenticator-based multi-factor authentication; administrators also have protected user and database tools.
 
-**Snippets** is a web-based code snippet manager that lets you save, organize, tag, and retrieve pieces of code through an in-browser editor. Built for developers who want a fast, personal library for reusable code — without the overhead of a full note-taking app.
+## Screenshots
 
-With Snippets you can:
+The checked-in screenshots predate the current workspace features. Replace them with fresh captures after reviewing them for account names, emails, snippet content, tokens, and connection details.
 
-- **Save and edit** code with full syntax highlighting via CodeMirror
-- **Organize** snippets with tags, favorites, and trash
-- **Search** across your entire snippet library instantly
-- **Share** public snippets with a direct link
-- **Switch themes** between Dracula, GitHub, and more
-- **Support 13+ languages** — JavaScript, TypeScript, Python, Rust, Go, Java, SQL, and more
-- **Capture snippets as screenshots** — Save and share your own or team snippets as images.
+## Application routes
 
-<details open>
-<summary>
- Screenshots
-</summary> <br />
+| Route                       | Purpose                                      |
+| --------------------------- | -------------------------------------------- |
+| `/`                         | Public landing page                          |
+| `/login`                    | Sign in and complete multi-factor challenges |
+| `/snippets`                 | Protected snippet library and code editor    |
+| `/notes`                    | Protected sticky notes board                 |
+| `/ai-assistant`             | Protected AI workspace                       |
+| `/s/[slug]`                 | Publicly shared snippet                      |
+| `/reset-password`           | Password recovery                            |
+| `/admin`                    | Administrator-only tools                     |
+| `/privacy-policy`, `/terms` | Legal information                            |
 
-<p align="center">
-    <img width="49%" src="https://github.com/user-attachments/assets/023d3a29-9a3b-4a8b-a7d4-937ac5087ed0" alt="Dashboard view"/>
-&nbsp;
-    <img width="49%" src="https://github.com/user-attachments/assets/9573b494-94ae-40fa-baae-27526f18949c" alt="Snippet editor"/>
-</p>
+Route checks are implemented in `proxy.ts`; the user session and role are checked before protected pages are served. Public snippet pages use a slug rather than exposing the private workspace.
 
-<p align="center">
-    <img width="33%" alt="Screenshot 2026-03-20 at 14 04 02" src="https://github.com/user-attachments/assets/3e88bb40-3e3d-4f26-8a59-4c2858d81640" />
-    <img width="33%" alt="Screenshot 2026-03-20 at 14 04 06" src="https://github.com/user-attachments/assets/f44bfa76-a732-482b-b01c-62f672d0e3eb" />
-    <img width="33%" alt="Screenshot 2026-03-20 at 14 04 14" src="https://github.com/user-attachments/assets/32e6eeed-0213-4a5f-9161-ec31c4538c95" />
-</p>
+## Architecture
 
-<p align="center">
-  <img width="33%" alt="Screenshot 2026-03-20 at 14 02 10" src="https://github.com/user-attachments/assets/0bd45a96-cf82-478e-9f09-a69d091f17e2" />
-</p>
+The app uses the Next.js App Router. Route pages compose feature components; browser-side workspaces own interactive UI state, while data access is kept in library modules.
 
-<p align="center">
-  <img width="33%" alt="Screenshot 2026-03-23 at 17 42 19" src="https://github.com/user-attachments/assets/45c6c695-b3dd-45f3-8377-db4046d56425" />
-<img width="33%" alt="Screenshot 2026-03-23 at 17 42 29" src="https://github.com/user-attachments/assets/7014d676-2f30-4028-8796-735e065f0f9e" />
-<img width="33%" alt="Screenshot 2026-03-23 at 18 18 05" src="https://github.com/user-attachments/assets/4448b9cc-e612-4b05-bea6-07efeb4f4b91" />
-
-</p>
-
-</details>
-
-## Tech Stack
-
-| Technology                                     | Purpose                                     |
-| ---------------------------------------------- | ------------------------------------------- |
-| [Next.js 16](https://nextjs.org/)              | React framework with App Router & Turbopack |
-| [React 19](https://react.dev/)                 | UI library                                  |
-| [TypeScript](https://www.typescriptlang.org/)  | Type safety                                 |
-| [Supabase](https://supabase.com/)              | Auth & real-time database                   |
-| [CodeMirror](https://codemirror.net/)          | In-browser code editor                      |
-| [Zustand 5](https://github.com/pmndrs/zustand) | Lightweight state management                |
-| [Vercel](https://vercel.com/)                  | Deployment & analytics                      |
-| [Phosphor Icons](https://phosphoricons.com/)   | Icon set                                    |
-
-## Getting Started
-
-<details open>
-<summary>
-Prerequisites
-</summary> <br />
-
-- [Node.js](https://nodejs.org/) (v18+)
-- [Yarn](https://yarnpkg.com/) package manager
-- A [Supabase](https://supabase.com/) project (for auth and database)
-
-</details>
-
-<details open>
-<summary>
-Installation
-</summary> <br />
-
-1. Clone the repository and install dependencies:
-
-```bash
-git clone git@github.com:vianch/snippets.git
-cd snippets
-yarn install
+```text
+app/
+├── [routes]                 App Router pages, layouts, and route metadata
+├── api/                     AI, link-preview, storage, MFA, and admin endpoints
+├── components/              Feature UI, editor, notes, settings, and shared controls
+├── lib/
+│   ├── supabase/            Auth clients, role checks, and database queries
+│   ├── storage/             Storage adapters, server drivers, and export/configuration
+│   ├── ai/                  Provider and model integration
+│   ├── store/               Shared Zustand state
+│   ├── constants/           Shared domain and UI constants
+│   └── config/              Static configuration, including editor languages/themes
+└── utils/                   Pure shared helpers
+types/                       Global TypeScript declarations
+supabase/migrations/          Database schema and policy changes
+scripts/                      Pet asset synchronization and focused checks
+public/assets/                Images, icons, and SnipPet sprite data
+docs/                         Project design and performance notes
 ```
 
-2. Set up environment variables:
+### Main data flow
+
+1. `proxy.ts` synchronizes Supabase cookies, checks sessions and MFA assurance, and guards workspace and admin routes.
+2. `app/components/SnippetsWorkspace/` coordinates the snippet workspace and composes the list, editor, navigation, and supporting panels.
+3. Supabase query modules provide user-scoped snippet, note, account, and admin access. Storage adapters can resolve the configured backend for supported SQL storage.
+4. Route handlers provide server-side boundaries for AI requests, external link previews, storage configuration/export, and privileged admin/MFA operations.
+5. `supabase/migrations/` records database structure, row-level security, public sharing, roles, snippet versions, and storage configuration.
+
+## Technology
+
+- Next.js 16, React 19, and TypeScript
+- Supabase Auth, Postgres, and row-level security
+- CodeMirror, Shiki, and Markdown rendering
+- Zustand for shared client state
+- Optional PostgreSQL, MySQL, Turso/libSQL, and local SQLite storage adapters
+- Vercel Analytics and Sentry
+
+## Development setup
+
+The repository has `pnpm-lock.yaml`; use pnpm so installs follow the committed lockfile. Use the Node.js release supported by the installed Next.js version.
 
 ```bash
+pnpm install --frozen-lockfile
 cp .env.example .env.local
 ```
 
-Fill in the required values:
+Set the required Supabase project values in `.env.local`:
 
-| Variable                        | Description            |
-| ------------------------------- | ---------------------- |
-| `NEXT_PUBLIC_BASE_URL`          | Your app's base URL    |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL   |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
+| Variable                        | Purpose                    |
+| ------------------------------- | -------------------------- |
+| `NEXT_PUBLIC_BASE_URL`          | Canonical application URL  |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project endpoint  |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public client key |
 
-3. Start the development server:
+Optional integrations use provider-specific server variables documented with placeholders in `.env.example`. Keep credentials in the local environment, never in tracked files.
 
 ```bash
-yarn dev
+pnpm dev
 ```
 
-The app will be available at [http://localhost:3000](http://localhost:3000).
+The application runs at [http://localhost:3000](http://localhost:3000). Supabase migrations are in `supabase/migrations/`; apply them to a development project before using routes that rely on newer tables or policies.
 
-</details>
+## Commands
 
-## Available Scripts
+| Command          | Purpose                                        |
+| ---------------- | ---------------------------------------------- |
+| `pnpm dev`       | Start the Next.js development server           |
+| `pnpm build`     | Sync pet assets and create a production build  |
+| `pnpm start`     | Serve a production build                       |
+| `pnpm pets:sync` | Synchronize pet catalog assets                 |
+| `pnpm lint`      | Run ESLint, Stylelint, and Prettier with fixes |
 
-| Script                 | Description                                                   |
-| ---------------------- | ------------------------------------------------------------- |
-| `yarn dev`             | Start the development server                                  |
-| `yarn build`           | Build for production                                          |
-| `yarn start`           | Run the production build                                      |
-| `yarn lint`            | Run all linters (ESLint + Stylelint + Prettier)               |
-| `yarn lint:code-style` | Run ESLint with auto-fix                                      |
-| `yarn lint:style`      | Run Stylelint for CSS with auto-fix                           |
-| `yarn lint:formatting` | Run Prettier with auto-write                                  |
-| `yarn init`            | Reset project (removes node_modules & lock files, reinstalls) |
+The current package scripts do not define a test or typecheck command. Focused check scripts exist under `scripts/` for table and pet utilities. `pnpm init` is a destructive reset script that removes dependencies and lockfiles; use `pnpm install` for normal setup.
 
-## Project Structure
+## Recent feature history
 
-```
-app/
-├── components/       # React components (each in its own directory)
-│   └── ui/           # Reusable UI primitives (Button, Input, Modal, etc.)
-├── lib/
-│   ├── supabase/     # Supabase client & database queries
-│   ├── store/        # Zustand stores (menu, toast, viewport, user)
-│   ├── constants/    # App constants (menu items, toast types, CodeMirror config)
-│   ├── config/       # Language extension mappings
-│   └── models/       # Value objects (Snippet factory)
-├── utils/            # Pure utility functions
-├── snippets/         # Main app route (protected)
-├── login/            # Auth route
-└── tools/            # Tools section
-types/                # Global TypeScript declarations (.d.ts)
-```
+Recent repository changes have expanded the original snippet editor into a broader personal workspace. The current branch history includes sticky notes (2026-09-28), snippet URL deep-linking, pet companion/chat updates, mobile editor improvements, and snippet query and index performance work (2026-08). See `git log` for the full change history.
 
-## Supported Languages
+## Project guidance
 
-CSS, C++, Go, HTML, Java, JavaScript, JSON, Markdown, PHP, Python, Rust, SQL, and YAML.
+`AGENTS.md` and `CLAUDE.md` describe coding conventions and repository structure. Some older setup details in those files predate the checked-in pnpm lockfile and current package scripts; use `package.json` and `pnpm-lock.yaml` as the source of truth for commands.
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+Snippets is released under the [MIT License](./LICENSE).
 
 ## Author
 
-Developed by [vianch](https://vianch.com) — info@vianch.com
+Developed by [vianch](https://vianch.com).
