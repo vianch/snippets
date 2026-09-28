@@ -24,7 +24,7 @@ import {
 import { ToastType } from "@/lib/constants/toast";
 import useToastStore from "@/lib/store/toast.store";
 import useViewPortStore from "@/lib/store/viewPort.store";
-import { getUserDataFromSession } from "@/lib/supabase/queries";
+import { getUserDataFromSession } from "@/lib/supabase/userQueries";
 
 /* Utils */
 import { extractCodeBlockBody } from "@/utils/chat.utils";

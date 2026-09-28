@@ -11,9 +11,16 @@ type NotePosition = {
 	y: number;
 };
 
+type NoteColorName = "yellow" | "green" | "blue" | "purple";
+
 type NoteData = {
-	$id: number;
+	$id: UUID;
+	user_id: UUID;
+	created_at: string;
+	updated_at: string;
 	body: string;
-	color: string;
-	position: string;
+	color: NoteColorName;
+	position: NotePosition;
 };
+
+type NoteChanges = Partial<Pick<NoteData, "body" | "position">>;

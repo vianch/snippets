@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import createSupabaseServerClient from "@/lib/supabase/server";
 import { MfaAssuranceLevel } from "@/lib/constants/mfa";
+import { NotesRoutePath } from "@/lib/constants/notes";
 import {
 	AdminRoutePath,
 	AppRole,
@@ -20,6 +21,7 @@ export async function proxy(
 
 	const isProtectedPath =
 		request.nextUrl.pathname === "/snippets" ||
+		request.nextUrl.pathname === NotesRoutePath ||
 		request.nextUrl.pathname.startsWith("/ai-assistant");
 	const isLoginPath = request.nextUrl.pathname === "/login";
 	const isAdminPath =
@@ -80,6 +82,7 @@ export const config = {
 	matcher: [
 		"/",
 		"/snippets",
+		"/notes",
 		"/ai-assistant/:path*",
 		"/admin",
 		"/admin/:path*",

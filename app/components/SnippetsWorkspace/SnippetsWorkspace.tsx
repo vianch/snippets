@@ -26,7 +26,10 @@ import {
 	setSnippetState,
 	trashRestoreSnippet,
 } from "@/lib/storage/snippets";
-import { getSmartGroups, saveSmartGroups } from "@/lib/supabase/queries";
+import {
+	getSmartGroups,
+	saveSmartGroups,
+} from "@/lib/supabase/snippetsQueries";
 import SupportedLanguages from "@/lib/config/languages";
 import languageExtensions from "@/lib/codeEditor";
 import { MenuItems, MenuPrefixes, SnippetState } from "@/lib/constants/core";

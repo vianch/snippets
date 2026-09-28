@@ -33,10 +33,11 @@ import useMenuStore from "@/lib/store/menu.store";
 import useViewPortStore from "@/lib/store/viewPort.store";
 import useUserStore from "@/lib/store/user.store";
 import useCurrentUser from "@/lib/hooks/useCurrentUser";
-import { getUserDataFromSession } from "@/lib/supabase/queries";
+import { getUserDataFromSession } from "@/lib/supabase/userQueries";
 import { isValidTheme, ThemeName, ThemeNames } from "@/lib/config/themes";
 import { setCookie } from "@/lib/cookies";
 import { themeCookieName } from "@/lib/constants/cookies";
+import { NotesRoutePath } from "@/lib/constants/notes";
 
 /* Utils */
 import { useCloseOutsideCodeEditor } from "@/utils/ui.utils";
@@ -58,6 +59,7 @@ import Globe from "@/components/ui/icons/Globe";
 import Keyboard from "@/components/ui/icons/Keyboard";
 import Sparkle from "@/components/ui/icons/Sparkle";
 import ShieldCheck from "@/components/ui/icons/ShieldCheck";
+import StickyNote from "@/components/ui/icons/StickyNote";
 import ShortcutsModal from "@/components/ShortcutsModal/ShortcutsModal";
 
 /* Styles */
@@ -613,6 +615,23 @@ const Aside = ({
 								<span className={styles.userMenuLabel}>Admin</span>
 							</button>
 						)}
+
+						<button
+							className={styles.userMenuItem}
+							role="menuitem"
+							onClick={() => {
+								setIsUserMenuOpen(false);
+								closeMainMenu();
+								router.push(NotesRoutePath);
+							}}
+						>
+							<StickyNote
+								className={styles.userMenuIco}
+								width={16}
+								height={16}
+							/>
+							<span className={styles.userMenuLabel}>Notes</span>
+						</button>
 
 						{isOnAiAssistant ? (
 							<button

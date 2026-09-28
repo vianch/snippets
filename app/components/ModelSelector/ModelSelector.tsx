@@ -7,7 +7,7 @@ import { AiProviderId } from "@/lib/constants/ai";
 import { ToastType } from "@/lib/constants/toast";
 import useChatStore from "@/lib/store/chat.store";
 import useToastStore from "@/lib/store/toast.store";
-import { getUserDataFromSession, updateUser } from "@/lib/supabase/queries";
+import { getUserDataFromSession, updateUser } from "@/lib/supabase/userQueries";
 
 /* Utils */
 import { fetchAiModels, formatModelLabel } from "@/utils/ai.utils";

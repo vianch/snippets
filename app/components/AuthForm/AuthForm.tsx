@@ -22,7 +22,7 @@ import {
 	challengeAndVerifyMfaFactor,
 	getVerifiedTotpFactorId,
 	isMfaChallengeRequired,
-} from "@/lib/supabase/queries";
+} from "@/lib/supabase/mfaQueries";
 
 /* Utils */
 import { recoverWithRecoveryCode } from "@/utils/mfa.utils";

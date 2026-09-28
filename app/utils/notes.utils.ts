@@ -1,4 +1,11 @@
-import { NotesZIndex } from "@/lib/constants/notes";
+import {
+	NewNoteCascadeLength,
+	NewNoteCascadeStepPx,
+	NewNoteOriginPx,
+	NotesColorNames,
+	NotesColors,
+	NotesZIndex,
+} from "@/lib/constants/notes";
 
 /**
  * Calculates the new position for a note card after a drag movement,
@@ -56,4 +63,30 @@ export const setZIndex = (selectedCard: HTMLDivElement): void => {
 				card.style.zIndex = `${NotesZIndex.Default}`;
 			}
 		});
+};
+
+/**
+ * Picks a note color from the available palette.
+ * @param randomFraction - value in [0, 1) choosing the palette slot
+ * @returns the chosen note color name
+ */
+export const pickRandomNoteColor = (randomFraction: number): NoteColorName => {
+	const colorIndex = Math.floor(randomFraction * NotesColorNames.length);
+
+	return NotesColorNames[colorIndex] ?? NotesColors.Yellow.name;
+};
+
+/**
+ * Places a new note on a diagonal cascade so consecutive notes do not fully overlap.
+ * @param noteCount - number of notes already on the board
+ * @returns the position for the new note
+ */
+export const getNewNotePosition = (noteCount: number): NotePosition => {
+	const cascadeOffset =
+		(noteCount % NewNoteCascadeLength) * NewNoteCascadeStepPx;
+
+	return {
+		x: NewNoteOriginPx + cascadeOffset,
+		y: NewNoteOriginPx + cascadeOffset,
+	};
 };

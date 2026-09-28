@@ -5,7 +5,7 @@ This document collects the highest-impact improvements for the Snippets app base
 ## What I reviewed
 
 - Supabase schema for `public.snippet`, `public.snippet_version`, and `public.user_roles`
-- Frontend query layer in `app/lib/supabase/queries.ts`
+- Frontend query layer in `app/lib/supabase/snippetsQueries.ts`
 - Snippet model in `app/lib/models/Snippet.ts`
 - Repository conventions in `CLAUDE.md`
 
@@ -24,7 +24,7 @@ The biggest performance wins are in query shape, RLS evaluation, and a small num
 
 ### Why
 
-The main list query in `app/lib/supabase/queries.ts` fetches snippets by `user_id`, excludes inactive snippets, and orders by `updated_at desc`.
+The main list query in `app/lib/supabase/snippetsQueries.ts` fetches snippets by `user_id`, excludes inactive snippets, and orders by `updated_at desc`.
 
 That means the database should have an index that matches this access pattern.
 
@@ -178,7 +178,7 @@ The new snippet model initializes a full snippet object locally.
 
 That is fine, but be careful not to create unnecessary writes for untouched fields.
 
-### In `app/lib/supabase/queries.ts`
+### In `app/lib/supabase/snippetsQueries.ts`
 
 The version save flow fetches the latest version number before inserting the next one.
 

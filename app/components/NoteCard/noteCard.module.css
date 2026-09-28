@@ -6,27 +6,72 @@
 		0 4px 4px hsl(0deg 0% 0% / 7.5%),
 		0 8px 8px hsl(0deg 0% 0% / 7.5%),
 		0 16px 16px hsl(0deg 0% 0% / 7.5%);
+	animation: note-fade-in var(--duration-slow) var(--ease-fluid) both;
 	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	max-height: 420px;
 	position: absolute;
 	width: 400px;
 }
 
+.cardLeaving {
+	animation: note-fade-out var(--duration-base) ease-in forwards;
+	pointer-events: none;
+}
+
 .body {
 	border-radius: 0 0 5px 5px;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden auto;
 	padding: 1em;
+	scrollbar-color: var(--note-scrollbar-thumb) transparent;
+	scrollbar-width: thin;
+}
+
+.body::-webkit-scrollbar {
+	width: 8px;
+}
+
+.body::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.body::-webkit-scrollbar-thumb {
+	background: var(--note-scrollbar-thumb);
+	border-radius: 4px;
 }
 
 .header {
 	align-items: center;
 	border-radius: 5px 5px 0 0;
 	display: flex;
+	flex-shrink: 0;
 	justify-content: space-between;
 	padding: 5px;
+}
+
+.deleteButton {
+	align-items: center;
+	background: none;
+	border: none;
+	border-radius: var(--border-radius);
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	padding: 2px;
+}
+
+.deleteButton:hover,
+.deleteButton:focus-visible {
+	background-color: rgb(0 0 0 / 10%);
 }
 
 .textarea {
 	background-color: inherit;
 	border: none;
+	box-sizing: border-box;
 	font-size: var(--normal-font-size);
 	height: 100%;
 	resize: none;
@@ -46,10 +91,26 @@
 	color: var(--yellow-color-text);
 }
 
+.body.yellow {
+	--note-scrollbar-thumb: color-mix(
+		in srgb,
+		var(--yellow-color-header),
+		#000 18%
+	);
+}
+
 .body.green,
 .textarea.green {
 	background-color: var(--green-color-body);
 	color: var(--green-color-text);
+}
+
+.body.green {
+	--note-scrollbar-thumb: color-mix(
+		in srgb,
+		var(--green-color-header),
+		#000 18%
+	);
 }
 
 .body.blue,
@@ -58,10 +119,26 @@
 	color: var(--blue-color-text);
 }
 
+.body.blue {
+	--note-scrollbar-thumb: color-mix(
+		in srgb,
+		var(--blue-color-header),
+		#000 18%
+	);
+}
+
 .body.purple,
 .textarea.purple {
 	background-color: var(--purple-color-body);
 	color: var(--purple-color-text);
+}
+
+.body.purple {
+	--note-scrollbar-thumb: color-mix(
+		in srgb,
+		var(--purple-color-header),
+		#000 18%
+	);
 }
 
 .header.yellow {
@@ -81,5 +158,50 @@
 
 .header.purple {
 	background-color: var(--purple-color-header);
-	color: var(--yelpurplelow-color-text);
+	color: var(--purple-color-text);
+}
+
+/* Must match NotesStackedLayoutQuery in lib/constants/notes.ts */
+@media (width <= 768px) {
+	.card {
+		cursor: auto;
+		position: static;
+		width: auto;
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.card {
+		animation-name: note-enter;
+	}
+
+	.cardLeaving {
+		animation-name: note-leave;
+	}
+}
+
+@keyframes note-fade-in {
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes note-fade-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes note-enter {
+	from {
+		opacity: 0;
+		transform: translateY(0.75rem) scale(0.96);
+	}
+}
+
+@keyframes note-leave {
+	to {
+		opacity: 0;
+		transform: scale(0.9);
+	}
 }
