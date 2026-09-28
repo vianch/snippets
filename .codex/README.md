@@ -1,5 +1,9 @@
 # Codex project setup
 
+This folder contains Codex-specific project configuration. The agent profiles in
+`agents/` describe reusable task roles. They do not replace repository access controls or
+the shared coding rules below.
+
 This project shares its agent source of truth with Claude Code:
 
 - `AGENTS.md` is the Codex entry point.
@@ -9,5 +13,5 @@ This project shares its agent source of truth with Claude Code:
 
 Keep the Claude rules and memory shared rather than maintaining duplicate copies.
 
-The repository `.mcp.json` only defines Supabase. Browser automation and JavaScript
-REPL services are intentionally not project dependencies; they are managed globally.
+The repository `.mcp.json` defines the Supabase integration. Browser automation and
+JavaScript REPL services are intentionally managed outside application dependencies.
