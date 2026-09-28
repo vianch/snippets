@@ -10,7 +10,7 @@ import {
 	getVerifiedTotpFactorId,
 	isMfaEnabled,
 	unenrollMfaFactor,
-} from "@/lib/supabase/queries";
+} from "@/lib/supabase/mfaQueries";
 
 /* Components */
 import Input from "@/components/ui/Input/Input";

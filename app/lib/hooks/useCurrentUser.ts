@@ -10,7 +10,7 @@ import useUserStore from "@/lib/store/user.store";
 import {
 	getCurrentUserRole,
 	getUserEmailBySession,
-} from "@/lib/supabase/queries";
+} from "@/lib/supabase/userQueries";
 
 type CurrentUser = {
 	email: string | null;

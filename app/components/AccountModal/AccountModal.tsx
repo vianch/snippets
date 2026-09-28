@@ -13,7 +13,7 @@ import {
 	getUserDataFromSession,
 	getUserEmailBySession,
 	updateUser,
-} from "@/lib/supabase/queries";
+} from "@/lib/supabase/userQueries";
 import { isValidFont } from "@/lib/config/fonts";
 import { settingsSections } from "@/lib/config/settings";
 import { ThemeName, isValidTheme } from "@/lib/config/themes";

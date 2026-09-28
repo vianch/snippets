@@ -59,7 +59,7 @@ Package manager is **yarn** (not npm/pnpm). The `yarn init` script nukes node_mo
 
 ### Key Directories
 
-- `app/lib/supabase/` — Supabase client (`client.ts` for browser, `server.ts` for middleware), all DB queries in `queries.ts`
+- `app/lib/supabase/` — Supabase client (`client.ts` for browser, `server.ts` for middleware), all DB queries in `snippetsQueries.ts`
 - `app/lib/store/` — Zustand stores (`menu.store`, `toast.store`, `viewPort.store`, `user.store`)
 - `app/lib/constants/` — App constants (menu items, toast types, form config, CodeMirror settings)
 - `app/lib/config/languages.ts` — CodeMirror language extension mappings
@@ -71,7 +71,7 @@ Package manager is **yarn** (not npm/pnpm). The `yarn init` script nukes node_mo
 
 ### Data Flow
 
-The main app page (`app/snippets/page.tsx`) is a client component that owns all snippet state. It fetches from Supabase via `queries.ts`, manages snippet CRUD, and passes data down to `Aside`, `SnippetList`, `CodeEditor`, and `ResizableLayout` via props. There is no server-side data fetching beyond auth in the middleware.
+The main app page (`app/snippets/page.tsx`) is a client component that owns all snippet state. It fetches from Supabase via `snippetsQueries.ts`, manages snippet CRUD, and passes data down to `Aside`, `SnippetList`, `CodeEditor`, and `ResizableLayout` via props. There is no server-side data fetching beyond auth in the middleware.
 
 ### Auth
 

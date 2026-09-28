@@ -161,6 +161,20 @@ table {
 	--info-color: #e8f6fd;
 	--skeleton-shimmer: #4b3a8a;
 
+	/* NOTES */
+	--yellow-color-header: #ffefbe;
+	--yellow-color-body: #fff5df;
+	--yellow-color-text: #ff9d00;
+	--green-color-header: #afda9f;
+	--green-color-body: #bcdeaf;
+	--green-color-text: #18181a;
+	--blue-color-header: #9bd1de;
+	--blue-color-body: #a6dce9;
+	--blue-color-text: #18181a;
+	--purple-color-header: #fed0fd;
+	--purple-color-body: #fee5fd;
+	--purple-color-text: #3b2d6b;
+
 	/* Font sizes */
 	--large-font-size: 1.875rem;
 	--big-font-size: 1.25rem;

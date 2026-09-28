@@ -62,3 +62,9 @@ interface SessionData {
 }
 
 type Session = SessionData | null;
+
+type LoggedUser = {
+	hasResolvedSession: boolean;
+	isLogged: boolean;
+	userId: UUID | null;
+};

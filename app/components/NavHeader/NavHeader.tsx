@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -9,25 +9,19 @@ import Button from "@/components/ui/Button/Button";
 import Github from "@/components/ui/icons/Github";
 import SignIn from "@/components/ui/icons/SignIn";
 
+/* Lib */
+import useLoggedUser from "@/lib/hooks/useLoggedUser";
+
 /* styles */
-import { getUserEmailBySession } from "@/lib/supabase/queries";
 import styles from "./navHeader.module.css";
 
 const NavHeader = (): ReactElement => {
-	const [isLogged, setIsLogged] = useState<boolean>(false);
+	const { isLogged } = useLoggedUser();
 	const router = useRouter();
 
 	const loginButtonHandler = () => {
 		router.push("/login");
 	};
-
-	useEffect(() => {
-		getUserEmailBySession().then((email) => {
-			if (email) {
-				setIsLogged(true);
-			}
-		});
-	}, []);
 
 	return (
 		<header className={styles.header}>

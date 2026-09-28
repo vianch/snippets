@@ -16,7 +16,7 @@ import {
 	searchSnippets,
 	setSnippetState,
 	toggleSnippetPublic,
-} from "@/lib/supabase/queries";
+} from "@/lib/supabase/snippetsQueries";
 import supabase from "@/lib/supabase/client";
 
 // The default backend. Delegates to the existing Supabase queries so behavior

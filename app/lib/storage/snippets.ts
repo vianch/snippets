@@ -7,7 +7,7 @@ import {
 import SnippetValueObject from "@/lib/models/Snippet";
 import { backendAdapter } from "@/lib/storage/adapters/backend.adapter";
 import { supabaseAdapter } from "@/lib/storage/adapters/supabase.adapter";
-import { getUserIdBySession } from "@/lib/supabase/queries";
+import { getUserIdBySession } from "@/lib/supabase/userQueries";
 
 // Public snippet-persistence facade. App code imports these — the SAME names
 // and signatures the Supabase queries had — so call sites only change their

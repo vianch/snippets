@@ -1,21 +1,16 @@
 import supabase from "@/lib/supabase/client";
 import { logger } from "@/lib/logger/logger";
 import SnippetValueObject from "@/lib/models/Snippet";
-import { SnippetState } from "@/lib/constants/core";
 import {
-	MfaAssuranceLevel,
-	MfaFactorStatus,
-	MfaFactorType,
-	MfaFriendlyName,
-} from "@/lib/constants/mfa";
-import { AppRole, RoleClaimKey, RolesTableName } from "@/lib/constants/roles";
+	getUserDataFromSession,
+	getUserIdBySession,
+} from "@/lib/supabase/userQueries";
+import { SnippetState } from "@/lib/constants/core";
 import {
 	CreateSnippetVersionFunction,
 	SnippetColumns,
 	SnippetVersionSummaryColumns,
 } from "@/lib/constants/storage.constants";
-import { HttpStatusCode } from "@/lib/constants/ui.constants";
-import { AuthError, UserAttributes, UserResponse } from "@supabase/supabase-js";
 
 // Logs the failure to Sentry, then throws so callers and the UI still react.
 // `cause` carries the underlying Supabase error when one is available; without
@@ -24,86 +19,6 @@ const failQuery = (message: string, cause?: unknown): never => {
 	logger.error(cause ?? message, { query: message });
 
 	throw new Error(message);
-};
-
-export const getUserDataFromServer = async (): Promise<User> => {
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-
-	return user as User;
-};
-
-export const getUserDataFromSession = async (): Promise<Session> => {
-	const {
-		data: { session },
-	} = await supabase.auth.getSession();
-
-	return session as Session;
-};
-
-// The storage facade resolves the user id, then every query it delegates to
-// resolved it again — up to three lookups per save, each of which can hit the
-// network when the local session is missing. Resolve once and let Supabase tell
-// us when the answer stops being valid.
-const sessionUserIdCache: { value: string | null } = { value: null };
-
-supabase.auth.onAuthStateChange(() => {
-	sessionUserIdCache.value = null;
-});
-
-export const getUserIdBySession = async (): Promise<string | null> => {
-	if (sessionUserIdCache.value) {
-		return sessionUserIdCache.value;
-	}
-
-	const session = await getUserDataFromSession();
-	const userFromServer = session ? null : await getUserDataFromServer();
-
-	sessionUserIdCache.value = session
-		? (session?.user?.id ?? null)
-		: (userFromServer?.id ?? null);
-
-	return sessionUserIdCache.value;
-};
-
-export const getUserEmailBySession = async (): Promise<
-	string | undefined | null
-> => {
-	const session = await getUserDataFromSession();
-
-	if (session) {
-		return session?.user?.email;
-	}
-
-	const userFromServer = await getUserDataFromServer();
-
-	return userFromServer?.email ?? null;
-};
-
-export const getCurrentUserRole = async (): Promise<AppRole> => {
-	const { data } = await supabase.auth.getClaims();
-	// The access-token hook injects `user_role`; the typed JwtPayload omits it.
-	const claims = data?.claims as Record<string, unknown> | undefined;
-	const claimed = claims?.[RoleClaimKey];
-
-	if (claimed === AppRole.Admin || claimed === AppRole.User) {
-		return claimed;
-	}
-
-	const userId = await getUserIdBySession();
-
-	if (!userId) {
-		return AppRole.User;
-	}
-
-	const { data: roleRow } = await supabase
-		.from(RolesTableName)
-		.select("role")
-		.eq("user_id", userId)
-		.maybeSingle();
-
-	return roleRow?.role === AppRole.Admin ? AppRole.Admin : AppRole.User;
 };
 
 export const getAllSnippets = async (): Promise<Snippet[]> => {
@@ -471,121 +386,4 @@ export const saveSmartGroups = async (groups: SmartGroup[]): Promise<void> => {
 	if (error) {
 		failQuery("Error saving smart groups", error);
 	}
-};
-
-export const updateUser = async (
-	attributes: UserAttributes
-): Promise<UserResponse> => {
-	if (supabase) {
-		return supabase.auth.updateUser(attributes);
-	}
-
-	return {
-		error: new AuthError(
-			"Supabase client not initialized",
-			HttpStatusCode.ServiceUnavailable,
-			undefined
-		),
-		data: { user: null },
-	};
-};
-
-/* ─── Multi-Factor Authentication ─── */
-
-export const isMfaChallengeRequired = async (): Promise<boolean> => {
-	const { data, error } =
-		await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
-	if (error || !data) {
-		return false;
-	}
-
-	return (
-		data.currentLevel === MfaAssuranceLevel.Aal1 &&
-		data.nextLevel === MfaAssuranceLevel.Aal2
-	);
-};
-
-export const isMfaEnabled = async (): Promise<boolean> => {
-	const factorId = await getVerifiedTotpFactorId();
-
-	return Boolean(factorId);
-};
-
-export const getVerifiedTotpFactorId = async (): Promise<string | null> => {
-	const { data, error } = await supabase.auth.mfa.listFactors();
-
-	if (error || !data) {
-		return null;
-	}
-
-	const verifiedFactor = data.totp.find(
-		(factor) => factor.status === MfaFactorStatus.Verified
-	);
-
-	return verifiedFactor?.id ?? null;
-};
-
-export const enrollTotpFactor = async (): Promise<{
-	enrollment: TotpEnrollment | null;
-	error: string | null;
-}> => {
-	const { data, error } = await supabase.auth.mfa.enroll({
-		factorType: MfaFactorType.Totp,
-		friendlyName: `${MfaFriendlyName} ${Date.now()}`,
-	});
-
-	if (error || !data) {
-		return { enrollment: null, error: error?.message ?? "Enrollment failed" };
-	}
-
-	return {
-		enrollment: {
-			factorId: data.id,
-			qrCode: data.totp.qr_code,
-			secret: data.totp.secret,
-			uri: data.totp.uri,
-		},
-		error: null,
-	};
-};
-
-export const challengeAndVerifyMfaFactor = async (
-	factorId: string,
-	code: string
-): Promise<{ error: string | null }> => {
-	const { error } = await supabase.auth.mfa.challengeAndVerify({
-		factorId,
-		code,
-	});
-
-	return { error: error?.message ?? null };
-};
-
-export const unenrollMfaFactor = async (
-	factorId: string
-): Promise<{ error: string | null }> => {
-	const { error } = await supabase.auth.mfa.unenroll({ factorId });
-
-	return { error: error?.message ?? null };
-};
-
-export const cleanupUnverifiedTotpFactors = async (): Promise<void> => {
-	const { data } = await supabase.auth.mfa.listFactors();
-
-	if (!data) {
-		return;
-	}
-
-	const unverifiedFactors = data.all.filter(
-		(factor) =>
-			factor.factor_type === MfaFactorType.Totp &&
-			factor.status === MfaFactorStatus.Unverified
-	);
-
-	await Promise.all(
-		unverifiedFactors.map((factor) =>
-			supabase.auth.mfa.unenroll({ factorId: factor.id })
-		)
-	);
 };

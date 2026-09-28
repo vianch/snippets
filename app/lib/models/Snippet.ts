@@ -4,29 +4,17 @@ import uuidv4 from "../../utils/string.utils";
 
 export default class SnippetValueObject implements Snippet {
 	public snippet_id: UUID;
-
 	public user_id: UUID;
-
 	public created_at: string;
-
 	public updated_at: string;
-
 	public name: string = "";
-
 	public url: string | null;
-
 	public notes: string | null;
-
 	public snippet: string;
-
 	public state: SnippetState;
-
 	public tags: Tags;
-
 	public is_public: boolean;
-
 	public public_slug: string | null;
-
 	public folder: string | null;
 
 	language: SupportedLanguages;
