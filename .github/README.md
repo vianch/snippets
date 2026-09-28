@@ -20,10 +20,6 @@ Snippets is a personal code library that pairs a syntax-highlighted editor with 
 - Customize editor themes, keyboard shortcuts, autosave, account security, and the animated SnipPet companion.
 - Use authenticator-based multi-factor authentication; administrators also have protected user and database tools.
 
-## Screenshots
-
-The checked-in screenshots predate the current workspace features. Replace them with fresh captures after reviewing them for account names, emails, snippet content, tokens, and connection details.
-
 ## Application routes
 
 | Route                       | Purpose                                      |
