@@ -74,7 +74,7 @@ export const SnippetVersionSummaryColumns =
 export const NoteTableName = "note";
 
 export const NoteColumns =
-	"$id, user_id, created_at, updated_at, body, color, position";
+	"$id, user_id, created_at, updated_at, body, color, position, size";
 
 // Postgres function that allocates the next version_number and inserts in one
 // statement — see supabase/migrations/20260809200000_create_snippet_version_rpc.sql.

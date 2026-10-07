@@ -10,9 +10,7 @@
 	cursor: pointer;
 	display: flex;
 	flex-direction: column;
-	max-height: 420px;
 	position: absolute;
-	width: 400px;
 }
 
 .cardLeaving {
@@ -28,6 +26,37 @@
 	padding: 1em;
 	scrollbar-color: var(--note-scrollbar-thumb) transparent;
 	scrollbar-width: thin;
+}
+
+.resizeRight,
+.resizeBottom,
+.resizeCorner {
+	position: absolute;
+	touch-action: none;
+}
+
+.resizeRight {
+	bottom: 12px;
+	cursor: ew-resize;
+	right: 0;
+	top: 0;
+	width: 8px;
+}
+
+.resizeBottom {
+	bottom: 0;
+	cursor: ns-resize;
+	height: 8px;
+	left: 0;
+	right: 12px;
+}
+
+.resizeCorner {
+	bottom: 0;
+	cursor: nwse-resize;
+	height: 12px;
+	right: 0;
+	width: 12px;
 }
 
 .body::-webkit-scrollbar {
@@ -165,8 +194,15 @@
 @media (width <= 768px) {
 	.card {
 		cursor: auto;
+		height: auto !important;
 		position: static;
-		width: auto;
+		width: auto !important;
+	}
+
+	.resizeRight,
+	.resizeBottom,
+	.resizeCorner {
+		display: none;
 	}
 }
 

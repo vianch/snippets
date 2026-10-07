@@ -58,3 +58,14 @@ export const DefaultNewNoteShortcutLabel = "Ctrl M";
 export const NotesMenuCloseKey = "Escape";
 
 export const NotesStackedLayoutQuery = "(width <= 768px)";
+
+export const DefaultNoteSize: NoteSize = {
+	height: 100,
+	width: 400,
+};
+
+export const enum NoteResizeAxis {
+	Both = "both",
+	Horizontal = "horizontal",
+	Vertical = "vertical",
+}

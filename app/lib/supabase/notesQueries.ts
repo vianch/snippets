@@ -2,6 +2,7 @@ import supabase from "@/lib/supabase/client";
 import { logger } from "@/lib/logger/logger";
 import { getUserIdBySession } from "@/lib/supabase/userQueries";
 
+import { DefaultNoteSize } from "../constants/notes";
 import { NoteColumns, NoteTableName } from "../constants/storage.constants";
 
 const failNoteQuery = (message: string, cause?: unknown): never => {
@@ -17,14 +18,23 @@ export const getAllNotes = async (): Promise<NoteData[]> => {
 		return [] as NoteData[];
 	}
 
-	const { data } = await supabase
+	const { data, error } = await supabase
 		.from(NoteTableName)
 		.select(NoteColumns)
 		.order("updated_at", { ascending: false })
 		.match({ user_id: userId })
-		.overrideTypes<NoteData[]>();
+		.overrideTypes<NoteRecord[]>();
 
-	return data ?? [];
+	if (error) {
+		logger.error(error, { query: "Error loading notes" });
+
+		return [];
+	}
+
+	return (data ?? []).map((note) => ({
+		...note,
+		size: note.size ?? { ...DefaultNoteSize },
+	}));
 };
 
 export const createNote = async (note: NoteData): Promise<void> => {
@@ -42,6 +52,7 @@ export const createNote = async (note: NoteData): Promise<void> => {
 		body: note.body,
 		color: note.color,
 		position: note.position,
+		size: note.size,
 	});
 
 	if (error) {

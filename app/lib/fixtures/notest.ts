@@ -11,6 +11,7 @@ export const notesFakeData: NoteData[] = [
 		updated_at: "Mon Sep 21 2026 11:41:54 GMT+0100 (British Summer Time)",
 		color: NotesColors.Yellow.name,
 		position: { x: 505, y: 10 },
+		size: { height: 160, width: 400 },
 	},
 	{
 		$id: "123e4567-e89b-12d3-a456-426614174002" as UUID,
@@ -22,6 +23,7 @@ export const notesFakeData: NoteData[] = [
 		updated_at: "Mon Sep 21 2026 11:41:54 GMT+0100 (British Summer Time)",
 		color: NotesColors.Blue.name,
 		position: { x: 305, y: 110 },
+		size: { height: 160, width: 400 },
 	},
 	{
 		$id: "123e4567-e89b-12d3-a456-426614174003" as UUID,
@@ -33,5 +35,6 @@ export const notesFakeData: NoteData[] = [
 		updated_at: "Mon Sep 21 2026 11:41:54 GMT+0100 (British Summer Time)",
 		color: NotesColors.Purple.name,
 		position: { x: 605, y: 500 },
+		size: { height: 160, width: 400 },
 	},
 ];

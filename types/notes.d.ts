@@ -11,6 +11,11 @@ type NotePosition = {
 	y: number;
 };
 
+type NoteSize = {
+	height: number;
+	width: number;
+};
+
 type NoteColorName = "yellow" | "green" | "blue" | "purple";
 
 type NoteData = {
@@ -21,6 +26,11 @@ type NoteData = {
 	body: string;
 	color: NoteColorName;
 	position: NotePosition;
+	size: NoteSize;
 };
 
-type NoteChanges = Partial<Pick<NoteData, "body" | "position">>;
+type NoteRecord = Omit<NoteData, "size"> & {
+	size: NoteSize | null;
+};
+
+type NoteChanges = Partial<Pick<NoteData, "body" | "position" | "size">>;
