@@ -1,11 +1,48 @@
 import {
+	DefaultNoteSize,
 	NewNoteCascadeLength,
 	NewNoteCascadeStepPx,
 	NewNoteOriginPx,
+	NoteResizeAxis,
 	NotesColorNames,
 	NotesColors,
 	NotesZIndex,
 } from "@/lib/constants/notes";
+
+/**
+ * Applies a pointer movement to the selected resize axes while preserving the minimum note size.
+ * @param noteSize - The current dimensions of the note.
+ * @param movement - The pointer movement from the resize start.
+ * @param resizeAxis - The dimensions that can change.
+ * @returns The next note size, clamped to its default dimensions.
+ */
+export const resizeNote = (
+	noteSize: NoteSize,
+	movement: NotePosition,
+	resizeAxis: NoteResizeAxis
+): NoteSize => ({
+	height:
+		resizeAxis === NoteResizeAxis.Horizontal
+			? noteSize.height
+			: Math.max(DefaultNoteSize.height, noteSize.height + movement.y),
+	width:
+		resizeAxis === NoteResizeAxis.Vertical
+			? noteSize.width
+			: Math.max(DefaultNoteSize.width, noteSize.width + movement.x),
+});
+
+/**
+ * Checks whether two note sizes have the same dimensions.
+ * @param firstSize - The first note size to compare.
+ * @param secondSize - The second note size to compare.
+ * @returns True when both width and height match.
+ */
+export const isSameNoteSize = (
+	firstSize: NoteSize,
+	secondSize: NoteSize
+): boolean =>
+	firstSize.height === secondSize.height &&
+	firstSize.width === secondSize.width;
 
 /**
  * Calculates the new position for a note card after a drag movement,

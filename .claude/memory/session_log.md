@@ -36,3 +36,16 @@ type: project
 
 - Added `/snippets?id={snippetId}` synchronization for snippet selection, direct URL loading, view changes, deletion fallbacks, and successful saves.
 - New unsaved snippets clear the query parameter and only receive a deep-link URL after persistence succeeds.
+
+## 2026-10-07 — Sticky Note Resizing
+
+**What happened:**
+
+- Added persisted note dimensions, nullable database-size normalization, and resize handles for width, height, and both dimensions.
+- Kept resize handles disabled in the existing stacked mobile layout and set the minimum size to the default 400 × 100 px.
+- Extended the note query columns, insert payload, update type, and note fixtures with `size`.
+
+**Verification:**
+
+- `git diff --check` passed.
+- Tests and build were not run.
