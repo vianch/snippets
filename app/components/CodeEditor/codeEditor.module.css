@@ -211,6 +211,7 @@
 .headerActionsMenu {
 	display: flex;
 	align-items: center;
+	gap: 0.625rem;
 }
 
 /* Menu's trigger, matched to the row height. Targeted by element rather than
@@ -219,6 +220,25 @@
 	box-sizing: border-box;
 	height: var(--row-control-height);
 	aspect-ratio: 1;
+}
+
+.headerActionsMenu .aiPanelButton {
+	border: none;
+	border-radius: var(--border-radius);
+	background: transparent;
+	color: var(--gray-color);
+	cursor: pointer;
+}
+
+.headerActionsMenu .aiPanelButton:hover,
+.headerActionsMenu .aiPanelButtonActive {
+	background: var(--bg-color);
+	color: var(--purple-color);
+}
+
+.headerActionsMenu .aiPanelButton:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 2px var(--cyan-color);
 }
 
 .mobileActions {
@@ -388,6 +408,19 @@
 
 .paneHidden {
 	display: none;
+}
+
+.aiPanelWrapper {
+	display: flex;
+	min-width: 0;
+}
+
+.aiPanelWrapperFill {
+	flex: 1 1 0;
+}
+
+.aiPanelWrapperResized {
+	flex: 0 0 auto;
 }
 
 .previewResizer {

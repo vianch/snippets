@@ -26,7 +26,6 @@ type CodeEditorHeaderTypes = {
 	currentSnippet: CurrentSnippet;
 	codeEditorStates: SnippetEditorStates;
 	snippetName: string;
-	allSnippets?: Snippet[];
 	detailsAnchorRef: RefObject<HTMLButtonElement | null>;
 	tagList: string[];
 	hasVersions: boolean;
@@ -34,10 +33,9 @@ type CodeEditorHeaderTypes = {
 	isMobile: boolean;
 	showDetails: boolean;
 	showHistory: boolean;
-	onApplyAiCode?: (code: string) => void;
-	onCopyToSnippet?: (content: string) => void;
+	isAiPanelVisible: boolean;
+	onToggleAiPanel: () => void;
 	onRemoveTag: (tag: string) => void;
-	onReplaceSnippet?: (content: string) => void;
 	onSave: () => void;
 	onSetLanguage: (language: string) => void;
 	onStarred: () => void;
@@ -51,7 +49,6 @@ const CodeEditorHeader = ({
 	currentSnippet,
 	codeEditorStates,
 	snippetName = "",
-	allSnippets,
 	detailsAnchorRef,
 	tagList,
 	hasVersions,
@@ -59,10 +56,9 @@ const CodeEditorHeader = ({
 	isMobile,
 	showDetails,
 	showHistory,
-	onApplyAiCode,
-	onCopyToSnippet,
+	isAiPanelVisible,
+	onToggleAiPanel,
 	onRemoveTag,
-	onReplaceSnippet,
 	onSave,
 	onSetLanguage,
 	onStarred,
@@ -185,15 +181,13 @@ const CodeEditorHeader = ({
 
 				<CodeEditorActionsMenu
 					currentSnippet={currentSnippet}
-					allSnippets={allSnippets}
 					hasVersions={hasVersions}
 					hideAiButton={hideAiButton}
 					isMobile={isMobile}
 					isPublic={isPublic}
 					showHistory={showHistory}
-					onApplyAiCode={onApplyAiCode}
-					onCopyToSnippet={onCopyToSnippet}
-					onReplaceSnippet={onReplaceSnippet}
+					isAiPanelVisible={isAiPanelVisible}
+					onToggleAiPanel={onToggleAiPanel}
 					onToggleHistory={onToggleHistory}
 					onTogglePublic={onTogglePublic}
 				/>

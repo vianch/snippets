@@ -176,8 +176,12 @@ const CodeEditor = ({
 		updateCurrentSnippetValue(next);
 	};
 
-	const { editorWidthPercent, handlePreviewMouseDown } =
-		usePreviewResize(editorContentRef);
+	const {
+		aiPanelWidthPercent,
+		editorWidthPercent,
+		handleAiPanelMouseDown,
+		handlePreviewMouseDown,
+	} = usePreviewResize(editorContentRef);
 
 	const isMarkdownLanguage =
 		currentSnippet?.language === SupportedLanguages.Markdown;
@@ -185,10 +189,14 @@ const CodeEditor = ({
 		LanguagePreviewKinds[currentSnippet.language] ?? PreviewKind.None;
 	const hasPreviewPanel = previewKind !== PreviewKind.None;
 	const isChatMode = rightPane === "chat";
+	const [isAiPanelVisible, setIsAiPanelVisible] = useState<boolean>(true);
 	const showPreview =
 		!isChatMode && hasPreviewPanel && !isTrashActive && isPreviewVisible;
-	const showChatPane = isChatMode && !isTrashActive;
+	const showChatPane =
+		(isChatMode || (isAiPanelVisible && !isMobile)) && !isTrashActive;
 	const hasRightPane = showPreview || showChatPane;
+	const aiPanelWorkspaceWidthPercent =
+		((100 - editorWidthPercent) * aiPanelWidthPercent) / 100;
 	const showPreviewToggle = hasPreviewPanel && !isChatMode;
 	const canToggleFocusMode = isMarkdownLanguage && !isTrashActive;
 
@@ -277,23 +285,21 @@ const CodeEditor = ({
 								currentSnippet={currentSnippet}
 								codeEditorStates={codeEditorStates}
 								snippetName={snippet?.name ?? ""}
-								allSnippets={allSnippets}
 								tagList={tagList}
 								detailsAnchorRef={detailsAnchorRef}
 								hasVersions={versionCount > 0}
 								hideAiButton={isChatMode}
+								isAiPanelVisible={isAiPanelVisible}
 								isMobile={isMobile}
 								showDetails={showDetails}
 								showHistory={showHistory}
-								onApplyAiCode={updateCurrentSnippetValue}
-								onCopyToSnippet={handleCopyToSnippet}
 								onRemoveTag={removeTagHandler}
-								onReplaceSnippet={updateCurrentSnippetValue}
 								onSave={saveHandler}
 								onSetLanguage={setLanguageHandler}
 								onStarred={starringHandler}
 								onToggleDetails={() => setShowDetails(!showDetails)}
 								onToggleHistory={() => setShowHistory(!showHistory)}
+								onToggleAiPanel={() => setIsAiPanelVisible(!isAiPanelVisible)}
 								onTogglePublic={togglePublicHandler}
 								onUpdateName={updateCurrentSnippetName}
 							/>
@@ -459,22 +465,7 @@ const CodeEditor = ({
 								onMouseDown={handlePreviewMouseDown}
 							/>
 						)}
-						{showChatPane ? (
-							<AiAssistantPanel
-								currentSnippet={currentSnippet}
-								allSnippets={allSnippets}
-								height={isMobile ? chatTabPaneHeight : previewHeight}
-								className={
-									isMobile && mobileChatTab !== AiPaneTab.Chat
-										? styles.paneHidden
-										: ""
-								}
-								onCopyToSnippet={handleCopyToSnippet}
-								onReplaceSnippet={updateCurrentSnippetValue}
-								onSelectSnippet={onActiveSnippet}
-								onNewSnippet={onNewSnippet}
-							/>
-						) : !showPreview ? null : previewKind === PreviewKind.Html ? (
+						{!showPreview ? null : previewKind === PreviewKind.Html ? (
 							<HtmlPreview
 								content={currentSnippet.snippet ?? ""}
 								height={previewHeight}
@@ -492,6 +483,46 @@ const CodeEditor = ({
 								height={previewHeight}
 								onWikiNavigate={onWikiNavigate}
 							/>
+						)}
+						{showChatPane && (
+							<>
+								{showPreview && !isMobile && (
+									<div
+										className={styles.previewResizer}
+										role="separator"
+										aria-orientation="vertical"
+										aria-label="Resize AI panel"
+										onMouseDown={handleAiPanelMouseDown}
+									/>
+								)}
+								<div
+									className={`${styles.aiPanelWrapper} ${
+										showPreview
+											? styles.aiPanelWrapperResized
+											: styles.aiPanelWrapperFill
+									}`}
+									style={
+										showPreview
+											? { width: `${aiPanelWorkspaceWidthPercent}%` }
+											: undefined
+									}
+								>
+									<AiAssistantPanel
+										currentSnippet={currentSnippet}
+										allSnippets={allSnippets}
+										height={isMobile ? chatTabPaneHeight : previewHeight}
+										className={
+											isMobile && mobileChatTab !== AiPaneTab.Chat
+												? styles.paneHidden
+												: ""
+										}
+										onCopyToSnippet={handleCopyToSnippet}
+										onReplaceSnippet={updateCurrentSnippetValue}
+										onSelectSnippet={onActiveSnippet}
+										onNewSnippet={onNewSnippet}
+									/>
+								</div>
+							</>
 						)}
 					</div>
 				</>

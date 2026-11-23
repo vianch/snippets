@@ -13,24 +13,19 @@ type UseSnippetActionsProps = {
 };
 
 type UseSnippetActionsReturn = {
-	aiChatOpen: boolean;
 	screenshotModalOpen: boolean;
-	closeAiChat: () => void;
 	closeScreenshotModal: () => void;
 	copyHandler: () => Promise<void>;
-	openAiChat: () => void;
 	openScreenshotModal: () => void;
 	shareHandler: () => Promise<void>;
 };
 
 // Snippet-level actions shared by the mobile action strip and the desktop
-// overflow menu. Each consumer owns its own modal instances, so the open state
-// lives here alongside the handlers that flip it.
+// overflow menu. Each consumer owns its own screenshot modal instances.
 const useSnippetActions = ({
 	currentSnippet,
 }: UseSnippetActionsProps): UseSnippetActionsReturn => {
 	const { addToast } = useToastStore();
-	const [aiChatOpen, setAiChatOpen] = useState(false);
 	const [screenshotModalOpen, setScreenshotModalOpen] = useState(false);
 
 	const copyHandler = async (): Promise<void> => {
@@ -70,26 +65,10 @@ const useSnippetActions = ({
 		emitPetEvent(PetEvent.SnippetShared);
 	};
 
-	const openAiChat = (): void => {
-		if (!currentSnippet?.snippet?.trim()) {
-			addToast({
-				type: ToastType.Error,
-				message: "No code to analyze",
-			});
-
-			return;
-		}
-
-		setAiChatOpen(true);
-	};
-
 	return {
-		aiChatOpen,
 		screenshotModalOpen,
-		closeAiChat: () => setAiChatOpen(false),
 		closeScreenshotModal: () => setScreenshotModalOpen(false),
 		copyHandler,
-		openAiChat,
 		openScreenshotModal: () => setScreenshotModalOpen(true),
 		shareHandler,
 	};
