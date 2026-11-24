@@ -13,7 +13,6 @@ import Globe from "@/components/ui/icons/Globe";
 import Menu from "@/components/ui/Menu/Menu";
 import Share from "@/components/ui/icons/Share";
 import Sparkle from "@/components/ui/icons/Sparkle";
-import AiChatModal from "@/components/CodeEditor/AiChatModal/AiChatModal";
 import ScreenshotModal from "@/components/ScreenshotModal/ScreenshotModal";
 
 /* Styles */
@@ -21,65 +20,48 @@ import styles from "./codeEditor.module.css";
 
 type CodeEditorActionsMenuProps = {
 	currentSnippet: CurrentSnippet;
-	allSnippets?: Snippet[];
 	hasVersions: boolean;
 	hideAiButton?: boolean;
 	isMobile: boolean;
 	isPublic: boolean;
 	showHistory: boolean;
-	onApplyAiCode?: (code: string) => void;
-	onCopyToSnippet?: (content: string) => void;
-	onReplaceSnippet?: (content: string) => void;
+	isAiPanelVisible: boolean;
+	onToggleAiPanel: () => void;
 	onToggleHistory: () => void;
 	onTogglePublic: () => void;
 };
 
-// Desktop chrome: every snippet action lives in the overflow menu, which sits
-// after Save. The modals are siblings of <Menu> because Menu unmounts its
-// portal the moment an item is selected.
+// Desktop chrome: snippet actions sit beside Save. ScreenshotModal stays a
+// sibling of <Menu> because Menu unmounts its portal after an item is selected.
 const CodeEditorActionsMenu = ({
 	currentSnippet,
-	allSnippets,
 	hasVersions,
 	hideAiButton = false,
 	isMobile,
 	isPublic,
 	showHistory,
-	onApplyAiCode,
-	onCopyToSnippet,
-	onReplaceSnippet,
+	isAiPanelVisible,
+	onToggleAiPanel,
 	onToggleHistory,
 	onTogglePublic,
 }: CodeEditorActionsMenuProps): ReactElement => {
 	const {
-		aiChatOpen,
 		screenshotModalOpen,
-		closeAiChat,
 		closeScreenshotModal,
 		copyHandler,
-		openAiChat,
 		openScreenshotModal,
 		shareHandler,
 	} = useSnippetActions({ currentSnippet });
 	// Menu items are data, not DOM: the media query that hides .headerActionsMenu
 	// cannot reach into a portaled row list, so mobile must be excluded here in
 	// JS as well. Mobile reaches these actions through the fixed bottom bar.
-	const showAiItem = !isMobile && !hideAiButton;
+	const showAiButton = !isMobile && !hideAiButton;
 	const menuItems: MenuItem[] = [
 		{
 			icon: <Copy width={16} height={16} />,
 			label: "Copy code",
 			onSelect: copyHandler,
 		},
-		...(showAiItem
-			? [
-					{
-						icon: <Sparkle width={16} height={16} />,
-						label: "Ask AI",
-						onSelect: openAiChat,
-					},
-				]
-			: []),
 		{
 			icon: <Camera width={16} height={16} />,
 			label: "Screenshot",
@@ -107,20 +89,22 @@ const CodeEditorActionsMenu = ({
 	return (
 		<>
 			<div className={styles.headerActionsMenu}>
+				{showAiButton && (
+					<button
+						className={`${styles.aiPanelButton} ${
+							isAiPanelVisible ? styles.aiPanelButtonActive : ""
+						}`}
+						type="button"
+						aria-label="Ask AI"
+						aria-pressed={isAiPanelVisible}
+						title="Ask AI"
+						onClick={onToggleAiPanel}
+					>
+						<Sparkle width={16} height={16} />
+					</button>
+				)}
 				<Menu ariaLabel="Snippet actions" items={menuItems} />
 			</div>
-
-			{showAiItem && (
-				<AiChatModal
-					isOpen={aiChatOpen}
-					currentSnippet={currentSnippet}
-					allSnippets={allSnippets}
-					onClose={closeAiChat}
-					onApplyCode={(code: string) => onApplyAiCode?.(code)}
-					onCopyToSnippet={onCopyToSnippet}
-					onReplaceSnippet={onReplaceSnippet}
-				/>
-			)}
 
 			{screenshotModalOpen && (
 				<ScreenshotModal
